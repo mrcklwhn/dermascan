@@ -1,0 +1,8 @@
+# python data
+.venv
+
+# other data
+data/
+
+# kagglehub auth file
+kaggle-json
