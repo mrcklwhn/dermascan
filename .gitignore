@@ -1,5 +1,5 @@
 # python data
-.venv
+.venv*
 __pycache__/
 
 # other data
