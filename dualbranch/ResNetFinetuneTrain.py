@@ -45,9 +45,9 @@ class ResNetFineTuneTrainer:
         self.val_loader = None
         self.test_loader = None
 
-        self.results = {}  # Store metrics
-        # Initialize lists for history tracking
-        self.history = {'train_loss': [], 'train_acc': [], 'val_loss': [], 'val_acc': []}  
+        self.results = {}  # Store metrics for one run at a time
+        self.params = {}   # Store hyperparameters
+        self.history = {'train_loss': [], 'train_acc': [], 'val_loss': [], 'val_acc': []} # Initialize lists for history tracking
 
     def _generate_id(self):
         """
@@ -64,10 +64,16 @@ class ResNetFineTuneTrainer:
     def save_results_to_csv(self):
         """
         Save the results dictionary to a CSV file.
-        Results consist of model_id, all metrics and hyperparameters.
+        Results consist of model_id, training results and used hyperparameters.
         """
 
         results_df = pd.DataFrame([self.results])
+        
+        # serialize parameters and add to results
+        for key, value in self.params.items():
+            results_df[key] = value
+        
+
         if os.path.exists(self.results_csv_path):
             existing_df = pd.read_csv(self.results_csv_path)
             results_df = pd.concat([existing_df, results_df], ignore_index=True)
@@ -82,6 +88,8 @@ class ResNetFineTuneTrainer:
         :param model_name: Name of the ResNet model (e.g., resnet18, resnet50)
         :param pretrained: Whether to use a pretrained model weights
         """
+        self.params['model_name'] = model_name
+        self.params['pretrained'] = pretrained
 
         if model_name not in self.supported_models:
             raise ValueError(f"Model {model_name} is not supported. Choose from {self.supported_models}")
@@ -103,7 +111,7 @@ class ResNetFineTuneTrainer:
         self.model.fc = nn.Linear(num_ftrs, 2)
         self.model = self.model.to(self.device)
 
-    def set_data_loaders(self, train_df, val_df, test_df):
+    def set_data_loaders(self, train_df, val_df, test_df, batch_size=32):
         """
         Sets the data loaders from dataframes for training, validation, and testing.
         This will load the images from the 'image_path' column in the dataframes and the categorical labels from the 'lesion_idx' column.
@@ -112,7 +120,9 @@ class ResNetFineTuneTrainer:
         :param train_df: DataFrame for training data
         :param val_df: DataFrame for validation data
         :param test_df: DataFrame for testing data
+        :param batch_size: Batch size for data loaders
         """
+        self.params['batch_size'] = batch_size
 
         data_transforms = {
             'train': transforms.Compose([
@@ -133,9 +143,9 @@ class ResNetFineTuneTrainer:
         val_dataset = HAM10000Dataset(val_df, transform=data_transforms['val'])
         test_dataset = HAM10000Dataset(test_df, transform=data_transforms['val'])
 
-        self.train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4)
-        self.val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=4)
-        self.test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=4)
+        self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+        self.val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+        self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
     def configure_optimizer(self, optimizer_type='adam', **kwargs):
         """
@@ -144,15 +154,15 @@ class ResNetFineTuneTrainer:
         :param optimizer_type: Optimizer instance (e.g., Adam, SGD)
         :param kwargs: Additional arguments for the optimizer
         """
+        self.params['optimizer_type'] = optimizer_type
+        self.params.update(kwargs)
+
         if optimizer_type == 'adam':
             self.optimizer = optim.Adam(self.model.parameters(), **kwargs)
         elif optimizer_type == 'sgd':
             self.optimizer = optim.SGD(self.model.parameters(), **kwargs)
         else:
             raise ValueError(f"Unsupported optimizer type: {optimizer_type}")
-        
-        self.results['optimizer_type'] = optimizer_type
-        self.results.update(kwargs) # Stores learning_rate, weight_decay etc.
 
 
     def configure_scheduler(self, scheduler_type='reduce_on_plateau', **kwargs):
@@ -162,6 +172,9 @@ class ResNetFineTuneTrainer:
         :param scheduler_type: Type of scheduler (e.g., 'reduce_on_plateau')
         :param kwargs: Additional arguments for the scheduler
         """
+        self.params['scheduler_type'] = scheduler_type
+        self.params.update(kwargs)
+
         if scheduler_type == 'reduce_on_plateau':
             self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, **kwargs)
         else:
@@ -191,12 +204,15 @@ class ResNetFineTuneTrainer:
         :param epochs: Number of training epochs
         :param metrics: List of metrics to evaluate during training
         """
+        self.params['epochs'] = epochs
+
         since = time.time()
         self.history = {'train_loss': [], 'train_acc': [], 'val_loss': [], 'val_acc': []}
         
-        # Clear previous evaluation metrics to prevent stale data in CSV
-        keys_to_keep = ['optimizer_type', 'learning_rate', 'weight_decay'] # and other config keys
-        self.results = {k: v for k, v in self.results.items() if k in keys_to_keep}
+        model_id = self._generate_id()
+        self.results = {}
+        self.results['model_id'] = model_id
+        self.results.update(self.params)
 
         # Check if model, optimizer, and data loaders are set
         if self.model is None:
@@ -282,12 +298,10 @@ class ResNetFineTuneTrainer:
             print(f'Best val Acc: {best_acc:.4f}')
 
             # Store best model in model_save_dir
-            model_id = self._generate_id()
             model_save_path = os.path.join(self.model_save_dir, f"{model_id}.pt")
             torch.save(torch.load(best_model_params_path), model_save_path)
 
             # Store best model data and history in results
-            self.results['model_id'] = model_id
             self.results['best_val_acc'] = best_acc.item()
 
             # Store training history plots
