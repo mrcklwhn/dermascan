@@ -185,7 +185,7 @@ class HAM10000DatasetManager:
         plt.show()
     
     def train_test_val_split(self, test_size=0.2, val_size=0.1, random_state=42):
-        """Split data into train/test/val while respecting patient_id (no leakage)."""
+        """Split data into train/test/val while respecting stratified by lesion type."""
         train_val_df, test_df = train_test_split(
             self.df,
             test_size=test_size,
