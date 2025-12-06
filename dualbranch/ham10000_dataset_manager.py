@@ -9,6 +9,7 @@ from skimage import io, color, filters
 from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
 from scipy import ndimage
 import random
+from typing import Dict
 
 clinical_groups = {
     'melanoma_and_atypical_nevi': {
@@ -248,7 +249,85 @@ class HAM10000DatasetManager:
                 texture_map[i:end_i, j:end_j] = contrast
         
         return texture_map
+    
+    def get_random_lesions(self, lesion_types=None) -> Dict[str, str]:
+        """
+        Get one image names from each specified lesion types.
+        Args:
+            lesion_types: List of lesion type codes (e.g., ['nv', 'mel']).
+                          If None, selects from all lesion types.
+        """
+        if self.df is None:
+            raise ValueError("Dataset not loaded. Please run load_dataset() first.")
+        
+        if lesion_types is None:
+            lesion_types = list(lesion_type_dict.keys())
 
+        selected_images = {}
+        for lesion in lesion_types:
+            subset = self.df[self.df['dx'] == lesion]
+            if len(subset) == 0:
+                raise ValueError(f"No images found for lesion type '{lesion}'.")
+            random_idx = random.randint(0, len(subset) - 1)
+            row = subset.iloc[random_idx]
+            selected_images[lesion] = row['image_id']
+
+        return selected_images
+
+    def visualize_image_with_filters_side_by_side(self, image_names):
+        """
+        Visualize multiple images with different texture filters side by side.
+        Args:
+            image_names: List of image_ids (without file extension).
+        """
+        if self.df is None:
+            raise ValueError("Dataset not loaded. Please run load_dataset() first.")
+        
+        # Load images and apply filters
+        images = []
+        for image_name in image_names:
+            matching = self.df[self.df['image_id'] == image_name]
+            
+            if len(matching) == 0:
+                raise ValueError(f"Image '{image_name}' not found in dataset.")
+            
+            row = matching.iloc[0]
+            lesion_class = row['dx']
+            lesion_name = lesion_type_dict.get(lesion_class, lesion_class)
+            image_path = row['image_path']
+            image = io.imread(image_path)
+            image_gray = color.rgb2gray(image)
+            
+            gabor_result = self._apply_gabor_filter(image_gray)
+            lbp_result = self._apply_lbp_filter(image_gray)
+            glcm_result = self._apply_glcm_filter(image_gray)
+            
+            images.append((image_name, lesion_name, image, gabor_result, lbp_result, glcm_result))
+
+        # Set up the subplot grid
+        num_images = len(image_names)
+        fig, axes = plt.subplots(num_images, 4, figsize=(16, 4 * num_images))
+
+        # Plot each image and its filters
+        for i, (image_name, lesion_name, image, gabor_result, lbp_result, glcm_result) in enumerate(images):
+            axes[i, 0].imshow(image)
+            axes[i, 0].set_title(f'Original Image | {image_name} | {lesion_name}')
+            axes[i, 0].axis('off')
+
+            axes[i, 1].imshow(gabor_result, cmap='gray')
+            axes[i, 1].set_title('Gabor Wavelet Filter')
+            axes[i, 1].axis('off')
+
+            axes[i, 2].imshow(lbp_result, cmap='gray')
+            axes[i, 2].set_title('Local Binary Pattern')
+            axes[i, 2].axis('off')
+
+            axes[i, 3].imshow(glcm_result, cmap='hot')
+            axes[i, 3].set_title('GLCM Texture Map (Contrast)')
+            axes[i, 3].axis('off')
+
+
+    
     def visualize_image_with_filters(self, image_name=None):
         """
         Visualize an image with different texture filters.
