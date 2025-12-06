@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 import torchvision.models as models
+from torchvision.models import ResNet50_Weights
 import torch.optim as optim
 import os
 import time
@@ -96,11 +97,11 @@ class ResNetFineTuneTrainer:
 
         match model_name:
             case 'resnet18':
-                self.model = models.resnet18(pretrained=pretrained)
+                self.model = models.resnet18(weights=ResNet50_Weights.DEFAULT)
             case 'resnet50':
-                self.model = models.resnet50(pretrained=pretrained)
+                self.model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
             case 'resnet101':
-                self.model = models.resnet101(pretrained=pretrained)
+                self.model = models.resnet101(weights=ResNet50_Weights.DEFAULT)
 
         # Freeze all layers except the final fully connected layer
         for param in self.model.parameters():
@@ -359,7 +360,8 @@ class ResNetFineTuneTrainer:
 
 
         # Calculate metrics
-        f1 = f1_score(all_labels, all_preds, average='weighted')
+        f1_macro = f1_score(all_labels, all_preds, average='macro')
+        f1_weighted = f1_score(all_labels, all_preds, average='weighted')
         accuracy = accuracy_score(all_labels, all_preds)
         tn, fp, fn, tp = confusion_matrix(all_labels, all_preds, labels=[0, 1]).ravel()
         
@@ -377,11 +379,12 @@ class ResNetFineTuneTrainer:
         except ValueError:
             auc = float('nan')
 
-        print(f'Evaluation results - F1: {f1:.4f}, AUC: {auc:.4f}, Accuracy: {accuracy:.4f}, Sensitivity: {sensitivity:.4f}, Specificity: {specificity:.4f}')
+        print(f'Evaluation results - F1 (macro): {f1_macro:.4f}, F1 (weighted): {f1_weighted:.4f}, AUC: {auc:.4f}, Accuracy: {accuracy:.4f}, Sensitivity: {sensitivity:.4f}, Specificity: {specificity:.4f}')
 
         # Store results
         self.results.update({
-            'f1_score': f1,
+            'f1_score_macro': f1_macro,
+            'f1_score_weighted': f1_weighted,
             'auc': auc,
             'accuracy': accuracy,
             'sensitivity': sensitivity,
