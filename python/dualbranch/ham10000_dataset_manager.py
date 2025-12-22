@@ -250,6 +250,52 @@ class HAM10000DatasetManager:
         
         return texture_map
     
+    def get_sample(self):
+        """
+        Returns a sample row from the dataset.
+        """
+
+        if self.df is None:
+            raise ValueError("Dataset not loaded. Please run load_dataset() first.")
+        
+        random_idx = random.randint(0, len(self.df) - 1)
+        row = self.df.iloc[random_idx]
+        return row
+
+    def get_sample_image(self, lesion_type = None) -> tuple[str, str, np.ndarray]:
+        """
+        Get a sample image from the dataset.
+        Args:
+            lesion_type: Optional lesion type code (e.g., 'nv', 'mel').
+                         If None, a random lesion type is selected.
+
+        Returns:
+            Tuple of (image_id, lesion_type, image as numpy array)
+        """
+        if self.df is None:
+            raise ValueError("Dataset not loaded. Please run load_dataset() first.")
+        
+        if lesion_type is None:
+            # Random selection
+            random_idx = random.randint(0, len(self.df) - 1)
+            row = self.df.iloc[random_idx]
+        else:
+            # Find by lesion type
+            subset = self.df[self.df['dx'] == lesion_type]
+            if len(subset) == 0:
+                raise ValueError(f"No images found for lesion type '{lesion_type}'.")
+            random_idx = random.randint(0, len(subset) - 1)
+            row = subset.iloc[random_idx]
+        
+        image_id = row['image_id']
+        image_path = row['image_path']
+        lesion_type = row['dx']
+        
+        # Load image
+        image = io.imread(image_path)
+        
+        return image_id, lesion_type, image
+
     def get_random_lesions(self, lesion_types=None) -> Dict[str, str]:
         """
         Get one image names from each specified lesion types.
@@ -273,6 +319,60 @@ class HAM10000DatasetManager:
             selected_images[lesion] = row['image_id']
 
         return selected_images
+    
+    def visualize_image_with_filters(self, image_name: str, filter_method_list: list[callable]):
+        """
+        Visualize an image from the dataset with specified filters.
+        
+        Args:
+            image_name: image_id (without .jpg extension).
+            filter_method_list: List of callable filters methods, that take an image as input and return processed image.
+
+        """
+
+        if self.df is None:
+            raise ValueError("Dataset not loaded. Please run load_dataset() first.")
+        
+        # Find by image_id
+        matching = self.df[self.df['image_id'] == image_name]
+        if len(matching) == 0:
+            raise ValueError(f"Image '{image_name}' not found in dataset.")
+        row = matching.iloc[0]
+        
+        image_id = row['image_id']
+        lesion_class = row['dx']
+        lesion_name = lesion_type_dict.get(lesion_class, lesion_class)
+        image_path = row['image_path']
+        
+        # Load image
+        image = io.imread(image_path)
+        filter_image = image
+        
+        # Apply filters
+        filtered_results = []
+        for filter_method in filter_method_list:
+            result = filter_method(filter_image)
+            filtered_results.append(result)
+        
+        # Create visualization
+        num_filters = len(filter_method_list)
+        fig, axes = plt.subplots(1, num_filters + 1, figsize=(5 * (num_filters + 1), 5))
+        fig.suptitle(f'Image: {image_id} | Class: {lesion_class} ({lesion_name})', 
+                     fontsize=14, fontweight='bold')
+        
+        # Original image
+        axes[0].imshow(image)
+        axes[0].set_title('Original Image')
+        axes[0].axis('off')
+        
+        # Filtered images
+        for i, result in enumerate(filtered_results):
+            axes[i + 1].imshow(result, cmap='gray')
+            axes[i + 1].set_title(f'Filter {i + 1}')
+            axes[i + 1].axis('off')
+        
+        plt.tight_layout()
+        plt.show()
 
     def visualize_image_with_filters_side_by_side(self, image_names):
         """
@@ -397,8 +497,3 @@ class HAM10000DatasetManager:
         plt.show()
         
         return image_id, lesion_class
-
-    def create_dataloaders(self, train_df, val_df, test_df, batch_size=32, num_workers=4):
-        """Create PyTorch DataLoaders for train/test/val."""
-        pass
-
