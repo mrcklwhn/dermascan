@@ -1,9 +1,9 @@
 # Eigene Klassifikations Architektur
 Um die Nachvollziehbarkeit der neuronalen Modelle zu verbessern, sollen verschiedene Bildvorverarbeitungs-Algorithmen dazu genutzt werden, um die bestimmte Merkmale, auf die ein menschlicher Arzt achten würde, künstlich in die Entscheidungsfindung mit einzubringen. Genauer soll es mehrere Experten-CNNs geben, die sich auf jeweils ein Merkmal der Läsion genauer Fokussieren und deren Entscheidung letztlich kombiniert wird.
 
+## High Level Überblick 
 
-
-## Ansatz 1: Fusion
+### Ansatz 1: Fusion
 Aufbau eines **Dualbranch-CNN**, welches die Enschätzung zweier gemeinsam trainierter CNNs per `Fusions-Layer` kombiniert.
   - Zwei CNNs erzeugen gleich große Feature-Vektoren.
   - Fusion der Vektoren; Klassifikation via Dense NN, SVM, Decision Tree.
@@ -22,7 +22,7 @@ graph TD
     Fusion --> Head[Classification Head<br/>Dense -> 1 sigmoid output]
 ```
 
-## Ansatz 2: Soft Voting
+### Ansatz 2: Soft Voting
 Aufbau eines **Dualbranch-CNN**, welches die Enschätzung zweier **getrennt** trainierter CNNs nach Soft Voting kombiniert.
   - Zwei CNNs erzeugen getrennte Feature-Vektoren
   - Jeweils Klassifikation via Dense NN, SVM, Decision Tree
@@ -42,3 +42,69 @@ graph TD
     Voting --> Output[Final Binary Output]
 ```
 
+## Ensemble config
+Das folgende Objekt, soll das unabhängige Finetunen von separaten CNNs festhalten und weitere Anweisungen zum Setup in einem einzigen Skript zur Verfügung stellen
+
+```python
+ENSEMBLE_CONFIG = {
+    "ensemble_id": "approach2_v1",
+    "task": "binary_mel_vs_nv",
+    "splits": {
+        "train_csv": "data/HAM10000_metadata_cleaned.csv",
+        "val_ratio": 0.1,
+        "test_csv": "data/HAM10000_metadata_cleaned.csv",
+        "seed": 42,
+    },
+    "branches": [ # list of separately trainable branches
+        {
+            "id": "rgb_resnet50",
+            "model": {
+                "backbone": "resnet50",
+                "pretrained": True,
+                "num_classes": 2,
+                "checkpoint": "results/approach2_v1/rgb_resnet50/best.pt",
+            },
+            "transforms": {
+                "train": ["resize:256", "center_crop:224", "random_hflip", "to_tensor", "normalize:imagenet"],
+                "val": ["resize:256", "center_crop:224", "to_tensor", "normalize:imagenet"],
+            },
+            "filters": [],  # e.g., ["gabor", "lbp"]
+            "training": {
+                "epochs": 25,
+                "batch_size": 32,
+                "optimizer": {"type": "adamw", "lr": 3e-4, "weight_decay": 1e-4},
+                "scheduler": {"type": "cosine", "warmup_epochs": 1},
+            },
+        },
+        {
+            "id": "texture_resnet18",
+            "model": {
+                "backbone": "resnet18",
+                "pretrained": True,
+                "num_classes": 2,
+                "checkpoint": "results/approach2_v1/texture_resnet18/best.pt",
+            },
+            "transforms": {
+                "train": ["resize:256", "center_crop:224", "random_hflip", "to_tensor", "normalize:imagenet"],
+                "val": ["resize:256", "center_crop:224", "to_tensor", "normalize:imagenet"],
+            },
+            "filters": ["gabor", "lbp"],
+            "training": {
+                "epochs": 25,
+                "batch_size": 32,
+                "optimizer": {"type": "adamw", "lr": 3e-4, "weight_decay": 1e-4},
+                "scheduler": {"type": "cosine", "warmup_epochs": 1},
+            },
+        },
+    ],
+    "voting": { # isolate block definining the combiner
+        "strategy": "soft",
+        "weights": {"rgb_resnet50": 0.6, "texture_resnet18": 0.4},
+        "tie_breaker": "max_prob",  # future: switch to fusion layer here
+    },
+    "logging": {
+        "output_dir": "results/approach2_v1",
+        "metrics": ["f1", "auc", "accuracy", "sensitivity", "specificity"],
+    },
+}
+``` 
