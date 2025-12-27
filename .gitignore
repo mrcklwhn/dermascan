@@ -10,3 +10,7 @@ kaggle-json
 
 # model output folder
 models/
+
+# mkdocs build output
+site/
+public/
