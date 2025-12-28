@@ -27,7 +27,7 @@ class FilterService:
         lbp = local_binary_pattern(image_gray, n_points, radius, method='uniform')
         return lbp
 
-    def _glcm_filter(self, image_gray, distances=[1], angles=[0]):
+    def _glcm_filter(self, image_gray, distances=[1], angles=[0, np.pi/4, np.pi/2, 3*np.pi/4]):
         """
         Apply GLCM-based texture visualization.
         Creates a texture map based on local GLCM properties.
@@ -55,7 +55,8 @@ class FilterService:
                 window_reduced = (window // 16).astype(np.uint8)
                 glcm = graycomatrix(window_reduced, distances, angles, 
                                    levels=16, symmetric=True, normed=True)
-                contrast = graycoprops(glcm, 'contrast')[0, 0]
+                contrast_values = graycoprops(glcm, 'contrast')
+                contrast = np.mean(contrast_values)
                 # Fill the step x step region
                 end_i = min(i + step, image_gray.shape[0])
                 end_j = min(j + step, image_gray.shape[1])
