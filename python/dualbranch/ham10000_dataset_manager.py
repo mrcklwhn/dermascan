@@ -253,6 +253,31 @@ class HAM10000DatasetManager:
 
         return selected_images
     
+    def get_image_by_id(self, image_id: str) -> np.ndarray:
+        """
+        Get an image from the dataset by image_id.
+        
+        Args:
+            image_id: image_id (without .jpg extension).
+        Returns:
+            Image as numpy array.
+        """
+        if self.df is None:
+            raise ValueError("Dataset not loaded. Please run load_dataset() first.")
+        
+        # Find by image_id
+        matching = self.df[self.df['image_id'] == image_id]
+        if len(matching) == 0:
+            raise ValueError(f"Image '{image_id}' not found in dataset.")
+        row = matching.iloc[0]
+        
+        image_path = row['image_path']
+        
+        # Load image
+        image = io.imread(image_path)
+        
+        return image
+
     def visualize_image_with_filters(self, image_id: str, filter_method_list: list[callable]) -> None:
         """
         Visualize an image from the dataset with specified filters.

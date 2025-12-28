@@ -3,7 +3,7 @@ Die grundlegende Eignung und Funktionsfähigkeit unseres Klassifikationsansatzes
 
 
 ## Python Umgebung
-Zum Ausführen ist mindestens Version 3.14.2 zu verwenden.
+Zum Ausführen ist Version 3.13.11 zu empfohlen.
 Alle nötigen Bibliotheken sind in [`/python/requirements.txt`](/python/requirements.txt) aufgelistet.
 Für pyTorch mit GPU Beschleunigung sollte die [Installationsbeschreibung](https://pytorch.org/get-started/locally/) auf der offiziellen Webseite befolgt werden. 
 
