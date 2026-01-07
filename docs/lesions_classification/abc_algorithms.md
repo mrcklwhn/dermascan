@@ -13,7 +13,7 @@ Ein Teil dieser Kriterien soll nun mit deterministischen Methoden unter Ausgabe 
 ### Kriterium A - Asymmetry
 Das Kriterium der Asymmetrie beschreibt, wie symmetrisch eine Läsion aufgebaut ist.
 
-In der Datei [`image_asymmetry.py`](../../dermascan/python/dermascan/lesions_classification/abc_algorithms/image_asymmetry.py) ist die Klasse `ImageAsymmetry` implementiert, die Methoden zur Berechnung des Asymmetrie-Scores bereitstellt.
+In der Datei [python/utils/image_asymmetry.py](../../python/utils/image_asymmetry.py) sind die Funktionen `calculate_asymmetry` und `calculate_asymmetry_skimage` implementiert, die den Asymmetrie-Score berechnen.
 
 High Level Ablauf:
 ```
@@ -44,8 +44,8 @@ Eine detaillierte Analyse zeigt zwei grundlegend unterschiedliche Implementierun
 
 **OpenCV-basierte Implementierung** (`calculate_asymmetry`):
 - Vorteil: Hohe Performance durch C++-Backend, inoffizielle Kompatibilität auf anderen Plattformen z.B. `opencv-dart`
-- Nachteil: Keine Orientierungserkennung, verwendet einfache geometrische Aufteilung ohne Berücksichtigung der natürlichen Orientierung der Läsion
+- Nachteil: Keine Orientierungserkennung, verwendet einfache geometrische Aufteilung ohne Berücksichtigung der natürlichen Orientierung der Läsion (besser: Ausrichtung entlang der Hauptachse), Vergleich nach Punktsymmetrie ggf. irreführend, wenn Läsion entlang einer schrägen Achse ausgerichtet ist, Normalisierung nach Flächeninhalt des gesamten Bildes statt der Läsion führt zu verfälschten Scores bei kleinen Läsionen (besser: Normalisierung nach Flächeninhalt der Läsion), Skalierung der Maske durch `resize` führt zu Verlust über feine Details der Läsion (besser: np.pad zur Anpassung der Größe ohne Interpolation)
 
 **Scikit-image-basierte Implementierung** (`calculate_asymmetry_skimage`):
-- Vorteil: wissenschaftlich genauer, nutzt `regionprops` zur Ausrichtung der Läsion entlang ihrer Hauptachse 
+- Vorteil: wissenschaftlich genauer, nutzt `regionprops` zur Ausrichtung der Läsion entlang ihrer Hauptachse, Vergleich nach Spiegelsymmetrie ()
 - Nachteil: Langsamere Performance durch reine Python/NumPy-Operationen, höhere rechnerische Komplexität, keine Kompatibilität auf anderen Plattformen ohne scikit-image
