@@ -253,6 +253,29 @@ class HAM10000DatasetManager:
 
         return selected_images
     
+    def get_n_samples(self, n: int, lesion_type: str = None) -> list[np.ndarray]:
+        """
+        Get n sample images from the dataset.
+        Args:
+            n: Number of samples to retrieve.
+            lesion_type: Optional lesion type code (e.g., 'nv', 'mel').
+                         If None, samples from all lesion types.
+        Returns:
+            List of rows from the dataset.
+        """
+        if self.df is None:
+            raise ValueError("Dataset not loaded. Please run load_dataset() first.")
+        
+        if lesion_type is None:
+            sampled_df = self.df.sample(n=n)
+        else:
+            subset = self.df[self.df['dx'] == lesion_type]
+            if len(subset) < n:
+                raise ValueError(f"Not enough images for lesion type '{lesion_type}'. Requested: {n}, Available: {len(subset)}")
+            sampled_df = subset.sample(n=n)
+
+        return sampled_df
+
     def get_image_by_id(self, image_id: str) -> np.ndarray:
         """
         Get an image from the dataset by image_id.
