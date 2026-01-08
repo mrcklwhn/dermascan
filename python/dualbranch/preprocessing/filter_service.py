@@ -112,7 +112,6 @@ class FilterService:
 
         return filters_results_map
     
-    
     def save_applied_filters(self, filters_result_dict, image_id, output_dir=None):
         """Save the applied filters result to a compressed .npz file. Use np.stack to stack the arrays if needed.
         :param filters_result_dict: Dictionary of filter results for one image
@@ -132,5 +131,40 @@ class FilterService:
         for image_id, filters_result_dict in filters_results_map.items():
             if filters_result_dict is not None:
                 self.save_applied_filters(filters_result_dict, image_id, output_dir)
+
+    def batch_generator(self, list_image_ids, batch_size=32):
+        """Generator that yields images in batches.
+        
+        :param list_image_ids: List of image IDs to process
+        :param batch_size: Number of images per batch
+        """
+        batch_ids = []
+        
+        for image_id in list_image_ids:
+            batch_ids.append(image_id)
+
+            if len(batch_ids) == batch_size:
+                yield batch_ids
+                batch_ids = []
+        
+        if batch_ids:
+            yield batch_ids
+
+    def filtered_image_generator(self, list_image_ids, filter_list=None, batch_size=32, **kwargs):
+        """Generator that applies and saves filtered images in batches.
+        
+        :param list_image_ids: List of image IDs to process
+        :param filter_list: List of filter names to apply.
+        :param batch_size: Number of images per batch
+        :param kwargs: filter params
+        """
+        progress_counter = 0
+        for batch_ids in self.batch_generator(list_image_ids, batch_size):
+            filters_results_map = self.apply_texture_filters_batch(
+                batch_ids, filter_list=filter_list, **kwargs
+            )
+            self.save_applied_filters_batch(filters_results_map)
+            progress_counter += len(batch_ids)
+            print(f"Processed {progress_counter} / {len(list_image_ids)} images.")
 
         

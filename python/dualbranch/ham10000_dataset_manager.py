@@ -57,7 +57,7 @@ class HAM10000DatasetManager:
     def __init__(self, data_dir='data'):
         self.data_dir = Path(data_dir)
         self.metadata_path = self.data_dir / 'HAM10000_metadata.csv'
-        self.clean_metadata_path = self.data_dir / 'HAM10000_metadata_cleaned.csv'
+        self.clean_metadata_path = self.data_dir / 'HAM10000_metadata_filtered_thousand.csv'
         self.images_dir = self.data_dir / 'raw'
         self.df = None  # Will hold the metadata
 

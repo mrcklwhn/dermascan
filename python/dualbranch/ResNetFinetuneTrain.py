@@ -81,16 +81,17 @@ class ResNetFineTuneTrainer:
 
         results_df.to_csv(self.results_csv_path, index=False)
 
-    def set_model(self, model_name, pretrained=True):
+    def set_model(self, model_name, input_channels=3, pretrained=True):
         """
         Set up the ResNet model for fine-tuning or transfer learning.
 
-        
+        :param input_channels: Count of the model input channels. In pretrained ResNets 3 for RGB. For filters add more
         :param model_name: Name of the ResNet model (e.g., resnet18, resnet50)
         :param pretrained: Whether to use a pretrained model weights
         """
         self.params['model_name'] = model_name
         self.params['pretrained'] = pretrained
+        self.params['input_channels'] = input_channels
 
         if model_name not in self.supported_models:
             raise ValueError(f"Model {model_name} is not supported. Choose from {self.supported_models}")
@@ -107,7 +108,29 @@ class ResNetFineTuneTrainer:
         for param in self.model.parameters():
             param.requires_grad = False
 
-        # Modify the final layer for fine-tuning
+        # Modify input layer for filter channels (INPUT)
+        old_conv = self.model.conv1 # old weights
+        # new input layer
+        self.model.conv1 = nn.Conv2d(
+            in_channels=self.params['input_channels'],
+            out_channels=old_conv.out_channels,
+            kernel_size=old_conv.kernel_size,
+            stride=old_conv.stride,
+            padding=old_conv.padding,
+            bias=old_conv.bias
+        )
+        # weights need to be initialized
+        with torch.no_grad():
+            # original rgb weights
+            self.model.conv1.weight[:, :3, :, :] = old_conv.weight
+
+            # weights for new channels
+            extra_channels = self.params['input_channels'] - 3
+            if extra_channels > 0:
+                avg_weight = torch.mean(old_conv.weight, dim=1, keepdim=True)
+                self.model.conv1.weight[:, 3:, :, :] = avg_weight.repeat(1, extra_channels, 1, 1)
+
+        # Modify the final layer for fine-tuning (OUTPUT)
         num_ftrs = self.model.fc.in_features
         self.model.fc = nn.Linear(num_ftrs, 2)
         self.model = self.model.to(self.device)
@@ -125,24 +148,28 @@ class ResNetFineTuneTrainer:
         """
         self.params['batch_size'] = batch_size
 
-        data_transforms = {
-            'train': transforms.Compose([
-                transforms.RandomResizedCrop(224),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            ]),
-            'val': transforms.Compose([
-                transforms.Resize(256),
-                transforms.CenterCrop(224),
-                transforms.ToTensor(),
-                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            ]),
-        }
+        # data_transforms = {
+        #     'train': transforms.Compose([
+        #         transforms.RandomResizedCrop(224),
+        #         transforms.RandomHorizontalFlip(),
+        #         transforms.ToTensor(),
+        #         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        #     ]),
+        #     'val': transforms.Compose([
+        #         transforms.Resize(256),
+        #         transforms.CenterCrop(224),
+        #         transforms.ToTensor(),
+        #         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        #     ]),
+        # }
 
-        train_dataset = HAM10000Dataset(train_df, transform=data_transforms['train'])
-        val_dataset = HAM10000Dataset(val_df, transform=data_transforms['val'])
-        test_dataset = HAM10000Dataset(test_df, transform=data_transforms['val'])
+        # train_dataset = HAM10000Dataset(train_df, transform=data_transforms['train'])
+        # val_dataset = HAM10000Dataset(val_df, transform=data_transforms['val'])
+        # test_dataset = HAM10000Dataset(test_df, transform=data_transforms['val'])
+
+        train_dataset = HAM10000Dataset(train_df, transform=None)
+        val_dataset = HAM10000Dataset(val_df, transform=None)
+        test_dataset = HAM10000Dataset(test_df, transform=None)
 
         self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
         self.val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
