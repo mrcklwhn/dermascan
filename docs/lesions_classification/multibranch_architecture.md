@@ -57,23 +57,24 @@ ENSEMBLE_CONFIG = {
     },
     "branches": [ # list of separately trainable branches
         {
-            "id": "rgb_resnet50",
+            "id": "rgb_resnet50", 
             "model": {
-                "backbone": "resnet50",
+                "backbone": "resnet50", # identifier to load model weights
                 "pretrained": True,
                 "num_classes": 2,
-                "checkpoint": "results/approach2_v1/rgb_resnet50/best.pt",
+                "checkpoint": "results/approach2_v1/rgb_resnet50/best.pt", # path to store intermediate model to
             },
             "transforms": {
                 "train": ["resize:256", "center_crop:224", "random_hflip", "to_tensor", "normalize:imagenet"],
                 "val": ["resize:256", "center_crop:224", "to_tensor", "normalize:imagenet"],
+                "test": [] # no transforms as this is not necessary for inference
             },
             "filters": [],  # e.g., ["gabor", "lbp"]
             "training": {
-                "epochs": 25,
+                "epochs": 15,
                 "batch_size": 32,
-                "optimizer": {"type": "adamw", "lr": 3e-4, "weight_decay": 1e-4},
-                "scheduler": {"type": "cosine", "warmup_epochs": 1},
+                "optimizer": {"type": "adamw", "lr": 1e-4, "weight_decay": 1e-4},
+                "scheduler": {"type": "reduce_on_plateau", "patience": 3},
             },
         },
         {
@@ -90,10 +91,10 @@ ENSEMBLE_CONFIG = {
             },
             "filters": ["gabor", "lbp"],
             "training": {
-                "epochs": 25,
+                "epochs": 15,
                 "batch_size": 32,
-                "optimizer": {"type": "adamw", "lr": 3e-4, "weight_decay": 1e-4},
-                "scheduler": {"type": "cosine", "warmup_epochs": 1},
+                "optimizer": {"type": "adamw", "lr": 1e-4, "weight_decay": 1e-4},
+                "scheduler": {"type": "reduce_on_plateau", "patience": 3},
             },
         },
     ],
