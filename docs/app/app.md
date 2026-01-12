@@ -16,7 +16,7 @@ Die App soll Dermatologen bei der Dokumentation und Diagnose von Hautläsion unt
 ## Konten und Rollen
 - Rollen: Praxis-Account, Arzt-Account.
 - Praxis-Account und Arzt Account können direkt von Nutzer in der App erstellt werden
-- Arzt-Accounts sind nach erstellen noch keiner Praxis zugeordnet
+- Arzt-Accounts sind nach erstellen noch keiner Praxis zugeordnet; befinden sich im "Wartestatus" bis sie von einem Praxis-Account der jeweiligen Praxis akzeptiert werden
 - Datenzugriff:
   - Alle Ärzte einer Praxis können die Patientendaten der Praxis einsehen
   - Ärzte aus unterschiedlichen Praxen haben keinen Zugriff auf die Praxisdaten einer anderen Praxis
