@@ -9,7 +9,7 @@ Für pyTorch mit GPU Beschleunigung sollte die [Installationsbeschreibung](https
 
 
 ## Datensätze
-Hauptsächlich wurde der [HAM10000 Datensatz](https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000) zum Training verwendet.
+Es wurde ausschließlich der [HAM10000 Datensatz](https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000) zum Training verwendet.
 Alle Originalbilder liegen in `/data/raw` und die Metadaten in `/data/HAM10000_metadata.csv`.
 Dieser Datensatz wurde künstlich augmentiert, wobei diese Bilddaten ebenfalls in `/data/` liegen.
 

@@ -9,7 +9,7 @@
 - [Christian Axenie](mailto:cristian.axenie@th-nuernberg.de)
 
 ## Kurzbeschreibung
-Dermascan umfasst die Forschung und Entwicklung einer mobilen App, mit der Bilder von Hautläsionen aufgenommen werden sollen und mithilfe eines ML Models direkt auf dem Endgerät des Anwenders klassifiziert wird.
+Dermascan umfasst die Forschung und Entwicklung einer mobilen App, mit der Bilder von Hautläsionen aufgenommen werden sollen und mithilfe eines ML Models direkt auf dem Endgerät des Anwenders klassifiziert wird. Dabei soll insbesondere die Datensicherheit und der Datenschutz der sensiblen Patientendaten gewährleistet werden, indem die Verarbeitung ausschließlich auf dem Endgerät erfolgt und alle Ergebnisse verschlüsselt gespeichert werden.
 
 ## Allgemeine Projektinformationen
 - Zielgruppe: ausschließlich Ärzte

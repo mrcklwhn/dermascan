@@ -1,7 +1,6 @@
 # Eigene Klassifikations Architektur
-Um die Nachvollziehbarkeit der neuronalen Modelle zu verbessern, sollen verschiedene Bildvorverarbeitungs-Algorithmen dazu genutzt werden, um die bestimmte Merkmale, auf die ein menschlicher Arzt achten würde, künstlich in die Entscheidungsfindung mit einzubringen. Genauer soll es mehrere Experten-CNNs geben, die sich auf jeweils ein Merkmal der Läsion genauer Fokussieren und deren Entscheidung letztlich kombiniert wird.
-
-
+Ein Arzt beurteilt Hautläsionen anhand verschiedener aber konkreter Merkmale wie Farbe, Struktur, Asymmetrie etc.
+Da neuronale Modelle oft als "Blackbox" wahrgenommen werden und die Nachvollziehbarkeit der Entscheidungen erschwert ist, soll hier ein Ansatz verfolgt werden, der die Entscheidungsfindung des Arztes nachahmt. Insofern soll die Architektur mehrere spezialisierte "Experten"-Netzwerke enthalten, die jeweils auf bestimmte Merkmale der Läsion trainiert werden. Die Ergebnisse dieser Experten-Netzwerke werden dann kombiniert, um eine finale Klassifikation zu erstellen.
 
 ## Ansatz 1: Fusion
 Aufbau eines **Dualbranch-CNN**, welches die Enschätzung zweier gemeinsam trainierter CNNs per `Fusions-Layer` kombiniert.
