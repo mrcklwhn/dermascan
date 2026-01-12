@@ -1,0 +1,1 @@
+enum AuthOption { practice, doctor }

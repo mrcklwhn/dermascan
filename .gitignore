@@ -1,3 +1,6 @@
+# supabase db-password
+dermascan_db.txt
+
 # python data
 .venv*
 __pycache__/
