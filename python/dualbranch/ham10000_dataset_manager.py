@@ -57,7 +57,7 @@ class HAM10000DatasetManager:
     def __init__(self, data_dir='data'):
         self.data_dir = Path(data_dir)
         self.metadata_path = self.data_dir / 'HAM10000_metadata.csv'
-        self.clean_metadata_path = self.data_dir / 'HAM10000_metadata_filtered_thousand.csv'
+        self.clean_metadata_path = self.data_dir / 'HAM10000_metadata_cleaned.csv'
         self.images_dir = self.data_dir / 'raw'
         self.df = None  # Will hold the metadata
 
@@ -96,7 +96,7 @@ class HAM10000DatasetManager:
             if filter_melanoma_only:
                 self.df = self._filter_melanoma_nevi(self.df)
 
-    def load_cleaned_metadata(self, filter_melanoma_only=True):
+    def load_cleaned_metadata(self, filter_melanoma_only=True, sample_size=10000):
         """Load cleaned metadata CSV."""
         
         if self.clean_metadata_path and self.clean_metadata_path.exists():
@@ -104,6 +104,12 @@ class HAM10000DatasetManager:
 
             if filter_melanoma_only:
                 self.df = self._filter_melanoma_nevi(self.df)
+
+                # create balanced dataset if sample_size is specified 50/50 mel/nv split
+                if sample_size and sample_size < len(self.df):
+                    self.df = self.df.groupby('dx').sample(n=sample_size // 2, random_state=42).reset_index(drop=True)
+                    self.df = self.df.sample(frac=1, random_state=42).reset_index(drop=True)  # shuffle
+
         else:
             raise FileNotFoundError("Cleaned metadata file not found. Please run load_dataset() first.")
 
