@@ -8,6 +8,32 @@ Alle nötigen Bibliotheken sind in [`/python/requirements.txt`](/python/requirem
 Für pyTorch mit GPU Beschleunigung sollte die [Installationsbeschreibung](https://pytorch.org/get-started/locally/) auf der offiziellen Webseite befolgt werden. 
 Die python Umgebung wurde ausschließlich für die Modellentwicklung und Evaluation genutzt.
 
+### Projektstruktur
+
+```
+python/
+├── requirements.txt
+├── ham10000_overview.ipynb       # Datensatzübersicht und -analyse
+├── dataset_manager.py            # Manager für Datensatz (Laden, Augmentieren, Aufteilen)
+├── preprocessing/
+│   └── image_filters.py          # 3D RGB → 3D B/W Filter
+├── abcd_algorithms/              # Deterministische ABCD-Kriterien
+│   ├── asymmetry_analysis.ipynb
+│   ├── asymmetry_scorer.py
+│   ├── border_analysis.ipynb
+│   ├── border_scorer.py
+│   ├── color_analysis.ipynb
+│   ├── color_scorer.py
+│   └── mask_utils.py             # Hilfsfunktionen für Segmentierungsmasken
+├── pipeline/
+│   └── dataset_loader.py
+└── prototypes/
+    ├── simple_cnn_training/      # Primitive CNN-Modelle
+    │   └── training.ipynb
+    └── resnet_finetuning/        # Transfer Learning mit ResNet50
+        └── simple_resnet_finetuning.ipynb
+```
+
 ## Datensätze
 Hauptsächlich wurde der [HAM10000 Datensatz](https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000) zum Training verwendet.
 Alle Originalbilder wurden in `/data/raw` und die Metadaten in `/data/HAM10000_metadata.csv` abgelegt.
