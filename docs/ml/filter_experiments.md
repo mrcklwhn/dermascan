@@ -1,3 +1,7 @@
+# ML Filter Experimente
+
+Diese Datei dient als provisorische Dokumentation der Experimente mit verschiedenen Bildfiltern zur Unterstützung der Multibranch CNN Architektur.
+
 ## Experimente mit Strukturfiltern (Gabor Wavelet, Local Binary Pattern, GLCM Contrast)
 
 Gabor

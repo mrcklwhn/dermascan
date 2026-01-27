@@ -1,5 +1,9 @@
 # Flutter App
 
+Die alltägliche Arbeit von Dermatologen soll durch die entwickelte App erleichtert werden.
+Die App ermöglicht es Ärzten, Patientendaten und Bilder von Hautläsionen zu verwalten und mithilfe eines integrierten ML-Modells eine erste Einschätzung der Läsionen zu erhalten.
+Insofern dient die App als unterstützendes Werkzeug im klinischen Alltag.
+
 ## Funktionen der App
 - Patientenverwaltung (anlegen, bearbeiten)
 - Bilder aufnehmen/hochladen; Position der Läsion auf einer 2D-Körperdarstellung markieren

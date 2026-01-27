@@ -1,7 +1,20 @@
 # Eigene Klassifikations Architektur
-Um die Nachvollziehbarkeit der neuronalen Modelle zu verbessern, sollen verschiedene Bildvorverarbeitungs-Algorithmen dazu genutzt werden, um die bestimmte Merkmale, auf die ein menschlicher Arzt achten würde, künstlich in die Entscheidungsfindung mit einzubringen. Genauer soll es mehrere Experten-CNNs geben, die sich auf jeweils ein Merkmal der Läsion genauer Fokussieren und deren Entscheidung letztlich kombiniert wird.
 
-## High Level Überblick 
+Als Teil der Modellentwicklung wurde eine eigene Multibranch CNN Architektur entworfen und implementiert.
+In Anlehnung an den menschlichen Analyseprozess von Hautläsionen, bei dem verschiedene visuelle Merkmale betrachtet werden, verfolgt diese Architektur den Ansatz, mehrere CNNs auf bestimmte Bildaspekte zu spezialisieren. 
+Jeder CNN-Branch soll sich dabei auf unterschiedliche Merkmale der Hautläsion konzentrieren, wie z.B. Farbe, Textur oder Form.
+Schließlich werden die Ausgaben der einzelnen Branches kombiniert, um eine finale Klassifikation zu erstellen.
+
+Als Kombinationsstrategien sollen sowohl ein Fusions-Layer als auch ein Soft-Voting Ansatz evaluiert werden.
+
+
+## Datenerweiterung durch Filter
+
+Um die eben beschriebene Spezialisierung der einzelnen Branches zu unterstützen, werden verschiedene Bildfilter auf dem Originaldatensatz angewendet.
+Damit soll eine Fokussierung des jeweiligen Branches auf bestimmte Merkmale künstlich herbeigeführt werden.
+
+
+## Kombinationsstragien - Überblick 
 
 ### Ansatz 1: Fusion
 Aufbau eines **Dualbranch-CNN**, welches die Enschätzung zweier gemeinsam trainierter CNNs per `Fusions-Layer` kombiniert.
@@ -43,7 +56,9 @@ graph TD
 ```
 
 ## Ensemble config
-Das folgende Objekt, soll das unabhängige Finetunen von separaten CNNs festhalten und weitere Anweisungen zum Setup in einem einzigen Skript zur Verfügung stellen
+Das folgende Objekt, soll das unabhängige Finetunen von separaten CNNs festhalten und weitere Anweisungen zum Setup in einem einzigen Skript zur Verfügung stellen.
+Ein separat erstellter Parser soll diese Konfiguration einlesen und die Trainingsroutine entsprechend ausführen.
+Damit wird eine flexible und vollständig dokumentierte Trainingspipeline ermöglicht.
 
 ```python
 ENSEMBLE_CONFIG = {
