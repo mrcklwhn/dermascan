@@ -47,7 +47,7 @@ class ResNetFineTuneTrainer:
         self.val_loader = None
         self.test_loader = None
 
-        self.filter = "rgb"
+        self.filter_name = None
 
         self.results = {}  # Store metrics for one run at a time
         self.params = {}   # Store hyperparameters
@@ -138,7 +138,7 @@ class ResNetFineTuneTrainer:
         self.model.fc = nn.Linear(num_ftrs, 2)
         self.model = self.model.to(self.device)
 
-    def set_data_loaders(self, train_df, val_df, test_df, filter_list, batch_size=32):
+    def set_data_loaders(self, train_df, val_df, test_df, filter_name="rgb", data_path=None, batch_size=32):
         """
         Sets the data loaders from dataframes for training, validation, and testing.
         This will load the images from the 'image_path' column in the dataframes and the categorical labels from the 'lesion_idx' column.
@@ -150,53 +150,37 @@ class ResNetFineTuneTrainer:
         :param batch_size: Batch size for data loaders
         """
         self.params['batch_size'] = batch_size
+        self.filter_name = filter_name
 
         data_transforms = {
-            'train': transforms.Compose([
-                transforms.RandomResizedCrop(224),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            ]),
-            'val': transforms.Compose([
-                transforms.Resize(256),
-                transforms.CenterCrop(224),
-                transforms.ToTensor(),
-                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            ]),
-        }
-
-        filter_transforms = {
             'train': v2.Compose([
-                v2.Resize((256, 256), antialias=True),
-                v2.CenterCrop((224, 224)),
-                v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                v2.ToImage(),  # Converts both PIL and numpy to tensor
+                v2.ToDtype(torch.float32, scale=True),
+                v2.RandomResizedCrop(224),
+                v2.RandomHorizontalFlip(),
+                v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             ]),
             'val': v2.Compose([
-                v2.Resize((256, 256), antialias=True),
-                v2.CenterCrop((224, 224)),
-                v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                v2.ToImage(),
+                v2.ToDtype(torch.float32, scale=True),
+                v2.Resize(256),
+                v2.CenterCrop(224),
+                v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             ])
         }
 
-        self.filter = filter_list[0] # remove later
-
-        train_dataset = HAM10000Dataset(train_df, 
-                                        transform=data_transforms['train'], 
-                                        filter_transform=filter_transforms['train'], 
-                                        filter_list=filter_list)
-        val_dataset = HAM10000Dataset(val_df, 
-                                      transform=data_transforms['val'], 
-                                      filter_transform=filter_transforms['val'], 
-                                      filter_list=filter_list)
-        test_dataset = HAM10000Dataset(test_df, 
-                                       transform=data_transforms['val'], 
-                                       filter_transform=filter_transforms['val'], 
-                                       filter_list=filter_list)
-
-        # train_dataset = HAM10000Dataset(train_df, filter_list, transform=None)
-        # val_dataset = HAM10000Dataset(val_df, filter_list, transform=None)
-        # test_dataset = HAM10000Dataset(test_df, filter_list, transform=None)
+        train_dataset = HAM10000Dataset(train_df,
+                                        filter_name=self.filter_name,
+                                        data_path=data_path,
+                                        transform=data_transforms['train'])
+        val_dataset = HAM10000Dataset(val_df,
+                                      filter_name=self.filter_name,
+                                      data_path=data_path,
+                                      transform=data_transforms['val'])
+        test_dataset = HAM10000Dataset(test_df,
+                                       filter_name=self.filter_name,
+                                       data_path=data_path,
+                                       transform=data_transforms['val'])
 
         self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
         self.val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
@@ -302,10 +286,7 @@ class ResNetFineTuneTrainer:
 
                     # Iterate over data.
                     for inputs, labels in data_loader:
-                        # Select only the specified filter channels if applicable (INITIAL TEST)
-                        inputs = inputs[self.filter]
                         inputs = inputs.to(self.device)
-                        
                         labels = labels.to(self.device)
 
                         # Zero the parameter gradients
@@ -356,7 +337,7 @@ class ResNetFineTuneTrainer:
             print(f'Best val Acc: {best_acc:.4f}')
 
             # Store best model in model_save_dir
-            model_save_path = os.path.join(self.model_save_dir, f"{model_id}_{self.filter}.pt")
+            model_save_path = os.path.join(self.model_save_dir, f"{model_id}_{self.filter_name}.pt")
             torch.save(torch.load(best_model_params_path), model_save_path)
 
             # Store best model data and history in results
@@ -403,10 +384,7 @@ class ResNetFineTuneTrainer:
 
         with torch.no_grad():
             for inputs, labels in self.test_loader:
-                # Select only the specified filter channels if applicable (INITIAL TEST)
-                inputs = inputs[self.filter]
                 inputs = inputs.to(self.device)
-
                 labels = labels.to(self.device)
 
                 outputs = self.model(inputs)

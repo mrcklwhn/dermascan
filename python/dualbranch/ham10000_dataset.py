@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 class HAM10000Dataset(Dataset):
-    def __init__(self, dataframe, filter_list, transform=None, filter_transform=None):
+    def __init__(self, dataframe, filter_name, data_path, transform=None):
         """
         Custom Dataset for HAM10000 skin lesion images.
 
@@ -16,10 +16,9 @@ class HAM10000Dataset(Dataset):
         :param transform: Optional transformations to be applied on the images
         """
         self.dataframe = dataframe
-        self.filter_list = filter_list
+        self.filter_name = filter_name
         self.transform = transform
-        self.filter_transform = filter_transform
-        
+        self.data_path = data_path
     def __len__(self):
         return len(self.dataframe)
 
@@ -30,36 +29,24 @@ class HAM10000Dataset(Dataset):
         :param idx: Index of the item to retrieve
         :return: Tuple of (image, label)
         """
-        features_map = {} # dictionary to hold different features (filter/rgb)
+        if self.filter_name == "rgb":
+            img_path = self.dataframe.iloc[idx]['image_path']
+            pil_image = Image.open(img_path).convert('RGB')
 
-        img_path = self.dataframe.iloc[idx]['image_path']
-        pil_image = Image.open(img_path).convert('RGB')
-
-        proj_dir = Path(__file__).resolve().parent.parent.parent
-        filtered_path = Path(str(proj_dir) + "/data/filtered")
-        filter_dirs = [p.name for p in filtered_path.iterdir() if p.is_dir()]
-
-        for filter in self.filter_list:
-            if filter in filter_dirs:
-                features_file = np.load(filtered_path / filter / (self.dataframe.iloc[idx]['image_id'] + ".npy"))
-                features_tensor = torch.from_numpy(features_file)
-                channel_dim = features_tensor.unsqueeze(0).repeat(3, 1, 1)  # replicate to 3 channels
-                features_map[filter] = channel_dim
+            if self.transform:
+                features_tensor = self.transform(pil_image)
             else:
-                raise ValueError(f"No filter_dir for filter '{filter}' found in filtered_path.")
+                features_tensor = torchvision.transforms.functional.to_tensor(pil_image)
+
+        else:
+            filtered_path = Path(str(self.data_path) + "/filtered")
+            filtered_features = np.load(filtered_path / self.filter_name / (self.dataframe.iloc[idx]['image_id'] + ".npy"))
+        
+            if self.transform:
+                features_tensor = self.transform(filtered_features)
+            else:
+                features_tensor = torch.from_numpy(filtered_features)
 
         label = self.dataframe.iloc[idx]['lesion_idx']
 
-        if self.transform:
-            image = self.transform(pil_image)
-        else:
-            image = torchvision.transforms.functional.to_tensor(pil_image)
-
-        features_map['rgb'] = image
-
-        if self.filter_transform:
-            for key in features_map:
-                if key != 'rgb':
-                    features_map[key] = self.filter_transform(features_map[key])
-
-        return features_map, label
+        return features_tensor, label
