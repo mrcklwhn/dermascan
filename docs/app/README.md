@@ -23,7 +23,7 @@ flutter/                      # Flutter-App (iOS/Android)
 
 ## Konten und Rollen
 - Rollen: Praxis-Account, Arzt-Account.
-- Praxis-Account wird manuell durch einen Admin erstellt und repräsentiert eine Praxis.
+- Nutzer können Praxis-Account und Arzt-Accounts selbstständig erstellen.
 - Praxis-Account kann Ärzte zur Praxis hinzufügen.
 - Datenzugriff:
   - Alle Ärzte einer Praxis können die Patientendaten der Praxis einsehen.
