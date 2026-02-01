@@ -1,0 +1,23 @@
+site_name: Dermascan Documentation
+
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - toc.integrate
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Home: index.md
+  - Flutter App: ./app/app.md
+  - Machine Learning: ./machine_learning/machine_learning.md
+  - Multibranch Architecture: ./machine_learning/multibranch_architecture.md
+
