@@ -44,7 +44,16 @@ class DatasetManager:
         self.df = None  # Will hold the metadata
 
     def load_dataset(self, data_dir='data', metadata_path=None, clean_metadata_path=None, images_dir=None, filter_melanoma_only=True):
-        """Download HAM10000 from Kaggle and organize locally."""
+        """
+        Download HAM10000 from Kaggle and organize locally.
+        
+        Args:
+            data_dir: Base directory for dataset
+            metadata_path: Path to metadata CSV file
+            clean_metadata_path: Path to cleaned metadata CSV file
+            images_dir: Directory containing raw images
+            filter_melanoma_only: Whether to filter dataset to only melanoma (mel) and melanocytic nevi (nv)
+        """
         self.data_dir = Path(data_dir)
         self.metadata_path = Path(metadata_path) if metadata_path else self.data_dir / 'HAM10000_metadata.csv'
         self.clean_metadata_path = Path(clean_metadata_path) if clean_metadata_path else self.data_dir / 'HAM10000_metadata_cleaned.csv'
@@ -79,7 +88,12 @@ class DatasetManager:
                 self.df = self._filter_melanoma_nevi(self.df)
 
     def load_cleaned_metadata(self, filter_melanoma_only=True):
-        """Load cleaned metadata CSV."""
+        """
+        Load cleaned metadata CSV.
+        
+        Args:
+            filter_melanoma_only: Whether to filter dataset to only melanoma (mel) and melanocytic nevi (nv)
+        """
         
         if self.clean_metadata_path and self.clean_metadata_path.exists():
             self.df = pd.read_csv(self.clean_metadata_path)
@@ -153,7 +167,7 @@ class DatasetManager:
 
         return df_cleaned
     
-    def print_class_distribution(self, df):
+    def print_class_distribution(self, df: pd.DataFrame):
         """Visualize class distribution."""
         class_counts = Counter(df['dx'])
         labels, counts = zip(*class_counts.items())
@@ -167,7 +181,13 @@ class DatasetManager:
         plt.show()
     
     def train_test_val_split(self, test_size=0.2, val_size=0.1, random_state=42):
-        """Split data into train/test/val while respecting stratified by lesion type."""
+        """
+        Split data into train/test/val while respecting stratified by lesion type.
+        
+        Args:
+            test_size: Proportion of data to use for testing
+            val_size: Proportion of data to use for validation        
+        """
         train_val_df, test_df = train_test_split(
             self.df,
             test_size=test_size,
@@ -301,7 +321,7 @@ class DatasetManager:
         
         return image
 
-    def visualize_image_with_filters(self, image_id: str, filter_method_list: list[callable]) -> None:
+    def visualize_image_with_filters(self, image_id: str, filter_method_list: list[callable]):
         """
         Visualize an image from the dataset with specified filters.
         

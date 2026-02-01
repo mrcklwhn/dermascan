@@ -57,7 +57,8 @@ class ResNetFineTuneTrainer:
         """
         Generate a unique identifier for storing results and models.
 
-        :return: Unique identifier string
+        Returns:
+            Unique identifier string
         """
 
         model_name = type(self.model).__name__
@@ -84,17 +85,16 @@ class ResNetFineTuneTrainer:
 
         results_df.to_csv(self.results_csv_path, index=False)
 
-    def set_model(self, model_name, input_channels=3, pretrained=True):
+    def set_model(self, model_name: str, pretrained=True):
         """
         Set up the ResNet model for fine-tuning or transfer learning.
 
-        :param input_channels: Count of the model input channels. In pretrained ResNets 3 for RGB. For filters add more
-        :param model_name: Name of the ResNet model (e.g., resnet18, resnet50)
-        :param pretrained: Whether to use a pretrained model weights
+        Args:
+            model_name: Name of the ResNet model (e.g., resnet18, resnet50)
+            pretrained: Whether to use a pretrained model weights
         """
         self.params['model_name'] = model_name
         self.params['pretrained'] = pretrained
-        self.params['input_channels'] = input_channels
 
         if model_name not in self.supported_models:
             raise ValueError(f"Model {model_name} is not supported. Choose from {self.supported_models}")
@@ -121,11 +121,14 @@ class ResNetFineTuneTrainer:
         Sets the data loaders from dataframes for training, validation, and testing.
         This will load the images from the 'image_path' column in the dataframes and the categorical labels from the 'lesion_idx' column.
         This will add augmentation and normalization for training data, and only normalization for validation and testing data.
-        
-        :param train_df: DataFrame for training data
-        :param val_df: DataFrame for validation data
-        :param test_df: DataFrame for testing data
-        :param batch_size: Batch size for data loaders
+
+        Args:
+            train_df: DataFrame for training data
+            val_df: DataFrame for validation data
+            test_df: DataFrame for testing data
+            filter_name: Name of the folder to load filter data from (e.g., 'rgb', 'gabor', etc.)
+            data_path: Base path where the filtered data folders are located
+            batch_size: Batch size for data loaders
         """
         self.params['batch_size'] = batch_size
         self.filter_name = filter_name
@@ -168,8 +171,9 @@ class ResNetFineTuneTrainer:
         """
         Configure the optimizer and learning rate scheduler.
 
-        :param optimizer_type: Optimizer instance (e.g., Adam, SGD)
-        :param kwargs: Additional arguments for the optimizer
+        Args:
+            optimizer_type: Type of optimizer (e.g., 'adam', 'sgd')
+            kwargs: Additional arguments for the optimizer
         """
         self.params['optimizer_type'] = optimizer_type
         self.params.update(kwargs)
@@ -186,8 +190,9 @@ class ResNetFineTuneTrainer:
         """
         Configure the learning rate scheduler.
 
-        :param scheduler_type: Type of scheduler (e.g., 'reduce_on_plateau')
-        :param kwargs: Additional arguments for the scheduler
+        Args:
+            scheduler_type: Type of scheduler (e.g., 'reduce_on_plateau')
+            kwargs: Additional arguments for the scheduler
         """
         self.params['scheduler_type'] = scheduler_type
         self.params.update(kwargs)
@@ -201,9 +206,10 @@ class ResNetFineTuneTrainer:
         """
         Set the output paths for saving model, results, and training history.
 
-        :param model_save_dir: Directory to save the trained model
-        :param results_csv_path: Path to save the results CSV
-        :param history_plot_dir: Directory to save training history plots
+        Args:
+            model_save_dir: Directory to save the trained model
+            results_csv_path: Path to save the results CSV
+            history_plot_dir: Directory to save training history plots
         """
         # Create directories if they don't exist
         os.makedirs(model_save_dir, exist_ok=True)
@@ -218,8 +224,9 @@ class ResNetFineTuneTrainer:
         """
         Train the model.
 
-        :param epochs: Number of training epochs
-        :param metrics: List of metrics to evaluate during training
+        Args:
+            epochs: Number of training epochs
+            metrics: List of metrics to evaluate during training
         """
         self.params['epochs'] = epochs
 

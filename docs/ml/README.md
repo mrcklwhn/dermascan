@@ -16,7 +16,9 @@ python/
 ├── ham10000_overview.ipynb       # Datensatzübersicht und -analyse
 ├── dataset_manager.py            # Manager für Datensatz (Laden, Augmentieren, Aufteilen)
 ├── preprocessing/
-│   └── image_filters.py          # 3D RGB → 3D B/W Filter
+│   ├── image_filters.py          # 3D RGB → 3D B/W Filter
+│   ├── pipeline_resnet_finetuning.ipynb
+│   └── resnet_finetune_train.py
 ├── abcd_algorithms/              # Deterministische ABCD-Kriterien
 │   ├── asymmetry_analysis.ipynb
 │   ├── asymmetry_scorer.py
@@ -25,8 +27,10 @@ python/
 │   ├── color_analysis.ipynb
 │   ├── color_scorer.py
 │   └── mask_utils.py             # Hilfsfunktionen für Segmentierungsmasken
-├── pipeline/
-│   └── dataset_loader.py
+├── pipeline/                                   # Ablage für ML-Pipeline Komponenten
+│   ├── dataset_loader.py                       # lädt Daten (Filter/RGB) beim Training in das Model 
+│   ├── resnet_finetune_train.py                # Model Training und Evaluation
+│   └── pipeline_resnet_finetuning.ipynb        # Test für Model Traing
 └── prototypes/
     ├── simple_cnn_training/      # Primitive CNN-Modelle
     │   └── simple_resnet_finetuning.ipynb

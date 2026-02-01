@@ -3,8 +3,15 @@ from skimage import io, color, filters
 import numpy as np
 from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
 
-def gabor_filter(image_gray):
-        """Apply Gabor filter bank and aggregate responses."""
+def gabor_filter(image_gray) -> np.ndarray:
+        """
+        Apply Gabor filter bank and aggregate responses.
+
+        Args:
+            image_gray: Grayscale image as a 1 Dim 2D numpy array
+        Returns:
+            3 Dim numpy array with Gabor filter result in (450, 600, 3) shape as 3 channels (gray replicated)
+        """
         frequencies = [0.1, 0.3, 0.6]
         thetas = [0, np.pi/4, np.pi/2, 3*np.pi/4]
         
@@ -23,8 +30,18 @@ def gabor_filter(image_gray):
         
         return gabor_map_3d
 
-def lbp_filter(image_gray, radius=3, n_points=24):
-    """Apply Local Binary Pattern filter to grayscale image."""
+def lbp_filter(image_gray, radius=3, n_points=24) -> np.ndarray:
+    """
+    Apply Local Binary Pattern filter to grayscale image.
+    
+    Args:
+        image_gray: Grayscale image as a 1 Dim 2D numpy array
+        radius: Radius for LBP
+        n_points: Number of points for LBP
+
+    Returns:
+        3 Dim numpy array with LBP filter result in (450, 600, 3) shape as 3 channels (gray replicated)
+    """
     # Convert to uint8 safely
     if image_gray.dtype != np.uint8:
         img = image_gray.astype(np.float32)
@@ -46,8 +63,22 @@ def glcm_filter(
     levels=32,                # quantization levels
     distances=(1, 2),         # offsets
     angles=(0, np.pi/4, np.pi/2, 3*np.pi/4),
-):
-    """Apply GLCM contrast filter to grayscale image."""
+) -> np.ndarray:
+    """
+    Apply GLCM contrast filter to grayscale image.
+    
+    Args:
+        image_gray: Grayscale image as a 1 Dim 2D numpy array
+        win: Patch size for local GLCM computation
+        stride: Stride for sliding window
+        levels: Number of gray levels for quantization
+        distances: Distances for GLCM
+        angles: Angles for GLCM
+    
+    Returns:
+        3 Dim numpy array with GLCM contrast filter result in (450, 600, 3) shape as 3 channels (gray replicated)
+    
+    """
     # 1) Convert to uint8 if needed
     if image_gray.dtype != np.uint8:
         img = image_gray.astype(np.float32)
