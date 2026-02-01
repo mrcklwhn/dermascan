@@ -1,18 +1,17 @@
 from pathlib import Path
 from torch.utils.data import Dataset
-import cv2
 import torchvision.transforms.functional
 from PIL import Image
 import numpy as np
 import torch
 
-class HAM10000Dataset(Dataset):
+class DatasetLoader(Dataset):
     def __init__(self, dataframe, filter_name, data_path, transform=None):
         """
         Custom Dataset for HAM10000 skin lesion images.
 
         :param dataframe: Pandas DataFrame containing image paths and labels
-        :param filter_list: List of filter names to load.
+        :param filter_name: Name of the filter to load.
         :param transform: Optional transformations to be applied on the images
         """
         self.dataframe = dataframe

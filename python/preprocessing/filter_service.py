@@ -3,16 +3,11 @@ import numpy as np
 from pathlib import Path
 
 class FilterService:
-
-    # TEXTURE_FILTERS = ['gabor_filter', 'lbp_filter', 'glcm_filter']
     
     def __init__(self, data_dir, raw_images='raw', filtered_output_dir='filtered'):
         self.data_dir = Path(data_dir)
         self.images_dir = self.data_dir / raw_images
         self.filtered_output_dir = self.data_dir / filtered_output_dir
-        # self._filters_maps = {
-        #     name: getattr(self, f"_{name}") for name in self.TEXTURE_FILTERS
-        # }
     
     def apply_texture_filters(self, image_id, filter_list: list[callable], **kwargs):
         """Apply specified texture filters to the image.
@@ -20,8 +15,6 @@ class FilterService:
         :param filter_list: List of filter names to apply.
         :param kwargs: filter params
         """
-        # if filter_list is None:
-        #     filter_list = self.TEXTURE_FILTERS
 
         image_path = Path(self.images_dir) / (image_id + ".jpg")
         image_gray = io.imread(image_path, as_gray=True)
@@ -32,11 +25,6 @@ class FilterService:
                 filters_result_dict[filter_name.__name__] = filter_name(image_gray, **kwargs)
             except Exception as e:
                 raise RuntimeError(f"Error applying filter '{filter_name.__name__}' to image '{image_id}': {str(e)}")
-            # if filter_name in self._filters_maps:
-            #     filter_func = self._filters_maps[filter_name]
-            #     filters_result_dict[filter_name] = filter_func(image_gray, **kwargs)
-            # else:
-            #     raise ValueError(f"Filter '{filter_name}' is not recognized.")
             
         return filters_result_dict
     
@@ -48,8 +36,6 @@ class FilterService:
         :param filter_list: List of filter names to apply.
         :param kwargs: filter params
         """
-        # if filter_list is None:
-        #     filter_list = self.TEXTURE_FILTERS
 
         filters_results_map = {}
 

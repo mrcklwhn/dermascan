@@ -29,7 +29,7 @@ python/
 │   └── dataset_loader.py
 └── prototypes/
     ├── simple_cnn_training/      # Primitive CNN-Modelle
-    │   └── training.ipynb
+    │   └── simple_resnet_finetuning.ipynb
     └── resnet_finetuning/        # Transfer Learning mit ResNet50
         └── simple_resnet_finetuning.ipynb
 ```

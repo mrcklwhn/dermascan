@@ -1,13 +1,12 @@
 import torch
 import torch.nn as nn
-import torchvision.transforms as transforms
 import torchvision.models as models
 from torchvision.models import ResNet50_Weights
 import torch.optim as optim
 import os
 import time
 from tempfile import TemporaryDirectory
-from dualbranch.ham10000_dataset import HAM10000Dataset
+from pipeline.dataset_loader import DatasetLoader
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 from sklearn.metrics import f1_score, roc_auc_score, accuracy_score, confusion_matrix
@@ -40,6 +39,7 @@ class ResNetFineTuneTrainer:
         self.supported_models = {'resnet18', 'resnet50', 'resnet101', }
         self.optimizer = None
         self.scheduler = None  # ReduceLROnPlateau, etc.
+        
         self.train_df = None
         self.val_df = None
         self.test_df = None
@@ -111,28 +111,6 @@ class ResNetFineTuneTrainer:
         for param in self.model.parameters():
             param.requires_grad = False
 
-        # # Modify input layer for filter channels (INPUT)
-        # old_conv = self.model.conv1 # old weights
-        # # new input layer
-        # self.model.conv1 = nn.Conv2d(
-        #     in_channels=self.params['input_channels'],
-        #     out_channels=old_conv.out_channels,
-        #     kernel_size=old_conv.kernel_size,
-        #     stride=old_conv.stride,
-        #     padding=old_conv.padding,
-        #     bias=old_conv.bias
-        # )
-        # # weights need to be initialized
-        # with torch.no_grad():
-        #     # original rgb weights
-        #     self.model.conv1.weight[:, :3, :, :] = old_conv.weight
-
-        #     # weights for new channels
-        #     extra_channels = self.params['input_channels'] - 3
-        #     if extra_channels > 0:
-        #         avg_weight = torch.mean(old_conv.weight, dim=1, keepdim=True)
-        #         self.model.conv1.weight[:, 3:, :, :] = avg_weight.repeat(1, extra_channels, 1, 1)
-
         # Modify the final layer for fine-tuning (OUTPUT)
         num_ftrs = self.model.fc.in_features
         self.model.fc = nn.Linear(num_ftrs, 2)
@@ -169,15 +147,15 @@ class ResNetFineTuneTrainer:
             ])
         }
 
-        train_dataset = HAM10000Dataset(train_df,
+        train_dataset = DatasetLoader(train_df,
                                         filter_name=self.filter_name,
                                         data_path=data_path,
                                         transform=data_transforms['train'])
-        val_dataset = HAM10000Dataset(val_df,
+        val_dataset = DatasetLoader(val_df,
                                       filter_name=self.filter_name,
                                       data_path=data_path,
                                       transform=data_transforms['val'])
-        test_dataset = HAM10000Dataset(test_df,
+        test_dataset = DatasetLoader(test_df,
                                        filter_name=self.filter_name,
                                        data_path=data_path,
                                        transform=data_transforms['val'])
