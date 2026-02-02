@@ -1,5 +1,5 @@
 import numpy as np
-from python.abcd_algorithms.mask_utils import boundary_extraction
+from abcd_algorithms.mask_utils import boundary_extraction
 from skimage.morphology import convex_hull_image, closing, remove_small_holes, disk
 from skimage.measure import label, regionprops, find_contours
 from typing import Dict, List, Tuple

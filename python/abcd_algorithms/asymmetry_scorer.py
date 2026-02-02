@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from python.abcd_algorithms.mask_utils import (
+from abcd_algorithms.mask_utils import (
     create_simple_binary_mask,
     compute_centroid,
     simple_axis_split,

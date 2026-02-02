@@ -4,15 +4,18 @@ import torchvision.transforms.functional
 from PIL import Image
 import numpy as np
 import torch
+import pandas as pd
 
 class DatasetLoader(Dataset):
-    def __init__(self, dataframe, filter_name, data_path, transform=None):
+    def __init__(self, dataframe: pd.DataFrame, filter_name: str, data_path: Path, transform=None):
         """
         Custom Dataset for HAM10000 skin lesion images.
 
-        :param dataframe: Pandas DataFrame containing image paths and labels
-        :param filter_name: Name of the filter to load.
-        :param transform: Optional transformations to be applied on the images
+        Args:
+            dataframe: Pandas DataFrame containing image paths and labels
+            filter_name: Name of the filter folder to load
+            data_path: Path to the data directory
+            transform: Optional transformations to be applied on the images
         """
         self.dataframe = dataframe
         self.filter_name = filter_name
@@ -21,12 +24,14 @@ class DatasetLoader(Dataset):
     def __len__(self):
         return len(self.dataframe)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx) -> tuple[torch.Tensor, int]:
         """
         Retrieve an image and its corresponding label.
 
-        :param idx: Index of the item to retrieve
-        :return: Tuple of (image, label)
+        Args:
+            idx: Index of the item to retrieve
+        Returns:
+            Tuple of (image, label)
         """
         if self.filter_name == "rgb":
             img_path = self.dataframe.iloc[idx]['image_path']
