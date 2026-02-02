@@ -127,7 +127,15 @@ class DatasetManager:
         return df_filtered
 
     def _get_invalid_image_paths(self, df: pd.DataFrame) -> list:
-        """Check for invalid image paths."""
+        """
+        Check for invalid image paths.
+
+        Args:
+            df: DataFrame containing dataset metadata
+
+        Returns:
+            A list of invalid image paths.
+        """
         invalid_paths = []
         for idx, row in df.iterrows():
             image_path = row['image_path']
@@ -136,7 +144,15 @@ class DatasetManager:
         return invalid_paths
     
     def _clean_null_values(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Remove rows with null values in critical columns."""
+        """
+        Remove rows with null values in critical columns.
+
+        Args:
+            df: DataFrame containing dataset metadata
+
+        Returns:
+            Cleaned DataFrame with no nulls in critical columns.
+        """
         # make sure there are no nulls in dx_type, dx, image_id, lesion_id
         df_cleaned = df.dropna(subset=['dx_type', 'dx', 'image_id', 'lesion_id'])
 
@@ -148,7 +164,15 @@ class DatasetManager:
         return df_cleaned
 
     def _remove_duplicates(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Remove duplicate images (same image hash with same diagnosis)."""
+        """
+        Remove duplicate images (same image hash with same diagnosis).
+        
+        Args:
+            df: DataFrame containing dataset metadata
+
+        Returns:
+            DataFrame with duplicates removed.
+        """
         
         # build image hash dataframe 
         image_hashes = []
@@ -168,7 +192,12 @@ class DatasetManager:
         return df_cleaned
     
     def print_class_distribution(self, df: pd.DataFrame):
-        """Visualize class distribution."""
+        """
+        Visualize class distribution.
+        
+        Args:
+            df: DataFrame containing dataset metadata
+        """
         class_counts = Counter(df['dx'])
         labels, counts = zip(*class_counts.items())
 
@@ -186,7 +215,10 @@ class DatasetManager:
         
         Args:
             test_size: Proportion of data to use for testing
-            val_size: Proportion of data to use for validation        
+            val_size: Proportion of data to use for validation 
+
+        Returns:
+            train_df, val_df, test_df: DataFrames for each split       
         """
         train_val_df, test_df = train_test_split(
             self.df,
@@ -207,6 +239,9 @@ class DatasetManager:
     def get_sample(self):
         """
         Returns a sample row from the dataset.
+
+        Returns:
+            A random row from the dataset as a pandas Series.
         """
 
         if self.df is None:
@@ -219,6 +254,7 @@ class DatasetManager:
     def get_sample_image(self, lesion_type = None) -> tuple[str, str, np.ndarray]:
         """
         Get a sample image from the dataset.
+
         Args:
             lesion_type: Optional lesion type code (e.g., 'nv', 'mel').
                          If None, a random lesion type is selected.
@@ -252,9 +288,13 @@ class DatasetManager:
     def get_random_lesions(self, lesion_types=None) -> Dict[str, str]:
         """
         Get one image names from each specified lesion types.
+
         Args:
             lesion_types: List of lesion type codes (e.g., ['nv', 'mel']).
                           If None, selects from all lesion types.
+
+        Returns:
+            A dictionary mapping lesion type to image_id.
         """
         if self.df is None:
             raise ValueError("Dataset not loaded. Please run load_dataset() first.")
@@ -276,10 +316,12 @@ class DatasetManager:
     def get_n_samples(self, n: int, lesion_type: str = None) -> list[np.ndarray]:
         """
         Get n sample images from the dataset.
+
         Args:
             n: Number of samples to retrieve.
             lesion_type: Optional lesion type code (e.g., 'nv', 'mel').
                          If None, samples from all lesion types.
+
         Returns:
             List of rows from the dataset.
         """
@@ -302,6 +344,7 @@ class DatasetManager:
         
         Args:
             image_id: image_id (without .jpg extension).
+            
         Returns:
             Image as numpy array.
         """
@@ -326,7 +369,7 @@ class DatasetManager:
         Visualize an image from the dataset with specified filters.
         
         Args:
-            image_name: image_id (without .jpg extension).
+            image_id: image_id (without .jpg extension).
             filter_method_list: List of callable filters methods, that take an image as input and return processed image.
 
         """

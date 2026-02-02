@@ -62,6 +62,12 @@ def preprocess_lesion(binary_mask: np.ndarray) -> np.ndarray:
     indentations that can inflate irregularity.
 
     Applies a small morphological closing and fills tiny holes.
+
+    Args:
+        binary_mask: Binary mask of the lesion as a numpy array.
+
+    Returns:
+        Cleaned binary mask as a numpy array.
     """
     if binary_mask.dtype != np.bool_:
         mask = binary_mask.astype(bool)
@@ -78,8 +84,13 @@ def preprocess_lesion(binary_mask: np.ndarray) -> np.ndarray:
 def polygon_area(coords: np.ndarray) -> float:
     """
     Compute area of a 2D polygon given ordered coordinates using the shoelace formula.
-    Expects coords as array of shape (N, 2) with (y, x) ordering.
-    """
+    
+    Args:
+        coords: Array of polygon vertex coordinates with shape (N, 2) in (y, x) order.
+
+    Returns:
+        Area of the polygon as a float.
+    """ 
     if coords.shape[0] < 3:
         return 0.0
     y = coords[:, 0]
@@ -93,9 +104,15 @@ def polygon_area(coords: np.ndarray) -> float:
 def extract_parametric_border(binary_mask: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Extract the largest ordered border from the binary mask and parameterize by arc length.
-
-    Returns arrays (x_s, y_s, s) where s is normalized arc length in [0, 1].
     Coordinates are in (y, x) image space and returned as floats.
+
+    Args:
+        binary_mask: Binary mask of the lesion as a numpy array.
+    
+    Returns:
+        x_s: Numpy array of x-coordinates of the border points.
+        y_s: Numpy array of y-coordinates of the border points.
+        s: Numpy array of normalized arc length parameter in [0, 1].
     """
     mask = binary_mask.astype(bool)
     contours = find_contours(mask, level=0.5)
@@ -135,6 +152,12 @@ def calculate_irregularity_index(binary_mask: np.ndarray) -> Dict[str, object]:
       - overall_irregularity_index: float in [0, 1]
       - most_significant_index: float in [0, 1]
       - feature_areas: list of areas (pixel units) for individual concavities
+
+    Args:
+        binary_mask: Binary mask of the lesion as a numpy array.
+    
+    Returns:
+        A dictionary containing the irregularity indices and feature areas.
     """
     # Step 0: Preprocess to mitigate thin hair cuts
     mask = preprocess_lesion(binary_mask)
