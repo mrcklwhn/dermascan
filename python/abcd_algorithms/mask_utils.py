@@ -5,6 +5,7 @@ from skimage.measure import regionprops, label
 from skimage.transform import rotate
 from skimage.measure._regionprops import RegionProperties
 
+
 def create_simple_binary_mask(image: np.ndarray) -> np.ndarray:
     """
     Create a binary mask of the lesion in the image using Otsu's thresholding and
@@ -32,10 +33,11 @@ def create_simple_binary_mask(image: np.ndarray) -> np.ndarray:
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         image_center = np.array(image.shape[:2]) / 2
+
         def contour_score(contour):
             M = cv2.moments(contour)
             if M["m00"] == 0:
-                return float('inf')
+                return float("inf")
             cx = int(M["m10"] / M["m00"])
             cy = int(M["m01"] / M["m00"])
             contour_center = np.array([cy, cx])
@@ -54,7 +56,7 @@ def boundary_extraction(binary_mask: np.ndarray) -> np.ndarray:
     """
     Extract the boundary; outer most edge of the lesion mask.
     Args:
-        mask: Binary mask as a numpy array.
+        binary_mask: Binary mask as a numpy array.
     Returns:
         Binary mask of the boundary (outline).
     """
@@ -65,75 +67,78 @@ def boundary_extraction(binary_mask: np.ndarray) -> np.ndarray:
     return contour
 
 
-def compute_centroid(mask: np.ndarray) -> tuple[int, int]:
+def compute_centroid(binary_mask: np.ndarray) -> tuple[int, int]:
     """
     Compute the centroid of the binary mask.
     Args:
-        mask: Binary mask of the lesion.
-        Returns:
+        binary_mask: Binary mask of the lesion.
+    Returns:
         Tuple of (cx, cy) coordinates of the centroid.
     """
 
-    y, x = np.nonzero(mask)
+    y, x = np.nonzero(binary_mask)
     centroid = (np.mean(x), np.mean(y))
     cx, cy = int(centroid[0]), int(centroid[1])
     return (cx, cy)
 
 
-def simple_axis_split(mask: np.ndarray, cx: int, cy: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def simple_axis_split(
+    binary_mask: np.ndarray, cx: int, cy: int
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Split the mask into quadrants based on centroid.
+    Split the binary mask into quadrants based on centroid.
     Args:
-        mask: Binary mask of the lesion.
+        binary_mask: Binary mask of the lesion.
         cx: X-coordinate of the centroid.
         cy: Y-coordinate of the centroid.
     Returns:
         Tuple of four quadrants: (top_left, top_right, bottom_left, bottom_right).
     """
-    h, w = mask.shape
-    top_left = mask[0:cy, 0:cx]
-    top_right = mask[0:cy, cx:w]
-    bottom_left = mask[cy:h, 0:cx]
-    bottom_right = mask[cy:h, cx:w]
+    h, w = binary_mask.shape
+    top_left = binary_mask[0:cy, 0:cx]
+    top_right = binary_mask[0:cy, cx:w]
+    bottom_left = binary_mask[cy:h, 0:cx]
+    bottom_right = binary_mask[cy:h, cx:w]
     return top_left, top_right, bottom_left, bottom_right
 
 
-def get_largest_region_skimage(mask: np.ndarray) -> RegionProperties:
+def get_largest_region_skimage(binary_mask: np.ndarray) -> RegionProperties:
     """
     Get the largest connected region from a binary mask using scikit-image.
     Args:
-        mask: Binary mask as a numpy array.
+        binary_mask: Binary mask as a numpy array.
     Returns:
         The largest connected region as a binary mask.
     """
-    labeled = label(mask)
+    labeled = label(binary_mask)
     regions = regionprops(labeled)
     if not regions:
-        return np.zeros_like(mask)
+        return np.zeros_like(binary_mask)
 
     largest_region = max(regions, key=lambda r: r.area)
 
     return largest_region
 
 
-def rotate_mask_to_principal_axis(mask: np.ndarray, preserve_original_dimensions: bool = False) -> tuple[np.ndarray, float]:
+def rotate_mask_to_principal_axis(
+    binary_mask: np.ndarray, preserve_original_dimensions: bool = False
+) -> tuple[np.ndarray, float]:
     """
     Rotate a binary mask to align its principal axis (major axis) vertically.
-    
+
     Args:
-        mask: Binary mask as a numpy array.
+        binary_mask: Binary mask as a numpy array.
         preserve_original_dimensions: Whether to clip the rotated mask to original dimensions.
     Returns:
-        Tuple of (rotated_mask, angle_degrees) where:
         - rotated_mask: The mask rotated so its major axis is vertical
         - angle_degrees: The rotation angle applied in degrees
     """
-    largest_region = get_largest_region_skimage(mask)
+    largest_region = get_largest_region_skimage(binary_mask)
     orientation_angle = largest_region.orientation
     angle_degrees = np.degrees(orientation_angle)
-    
+
     rotated_mask = rotate(
-        image=mask.astype(float),
+        image=binary_mask.astype(float),
         resize=not preserve_original_dimensions,
         angle=-angle_degrees,
         order=0,
@@ -142,5 +147,5 @@ def rotate_mask_to_principal_axis(mask: np.ndarray, preserve_original_dimensions
         preserve_range=True,
     )
     rotated_mask = (rotated_mask > 0.5).astype(int)
-    
+
     return rotated_mask, angle_degrees

@@ -31,7 +31,8 @@ class DatasetLoader(Dataset):
         Args:
             idx: Index of the item to retrieve
         Returns:
-            Tuple of (image, label)
+            - image: Tensor of image features
+            - label: Integer label of the image (lesion index)
         """
         if self.filter_name == "rgb":
             img_path = self.dataframe.iloc[idx]['image_path']

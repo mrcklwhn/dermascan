@@ -2,57 +2,56 @@ import numpy as np
 from abcd_algorithms.mask_utils import boundary_extraction
 from skimage.morphology import convex_hull_image, closing, remove_small_holes, disk
 from skimage.measure import label, regionprops, find_contours
-from typing import Dict, List, Tuple
+from typing import Any
 
 
-
-def calculate_rdv_metrics(mask: np.ndarray, centroid_x: float, centroid_y: float) -> float:
+def calculate_rdv_metrics(mask: np.ndarray, centroid_x: int, centroid_y: int) -> float:
     """
     Calculate radial distance variation (RDV) metrics to measure border irregularity of a skin lesion.
-    
+
     The method computes distances from the centroid to all boundary points and calculates
     statistical metrics to quantify how irregular the border is. A perfectly circular lesion
     would have minimal variation, while irregular borders show higher variation.
-    
+
     Args:
         mask: Binary mask of the lesion as a numpy array.
         centroid_x: X-coordinate of the centroid.
         centroid_y: Y-coordinate of the centroid.
-    
+
     Returns:
         rdv-score: A float value representing the radial distance variation score. 0 indicates
         a perfectly regular border, while higher values indicate more irregularity.
     """
     # Extract the boundary from the mask
     outline = boundary_extraction(mask)
-    
+
     # Get boundary point coordinates
     boundary_points = np.argwhere(outline > 0)
-    
+
     if len(boundary_points) == 0:
         # No boundary found, throw an error
         raise ValueError("No boundary points found in the lesion mask.")
-    
+
     # Calculate Euclidean distances from centroid to each boundary point
     distances = np.sqrt(
-        (boundary_points[:, 1] - centroid_x) ** 2 + 
-        (boundary_points[:, 0] - centroid_y) ** 2
+        (boundary_points[:, 1] - centroid_x) ** 2
+        + (boundary_points[:, 0] - centroid_y) ** 2
     )
-    
+
     # Calculate statistical metrics
     mean_distance = np.mean(distances)
     std_distance = np.std(distances)
-    
+
     # Calculate RDV score (coefficient of variation)
     # Normalized by mean to make it scale-invariant
     if mean_distance > 0:
         rdv_score = std_distance / mean_distance
     else:
         rdv_score = 0.0
-    
+
     # Clip to [0, 1] range for consistency
     rdv_score = float(np.clip(rdv_score, 0, 1))
-    
+
     return rdv_score
 
 
@@ -84,13 +83,13 @@ def preprocess_lesion(binary_mask: np.ndarray) -> np.ndarray:
 def polygon_area(coords: np.ndarray) -> float:
     """
     Compute area of a 2D polygon given ordered coordinates using the shoelace formula.
-    
+
     Args:
         coords: Array of polygon vertex coordinates with shape (N, 2) in (y, x) order.
 
     Returns:
         Area of the polygon as a float.
-    """ 
+    """
     if coords.shape[0] < 3:
         return 0.0
     y = coords[:, 0]
@@ -101,14 +100,16 @@ def polygon_area(coords: np.ndarray) -> float:
     return float(abs(s1 - s2) * 0.5)
 
 
-def extract_parametric_border(binary_mask: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def extract_parametric_border(
+    binary_mask: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Extract the largest ordered border from the binary mask and parameterize by arc length.
     Coordinates are in (y, x) image space and returned as floats.
 
     Args:
         binary_mask: Binary mask of the lesion as a numpy array.
-    
+
     Returns:
         x_s: Numpy array of x-coordinates of the border points.
         y_s: Numpy array of y-coordinates of the border points.
@@ -140,7 +141,9 @@ def extract_parametric_border(binary_mask: np.ndarray) -> Tuple[np.ndarray, np.n
     return x_s, y_s, s
 
 
-def calculate_irregularity_index(binary_mask: np.ndarray) -> Dict[str, object]:
+def calculate_irregularity_index(
+    binary_mask: np.ndarray,
+) -> dict[str, float | list[dict[str, Any]]]:
     """
     Area-based border irregularity index.
 
@@ -148,16 +151,13 @@ def calculate_irregularity_index(binary_mask: np.ndarray) -> Dict[str, object]:
     convex hull, then normalizes by the lesion area. Also reports the most
     significant single concavity area fraction.
 
-    Returns a dict with:
+    Args:
+        binary_mask: Binary mask of the lesion as a numpy array.
+
+    Returns:
       - overall_irregularity_index: float in [0, 1]
       - most_significant_index: float in [0, 1]
       - feature_areas: list of areas (pixel units) for individual concavities
-
-    Args:
-        binary_mask: Binary mask of the lesion as a numpy array.
-    
-    Returns:
-        A dictionary containing the irregularity indices and feature areas.
     """
     # Step 0: Preprocess to mitigate thin hair cuts
     mask = preprocess_lesion(binary_mask)
@@ -167,7 +167,7 @@ def calculate_irregularity_index(binary_mask: np.ndarray) -> Dict[str, object]:
         return {
             "overall_irregularity_index": 0.0,
             "most_significant_index": 0.0,
-            "feature_areas": []
+            "feature_areas": [],
         }
 
     # Convex hull to capture indentation baseline

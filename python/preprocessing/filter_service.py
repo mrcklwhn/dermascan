@@ -85,7 +85,7 @@ class FilterService:
             for filter_name, filter_result in filters_result_dict.items():
                 filter_output_dir = Path(output_dir) / f"{filter_name}"
                 filter_output_dir.mkdir(parents=True, exist_ok=True)
-                filename = Path(output_dir) / f"{filter_name}" / (image_id + ".npy")
+                filename = filter_output_dir  / (image_id + ".npy")
                 np.save(filename, filter_result)
             
 
