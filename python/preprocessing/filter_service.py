@@ -130,6 +130,7 @@ class FilterService:
             list_image_ids: List of image IDs to process
             filter_list: List of callable filter functions from image_filters module to apply
             batch_size: Number of images per batch
+            output_dir: Directory to save the filtered images. If None, uses the default filtered_output_dir
             asnpz: Whether to save each filter result as one npz file
             kwargs: filter params
         """
