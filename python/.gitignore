@@ -1,0 +1,13 @@
+# python data
+.venv*
+.onnx-venv
+__pycache__/
+
+# other data
+data/
+
+# kagglehub auth file
+kaggle-json
+
+# model output folder
+models/
