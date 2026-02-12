@@ -1,0 +1,62 @@
+{
+    "ensemble_id": "approach2_v1",
+    "task": "binary_mel_vs_nv",
+    "splits": {
+        "train_csv": "data/HAM10000_metadata_cleaned.csv",
+        "val_ratio": 0.1,
+        "test_csv": "data/HAM10000_metadata_cleaned.csv",
+        "seed": 42,
+    },
+    "branches": [ # list of separately trainable branches
+        {
+            "id": "rgb_resnet50", 
+            "model": {
+                "backbone": "resnet50", # identifier to load model weights
+                "pretrained": True,
+                "num_classes": 2,
+                "checkpoint": "results/approach2_v1/rgb_resnet50/best.pt", # path to store intermediate model to
+            },
+            "transforms": {
+                "train": ["resize:256", "center_crop:224", "random_hflip", "to_tensor", "normalize:imagenet"],
+                "val": ["resize:256", "center_crop:224", "to_tensor", "normalize:imagenet"],
+                "test": [] # no transforms as this is not necessary for inference
+            },
+            "filters": [],  # e.g., ["gabor", "lbp"]
+            "training": {
+                "epochs": 15,
+                "batch_size": 32,
+                "optimizer": {"type": "adamw", "lr": 1e-4, "weight_decay": 1e-4},
+                "scheduler": {"type": "reduce_on_plateau", "patience": 3},
+            },
+        },
+        {
+            "id": "texture_resnet18",
+            "model": {
+                "backbone": "resnet18",
+                "pretrained": True,
+                "num_classes": 2,
+                "checkpoint": "results/approach2_v1/texture_resnet18/best.pt",
+            },
+            "transforms": {
+                "train": ["resize:256", "center_crop:224", "random_hflip", "to_tensor", "normalize:imagenet"],
+                "val": ["resize:256", "center_crop:224", "to_tensor", "normalize:imagenet"],
+            },
+            "filters": ["gabor", "lbp"],
+            "training": {
+                "epochs": 15,
+                "batch_size": 32,
+                "optimizer": {"type": "adamw", "lr": 1e-4, "weight_decay": 1e-4},
+                "scheduler": {"type": "reduce_on_plateau", "patience": 3},
+            },
+        },
+    ],
+    "voting": { # isolate block definining the combiner
+        "strategy": "soft",
+        "weights": {"rgb_resnet50": 0.6, "texture_resnet18": 0.4},
+        "tie_breaker": "max_prob",  # future: switch to fusion layer here
+    },
+    "logging": {
+        "output_dir": "results/approach2_v1",
+        "metrics": ["f1", "auc", "accuracy", "sensitivity", "specificity"],
+    },
+}
