@@ -183,44 +183,20 @@ class ResNetFineTuneTrainer:
         self.params["batch_size"] = batch_size
         self.filter_name = filter_name
 
-        data_transforms = {
-            "train": v2.Compose(
-                [
-                    v2.ToImage(),  # Converts both PIL and numpy to tensor
-                    v2.ToDtype(torch.float32, scale=True),
-                    v2.RandomResizedCrop(224),
-                    v2.RandomHorizontalFlip(),
-                    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-                ]
-            ),
-            "val": v2.Compose(
-                [
-                    v2.ToImage(),
-                    v2.ToDtype(torch.float32, scale=True),
-                    v2.Resize(256),
-                    v2.CenterCrop(224),
-                    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-                ]
-            ),
-        }
-
         train_dataset = DatasetLoader(
             train_df,
             filter_name=self.filter_name,
-            data_path=data_path,
-            transform=data_transforms["train"],
+            data_path=data_path
         )
         val_dataset = DatasetLoader(
             val_df,
             filter_name=self.filter_name,
-            data_path=data_path,
-            transform=data_transforms["val"],
+            data_path=data_path
         )
         test_dataset = DatasetLoader(
             test_df,
             filter_name=self.filter_name,
-            data_path=data_path,
-            transform=data_transforms["val"],
+            data_path=data_path
         )
 
         self.train_loader = DataLoader(
