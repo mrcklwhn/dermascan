@@ -137,21 +137,10 @@ class ResNetFineTuneTrainer:
         )
         # new input layer weights need to be initialized
         with torch.no_grad():
-            if self.params['input_channels'] == 1:
-                # 1 input channel -> average the original RGB weights
-                avg_weight = torch.mean(old_conv.weight, dim=1, keepdim=True)
-                self.model.conv1.weight.copy_(avg_weight)
-            elif self.params['input_channels'] == 2:
-                # 2 input channels -> copy the original RGB weights to the first 2 channels
-                self.model.conv1.weight[:, :2, :, :] = old_conv.weight[:, :2, :, :]
-            else:
-                # 3 or more input channels -> copy the original RGB weights and Kaiming for rest
-                self.model.conv1.weight[:, :3, :, :] = old_conv.weight
-                if self.params['input_channels'] > 3:
-                    nn.init.kaiming_normal_(
-                        self.model.conv1.weight[:, 3:, :, :], 
-                        mode='fan_out', 
-                        nonlinearity='relu')
+            # init all input channels with kaiming normal
+            nn.init.kaiming_normal_(self.model.conv1.weight,
+                                    mode='fan_out',
+                                    nonlinearity='relu')
 
         # Modify the final layer for fine-tuning (OUTPUT)
         num_ftrs = self.model.fc.in_features
