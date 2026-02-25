@@ -5,13 +5,22 @@ from scipy.signal import fftconvolve
 from scipy import ndimage as ndim
 import numpy as np
 from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
+from pathlib import Path
+import pickle
 
+current_dir = Path.cwd()
+proj_dir = current_dir.parent.parent.resolve() # get project root directory
+
+# Cache file for precomputed Gabor kernels to speed up subsequent runs
+_GABOR_CACHE_FILE = proj_dir / "data" / "filtered" / "gabor_filter" / "_GABOR_KERNELS_CACHE.pkl"
+
+# Global variable to hold precomputed Gabor kernels in memory
 _GABOR_KERNELS = None
-_GABOR_CACHE_FILE = ""
 
 def gabor_filter(image_gray: np.ndarray) -> np.ndarray:
     """
     Apply Gabor filter optimized for skin lesion analysis.
+    Load precomputed kernels from cache if available, otherwise compute and save for performance.
     Configuration: 8 orientations × 5 scales = 40 channels
     
     Args:
@@ -20,25 +29,44 @@ def gabor_filter(image_gray: np.ndarray) -> np.ndarray:
     Returns:
         3D numpy array with shape (40, H, W) - 40 channels
     """
-
-    # 5 frequencies for multi-scale texture capture
-    # Low freq (0.05) = coarse texture, High freq (0.4) = fine details
-    frequencies = [0.05, 0.1, 0.2, 0.3, 0.4]
-
-    # 8 orientations for complete directional coverage
-    # Critical for capturing border irregularity and asymmetry in melanoma
-    thetas = np.arange(0, np.pi, np.pi/8)  # 0°, 22.5°, 45°, 67.5°, 90°, 112.5°, 135°, 157.5°
-
-    # Precompute Gabor kernels if not already done (lazy initialization)
     global _GABOR_KERNELS
+
+    
     if _GABOR_KERNELS is None:
-        kernels = []
-        for freq in frequencies:
-            for theta in thetas:
-                kernel = filters.gabor_kernel(frequency=freq, theta=theta)
-                kernels.append(kernel)
-        _GABOR_KERNELS = kernels
-        
+        print("Gabor kernels not loaded. Checking cache...")
+        cache_dir = _GABOR_CACHE_FILE.parent
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Check cache
+        if _GABOR_CACHE_FILE.exists():
+            print("Gabor kernel cache found. Loading kernels...")
+            with open(_GABOR_CACHE_FILE, 'rb') as f:
+                _GABOR_KERNELS = pickle.load(f)
+        # if cache not found, compute kernels and save to cache
+        else:
+            print("Precomputing Gabor kernels...")
+            # 5 frequencies for multi-scale texture capture
+            # Low freq (0.05) = coarse texture, High freq (0.4) = fine details
+            frequencies = [0.05, 0.1, 0.2, 0.3, 0.4]
+
+            # 8 orientations for complete directional coverage
+            # Critical for capturing border irregularity and asymmetry in melanoma
+            thetas = np.arange(0, np.pi, np.pi/8)  # 0°, 22.5°, 45°, 67.5°, 90°, 112.5°, 135°, 157.5°
+
+            # Precompute Gabor kernels
+            kernels = []
+            for freq in frequencies:
+                for theta in thetas:
+                    kernel = filters.gabor_kernel(frequency=freq, theta=theta)
+                    kernels.append(kernel)
+
+            _GABOR_KERNELS = kernels
+            
+            # Save with pickle
+            with open(_GABOR_CACHE_FILE, 'wb') as f:
+                pickle.dump(_GABOR_KERNELS, f)
+            print(f"Cached kernels to {_GABOR_CACHE_FILE}") 
+           
     responses = []
     for kernel in _GABOR_KERNELS:
             # FFT-based convolution for speed, especially with larger kernels
