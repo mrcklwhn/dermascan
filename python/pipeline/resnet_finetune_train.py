@@ -2,7 +2,7 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torchvision.models as models
-from torchvision.models import ResNet50_Weights
+from torchvision.models import ResNet18_Weights, ResNet50_Weights, ResNet101_Weights
 import torch.optim as optim
 import time
 from tempfile import TemporaryDirectory
@@ -114,11 +114,11 @@ class ResNetFineTuneTrainer:
 
         match model_name:
             case "resnet18":
-                self.model = models.resnet18(weights=ResNet50_Weights.DEFAULT)
+                self.model = models.resnet18(weights=ResNet18_Weights.DEFAULT)
             case "resnet50":
                 self.model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
             case "resnet101":
-                self.model = models.resnet101(weights=ResNet50_Weights.DEFAULT)
+                self.model = models.resnet101(weights=ResNet101_Weights.DEFAULT)
 
         # Freeze all layers except the final fully connected layer
         for param in self.model.parameters():
@@ -152,8 +152,8 @@ class ResNetFineTuneTrainer:
         train_df,
         val_df,
         test_df,
+        data_path,
         filter_name="rgb",
-        data_path=None,
         batch_size=32,
     ):
         """
@@ -251,7 +251,7 @@ class ResNetFineTuneTrainer:
 
         self.model_save_dir = Path(model_save_dir)
         self.results_csv_path = Path(results_csv_path)
-        self.history_plot_dir = Path(history_plot_dir)
+        self.plot_dir = Path(history_plot_dir)
 
     def train(self, epochs=50):
         """
@@ -270,9 +270,9 @@ class ResNetFineTuneTrainer:
             "val_acc": [],
         }
 
-        model_id = self._generate_id()
+        self.model_id = self._generate_id()
         self.results = {}
-        self.results["model_id"] = model_id
+        self.results["model_id"] = self.model_id
         self.results.update(self.params)
 
         # Check if model, optimizer, and data loaders are set
@@ -362,7 +362,7 @@ class ResNetFineTuneTrainer:
 
             # Store best model in model_save_dir
             model_save_path = (
-                Path(self.model_save_dir) / f"{model_id}_{self.filter_name}.pt"
+                Path(self.model_save_dir) / f"{self.model_id}_{self.filter_name}.pt"
             )
             torch.save(torch.load(best_model_params_path), model_save_path)
 
@@ -384,7 +384,7 @@ class ResNetFineTuneTrainer:
             plt.ylabel("Accuracy")
             plt.legend()
 
-            plot_path = Path(self.history_plot_dir) / f"{model_id}_history.png"
+            plot_path = Path(self.plot_dir) / f"{self.model_id}_history.png"
             plt.savefig(plot_path)
             plt.close()
 
@@ -430,16 +430,35 @@ class ResNetFineTuneTrainer:
         sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0.0
         specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
 
-        try:
-            # FIX: Use probabilities of the positive class (column 1) for binary AUC
-            all_probs_np = np.array(all_probs)
-            if all_probs_np.shape[1] == 2:
-                auc = roc_auc_score(all_labels, all_probs_np[:, 1])
-            else:
-                # Fallback for actual multiclass
-                auc = roc_auc_score(all_labels, all_probs_np, multi_class="ovr")
-        except ValueError:
-            auc = float("nan")
+        # Generate confusion matrix plot
+        plt.figure(figsize=(6, 5))
+        cm = confusion_matrix(all_labels, all_preds)
+        plt.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
+        plt.title("Confusion Matrix")
+        plt.colorbar()
+        
+        tick_marks = np.arange(len(cm))
+        class_names = ["nv", "mel"]
+        plt.xticks(tick_marks, class_names)
+        plt.yticks(tick_marks, class_names)
+        
+        plt.xlabel("Predicted Label")
+        plt.ylabel("True Label")
+        
+        thresh = cm.max() / 2.
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                pct = (cm[i, j] / np.sum(cm))
+                plt.text(j, i, f"{pct:.4f}",
+                         horizontalalignment="center",
+                         color="white" if cm[i, j] > thresh else "black")
+
+        plot_path = Path(self.plot_dir) / f"{self.model_id}_confusion_matrix.png"
+        plt.savefig(plot_path)
+
+        # AUC requires probabilities for the positive class
+        all_probs_np = np.array(all_probs)
+        auc = roc_auc_score(all_labels, all_probs_np[:, 1])
 
         print(
             f"Evaluation results - F1 (macro): {f1_macro:.4f}, F1 (weighted): {f1_weighted:.4f}, AUC: {auc:.4f}, Accuracy: {accuracy:.4f}, Sensitivity: {sensitivity:.4f}, Specificity: {specificity:.4f}"
