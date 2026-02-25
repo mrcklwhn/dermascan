@@ -95,16 +95,17 @@ class ResNetFineTuneTrainer:
 
         results_df.to_csv(self.results_csv_path, index=False)
 
-    def set_model(self, model_name: str, pretrained=True):
+    def set_model(self, model_name: str, input_channels: int, pretrained=True):
         """
         Set up the ResNet model for fine-tuning or transfer learning.
 
         Args:
             model_name: Name of the ResNet model (e.g., resnet18, resnet50)
-            pretrained: Whether to use a pretrained model weights
+            input_channels: Number of input channels for the model. Should be adjusted according to filter used (e.g. 3 for RGB)
         """
         self.params["model_name"] = model_name
         self.params["pretrained"] = pretrained
+        self.params["input_channels"] = input_channels
 
         if model_name not in self.supported_models:
             raise ValueError(
@@ -122,6 +123,24 @@ class ResNetFineTuneTrainer:
         # Freeze all layers except the final fully connected layer
         for param in self.model.parameters():
             param.requires_grad = False
+
+        # Modify input layer for filter channels (INPUT)
+        old_conv = self.model.conv1 # old weights
+        # new input layer
+        self.model.conv1 = nn.Conv2d(
+            in_channels=self.params['input_channels'],
+            out_channels=old_conv.out_channels,
+            kernel_size=old_conv.kernel_size,
+            stride=old_conv.stride,
+            padding=old_conv.padding,
+            bias=old_conv.bias
+        )
+        # new input layer weights need to be initialized
+        with torch.no_grad():
+            # init all input channels with kaiming normal
+            nn.init.kaiming_normal_(self.model.conv1.weight,
+                                    mode='fan_out',
+                                    nonlinearity='relu')
 
         # Modify the final layer for fine-tuning (OUTPUT)
         num_ftrs = self.model.fc.in_features
@@ -153,44 +172,20 @@ class ResNetFineTuneTrainer:
         self.params["batch_size"] = batch_size
         self.filter_name = filter_name
 
-        data_transforms = {
-            "train": v2.Compose(
-                [
-                    v2.ToImage(),  # Converts both PIL and numpy to tensor
-                    v2.ToDtype(torch.float32, scale=True),
-                    v2.RandomResizedCrop(224),
-                    v2.RandomHorizontalFlip(),
-                    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-                ]
-            ),
-            "val": v2.Compose(
-                [
-                    v2.ToImage(),
-                    v2.ToDtype(torch.float32, scale=True),
-                    v2.Resize(256),
-                    v2.CenterCrop(224),
-                    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-                ]
-            ),
-        }
-
         train_dataset = DatasetLoader(
             train_df,
             filter_name=self.filter_name,
-            data_path=data_path,
-            transform=data_transforms["train"],
+            data_path=data_path
         )
         val_dataset = DatasetLoader(
             val_df,
             filter_name=self.filter_name,
-            data_path=data_path,
-            transform=data_transforms["val"],
+            data_path=data_path
         )
         test_dataset = DatasetLoader(
             test_df,
             filter_name=self.filter_name,
-            data_path=data_path,
-            transform=data_transforms["val"],
+            data_path=data_path
         )
 
         self.train_loader = DataLoader(
