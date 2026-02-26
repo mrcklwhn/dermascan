@@ -95,17 +95,19 @@ class ResNetFineTuneTrainer:
 
         results_df.to_csv(self.results_csv_path, index=False)
 
-    def set_model(self, model_name: str, input_channels: int, pretrained=True):
+    def set_model(self, model_name: str, input_channels: int, pretrained=True, rgb=False):
         """
         Set up the ResNet model for fine-tuning or transfer learning.
 
         Args:
             model_name: Name of the ResNet model (e.g., resnet18, resnet50)
             input_channels: Number of input channels for the model. Should be adjusted according to filter used (e.g. 3 for RGB)
+            rgb: Whether to use standard RGB input layer
         """
         self.params["model_name"] = model_name
-        self.params["pretrained"] = pretrained
         self.params["input_channels"] = input_channels
+        self.params["pretrained"] = pretrained
+        self.params["rgb"] = rgb
 
         if model_name not in self.supported_models:
             raise ValueError(
@@ -124,23 +126,24 @@ class ResNetFineTuneTrainer:
         for param in self.model.parameters():
             param.requires_grad = False
 
-        # Modify input layer for filter channels (INPUT)
-        old_conv = self.model.conv1 # old weights
-        # new input layer
-        self.model.conv1 = nn.Conv2d(
-            in_channels=self.params['input_channels'],
-            out_channels=old_conv.out_channels,
-            kernel_size=old_conv.kernel_size,
-            stride=old_conv.stride,
-            padding=old_conv.padding,
-            bias=old_conv.bias
-        )
-        # new input layer weights need to be initialized
-        with torch.no_grad():
-            # init all input channels with kaiming normal
-            nn.init.kaiming_normal_(self.model.conv1.weight,
-                                    mode='fan_out',
-                                    nonlinearity='relu')
+        if not rgb:
+            # Modify input layer for filter channels (INPUT)
+            old_conv = self.model.conv1 # old weights
+            # new input layer
+            self.model.conv1 = nn.Conv2d(
+                in_channels=self.params['input_channels'],
+                out_channels=old_conv.out_channels,
+                kernel_size=old_conv.kernel_size,
+                stride=old_conv.stride,
+                padding=old_conv.padding,
+                bias=old_conv.bias
+            )
+            # new input layer weights need to be initialized
+            with torch.no_grad():
+                # init all input channels with kaiming normal
+                nn.init.kaiming_normal_(self.model.conv1.weight,
+                                        mode='fan_out',
+                                        nonlinearity='relu')
 
         # Modify the final layer for fine-tuning (OUTPUT)
         num_ftrs = self.model.fc.in_features
