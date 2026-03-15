@@ -2,22 +2,35 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from abc import ABC, abstractmethod
 
 
-@dataclass(frozen=True)
-class ModelSpec:
+class EnsembleBaseModel(ABC):
     """
-    Defines how a single model is loaded and how it performs inference.
-    
-    Args:
-        model_id: A unique identifier for the model (e.g., "resnet50").
-        load: A callable that loads the model and returns it.
-        predict_proba: A callable that takes the loaded model and an image, and returns a sequence of probabilities for each class.
+    Abstract base class that encapsulates the model weights, image loading,
+    and a general method to do inference for ensemble voting.
     """
+    def __init__(self, model_id: str, model_path: str):
+        self.model_id = model_id
+        self.model_path = model_path
+        self.model = self.load_model()
 
-    model_id: str
-    load: Callable[[], Any]
-    predict_proba: Callable[[Any, Any], Sequence[float]]
+    @abstractmethod
+    def load_model(self) -> Any:
+        pass
+
+    @abstractmethod
+    def load_image(self, image_info: Any) -> Any:
+        pass
+
+    @abstractmethod
+    def predict_proba(self, image_tensor: Any) -> Sequence[float]:
+        pass
+
+    def run_inference(self, image_info: Any) -> Sequence[float]:
+        """Loads the specific image format and runs inference."""
+        image_tensor = self.load_image(image_info)
+        return self.predict_proba(image_tensor)
 
 
 @dataclass(frozen=True)
@@ -63,7 +76,7 @@ class EnsembleVoter:
     Sequentially loads models, runs inference, and aggregates via voting.
     
     Args:
-        model_specs: A sequence of ModelSpec instances defining the models to use.
+        model_specs: A sequence of EnsembleBaseModel instances defining the models to use.
         strategy: The voting strategy to use ("soft" or "hard").
         weights: Optional dict mapping model_id to a weight for soft voting.
         tie_breaker: The method to resolve ties in hard voting ("max_prob", "avg_prob", "first").
@@ -73,7 +86,7 @@ class EnsembleVoter:
 
     def __init__(
         self,
-        model_specs: Sequence[ModelSpec],
+        model_specs: Sequence[EnsembleBaseModel],
         strategy: str = "soft",
         weights: Optional[Dict[str, float]] = None,
         tie_breaker: str = "max_prob",
@@ -105,8 +118,7 @@ class EnsembleVoter:
         branch_results: List[BranchResult] = []
 
         for spec in self.model_specs:
-            model = spec.load()
-            probs_seq = spec.predict_proba(model, image)
+            probs_seq = spec.run_inference(image)
             probs = self._normalize_probs(list(probs_seq))
             label = int(max(range(len(probs)), key=lambda i: probs[i]))
             confidence = float(probs[label])
@@ -317,16 +329,24 @@ class EnsembleVoter:
 
         print("Ensemble voting summary")
         print(f"Strategy: {output.strategy}")
-        print("Branch outputs:")
+        
+        final_label = output.label
+        final_label_name = self._label_name(final_label)
+
+        print(f"{'Model':<15} | {'Predicted':<15} | {'Match?':<6} | {'Confidence':<10} | {'Prob(Final)':<11}")
+        print("-" * 66)
+        
         for result in output.branch_results:
-            label_name = self._label_name(result.label)
+            pred_name = self._label_name(result.label)
+            match = "Yes" if result.label == final_label else "No"
+            prob_final = result.probs[final_label]
+            
             print(
-                f"- {result.model_id}: label={label_name}, "
-                f"confidence={result.confidence:.4f}, probs={result.probs}"
+                f"{result.model_id:<15} | {pred_name:<15} | {match:<6} | {result.confidence:<10.4f} | {prob_final:<11.4f}"
             )
 
-        final_label_name = self._label_name(output.label)
+        match = "Yes" if output.label == final_label else "No"
+        print("-" * 66)
         print(
-            f"Final: label={final_label_name}, "
-            f"confidence={output.confidence:.4f}, probs={output.probs}"
+            f"{'Ensemble':<15} | {final_label_name:<15} | {match:<6} | {output.confidence:<10.4f} | {output.probs[final_label]:<11.4f}"
         )
