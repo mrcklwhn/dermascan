@@ -34,3 +34,10 @@ Verschiedene ML Modelle werden evaluiert, um einen Kompromiss zwischen Genauigke
 Dabei wird neben dem Finetuning von vortrainierten Modellen auch eine eigene Modellarchitektur entwickelt, die speziell auf die Anforderungen der Hautläsionserkennung zugeschnitten ist.
 
 Nähere Informationen zur Modellentwicklung finden sich im [ML Dokumentationsordner](./ml/README.md).
+
+
+### Datenbank
+
+Als Datenbank dient eine Online Instanz von Supabase. Der Datenbank-Service stellt eine aufsteigende Alternative zu Firebase von Google dar, insbesondere da sie eine Bibliothek für die App Entwicklung mit Flutter bietet. Die Entscheidung für einen externen Dienstleister ist auch damit zu begründen, dass wir selbst keine dauerhaft verfügbare Datenbank aufsetzen und einen ortsunabhängigen Zugriff ermöglichen müssen, wodurch der Fokus auf der Entwicklung bleibt.
+
+Nähere Informationen zur Modellentwicklung finden sich im [Datenbank Dokumentationsordner](./db/README.md).
