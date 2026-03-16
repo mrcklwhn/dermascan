@@ -14,3 +14,6 @@ models/
 # mkdocs build output
 site/
 public/
+
+# Android Studio files
+.idea
