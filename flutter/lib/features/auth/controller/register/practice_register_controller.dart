@@ -29,8 +29,6 @@ class PracticeRegisterController extends GetxController {
   Rx<bool> hasSpecialCharacters = false.obs;
   Rx<bool> passwordsMatch = false.obs;
 
-  DateTime? dateOfBirth;
-
   @override
   void onInit() {
     super.onInit();
@@ -57,12 +55,31 @@ class PracticeRegisterController extends GetxController {
   }
 
   Future<void> submitRegisterData() async {
+    if (nameController.text.isEmpty || emailController.text.isEmpty) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Registration failed!',
+          message: 'Please fill in all required fields!',
+        ),
+      );
+      return;
+    }
+
     if (!(hasMinLength.value &&
         hasUppercase.value &&
         hasLowercase.value &&
         hasDigits.value &&
         hasSpecialCharacters.value &&
         passwordsMatch.value)) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Registration failed!',
+          message:
+              'Your password does not meet the requirements of the mission!',
+        ),
+      );
       return;
     }
 
@@ -89,10 +106,8 @@ class PracticeRegisterController extends GetxController {
       name: nameController.text.trim(),
     );
 
-    registerController.isLoading.value = false;
-
     if (profileCreated) {
-      await Get.offAllNamed('/practice/home');
+      await Get.offNamed('/practice/home');
     } else {
       Get.showSnackbar(
         CustomSnackBar(
@@ -102,5 +117,7 @@ class PracticeRegisterController extends GetxController {
         ),
       );
     }
+
+    registerController.isLoading.value = false;
   }
 }

@@ -57,8 +57,6 @@ class PracticeLoginController extends GetxController {
       password: passwordController.text,
     );
 
-    loginController.isLoading.value = false;
-
     if (success) {
       await Get.offNamed('/practice/home');
     } else {
@@ -70,5 +68,7 @@ class PracticeLoginController extends GetxController {
         ),
       );
     }
+
+    loginController.isLoading.value = false;
   }
 }
