@@ -56,10 +56,8 @@ class DoctorLoginController extends GetxController {
       password: passwordController.text,
     );
 
-    loginController.isLoading.value = false;
-
     if (success) {
-      await Get.offNamed('/doctor/home');
+      await authService.evaluateRouteAndNavigate();
     } else {
       Get.showSnackbar(
         CustomSnackBar(
@@ -69,5 +67,7 @@ class DoctorLoginController extends GetxController {
         ),
       );
     }
+
+    loginController.isLoading.value = false;
   }
 }

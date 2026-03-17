@@ -1,3 +1,4 @@
+import 'package:dermascan/app/enums.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
@@ -22,8 +23,9 @@ class DoctorRegisterController extends GetxController {
       TextEditingController();
 
   Rx<bool> passwordIsObscure = true.obs;
-  Rx<String> selectedGender = ''.obs;
-  final List<String> genderOptions = <String>['Male', 'Female'];
+  final Rxn<Gender> selectedGender = Rxn<Gender>();
+
+  List<Gender> get genderOptions => Gender.values;
 
   Rx<bool> hasMinLength = false.obs;
   Rx<bool> hasUppercase = false.obs;
@@ -74,12 +76,35 @@ class DoctorRegisterController extends GetxController {
   }
 
   Future<void> submitRegisterData() async {
+    if (selectedGender.value == null ||
+        nameController.text.isEmpty ||
+        dateOfBirth == null ||
+        emailController.text.isEmpty) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Registration failed!',
+          message: 'Please fill in all required fields!',
+        ),
+      );
+      return;
+    }
+
     if (!(hasMinLength.value &&
         hasUppercase.value &&
         hasLowercase.value &&
         hasDigits.value &&
         hasSpecialCharacters.value &&
         passwordsMatch.value)) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Registration failed!',
+          message:
+              'Your password does not meet the requirements of the mission!',
+        ),
+      );
+
       return;
     }
 
@@ -104,14 +129,12 @@ class DoctorRegisterController extends GetxController {
 
     final bool profileCreated = await dbService.createDoctorProfile(
       name: nameController.text.trim(),
-      gender: selectedGender.value[0],
+      gender: selectedGender.value!.name,
       dateOfBirth: dateOfBirth,
     );
 
-    registerController.isLoading.value = false;
-
     if (profileCreated) {
-      await Get.offAllNamed('/doctor/home');
+      await authService.evaluateRouteAndNavigate();
     } else {
       Get.showSnackbar(
         CustomSnackBar(
@@ -121,5 +144,7 @@ class DoctorRegisterController extends GetxController {
         ),
       );
     }
+
+    registerController.isLoading.value = false;
   }
 }

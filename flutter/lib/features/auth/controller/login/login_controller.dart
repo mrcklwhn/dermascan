@@ -1,5 +1,5 @@
 import 'package:dermascan/app/enums.dart';
-import 'package:dermascan/features/auth/views/register/register_screen.dart';
+import 'package:dermascan/features/auth/screens/register/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
