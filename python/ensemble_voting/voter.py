@@ -80,24 +80,24 @@ class EnsembleVoter:
         strategy: The voting strategy to use ("soft" or "hard").
         weights: Optional dict mapping model_id to a weight for soft voting.
         tie_breaker: The method to resolve ties in hard voting ("max_prob", "avg_prob", "first").
-        label_names: Optional list of label names for more readable output.
+        label_names: list of label names for more readable output. Needs to be in the same order as the model outputs.
         verbose: If True, prints a summary of the voting process and results.
     """
 
     def __init__(
         self,
         model_specs: Sequence[EnsembleBaseModel],
+        label_names: Sequence[str],
         strategy: str = "soft",
-        weights: Optional[Dict[str, float]] = None,
+        weights: Dict[str, float] = None,
         tie_breaker: str = "max_prob",
-        label_names: Optional[Sequence[str]] = None,
         verbose: bool = True,
     ) -> None:
         self.model_specs = list(model_specs)
         self.strategy = strategy.lower()
-        self.weights = weights or {}
+        self.weights = weights
         self.tie_breaker = tie_breaker.lower()
-        self.label_names = list(label_names) if label_names else None
+        self.label_names = label_names
         self.verbose = verbose
 
         if self.strategy not in {"soft", "hard"}:
@@ -153,6 +153,17 @@ class EnsembleVoter:
             self._print_summary(output)
 
         return output
+    
+    def run_multiple(self, images: Sequence[Any]) -> List[EnsembleOutput]:
+        """
+        Runs inference on multiple images and aggregates the results for each.
+
+        Args:
+            images: A sequence of input images to classify.
+        Returns:
+            A list of EnsembleOutput instances, one for each input image.
+        """
+        return [self.run(image) for image in images]
 
     def _soft_vote(self, results: Sequence[BranchResult]) -> List[float]:
         """
@@ -169,7 +180,7 @@ class EnsembleVoter:
         weight_total = 0.0
 
         for result in results:
-            w = self._get_weight(result.model_id)
+            w = self.weights.get(result.model_id, 1.0)
             for i in range(num_classes):
                 totals[i] += result.probs[i] * w
             weight_total += w
@@ -195,7 +206,7 @@ class EnsembleVoter:
         votes = [0.0 for _ in range(num_classes)]
 
         for result in results:
-            votes[result.label] += self._get_weight(result.model_id)
+            votes[result.label] += self.weights.get(result.model_id, 1.0)
 
         max_vote = max(votes)
         tied_labels = [i for i, v in enumerate(votes) if v == max_vote]
@@ -259,18 +270,6 @@ class EnsembleVoter:
         vote_count = sum(1 for result in results if result.label == label)
         return float(vote_count) / float(len(results))
 
-    def _get_weight(self, model_id: str) -> float:
-        """
-        Helper function to get the weight for a given model ID.
-        Args:
-            model_id: The unique identifier of the model.
-        Returns:
-            The weight for the model defined in the initial configuration, 
-            defaulting to 1.0 if not specified.
-        """
-
-        return float(self.weights.get(model_id, 1.0))
-
     def _get_num_classes(self, results: Sequence[BranchResult]) -> int:
         """
         Helper function to determine the number of classes from the model outputs, ensuring consistency across models.
@@ -303,19 +302,6 @@ class EnsembleVoter:
             raise ValueError("Model returned non-positive probabilities")
         return [p / total for p in probs]
 
-    def _label_name(self, label: int) -> str:
-        """
-        Helper function to get the human-readable label name for a given label index, if label names are provided.
-        
-        Args:
-            label: The label index to convert to a name.
-        Returns:
-            The human-readable label name if available, otherwise the string representation of the label index.
-        """
-        if self.label_names and 0 <= label < len(self.label_names):
-            return self.label_names[label]
-        return str(label)
-
     def _print_summary(self, output: EnsembleOutput) -> None:
         """
         Helper function to print a summary of the ensemble voting process and results in a human-readable format.
@@ -331,13 +317,13 @@ class EnsembleVoter:
         print(f"Strategy: {output.strategy}")
         
         final_label = output.label
-        final_label_name = self._label_name(final_label)
+        final_label_name = self.label_names[final_label]
 
         print(f"{'Model':<15} | {'Predicted':<15} | {'Match?':<6} | {'Confidence':<10} | {'Prob(Final)':<11}")
         print("-" * 66)
         
         for result in output.branch_results:
-            pred_name = self._label_name(result.label)
+            pred_name = self.label_names[result.label]
             match = "Yes" if result.label == final_label else "No"
             prob_final = result.probs[final_label]
             
