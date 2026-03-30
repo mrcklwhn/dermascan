@@ -5,15 +5,30 @@ import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class PatientsController extends GetxController {
   AuthService authService = Get.find<AuthService>();
   DBService dbService = Get.find<DBService>();
 
-  RxList<Patient> patients = <Patient>[].obs;
+  ScrollController listScrollController = ScrollController();
 
-  Rx<bool> isInitializing = true.obs;
+  TextEditingController searchBarController = TextEditingController();
+
+  FocusNode searchBarFocusNode = FocusNode();
+
+  RxBool isInitializing = true.obs;
+
+  RxList<Patient> patients = <Patient>[].obs;
+  RxList<Patient> visiblePatients = <Patient>[].obs;
+
+  @override
+  void onClose() {
+    listScrollController.dispose();
+    searchBarController.dispose();
+    super.onClose();
+  }
 
   @override
   void onInit() {
@@ -39,32 +54,56 @@ class PatientsController extends GetxController {
     if (practiceOfDoctor == null) {
       return;
     }
-
-    final List<Patient> patients = await dbService.fetchPatients(
+    final List<Patient> fetchedPatients = await dbService.fetchPatients(
       practiceId: practiceOfDoctor.id,
     );
 
-    this.patients.assignAll(patients);
+    patients.assignAll(fetchedPatients);
+    visiblePatients.assignAll(fetchedPatients);
   }
 
-  void addCreatedPatient({required Patient createdPatient}) {
-    patients.add(createdPatient);
+  void filterPatients({required String query}) {
+    if (query.isEmpty) {
+      visiblePatients.assignAll(patients);
+    } else {
+      final Iterable<Patient> filtered = patients.where(
+        (Patient p) => p.name.toLowerCase().contains(query.toLowerCase()),
+      );
+      visiblePatients.assignAll(filtered);
+    }
+  }
+
+  void unfocusSearchBar() {
+    searchBarFocusNode.unfocus();
+  }
+
+  void clearSearchBar() {
+    searchBarController.clear();
+    filterPatients(query: searchBarController.value.text);
+  }
+
+  void addNewPatient({required Patient newPatient}) {
+    patients.add(newPatient);
+    visiblePatients.add(newPatient);
   }
 
   void removePatient({required String patientId}) {
     patients.removeWhere((Patient part) => part.id == patientId);
+    visiblePatients.removeWhere((Patient part) => part.id == patientId);
   }
 
-  Future<void> openCreateNewPatientScreen() async {
-    final dynamic createdPatient = await Get.toNamed(
-      '/doctor/create-new-patient',
-    );
-    if (createdPatient != null && createdPatient is Patient) {
-      addCreatedPatient(createdPatient: createdPatient);
+  Future<void> openAddNewPatientScreen() async {
+    if (isInitializing.value) return;
+
+    final dynamic newPatient = await Get.toNamed('/doctor/add-new-patient');
+    if (newPatient != null && newPatient is Patient) {
+      addNewPatient(newPatient: newPatient);
     }
   }
 
-  void showPatientProfile({required String patientId}) {
+  void openPatientProfile({required String patientId}) {
+    if (isInitializing.value) return;
+
     final Patient selectedPatient = patients.firstWhere(
       (Patient pat) => pat.id == patientId,
     );

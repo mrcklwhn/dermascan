@@ -15,7 +15,7 @@ linter:
     #   if (condition) {
     #     doSomething();
     #   }
-    - always_put_control_body_on_new_line
+    # - always_put_control_body_on_new_line
 
     # Enforces curly braces {} for all control structures to prevent common errors.
     # Bad: if (condition) doSomething();

@@ -11,8 +11,8 @@ class PatientDetailsController extends GetxController {
   AuthService authService = Get.find<AuthService>();
   DBService dbService = Get.find<DBService>();
 
-  Rx<bool> isInitializing = true.obs;
-  Rx<bool> isLoading = false.obs;
+  RxBool isInitializing = true.obs;
+  RxBool isLoading = false.obs;
 
   RxList<Lesion> lesions = <Lesion>[].obs;
 
@@ -25,11 +25,6 @@ class PatientDetailsController extends GetxController {
     loadValuesFromRoute();
   }
 
-  void loadValuesFromRoute() {
-    final Map<String, dynamic> args = Get.arguments as Map<String, dynamic>;
-    patient = args['patient'];
-  }
-
   Future<void> _initializeData() async {
     try {
       await loadLesions();
@@ -40,6 +35,11 @@ class PatientDetailsController extends GetxController {
     } finally {
       isInitializing.value = false;
     }
+  }
+
+  void loadValuesFromRoute() {
+    final Map<String, dynamic> args = Get.arguments as Map<String, dynamic>;
+    patient = args['patient'];
   }
 
   Future<void> loadLesions() async {

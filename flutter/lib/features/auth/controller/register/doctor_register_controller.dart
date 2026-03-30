@@ -5,15 +5,15 @@ import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/features/auth/controller/register/register_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class DoctorRegisterController extends GetxController {
+  DBService dbService = Get.find<DBService>();
+  AuthService authService = Get.find<AuthService>();
+
   RegisterController registerController;
 
   DoctorRegisterController(this.registerController);
-
-  AuthService authService = Get.find<AuthService>();
-
-  DBService dbService = Get.find<DBService>();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -22,23 +22,43 @@ class DoctorRegisterController extends GetxController {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  Rx<bool> passwordIsObscure = true.obs;
-  final Rxn<Gender> selectedGender = Rxn<Gender>();
+  final FocusNode nameFocusNode = FocusNode();
+  final FocusNode emailFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
+  final FocusNode confirmPasswordFocusNode = FocusNode();
+
+  RxBool hasMinLength = false.obs;
+  RxBool hasUppercase = false.obs;
+  RxBool hasLowercase = false.obs;
+  RxBool hasDigits = false.obs;
+  RxBool hasSpecialCharacters = false.obs;
+  RxBool passwordsMatch = false.obs;
+  RxBool isValidEmail = false.obs;
+
+  DateTime? dateOfBirth;
+
+  Gender? selectedGender;
 
   List<Gender> get genderOptions => Gender.values;
 
-  Rx<bool> hasMinLength = false.obs;
-  Rx<bool> hasUppercase = false.obs;
-  Rx<bool> hasLowercase = false.obs;
-  Rx<bool> hasDigits = false.obs;
-  Rx<bool> hasSpecialCharacters = false.obs;
-  Rx<bool> passwordsMatch = false.obs;
-
-  DateTime? dateOfBirth;
+  @override
+  void onClose() {
+    nameController.dispose();
+    emailController.dispose();
+    birthdayController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.onClose();
+  }
 
   @override
   void onInit() {
     super.onInit();
+    emailController.addListener(() {
+      isValidEmail.value = RegExp(
+        r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+      ).hasMatch(emailController.text);
+    });
     passwordController.addListener(() {
       final String password = passwordController.text;
       hasMinLength.value = password.length >= 8;
@@ -57,34 +77,57 @@ class DoctorRegisterController extends GetxController {
     });
   }
 
-  void changePasswordObscurity() {
-    passwordIsObscure.value = !passwordIsObscure.value;
-  }
-
   Future<void> selectDate(BuildContext context) async {
-    dateOfBirth = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
+      initialDate: DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
 
-    if (dateOfBirth != null) {
-      birthdayController.text =
-          '${dateOfBirth?.day}.${dateOfBirth?.month}.${dateOfBirth?.year}';
+    if (picked != null && picked != dateOfBirth) {
+      dateOfBirth = picked;
+      birthdayController.text = DateFormat.yMMMd().format(picked);
     }
   }
 
+  void submittedName() {
+    nameFocusNode.unfocus();
+  }
+
+  void submittedEmail() {
+    passwordFocusNode.requestFocus();
+  }
+
+  void submittedPassword() {
+    confirmPasswordFocusNode.requestFocus();
+  }
+
   Future<void> submitRegisterData() async {
-    if (selectedGender.value == null ||
-        nameController.text.isEmpty ||
+    if (registerController.isLoading.value) return;
+
+    if (selectedGender == null ||
+        nameController.text.trim().isEmpty ||
         dateOfBirth == null ||
-        emailController.text.isEmpty) {
+        emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty ||
+        confirmPasswordController.text.trim().isEmpty) {
       Get.showSnackbar(
         CustomSnackBar(
           icon: Icons.error,
-          title: 'Registration failed!',
-          message: 'Please fill in all required fields!',
+          title: 'Information Missing',
+          message: 'Please fill in all required fields to create your account.',
+        ),
+      );
+      return;
+    }
+
+    if (!isValidEmail.value) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Invalid E-Mail',
+          message: 'Your e-mail is not formatted correctly.',
         ),
       );
       return;
@@ -99,52 +142,62 @@ class DoctorRegisterController extends GetxController {
       Get.showSnackbar(
         CustomSnackBar(
           icon: Icons.error,
-          title: 'Registration failed!',
+          title: 'Password Insecure',
           message:
-              'Your password does not meet the requirements of the mission!',
+              'Your password does not meet the security requirements or the passwords do not match.',
         ),
       );
-
       return;
     }
 
     registerController.isLoading.value = true;
 
-    final bool successful = await authService.register(
-      email: emailController.text.trim(),
-      password: passwordController.text,
-    );
+    try {
+      final bool successful = await authService.register(
+        email: emailController.text.trimRight(),
+        password: passwordController.text,
+      );
 
-    if (!successful) {
+      if (!successful) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Registration Failed',
+            message:
+                'Could not create account. The email might already be in use or the connection failed.',
+          ),
+        );
+        return;
+      }
+
+      final bool profileCreated = await dbService.createDoctorProfile(
+        name: nameController.text.trim(),
+        gender: selectedGender!.name,
+        dateOfBirth: dateOfBirth,
+      );
+
+      if (profileCreated) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.check_circle,
+            title: 'Register Successful',
+            message:
+                'Your Registration was successful. Yor account was created and you are now logged in.',
+          ),
+        );
+        await authService.evaluateRouteAndNavigate();
+      } else {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Profile Creation Error',
+            message:
+                "Your account was created, but we couldn't set up the practice profile. Please contact support.",
+          ),
+        );
+      }
+    } finally {
       registerController.isLoading.value = false;
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Registration failed!',
-          message: 'Please check your data and try again!',
-        ),
-      );
-      return;
     }
-
-    final bool profileCreated = await dbService.createDoctorProfile(
-      name: nameController.text.trim(),
-      gender: selectedGender.value!.name,
-      dateOfBirth: dateOfBirth,
-    );
-
-    if (profileCreated) {
-      await authService.evaluateRouteAndNavigate();
-    } else {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Registration failed!',
-          message: 'Please check your data and try again later!',
-        ),
-      );
-    }
-
-    registerController.isLoading.value = false;
   }
 }

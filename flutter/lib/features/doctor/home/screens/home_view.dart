@@ -2,11 +2,8 @@ import 'package:dermascan/features/doctor/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class DoctorHomeScreen extends StatelessWidget {
-  DoctorHomeScreen({super.key});
-
-  final DoctorHomeController doctorHomeController =
-      Get.find<DoctorHomeController>();
+class DoctorHomeScreen extends GetView<DoctorHomeController> {
+  const DoctorHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +11,8 @@ class DoctorHomeScreen extends StatelessWidget {
       bottomNavigationBar: Obx(
         () => NavigationBar(
           onDestinationSelected: (int index) =>
-              doctorHomeController.currentScreenIndex.value = index,
-          selectedIndex: doctorHomeController.currentScreenIndex.value,
+              controller.currentScreenIndex.value = index,
+          selectedIndex: controller.currentScreenIndex.value,
           destinations: const <NavigationDestination>[
             NavigationDestination(
               icon: Icon(Icons.group_outlined),
@@ -31,15 +28,12 @@ class DoctorHomeScreen extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Obx(() {
-          if (doctorHomeController.currentScreenIndex.value >=
-              doctorHomeController.screens.length) {
-            doctorHomeController.currentScreenIndex.value = 0;
-          }
-          return doctorHomeController.screens[doctorHomeController
-              .currentScreenIndex
-              .value];
-        }),
+        child: Obx(
+          () => IndexedStack(
+            index: controller.currentScreenIndex.value,
+            children: controller.screens,
+          ),
+        ),
       ),
     );
   }

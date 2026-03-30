@@ -1,49 +1,38 @@
+import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/patient.dart';
-import 'package:dermascan/core/widgets/patient_list_tile.dart';
+import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/doctor/patients/controller/patients_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
-class PatientsScreen extends StatelessWidget {
-  PatientsScreen({super.key});
-
-  final PatientsController patientsController = Get.find<PatientsController>();
+class PatientsScreen extends GetView<PatientsController> {
+  const PatientsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        // Using headline style for consistency, though smaller for app bar
-        title: Text(
-          'Patients',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text('Patients'),
         actions: <Widget>[
-          IconButton(
-            onPressed: patientsController.openCreateNewPatientScreen,
-            icon: Icon(
-              Icons.person_add_alt_1_outlined,
-              color: Theme.of(context).colorScheme.primary,
+          Obx(
+            () => IconButton(
+              onPressed: controller.isInitializing.value
+                  ? null
+                  : controller.openAddNewPatientScreen,
+              icon: const Icon(Icons.person_add),
+              tooltip: 'Add Patient',
             ),
-            tooltip: 'Add Patient',
           ),
-          const SizedBox(width: 8), // Right padding for actions
         ],
       ),
       body: SafeArea(
         child: Obx(() {
-          if (patientsController.isInitializing.value) {
+          if (controller.isInitializing.value) {
             return const Center(child: CircularProgressIndicator.adaptive());
           }
 
-          if (patientsController.patients.isEmpty) {
+          if (controller.patients.isEmpty) {
             return _buildEmptyState(context);
           }
 
@@ -53,85 +42,90 @@ class PatientsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPatientList() {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-      itemCount: patientsController.patients.length,
-      separatorBuilder: (BuildContext context, int index) =>
-          const SizedBox(height: 12),
-      itemBuilder: (BuildContext context, int index) {
-        final Patient patient = patientsController.patients[index];
-        return PatientListTile(
-          patient: patient,
-          onPressed: () =>
-              patientsController.showPatientProfile(patientId: patient.id),
-        );
-      },
-    );
-  }
-
   Widget _buildEmptyState(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      padding: AppTheme.scaffoldPadding,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           const Spacer(),
-
-          Center(
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.groups_outlined,
-                size: 60,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-
+          const CustomIcon(iconData: Icons.person_add),
+          const SizedBox(height: AppTheme.spaceLarge),
           Text(
             'No Patients available',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Your practice currently has no patients.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              height: 1.5,
-            ),
+            'Your practice currently has no patients.\nTo add new patients press the button below.',
+            style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
-
           const Spacer(),
-
           FilledButton.icon(
-            onPressed: patientsController.openCreateNewPatientScreen,
-            icon: const Icon(Icons.person_add_alt_1_outlined),
-            label: const Text('Create new Patient'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+            icon: const Icon(Icons.person_add),
+            onPressed: controller.isInitializing.value
+                ? null
+                : controller.openAddNewPatientScreen,
+            label: const Text('Add Patient'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPatientList() {
+    return Padding(
+      padding: AppTheme.scaffoldPadding.copyWith(top: 0),
+      child: Column(
+        children: <Widget>[
+          SearchBar(
+            hintText: 'Search ...',
+            controller: controller.searchBarController,
+            leading: const Icon(Icons.search),
+            trailing: <Widget>[
+              IconButton(
+                onPressed: controller.clearSearchBar,
+                icon: const Icon(Icons.clear),
+              ),
+            ],
+            onChanged: (String value) =>
+                controller.filterPatients(query: value),
+            focusNode: controller.searchBarFocusNode,
+            onTapOutside: (_) => controller.unfocusSearchBar(),
+          ),
+          const SizedBox(height: AppTheme.spaceMedium),
+          Obx(
+            () => Expanded(
+              child: ListView.separated(
+                controller: controller.listScrollController,
+                scrollDirection: Axis.vertical,
+                itemCount: controller.visiblePatients.length,
+                separatorBuilder: (BuildContext context, int index) =>
+                    const SizedBox(height: AppTheme.spaceSmall),
+                itemBuilder: (BuildContext context, int index) {
+                  final Patient patient = controller.visiblePatients[index];
+                  return Card(
+                    child: ListTile(
+                      title: Text(patient.name),
+                      leading: const Icon(Icons.person),
+                      trailing: const Icon(Icons.arrow_forward),
+                      subtitle: Text(
+                        'Born on ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}\nLast visited on ...',
+                      ),
+                      onTap: controller.isInitializing.value
+                          ? null
+                          : () => controller.openPatientProfile(
+                              patientId: patient.id,
+                            ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
-
-          const SizedBox(height: 24),
         ],
       ),
     );

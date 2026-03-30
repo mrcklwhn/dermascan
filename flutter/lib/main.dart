@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/splash',
       getPages: NavigationRoutes.getRoutes,
       theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      darkTheme: AppTheme.light,
     );
   }
 }

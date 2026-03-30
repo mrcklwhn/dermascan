@@ -1,158 +1,154 @@
+﻿import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/widgets/custom_icon.dart';
+import 'package:dermascan/core/widgets/custom_text_field.dart';
+import 'package:dermascan/features/auth/controller/login/doctor_login_controller.dart';
 import 'package:dermascan/features/auth/controller/login/login_controller.dart';
-import 'package:dermascan/features/auth/screens/login/widgets/doctor_login_form.dart';
-import 'package:dermascan/features/auth/screens/login/widgets/practice_login_from.dart';
+import 'package:dermascan/features/auth/controller/login/practice_login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
-
-  final LoginController loginController = Get.find<LoginController>();
+class LoginScreen extends GetView<LoginController> {
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            const SizedBox(height: 24),
-            Center(
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: .1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.login_outlined,
-                  size: 40,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
+        child: Obx(
+          () => ListView(
+            controller: controller.scrollController,
+            scrollDirection: Axis.vertical,
+            padding: AppTheme.scaffoldPadding.copyWith(
+              top: AppTheme.spaceLarge,
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Welcome Back',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
+            children: <Widget>[
+              const CustomIcon(iconData: Icons.login),
+              const SizedBox(height: AppTheme.spaceLarge),
+              Text(
+                'Welcome Back!',
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Login to access your dashboard',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Obx(
-                () => SizedBox(
-                  width: double.infinity,
-                  child: SegmentedButton<AuthOption>(
-                    showSelectedIcon: false,
-                    style: ButtonStyle(
-                      visualDensity: VisualDensity.comfortable,
-                      side: WidgetStateProperty.all(
-                        BorderSide(
-                          color: Theme.of(context).colorScheme.outlineVariant,
-                        ),
-                      ),
-                      shape: WidgetStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    segments: const <ButtonSegment<AuthOption>>[
-                      ButtonSegment<AuthOption>(
-                        value: AuthOption.doctor,
-                        label: Text('Doctor'),
-                        icon: Icon(Icons.medical_services_outlined),
-                      ),
-                      ButtonSegment<AuthOption>(
-                        value: AuthOption.practice,
-                        label: Text('Practice'),
-                        icon: Icon(Icons.business_outlined),
-                      ),
-                    ],
-                    selected: <AuthOption>{
-                      loginController.currentSelectedAuthOption.value,
-                    },
-                    onSelectionChanged: (Set<AuthOption> newSelection) =>
-                        loginController.changeCurrentSelectedAuthOption(
-                          newAuthOption: newSelection.first,
-                        ),
+              const SizedBox(height: AppTheme.spaceLarge),
+              SegmentedButton<AuthOption>(
+                showSelectedIcon: false,
+                segments: const <ButtonSegment<AuthOption>>[
+                  ButtonSegment<AuthOption>(
+                    value: AuthOption.doctor,
+                    label: Text('Doctor'),
+                    icon: Icon(Icons.medical_services_outlined),
                   ),
-                ),
+                  ButtonSegment<AuthOption>(
+                    value: AuthOption.practice,
+                    label: Text('Practice'),
+                    icon: Icon(Icons.business_outlined),
+                  ),
+                ],
+                selected: <AuthOption>{
+                  controller.currentSelectedAuthOption.value,
+                },
+                onSelectionChanged: (Set<AuthOption> newSelection) =>
+                    controller.changeCurrentSelectedAuthOption(
+                      newAuthOption: newSelection.first,
+                    ),
               ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: loginController.scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Obx(() {
-                  if (loginController.currentSelectedAuthOption.value ==
-                      AuthOption.doctor) {
-                    return DoctorLoginForm();
-                  } else {
-                    return PracticeLoginForm();
-                  }
-                }),
-              ),
-            ),
-          ],
+              const SizedBox(height: AppTheme.spaceLarge),
+              if (controller.currentSelectedAuthOption.value ==
+                  AuthOption.doctor)
+                ...buildDoctorLoginFormFields()
+              else
+                ...buildPracticeLoginFormFields(),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: 16,
-            top: 8,
-          ),
-          child: Obx(() {
-            return SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed: loginController.isLoading.value
-                    ? null
-                    : loginController.navigateToRegister,
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurfaceVariant,
-                ),
-                child: RichText(
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    children: <InlineSpan>[
-                      const TextSpan(text: 'No Account? '),
-                      TextSpan(
-                        text: 'Register',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
+        child: Obx(() {
+          return Padding(
+            padding: AppTheme.scaffoldPadding,
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.app_registration),
+              onPressed: controller.isLoading.value
+                  ? null
+                  : controller.navigateToRegister,
+              label: const Text('Create Account'),
+            ),
+          );
+        }),
       ),
     );
   }
+}
+
+List<Widget> buildDoctorLoginFormFields() {
+  final DoctorLoginController doctorLoginController =
+      Get.find<DoctorLoginController>();
+
+  return <Widget>[
+    CustomTextField(
+      textEditingController: doctorLoginController.emailController,
+      focusNode: doctorLoginController.emailFocusNode,
+      onSubmitted: (_) => doctorLoginController.submittedEmail(),
+      labelText: 'Doctor E-Mail',
+      prefixIcon: Icons.email,
+      textInputType: TextInputType.emailAddress,
+    ),
+    const SizedBox(height: AppTheme.spaceMedium),
+    CustomTextField(
+      textEditingController: doctorLoginController.passwordController,
+      focusNode: doctorLoginController.passwordFocusNode,
+      onSubmitted: doctorLoginController.loginController.isLoading.value
+          ? (_) {}
+          : (_) => doctorLoginController.submitLoginData(),
+      labelText: 'Password',
+      prefixIcon: Icons.password,
+      textInputType: TextInputType.visiblePassword,
+    ),
+    const SizedBox(height: AppTheme.spaceLarge),
+    FilledButton.icon(
+      icon: const Icon(Icons.login),
+      onPressed: doctorLoginController.loginController.isLoading.value
+          ? null
+          : doctorLoginController.submitLoginData,
+      label: const Text('Login'),
+    ),
+  ];
+}
+
+List<Widget> buildPracticeLoginFormFields() {
+  final PracticeLoginController practiceLoginController =
+      Get.find<PracticeLoginController>();
+
+  return <Widget>[
+    CustomTextField(
+      textEditingController: practiceLoginController.emailController,
+      focusNode: practiceLoginController.emailFocusNode,
+      onSubmitted: (_) => practiceLoginController.submittedEmail(),
+      labelText: 'Practice E-Mail',
+      textInputType: TextInputType.emailAddress,
+      prefixIcon: Icons.email,
+    ),
+    const SizedBox(height: AppTheme.spaceMedium),
+    CustomTextField(
+      textEditingController: practiceLoginController.passwordController,
+      focusNode: practiceLoginController.passwordFocusNode,
+      onSubmitted: practiceLoginController.loginController.isLoading.value
+          ? (_) {}
+          : (_) => practiceLoginController.submitLoginData(),
+      labelText: 'Password',
+      textInputType: TextInputType.visiblePassword,
+      prefixIcon: Icons.password,
+    ),
+    const SizedBox(height: AppTheme.spaceLarge),
+    Obx(
+      () => FilledButton.icon(
+        icon: const Icon(Icons.login),
+        onPressed: practiceLoginController.loginController.isLoading.value
+            ? null
+            : practiceLoginController.submitLoginData,
+        label: const Text('Login'),
+      ),
+    ),
+  ];
 }

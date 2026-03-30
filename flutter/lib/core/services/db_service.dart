@@ -14,47 +14,33 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class DBService extends GetxService {
   AuthService authService = Get.find<AuthService>();
 
-  Future<bool> checkDoctorEmail(String email) async {
-    return _checkEmailInTable(email: email, table: 'doctor');
-  }
-
-  Future<bool> checkPracticeEmail(String email) async {
-    return _checkEmailInTable(email: email, table: 'practice');
-  }
-
-  Future<bool> _checkEmailInTable({
-    required String email,
-    required String table,
-  }) async {
+  Future<bool> acceptPracticeInvitation({required String practiceId}) async {
     try {
-      final http.Response response = await http.post(
-        Uri.parse('$edgeFunctionsURL/check-email'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $anonKey',
-        },
-        body: jsonEncode(<String, String>{'email': email, 'table': table}),
-      );
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'accept-practice-invitation',
+            body: <String, String?>{'practiceId': practiceId},
+          );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseMap = jsonDecode(response.body);
-        if (responseMap.containsKey('exists') &&
-            responseMap['exists'] is bool) {
-          return responseMap['exists'];
-        }
-        return false;
-      } else {
+      if (response.status != 200) {
         if (kDebugMode) {
-          debugPrint('Error: ${response.statusCode} - ${response.body}');
+          debugPrint('Error: ${response.status} - ${response.data}');
         }
         return false;
       }
+      return true;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error: $e');
       }
       return false;
     }
+  }
+
+  Future<bool> checkDoctorEmail(String email) async {
+    return _checkEmailInTable(email: email, table: 'doctor');
   }
 
   Future<Practice?> checkDoctorHasPractice() async {
@@ -85,6 +71,10 @@ class DBService extends GetxService {
     }
   }
 
+  Future<bool> checkPracticeEmail(String email) async {
+    return _checkEmailInTable(email: email, table: 'practice');
+  }
+
   Future<bool> createDoctorProfile({
     required String name,
     required DateTime? dateOfBirth,
@@ -102,28 +92,6 @@ class DBService extends GetxService {
               'gender': gender,
             },
           );
-
-      if (response.status != 201) {
-        if (kDebugMode) {
-          debugPrint('Error: ${response.status} - ${response.data}');
-        }
-        return false;
-      }
-      return true;
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Error: $e');
-      }
-      return false;
-    }
-  }
-
-  Future<bool> createPracticeProfile({required String name}) async {
-    try {
-      final FunctionResponse response = await authService
-          .supabaseClient
-          .functions
-          .invoke('create-practice', body: <String, String?>{'name': name});
 
       if (response.status != 201) {
         if (kDebugMode) {
@@ -179,33 +147,49 @@ class DBService extends GetxService {
     }
   }
 
-  Future<List<Patient>> fetchPatients({required String practiceId}) async {
+  Future<bool> createPracticeProfile({required String name}) async {
     try {
       final FunctionResponse response = await authService
           .supabaseClient
           .functions
-          .invoke(
-            'fetch-patients-by-practice',
-            body: <String, String?>{'practiceId': practiceId},
-          );
+          .invoke('create-practice', body: <String, String?>{'name': name});
+
+      if (response.status != 201) {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return false;
+      }
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return false;
+    }
+  }
+
+  Future<Doctor?> fetchDoctor({required String id}) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke('fetch-doctor-by-id', body: <String, String?>{'id': id});
 
       if (response.status == 200) {
-        final List<dynamic> responseList = response.data;
-
-        return responseList.map((dynamic item) {
-          return Patient.fromJson(item as Map<String, dynamic>);
-        }).toList();
+        final Map<String, dynamic> responseMap = response.data;
+        return Doctor.fromJson(responseMap);
       } else {
         if (kDebugMode) {
           debugPrint('Error: ${response.status} - ${response.data}');
         }
-        return <Patient>[];
+        return null;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error: $e');
       }
-      return <Patient>[];
+      return null;
     }
   }
 
@@ -239,27 +223,97 @@ class DBService extends GetxService {
     }
   }
 
-  Future<Doctor?> fetchDoctor({required String id}) async {
+  Future<List<PracticeInvitation>> fetchInvitedDoctors({
+    required String practiceId,
+  }) async {
     try {
       final FunctionResponse response = await authService
           .supabaseClient
           .functions
-          .invoke('fetch-doctor-by-id', body: <String, String?>{'id': id});
+          .invoke(
+            'fetch-invited-doctors',
+            body: <String, String?>{'practiceId': practiceId},
+          );
 
       if (response.status == 200) {
-        final Map<String, dynamic> responseMap = response.data;
-        return Doctor.fromJson(responseMap);
+        final List<dynamic> responseList = response.data;
+
+        return responseList.map((dynamic item) {
+          return PracticeInvitation.fromJson(item as Map<String, dynamic>);
+        }).toList();
       } else {
         if (kDebugMode) {
           debugPrint('Error: ${response.status} - ${response.data}');
         }
-        return null;
+        return <PracticeInvitation>[];
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error: $e');
       }
-      return null;
+      return <PracticeInvitation>[];
+    }
+  }
+
+  Future<List<PracticeInvitation>> fetchInvitingPractices({
+    required String doctorId,
+  }) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'fetch-inviting-practices',
+            body: <String, String?>{'doctorId': doctorId},
+          );
+
+      if (response.status == 200) {
+        final List<dynamic> responseList = response.data;
+
+        return responseList.map((dynamic item) {
+          return PracticeInvitation.fromJson(item as Map<String, dynamic>);
+        }).toList();
+      } else {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return <PracticeInvitation>[];
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return <PracticeInvitation>[];
+    }
+  }
+
+  Future<List<Patient>> fetchPatients({required String practiceId}) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'fetch-patients-by-practice',
+            body: <String, String?>{'practiceId': practiceId},
+          );
+
+      if (response.status == 200) {
+        final List<dynamic> responseList = response.data;
+
+        return responseList.map((dynamic item) {
+          return Patient.fromJson(item as Map<String, dynamic>);
+        }).toList();
+      } else {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return <Patient>[];
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return <Patient>[];
     }
   }
 
@@ -318,14 +372,20 @@ class DBService extends GetxService {
     }
   }
 
-  Future<bool> acceptPracticeInvitation({required String practiceId}) async {
+  Future<bool> revokePracticeInvitation({
+    required String practiceId,
+    required String doctorId,
+  }) async {
     try {
       final FunctionResponse response = await authService
           .supabaseClient
           .functions
           .invoke(
-            'accept-practice-invitation',
-            body: <String, String?>{'practiceId': practiceId},
+            'revoke-practice-invitation',
+            body: <String, String?>{
+              'practiceId': practiceId,
+              'doctorId': doctorId,
+            },
           );
 
       if (response.status != 200) {
@@ -343,67 +403,117 @@ class DBService extends GetxService {
     }
   }
 
-  Future<List<PracticeInvitation>> fetchInvitingPractices({
-    required String doctorId,
-  }) async {
+  Future<bool> leaveCurrentPractice({required String doctorId}) async {
     try {
       final FunctionResponse response = await authService
           .supabaseClient
           .functions
           .invoke(
-            'fetch-inviting-practices',
+            'leave-assigned-practice',
             body: <String, String?>{'doctorId': doctorId},
           );
 
-      if (response.status == 200) {
-        final List<dynamic> responseList = response.data;
-
-        return responseList.map((dynamic item) {
-          return PracticeInvitation.fromJson(item as Map<String, dynamic>);
-        }).toList();
-      } else {
+      if (response.status != 200) {
         if (kDebugMode) {
           debugPrint('Error: ${response.status} - ${response.data}');
         }
-        return <PracticeInvitation>[];
+        return false;
       }
+      return true;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error: $e');
       }
-      return <PracticeInvitation>[];
+      return false;
     }
   }
 
-  Future<List<PracticeInvitation>> fetchInvitedDoctors({
-    required String practiceId,
-  }) async {
+  Future<Doctor?> changeDoctorName({required String newName}) async {
     try {
       final FunctionResponse response = await authService
           .supabaseClient
           .functions
           .invoke(
-            'fetch-invited-doctors',
-            body: <String, String?>{'practiceId': practiceId},
+            'change-doctor-name',
+            body: <String, String?>{'newName': newName},
           );
 
       if (response.status == 200) {
-        final List<dynamic> responseList = response.data;
-
-        return responseList.map((dynamic item) {
-          return PracticeInvitation.fromJson(item as Map<String, dynamic>);
-        }).toList();
+        final Map<String, dynamic> responseMap = response.data;
+        return Doctor.fromJson(responseMap);
       } else {
         if (kDebugMode) {
           debugPrint('Error: ${response.status} - ${response.data}');
         }
-        return <PracticeInvitation>[];
+        return null;
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error: $e');
       }
-      return <PracticeInvitation>[];
+      return null;
+    }
+  }
+
+  Future<Practice?> changePracticeName({required String newName}) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'change-practice-name',
+            body: <String, String?>{'newName': newName},
+          );
+
+      if (response.status == 200) {
+        final Map<String, dynamic> responseMap = response.data;
+        return Practice.fromJson(responseMap);
+      } else {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return null;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<bool> _checkEmailInTable({
+    required String email,
+    required String table,
+  }) async {
+    try {
+      final http.Response response = await http.post(
+        Uri.parse('$edgeFunctionsURL/check-email'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $anonKey',
+        },
+        body: jsonEncode(<String, String>{'email': email, 'table': table}),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseMap = jsonDecode(response.body);
+        if (responseMap.containsKey('exists') &&
+            responseMap['exists'] is bool) {
+          return responseMap['exists'];
+        }
+        return false;
+      } else {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.statusCode} - ${response.body}');
+        }
+        return false;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return false;
     }
   }
 }

@@ -7,67 +7,89 @@ import 'package:get/get.dart';
 
 class DoctorLoginController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-
   DBService dbService = Get.find<DBService>();
 
   LoginController loginController;
 
   DoctorLoginController(this.loginController);
 
-  TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
-  Rx<bool> passwordIsObscure = true.obs;
+  FocusNode emailFocusNode = FocusNode();
+  FocusNode passwordFocusNode = FocusNode();
 
-  void changePasswordObscurity() {
-    passwordIsObscure.value = !passwordIsObscure.value;
+  @override
+  void onClose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.onClose();
+  }
+
+  void submittedEmail() {
+    passwordFocusNode.requestFocus();
   }
 
   Future<void> submitLoginData() async {
-    if (loginController.isLoading.value) {
-      return;
-    }
+    if (loginController.isLoading.value) return;
 
     if (emailController.text.trim().isEmpty ||
         passwordController.text.trim().isEmpty) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Information Missing',
+          message: 'Please fill in all required fields to log in.',
+        ),
+      );
       return;
     }
 
     loginController.isLoading.value = true;
 
-    final bool isDoctor = await dbService.checkDoctorEmail(
-      emailController.text.trim(),
-    );
+    try {
+      final bool isDoctor = await dbService.checkDoctorEmail(
+        emailController.text,
+      );
 
-    if (!isDoctor) {
+      if (!isDoctor) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.block,
+            title: 'Access Denied',
+            message:
+                'This account is not registered as a doctor. Please use the practice login instead.',
+          ),
+        );
+        return;
+      }
+
+      final bool success = await authService.signIn(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+
+      if (success) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.check_circle,
+            title: 'Login Successful',
+            message: 'Your Login was successful. You are now logged in.',
+          ),
+        );
+        await authService.evaluateRouteAndNavigate();
+      } else {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Login Failed',
+            message:
+                'Invalid email or password. Please check your credentials and try again.',
+          ),
+        );
+      }
+    } finally {
       loginController.isLoading.value = false;
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.block,
-          title: 'Access denied',
-          message: 'This e-mail is not assigned to a doctor account.',
-        ),
-      );
-      return;
     }
-
-    final bool success = await authService.signIn(
-      email: emailController.text.trim(),
-      password: passwordController.text,
-    );
-
-    if (success) {
-      await authService.evaluateRouteAndNavigate();
-    } else {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Login failed!',
-          message: 'Please check your access data and try again!',
-        ),
-      );
-    }
-
-    loginController.isLoading.value = false;
   }
 }

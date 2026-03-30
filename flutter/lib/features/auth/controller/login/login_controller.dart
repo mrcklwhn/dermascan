@@ -1,5 +1,4 @@
 import 'package:dermascan/app/enums.dart';
-import 'package:dermascan/features/auth/screens/register/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,7 +7,13 @@ class LoginController extends GetxController {
 
   Rx<AuthOption> currentSelectedAuthOption = AuthOption.doctor.obs;
 
-  Rx<bool> isLoading = false.obs;
+  RxBool isLoading = false.obs;
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
 
   void changeCurrentSelectedAuthOption({required AuthOption newAuthOption}) {
     if (currentSelectedAuthOption.value != newAuthOption) {
@@ -17,6 +22,8 @@ class LoginController extends GetxController {
   }
 
   Future<void> navigateToRegister() async {
-    await Get.to(() => RegisterScreen());
+    if (isLoading.value) return;
+
+    await Get.toNamed('/auth/register');
   }
 }

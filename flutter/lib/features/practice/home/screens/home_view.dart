@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class PracticeHomeScreen extends StatelessWidget {
-  PracticeHomeScreen({super.key});
-
   final PracticeHomeController practiceHomeController =
       Get.find<PracticeHomeController>();
+
+  PracticeHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +23,8 @@ class PracticeHomeScreen extends StatelessWidget {
               label: 'Doctors',
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
+              icon: Icon(Icons.local_hospital_outlined),
+              selectedIcon: Icon(Icons.local_hospital),
               label: 'Profile',
             ),
           ],

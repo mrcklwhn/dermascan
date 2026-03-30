@@ -1,3 +1,5 @@
+import 'package:dermascan/features/auth/controller/change_mail_controller.dart';
+import 'package:dermascan/features/auth/controller/change_password_controller.dart';
 import 'package:dermascan/features/auth/controller/login/doctor_login_controller.dart';
 import 'package:dermascan/features/auth/controller/login/login_controller.dart';
 import 'package:dermascan/features/auth/controller/login/practice_login_controller.dart';
@@ -18,5 +20,8 @@ class AuthBindings extends Bindings {
     Get.lazyPut(
       () => PracticeRegisterController(Get.find<RegisterController>()),
     );
+
+    Get.lazyPut(() => ChangeEmailController());
+    Get.lazyPut(() => ChangePasswordController());
   }
 }
