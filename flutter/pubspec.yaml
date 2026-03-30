@@ -15,14 +15,12 @@ dependencies:
     sdk: flutter
 
   get: ^4.7.3
-  supabase_flutter: ^2.10.3
-  flutter_secure_storage: ^9.2.4
-  http: ^1.5.0
-  human_body_selector:
-    git:
-      url: https://github.com/mrcklwhn/human_body_selector.git
-      ref: main
-  intl:
+  supabase_flutter: ^2.12.2
+  http: ^1.6.0
+  equatable: ^2.0.8
+  path_drawing: ^1.0.1
+  svg_path_parser: ^1.1.2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -31,5 +29,6 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
-
   uses-material-design: true
+  assets:
+    - assets/

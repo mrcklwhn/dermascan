@@ -1,3 +1,3 @@
 enum AuthOption { practice, doctor }
 
-enum Gender { male, female, undefined, divers }
+enum Gender { male, female, divers, undefined }

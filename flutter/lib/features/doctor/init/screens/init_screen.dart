@@ -1,91 +1,48 @@
+import 'package:dermascan/app/app_theme.dart';
+import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/doctor/init/controller/init_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class DoctorInitScreen extends StatelessWidget {
-  DoctorInitScreen({super.key});
-
-  final DoctorInitController doctorInitController =
-      Get.find<DoctorInitController>();
+class DoctorInitScreen extends GetView<DoctorInitController> {
+  const DoctorInitScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: AppTheme.scaffoldPadding,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               const Spacer(),
-
-              Center(
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.local_hospital_outlined,
-                    size: 60,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
+              const CustomIcon(iconData: Icons.local_hospital),
+              const SizedBox(height: AppTheme.spaceLarge),
               Text(
                 'No Practice Assigned',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppTheme.spaceMedium),
               Text(
                 'You are currently not a member of any practice.\nPlease check your inbox for invitations to join a team.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  height: 1.5,
-                ),
+                style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
-
               const Spacer(),
-
               FilledButton.icon(
-                onPressed: doctorInitController.showInvitations,
-                icon: const Icon(Icons.mail_outline),
+                icon: const Icon(Icons.local_hospital),
+                onPressed: controller.openInvitationsScreen,
                 label: const Text('Check Invitations'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
               ),
-
-              const SizedBox(height: 16),
-
-              TextButton.icon(
-                onPressed: doctorInitController.authService.signOut,
+              const SizedBox(height: AppTheme.spaceMedium),
+              OutlinedButton.icon(
                 icon: const Icon(Icons.logout),
-                label: const Text('Sign Out'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
+                onPressed: controller.showLogoutDialog,
+                label: const Text('Logout'),
               ),
-
-              const SizedBox(height: 24),
             ],
           ),
         ),

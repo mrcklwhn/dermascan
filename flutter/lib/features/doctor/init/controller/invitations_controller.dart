@@ -4,16 +4,35 @@ import 'package:dermascan/core/models/invitation.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/widgets/custom_dialog.dart';
+import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class InvitationsController extends GetxController {
-  AuthService authService = Get.find<AuthService>();
   DBService dbService = Get.find<DBService>();
+  AuthService authService = Get.find<AuthService>();
 
-  RxList<Practice> pendingInvitations = <Practice>[].obs;
+  ScrollController listScrollController = ScrollController();
 
-  Rx<bool> isInitializing = true.obs;
+  TextEditingController searchBarController = TextEditingController();
+
+  FocusNode searchBarFocusNode = FocusNode();
+
+  RxList<PracticeInvitation> pendingInvitations = <PracticeInvitation>[].obs;
+  RxList<PracticeInvitation> visiblePendingInvitations =
+      <PracticeInvitation>[].obs;
+
+  RxBool isInitializing = true.obs;
+  RxBool isLoading = false.obs;
+
+  @override
+  void onClose() {
+    listScrollController.dispose();
+    searchBarController.dispose();
+    super.onClose();
+  }
 
   @override
   void onInit() {
@@ -40,27 +59,112 @@ class InvitationsController extends GetxController {
       return;
     }
 
-    final List<PracticeInvitation> invitations = await dbService
+    final List<PracticeInvitation> fetchedInvitations = await dbService
         .fetchInvitingPractices(doctorId: doctorId);
 
-    final List<Practice> invitingPractices = invitations
-        .map((PracticeInvitation invitation) => invitation.practice)
-        .toList();
-
-    pendingInvitations.assignAll(invitingPractices);
+    pendingInvitations.assignAll(fetchedInvitations);
+    visiblePendingInvitations.assignAll(fetchedInvitations);
   }
 
-  void showPracticeProfile({required String practiceId}) {
-    final Practice selectedPractice = pendingInvitations.firstWhere(
-      (Practice practice) => practice.id == practiceId,
+  void clearSearchBar() {
+    searchBarController.clear();
+    filterPractices(query: searchBarController.value.text);
+  }
+
+  void unfocusSearchBar() {
+    searchBarFocusNode.unfocus();
+  }
+
+  Future<void> reloadInvitations() async {
+    if (isInitializing.value || isLoading.value) return;
+
+    isInitializing.value = true;
+    unawaited(_initializeData());
+  }
+
+  void filterPractices({required String query}) {
+    if (query.isEmpty) {
+      visiblePendingInvitations.assignAll(pendingInvitations);
+    } else {
+      final Iterable<PracticeInvitation> filtered = pendingInvitations.where(
+        (PracticeInvitation invitation) => invitation.practice.name
+            .toLowerCase()
+            .contains(query.toLowerCase()),
+      );
+      visiblePendingInvitations.assignAll(filtered);
+    }
+  }
+
+  Future<void> acceptPracticeInvitation({required Practice practice}) async {
+    if (isInitializing.value || isLoading.value) return;
+
+    final String? doctorId = authService.currentUser.value?.id;
+
+    if (doctorId == null) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Authentication Error',
+          message: 'You are not signed in correctly. Please log in again.',
+        ),
+      );
+      return;
+    }
+
+    isLoading.value = true;
+
+    try {
+      final bool success = await dbService.acceptPracticeInvitation(
+        practiceId: practice.id,
+      );
+      if (Get.isDialogOpen ?? false) Get.back();
+      if (success) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.check,
+            title: 'Invitation Accepted',
+            message: "You have successfully joined '${practice.name}'.",
+          ),
+        );
+        await authService.evaluateRouteAndNavigate();
+      } else {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Error Accepting Invitation',
+            message:
+                "The invitation from '${practice.name}' could not be accepted. You may already be assigned to a practice, or the invitation may be invalid.",
+          ),
+        );
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void showPracticeJoinDialog({required String practiceId}) {
+    if (isLoading.value || isInitializing.value) return;
+
+    final PracticeInvitation selectedInvitation = pendingInvitations.firstWhere(
+      (PracticeInvitation invitation) => invitation.practice.id == practiceId,
     );
 
-    Get.toNamed(
-      '/doctor/practice-details',
-      arguments: <String, Object>{
-        'practice': selectedPractice,
-        'isPracticeOfCurrentDoctor': false,
-      },
+    Get.dialog(
+      barrierDismissible: false,
+      Obx(
+        () => CustomDialog(
+          title: 'Invitation of ${selectedInvitation.practice.name}?',
+          subtitle:
+              'Accepting this invitation grants you access to the practice data. Please note that your professional data will also be visible to the practice owner.',
+          isDismissable: true,
+          onSubmit: isLoading.value || isInitializing.value
+              ? null
+              : () async => await acceptPracticeInvitation(
+                  practice: selectedInvitation.practice,
+                ),
+          submitText: 'Accept',
+        ),
+      ),
     );
   }
 }

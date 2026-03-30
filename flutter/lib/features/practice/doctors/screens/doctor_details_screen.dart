@@ -1,178 +1,112 @@
+import 'package:dermascan/app/app_theme.dart';
+import 'package:dermascan/core/models/doctor.dart';
+import 'package:dermascan/core/models/practice.dart';
+import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/practice/doctors/controller/doctor_details_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
-class DoctorDetailsScreen extends StatelessWidget {
-  DoctorDetailsScreen({super.key});
-
-  final DoctorDetailsController doctorController =
-      Get.find<DoctorDetailsController>();
+class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
+  const DoctorDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Obx(() {
-          return Text(
-            doctorController.isAssignedToPractice.value
-                ? 'Doctor Profile'
-                : 'Add Doctor',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          );
-        }),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-      ),
-
+      appBar: AppBar(title: const Text('Profile')),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              const SizedBox(height: 24),
+        child: Obx(() {
+          if (controller.isInitializing.value) {
+            return const Center(child: CircularProgressIndicator.adaptive());
+          }
 
-              // Profile Header (Avatar + Key Info)
-              Center(
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.person,
-                    size: 60,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                doctorController.doctor.name,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                doctorController.doctor.email,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
+          return _buildProfile(context);
+        }),
+      ),
+    );
+  }
 
-              const SizedBox(height: 8),
-              Text(
-                'Praxis: ${(doctorController.doctor.practiceId != null) ? doctorController.doctor.practiceId! : 'No Practice'}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
+  Widget _buildProfile(BuildContext context) {
+    final Practice? practice = controller.authService.currentPractice.value;
+    final Doctor doctor = controller.doctor;
 
-              const SizedBox(height: 48),
-
-              // Details Section
-              Text(
-                'Personal Information',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Gender Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                ),
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.wc,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          'Gender',
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                        Text(
-                          doctorController.doctor.gender.name.capitalizeFirst ??
-                              '',
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              // Action Buttons area
-              Obx(() {
-                if (!doctorController.isAssignedToPractice.value) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      FilledButton.icon(
-                        onPressed: doctorController.isLoading.value
-                            ? null
-                            : () => doctorController
-                                  .inviteDoctorToCurrentPractice(
-                                    doctorId: doctorController.doctor.id,
-                                  ),
-                        icon: const Icon(Icons.group_add_outlined),
-                        label: const Text('Invite to Practice'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          textStyle: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                  );
-                }
-                return const SizedBox.shrink();
-              }),
-            ],
+    return ListView(
+      controller: controller.scrollController,
+      padding: AppTheme.scaffoldPadding,
+      children: <Widget>[
+        const CustomIcon(iconData: Icons.person),
+        const SizedBox(height: AppTheme.spaceLarge),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Name'),
+            subtitle: Text(doctor.name),
           ),
         ),
-      ),
+        const SizedBox(height: AppTheme.spaceMedium),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.calendar_month),
+            title: const Text('Date of Birth'),
+            subtitle: Text(DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)),
+          ),
+        ),
+        const SizedBox(height: AppTheme.spaceMedium),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.mail),
+            title: const Text('E-Mail'),
+            subtitle: Text(doctor.email),
+          ),
+        ),
+        const SizedBox(height: AppTheme.spaceLarge),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.local_hospital),
+            title: const Text('Current Practice'),
+            subtitle: practice == null
+                ? const Text('None')
+                : Text('Name: ${practice.name}\nE-Mail: ${practice.email}'),
+          ),
+        ),
+        const SizedBox(height: AppTheme.spaceLarge),
+        Obx(() {
+          if (controller.isAssignedToCurrentPractice.value) {
+            return OutlinedButton.icon(
+              onPressed:
+                  controller.isInitializing.value ||
+                      controller.isLoading.value ||
+                      !controller.isAssignedToCurrentPractice.value
+                  ? null
+                  : controller.showRemoveDialog,
+              icon: const Icon(Icons.person_remove),
+              label: const Text('Remove Doctor'),
+            );
+          } else if (controller.invitationSent.value) {
+            return OutlinedButton.icon(
+              onPressed:
+                  controller.isInitializing.value ||
+                      controller.isLoading.value ||
+                      !controller.invitationSent.value
+                  ? null
+                  : controller.showRevokeDialog,
+              icon: const Icon(Icons.clear),
+              label: const Text('Revoke Invitation'),
+            );
+          } else {
+            return OutlinedButton.icon(
+              onPressed:
+                  controller.isInitializing.value ||
+                      controller.isLoading.value ||
+                      controller.invitationSent.value
+                  ? null
+                  : controller.showInviteDialog,
+              icon: const Icon(Icons.outgoing_mail),
+              label: const Text('Invite Doctor'),
+            );
+          }
+        }),
+      ],
     );
   }
 }

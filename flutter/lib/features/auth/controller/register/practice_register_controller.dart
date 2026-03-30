@@ -6,13 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class PracticeRegisterController extends GetxController {
+  DBService dbService = Get.find<DBService>();
+  AuthService authService = Get.find<AuthService>();
+
   RegisterController registerController;
 
   PracticeRegisterController(this.registerController);
-
-  AuthService authService = Get.find<AuthService>();
-
-  DBService dbService = Get.find<DBService>();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -20,18 +19,36 @@ class PracticeRegisterController extends GetxController {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  Rx<bool> passwordIsObscure = true.obs;
+  final FocusNode nameFocusNode = FocusNode();
+  final FocusNode emailFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
+  final FocusNode confirmPasswordFocusNode = FocusNode();
 
-  Rx<bool> hasMinLength = false.obs;
-  Rx<bool> hasUppercase = false.obs;
-  Rx<bool> hasLowercase = false.obs;
-  Rx<bool> hasDigits = false.obs;
-  Rx<bool> hasSpecialCharacters = false.obs;
-  Rx<bool> passwordsMatch = false.obs;
+  RxBool hasMinLength = false.obs;
+  RxBool hasUppercase = false.obs;
+  RxBool hasLowercase = false.obs;
+  RxBool hasDigits = false.obs;
+  RxBool hasSpecialCharacters = false.obs;
+  RxBool passwordsMatch = false.obs;
+  RxBool isValidEmail = false.obs;
+
+  @override
+  void onClose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.onClose();
+  }
 
   @override
   void onInit() {
     super.onInit();
+    emailController.addListener(() {
+      isValidEmail.value = RegExp(
+        r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+      ).hasMatch(emailController.text);
+    });
     passwordController.addListener(() {
       final String password = passwordController.text;
       hasMinLength.value = password.length >= 8;
@@ -50,17 +67,41 @@ class PracticeRegisterController extends GetxController {
     });
   }
 
-  void changePasswordObscurity() {
-    passwordIsObscure.value = !passwordIsObscure.value;
+  void submittedName() {
+    nameFocusNode.unfocus();
+  }
+
+  void submittedEmail() {
+    passwordFocusNode.requestFocus();
+  }
+
+  void submittedPassword() {
+    confirmPasswordFocusNode.requestFocus();
   }
 
   Future<void> submitRegisterData() async {
-    if (nameController.text.isEmpty || emailController.text.isEmpty) {
+    if (registerController.isLoading.value) return;
+
+    if (nameController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty ||
+        confirmPasswordController.text.trim().isEmpty) {
       Get.showSnackbar(
         CustomSnackBar(
           icon: Icons.error,
-          title: 'Registration failed!',
-          message: 'Please fill in all required fields!',
+          title: 'Information Missing',
+          message: 'Please fill in all required fields to create your account.',
+        ),
+      );
+      return;
+    }
+
+    if (!isValidEmail.value) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Invalid E-Mail',
+          message: 'Your e-mail is not formatted correctly.',
         ),
       );
       return;
@@ -75,9 +116,9 @@ class PracticeRegisterController extends GetxController {
       Get.showSnackbar(
         CustomSnackBar(
           icon: Icons.error,
-          title: 'Registration failed!',
+          title: 'Password Insecure',
           message:
-              'Your password does not meet the requirements of the mission!',
+              'Your password does not meet the security requirements or the passwords do not match.',
         ),
       );
       return;
@@ -85,39 +126,51 @@ class PracticeRegisterController extends GetxController {
 
     registerController.isLoading.value = true;
 
-    final bool successful = await authService.register(
-      email: emailController.text.trim(),
-      password: passwordController.text,
-    );
+    try {
+      final bool successful = await authService.register(
+        email: emailController.text.trimRight(),
+        password: passwordController.text,
+      );
 
-    if (!successful) {
+      if (!successful) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Registration Failed',
+            message:
+                'Could not create account. The email might already be in use or the connection failed.',
+          ),
+        );
+        return;
+      }
+
+      final bool profileCreated = await dbService.createPracticeProfile(
+        name: nameController.text.trim(),
+      );
+
+      if (profileCreated) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.check_circle,
+            title: 'Register Successful',
+            message:
+                'Your Registration was successful. Yor account was created and you are now logged in.',
+          ),
+        );
+
+        await authService.evaluateRouteAndNavigate();
+      } else {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Profile Creation Error',
+            message:
+                "Your account was created, but we couldn't set up the practice profile. Please contact support.",
+          ),
+        );
+      }
+    } finally {
       registerController.isLoading.value = false;
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Registration failed!',
-          message: 'Please check your data and try again!',
-        ),
-      );
-      return;
     }
-
-    final bool profileCreated = await dbService.createPracticeProfile(
-      name: nameController.text.trim(),
-    );
-
-    if (profileCreated) {
-      await Get.offNamed('/practice/home');
-    } else {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Registration failed!',
-          message: 'Please check your data and try again later!',
-        ),
-      );
-    }
-
-    registerController.isLoading.value = false;
   }
 }

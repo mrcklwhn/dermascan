@@ -1,179 +1,98 @@
-import 'package:dermascan/core/models/doctor.dart';
+import 'package:dermascan/app/app_theme.dart';
+import 'package:dermascan/core/widgets/custom_icon.dart';
+import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/features/practice/profile/controller/profile_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PracticeProfileScreen extends StatelessWidget {
-  PracticeProfileScreen({super.key});
-
-  final PracticeProfileController controller =
-      Get.find<PracticeProfileController>();
+class PracticeProfileScreen extends GetView<PracticeProfileController> {
+  const PracticeProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Light background for contrast
-      appBar: AppBar(title: const Text('Account Profile'), centerTitle: true),
-      body: Obx(() {
-        if (controller.isInitializing.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      appBar: AppBar(title: const Text('Profile')),
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isInitializing.value) {
+            return const Center(child: CircularProgressIndicator.adaptive());
+          }
 
-        return SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              // --- 1. Hero Header Section ---
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 30,
-                  horizontal: 20,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey.shade300),
-                  ),
-                ),
-                child: Column(
-                  children: <Widget>[
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.blue.shade100,
-                      child: Icon(
-                        Icons.business,
-                        size: 50,
-                        color: Colors.blue.shade800,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      controller.currentPractice.name,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Practice ID: ${controller.currentPractice.id}',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          return _buildProfile(context);
+        }),
+      ),
+    );
+  }
 
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    // --- 2. Doctors Header ---
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        const Text(
-                          'Team Members',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            '${controller.assignedDoctors.length} Doctors',
-                            style: TextStyle(
-                              color: Colors.blue.shade700,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
+  Widget _buildProfile(BuildContext context) {
+    final User? user = controller.authService.currentUser.value;
 
-                    // --- 3. Doctors List ---
-                    if (controller.assignedDoctors.isEmpty)
-                      _buildEmptyState()
-                    else
-                      ...controller.assignedDoctors.map(
-                        (Doctor doctor) => _buildDoctorCard(doctor),
-                      ),
-
-                    const SizedBox(height: 40),
-
-                    // --- 4. Logout (Bottom Action) ---
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () => controller.authService.signOut(),
-                        icon: const Icon(Icons.exit_to_app, color: Colors.red),
-                        label: const Text(
-                          'Log Out',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ],
+    return ListView(
+      controller: controller.scrollController,
+      padding: AppTheme.scaffoldPadding,
+      children: <Widget>[
+        const CustomIcon(iconData: Icons.local_hospital),
+        const SizedBox(height: AppTheme.spaceLarge),
+        CustomTextField(
+          textEditingController: controller.nameController,
+          focusNode: controller.nameFocusNode,
+          onSubmitted:
+              controller.isInitializing.value || controller.isLoading.value
+              ? (_) {}
+              : (String value) => controller.submitName(newName: value),
+          labelText: 'Name',
+          prefixIcon: Icons.local_hospital,
+          textInputType: TextInputType.name,
+        ),
+        const SizedBox(height: AppTheme.spaceLarge),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.mail),
+            title: const Text('Change E-Mail'),
+            subtitle: Text(_buildEmailText(user)),
+            trailing: const Icon(Icons.arrow_forward),
+            onTap: controller.isInitializing.value || controller.isLoading.value
+                ? null
+                : controller.openChangeEmailScreen,
           ),
-        );
-      }),
+        ),
+        const SizedBox(height: AppTheme.spaceMedium),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.password),
+            title: const Text('Change Password'),
+            trailing: const Icon(Icons.arrow_forward),
+            onTap: controller.isInitializing.value || controller.isLoading.value
+                ? null
+                : controller.openChangePasswordScreen,
+          ),
+        ),
+        const SizedBox(height: AppTheme.spaceLarge),
+        OutlinedButton.icon(
+          onPressed:
+              controller.isInitializing.value || controller.isLoading.value
+              ? null
+              : controller.showLogoutDialog,
+          icon: const Icon(Icons.logout),
+          label: const Text('Logout'),
+        ),
+      ],
     );
   }
 
-  Widget _buildDoctorCard(Doctor doctor) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: Colors.grey.shade100,
-          child: const Icon(Icons.person, color: Colors.grey),
-        ),
-        title: Text(
-          doctor.name,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: const Text('Assigned Specialist'),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-      ),
-    );
-  }
+  String _buildEmailText(User? user) {
+    if (user == null) return 'None';
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Column(
-          children: <Widget>[
-            Icon(Icons.group_off, size: 50, color: Colors.grey.shade300),
-            const SizedBox(height: 10),
-            const Text('No doctors assigned to this practice yet.'),
-          ],
-        ),
-      ),
-    );
+    final String? email = user.email;
+    final String? newEmail = user.newEmail;
+
+    if (newEmail == null || newEmail == email) {
+      return 'Currently: $email';
+    }
+
+    return 'Currently: $email\n'
+        'Pending: $newEmail\n'
+        'Please verify email and login again.';
   }
 }

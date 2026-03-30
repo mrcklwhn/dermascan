@@ -16,11 +16,11 @@ class AuthMiddleware extends GetMiddleware {
     }
 
     if (!authService.isLoggedIn) {
-      if (route != '/auth') {
+      if (route != '/auth/login') {
         if (kDebugMode) {
           print('[AUTH_MIDDLEWARE] Forbidden route! Redirecting to /auth');
         }
-        return const RouteSettings(name: '/auth');
+        return const RouteSettings(name: '/auth/login');
       }
     }
 

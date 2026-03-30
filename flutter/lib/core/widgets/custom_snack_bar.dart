@@ -8,26 +8,28 @@ class CustomSnackBar extends GetSnackBar {
     required String title,
     required String message,
     Duration super.duration = const Duration(seconds: 3),
-    Color? backgroundColor,
-    Color? overlayColor,
     IconData? icon,
   }) : super(
          snackPosition: SnackPosition.TOP,
+         margin: const EdgeInsets.all(AppTheme.spaceSmall),
+         padding: const EdgeInsets.all(AppTheme.spaceMedium),
          titleText: Text(
            title,
-           style: const TextStyle(
-             color: Colors.black,
-             fontWeight: FontWeight.bold,
-           ),
+           style: Theme.of(
+             Get.context!,
+           ).textTheme.titleSmall?.copyWith(color: AppTheme.white),
          ),
          messageText: Text(
            message,
-           style: const TextStyle(color: Colors.black),
+           style: Theme.of(
+             Get.context!,
+           ).textTheme.bodySmall?.copyWith(color: AppTheme.white),
          ),
-         backgroundColor: backgroundColor ?? AppTheme.secondary,
-         overlayColor: overlayColor ?? Colors.black.withValues(alpha: 0.2),
+         borderRadius: AppTheme.radiusMedium,
+         backgroundColor: AppTheme.secondary,
+         overlayColor: AppTheme.white.withValues(alpha: 0.2),
          icon: icon != null
-             ? Icon(icon, color: Colors.black)
-             : const Icon(Icons.info, color: Colors.black),
+             ? Icon(icon, color: AppTheme.white)
+             : const Icon(Icons.info, color: AppTheme.white),
        );
 }

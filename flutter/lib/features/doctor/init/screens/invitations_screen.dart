@@ -1,119 +1,123 @@
-import 'package:dermascan/core/models/practice.dart';
-import 'package:dermascan/core/widgets/practice_list_tile.dart';
+import 'package:dermascan/app/app_theme.dart';
+import 'package:dermascan/core/models/invitation.dart';
+import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/doctor/init/controller/invitations_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
-class InvitationsScreen extends StatelessWidget {
-  InvitationsScreen({super.key});
-
-  final InvitationsController invitationsController =
-      Get.find<InvitationsController>();
+class InvitationsScreen extends GetView<InvitationsController> {
+  const InvitationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Text(
-          'Pending Invitations',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Pending Invitations')),
       body: SafeArea(
         child: Obx(() {
-          if (invitationsController.isInitializing.value) {
+          if (controller.isInitializing.value) {
             return const Center(child: CircularProgressIndicator.adaptive());
           }
 
-          if (invitationsController.pendingInvitations.isEmpty) {
+          if (controller.pendingInvitations.isEmpty) {
             return _buildEmptyState(context);
           }
 
-          return _buildListState(context);
+          return _buildInvitationList(context);
         }),
       ),
     );
   }
 
-  // Consistent empty state matching DoctorInitScreen style
   Widget _buildEmptyState(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      padding: AppTheme.scaffoldPadding,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           const Spacer(),
-
-          Center(
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.mark_email_read_outlined,
-                size: 60,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-
+          const CustomIcon(iconData: Icons.mark_email_read),
+          const SizedBox(height: AppTheme.spaceLarge),
           Text(
             'No Pending Invitations',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'There are currently no open invitations.\nNew requests will appear here automatically.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              height: 1.5,
-            ),
+            'There are currently no open invitations.\nTo fetch new invitations press the button below.',
+            style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
-
-          const Spacer(),
-          // Optional: Add a refresh button here if needed by logic
-          const SizedBox(height: 48),
+          const Spacer(flex: 2),
+          Obx(
+            () => FilledButton.icon(
+              icon: const Icon(Icons.refresh),
+              onPressed: controller.isLoading.value
+                  ? null
+                  : controller.reloadInvitations,
+              label: const Text('Refresh'),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // Clean list layout with consistent padding
-  Widget _buildListState(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-      itemCount: invitationsController.pendingInvitations.length,
-      separatorBuilder: (BuildContext context, int index) =>
-          const SizedBox(height: 16),
-      itemBuilder: (BuildContext context, int index) {
-        final Practice practice =
-            invitationsController.pendingInvitations[index];
-        return PracticeListTile(
-          practice: practice,
-          onPressed: () => invitationsController.showPracticeProfile(
-            practiceId: practice.id,
+  Widget _buildInvitationList(BuildContext context) {
+    return Padding(
+      padding: AppTheme.scaffoldPadding.copyWith(top: 0),
+      child: Column(
+        children: <Widget>[
+          SearchBar(
+            hintText: 'Search ...',
+            controller: controller.searchBarController,
+            leading: const Icon(Icons.search),
+            trailing: <Widget>[
+              IconButton(
+                onPressed: controller.clearSearchBar,
+                icon: const Icon(Icons.clear),
+              ),
+            ],
+            onChanged: (String value) =>
+                controller.filterPractices(query: value),
+            focusNode: controller.searchBarFocusNode,
+            onTapOutside: (_) => controller.unfocusSearchBar(),
           ),
-        );
-      },
+          const SizedBox(height: AppTheme.spaceMedium),
+          Expanded(
+            child: ListView.separated(
+              controller: controller.listScrollController,
+              scrollDirection: Axis.vertical,
+              itemCount: controller.visiblePendingInvitations.length,
+              separatorBuilder: (BuildContext context, int index) =>
+                  const SizedBox(height: AppTheme.spaceSmall),
+              itemBuilder: (BuildContext context, int index) {
+                final PracticeInvitation invitation =
+                    controller.visiblePendingInvitations[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(invitation.practice.name),
+                    leading: const Icon(Icons.local_hospital),
+                    trailing: const Icon(Icons.arrow_forward),
+                    subtitle: Text(
+                      'Invited on ${DateFormat.yMMMd().format(invitation.createdAt)} at ${DateFormat.Hm().format(invitation.createdAt)}',
+                    ),
+                    onTap: () =>
+                        controller.isLoading.value ||
+                            controller.isInitializing.value
+                        ? null
+                        : controller.showPracticeJoinDialog(
+                            practiceId: invitation.practice.id,
+                          ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

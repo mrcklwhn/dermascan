@@ -15,15 +15,17 @@ class DoctorMiddleware extends GetMiddleware {
       );
     }
     if (!authService.isLoggedIn) {
-      if (route != '/auth') {
+      if (route != '/auth/login') {
         if (kDebugMode) {
           print('[DOCTOR_MIDDLEWARE] Forbidden route! Redirecting to /auth');
         }
-        return const RouteSettings(name: '/auth');
+        return const RouteSettings(name: '/auth/login');
       }
     }
     if (!authService.hasPractice.value) {
-      if (route != '/doctor/init' && route != '/doctor/invitations') {
+      if (route != '/doctor/init' &&
+          route != '/doctor/invitations' &&
+          route != '/doctor/practice-details') {
         if (kDebugMode) {
           print(
             '[DOCTOR_MIDDLEWARE] Forbidden route! Redirecting to /doctor/init',

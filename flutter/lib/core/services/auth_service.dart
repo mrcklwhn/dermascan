@@ -9,75 +9,19 @@ class AuthService extends GetxService {
   final SupabaseClient supabaseClient = Supabase.instance.client;
   final Rx<User?> currentUser = Rx<User?>(null);
 
-  bool get isLoggedIn => supabaseClient.auth.currentSession != null;
-
   final Rx<Practice?> currentPractice = Rx<Practice?>(null);
+
   final Rx<Doctor?> currentDoctor = Rx<Doctor?>(null);
   final RxBool hasPractice = false.obs;
   final RxBool isInitialDataLoaded = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    currentUser.value = supabaseClient.auth.currentUser;
-
-    supabaseClient.auth.onAuthStateChange.listen((AuthState data) {
-      currentUser.value = data.session?.user;
-      if (data.session?.user == null) {
-        currentPractice.value = null;
-        currentDoctor.value = null;
-      }
-    });
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-    // Listen for global authentication state changes
-    ever(currentUser, (User? user) {
-      if (user == null) {
-        // Force navigation to auth on logout or session expiry.
-        Get.offAllNamed('/auth');
-      }
-      // Note: Forward navigation (Login) is handled by SplashController
-      // to avoid race conditions during app startup.
-    });
-  }
-
-  Future<bool> register({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      final AuthResponse response = await supabaseClient.auth.signUp(
-        email: email,
-        password: password,
-      );
-      return response.user != null;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<bool> signIn({required String email, required String password}) async {
-    try {
-      final AuthResponse response = await supabaseClient.auth
-          .signInWithPassword(email: email, password: password);
-      return response.user != null;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<void> signOut() async {
-    await supabaseClient.auth.signOut();
-  }
+  bool get isLoggedIn => supabaseClient.auth.currentSession != null;
 
   Future<void> evaluateRouteAndNavigate() async {
     final User? user = supabaseClient.auth.currentUser;
 
     if (user == null) {
-      await Get.offAllNamed('/auth');
+      await Get.offAllNamed('/auth/login');
       return;
     }
 
@@ -113,12 +57,99 @@ class AuthService extends GetxService {
       }
 
       isInitialDataLoaded.value = true;
-      await Get.offAllNamed('/auth');
+      await Get.offAllNamed('/auth/login');
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error during navigation: $e! Redirecting to /auth');
       }
-      await Get.offAllNamed('/auth');
+      await Get.offAllNamed('/auth/login');
     }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    currentUser.value = supabaseClient.auth.currentUser;
+
+    supabaseClient.auth.onAuthStateChange.listen((AuthState data) {
+      currentUser.value = data.session?.user;
+      if (data.session?.user == null) {
+        currentPractice.value = null;
+        currentDoctor.value = null;
+      }
+    });
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    // Listen for global authentication state changes
+    ever(currentUser, (User? user) {
+      if (user == null) {
+        // Force navigation to auth on logout or session expiry.
+        Get.offAllNamed('/auth/login');
+      }
+      // Note: Forward navigation (Login) is handled by SplashController
+      // to avoid race conditions during app startup.
+    });
+  }
+
+  Future<bool> register({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final AuthResponse response = await supabaseClient.auth.signUp(
+        email: email,
+        password: password,
+      );
+      return response.user != null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> signIn({required String email, required String password}) async {
+    try {
+      final AuthResponse response = await supabaseClient.auth
+          .signInWithPassword(email: email, password: password);
+      return response.user != null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<UserResponse?> changeEmail({required String newEmail}) async {
+    try {
+      final UserResponse response = await supabaseClient.auth.updateUser(
+        UserAttributes(email: newEmail),
+      );
+      currentUser.value = response.user;
+      return response;
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      return null;
+    }
+  }
+
+  Future<UserResponse?> changePassword({required String newPassword}) async {
+    try {
+      final UserResponse response = await supabaseClient.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+      currentUser.value = response.user;
+      return response;
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      return null;
+    }
+  }
+
+  Future<void> signOut() async {
+    await supabaseClient.auth.signOut();
   }
 }
