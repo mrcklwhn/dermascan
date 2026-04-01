@@ -11,9 +11,12 @@ data/
 # kagglehub auth file
 kaggle-json
 
-# model output folder
-models/
+# python model output folder (keeps flutter assets)
+python/*/models/
 
 # mkdocs build output
 site/
 public/
+
+# intellij 
+.idea/
