@@ -1,8 +1,8 @@
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/constants.dart';
-import 'package:dermascan/app/navigation_routes.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/onnx_cutout_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
@@ -34,8 +34,9 @@ class MyApp extends StatelessWidget {
       supportedLocales: const <Locale>[Locale('en', 'US')],
 
       debugShowCheckedModeBanner: false,
-      initialRoute: '/splash',
-      getPages: NavigationRoutes.getRoutes,
+      // initialRoute: '/splash',
+      // getPages: NavigationRoutes.getRoutes,
+      home: const OnnxCutoutPage(),
       theme: AppTheme.light,
       darkTheme: AppTheme.light,
     );
