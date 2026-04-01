@@ -17,3 +17,20 @@ Dermascan umfasst die Forschung und Entwicklung einer mobilen App, mit der Bilde
 - Datenhaltung: Supabase
 - Primärplattform: iOS
 - Sicherheit: Bilder und Patientendaten werden verschlüsselt gespeichert; Zugriff nur für Ärzte innerhalb derselben Praxis
+
+
+## Entwicklung und Forschung
+
+### App
+
+Die App-Entwicklung erfolgt mit dem Framework Flutter, um eine plattformübergreifende Entwicklung zu ermöglichen.
+Durch die Nutzung von Supabase als Backend-Dienst wird eine einfache Handhabung der Datenhaltung und Authentifizierung gewährleistet, während durch die Inferenz des ML-Modells direkt auf dem Endgerät keine weitere Serverinfrastruktur fordert.
+
+Nähere Informationen zur App-Entwicklung finden sich im [App Dokumentationsordner](./app/README.md).
+
+### ML Modell
+
+Verschiedene ML Modelle werden evaluiert, um einen Kompromiss zwischen Genauigkeit und Effizienz zu finden.
+Dabei wird neben dem Finetuning von vortrainierten Modellen auch eine eigene Modellarchitektur entwickelt, die speziell auf die Anforderungen der Hautläsionserkennung zugeschnitten ist.
+
+Nähere Informationen zur Modellentwicklung finden sich im [ML Dokumentationsordner](./ml/README.md).
