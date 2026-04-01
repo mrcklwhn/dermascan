@@ -21,6 +21,10 @@ dependencies:
   path_drawing: ^1.0.1
   svg_path_parser: ^1.1.2
   intl: ^0.20.2
+  flutter_onnxruntime: ^1.6.3
+  dartcv4: ^2.2.1+4
+  image: ^4.5.4
+  image_picker: ^1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -32,3 +36,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/models/
