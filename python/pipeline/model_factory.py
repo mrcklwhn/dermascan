@@ -1,28 +1,29 @@
-from python.pipeline.json_dataclasses import FilterType, ModelType, ModelConfig
+from pipeline.json_dataclasses import FilterType, ModelType, ModelConfig
 from torchvision import models
+from torchvision.models import ResNet18_Weights, ResNet50_Weights, ResNet101_Weights
 import torch
 import torch.nn as nn
 
 
 class ModelFactory:
-    _models: dict[ModelType, callable, any] = {
-        ModelType.RESNET_18: models.resnet18,
-        ModelType.RESNET_50: models.resnet50,
-        ModelType.RESNET_101: models.resnet101,
+    _models: dict[ModelType, callable] = {
+        ModelType.RESNET_18: (models.resnet18, ResNet18_Weights),
+        ModelType.RESNET_50: (models.resnet50, ResNet50_Weights),
+        ModelType.RESNET_101: (models.resnet101, ResNet101_Weights),
     }
 
     @classmethod
-    def build(cls, model_arch: ModelConfig):
-        model_builder = cls._models.get(model_arch.model)
+    def build(cls, model_config: ModelConfig):
+        model_builder, weights_class = cls._models.get(model_config.model)
 
         # Default weights if pretrained, else None
-        weights = model_builder.weights.DEFAULT if model_arch.pretrained else None
+        weights = weights_class.DEFAULT if model_config.pretrained else None
         model = model_builder(weights=weights)
         
         # Modify Input and Output layers, and freeze weights if specified
-        model = cls._freeze_weights(model) if model_arch.freeze_weights else model
-        model = cls._modify_input_layer(model, model_arch.filter_type.num_channels) if model_arch.filter_type is not FilterType.RGB else model
-        model = cls._modify_output_layer(model, model_arch.num_classes)
+        model = cls._freeze_weights(model) if model_config.freeze_weights else model
+        model = cls._modify_input_layer(model, model_config.filter_type.num_channels) if model_config.filter_type is not FilterType.RGB else model
+        model = cls._modify_output_layer(model, model_config.num_classes)
 
         return model
     

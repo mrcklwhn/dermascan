@@ -5,19 +5,22 @@ from tempfile import TemporaryDirectory
 import torch
 from torch.utils.data import DataLoader
 
-from python.pipeline.json_dataclasses import OptimizerType, SchedulerType, TrainerConfig, OptimizerConfig, SchedulerConfig
-from python.pipeline.pipeline_dataclasses import ModelMode, PredictionResult, TrainingHistory
+from pipeline.json_dataclasses import OptimizerType, SchedulerType, TrainerConfig, OptimizerConfig, SchedulerConfig
+from pipeline.pipeline_dataclasses import EvalResult, TrainingHistory
 
 
 class Trainer:
     def __init__(self, model: torch.nn.Module, trainer_config: TrainerConfig, device: torch.device, save_path: Path):
         self.model = model
         self.trainer_config = trainer_config
+        
         self.device = device
+        self.model = self.model.to(self.device)
+
         self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer = self._build_optimizer(trainer_config.optimizer)
         self.scheduler = self._build_scheduler(trainer_config.scheduler)
-        self.save_path = save_path
+        self.model_save_path = save_path / "model.pt"
 
     def train(self, train_loader: DataLoader, val_loader: DataLoader) -> TrainingHistory:
         epochs = self.trainer_config.num_epochs
@@ -35,23 +38,26 @@ class Trainer:
                 print(f"Epoch {epoch + 1}/{epochs}")
                 print("-" * 10)
 
-                train_loss, train_acc = self._train_epoch(train_loader)
-                val_loss, val_acc = self._validate_epoch(val_loader)
+                epoch_train_loss, epoch_train_acc = self._train_epoch(train_loader)
+                epoch_val_loss, epoch_val_acc = self._validate_epoch(val_loader)
 
-                train_loss.append(train_loss)
-                train_accuracy.append(train_acc)
-                val_loss.append(val_loss)
-                val_accuracy.append(val_acc)
+                print(f"Train Loss: {epoch_train_loss:.4f} | Train Acc: {epoch_train_acc:.4f}")
+                print(f"Val Loss: {epoch_val_loss:.4f} | Val Acc: {epoch_val_acc:.4f}\n")
 
-                if val_acc > best_acc:
-                    best_acc = val_acc
+                train_loss.append(epoch_train_loss)
+                train_accuracy.append(epoch_train_acc)
+                val_loss.append(epoch_val_loss)
+                val_accuracy.append(epoch_val_acc)
+
+                if epoch_val_acc > best_acc:
+                    best_acc = epoch_val_acc
                     torch.save(self.model.state_dict(), temp_best_model_path)
                 
-                self.scheduler.step(val_loss)
+                self.scheduler.step(epoch_val_loss)
 
-            if best_acc > 0.0:
-                self.save_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy(temp_best_model_path, self.save_path)
+            if temp_best_model_path.exists():
+                self.model_save_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy(temp_best_model_path, self.model_save_path)
 
         return TrainingHistory(
             train_loss=train_loss,
@@ -109,8 +115,8 @@ class Trainer:
         return epoch_loss, epoch_acc
 
 
-    def test(self, test_loader: DataLoader) -> PredictionResult:
-        self.model.load_state_dict(torch.load(self.save_path, weights_only=True))
+    def test(self, test_loader: DataLoader) -> EvalResult:
+        self.model.load_state_dict(torch.load(self.model_save_path, weights_only=True, map_location=self.device))
         self.model.eval()
 
         all_preds = []
@@ -130,7 +136,7 @@ class Trainer:
                 all_labels.append(labels)
                 all_probs.append(probs)
 
-        return PredictionResult(
+        return EvalResult(
             y_true=torch.cat(all_labels),
             y_pred=torch.cat(all_preds),
             y_prob=torch.cat(all_probs),

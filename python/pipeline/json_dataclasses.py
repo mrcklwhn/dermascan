@@ -1,7 +1,7 @@
 from enum import Enum
 from pathlib import Path
-from typing import List, Union, Tuple
-from pydantic import BaseModel
+from typing import Annotated, Literal, Union, Tuple
+from pydantic import BaseModel, Field
 
 class ModelType(Enum):
     RESNET_18 = "resnet18"
@@ -23,8 +23,11 @@ class MetricsType(Enum):
     ACCURACY = "accuracy"
     PRECISION = "precision"
     RECALL = "recall"
-    F1_SCORE = "f1_score"
     AUC = "auc"
+    F1_SCORE_MACRO = "f1_score_macro"
+    F1_SCORE_WEIGHTED = "f1_score_weighted"
+    SENSITIVITY = "sensitivity"
+    SPECIFICITY = "specificity"
 
 class FilterType(Enum):
     RGB = ("rgb", 3)
@@ -42,6 +45,26 @@ class OptimizerType(Enum):
 
 class SchedulerType(Enum):
     REDUCE_ON_PLATEAU = "reduce_on_plateau"
+
+class SplitType(Enum):
+    RATIO = "ratio"
+    CUSTOM = "custom"
+
+class TrainValTestSplitRatio(BaseModel, frozen=True):
+    split_type: Literal[SplitType.RATIO] = SplitType.RATIO
+    val_ratio: float
+    test_ratio: float
+
+class CustomSplitConfig(BaseModel, frozen=True):
+    split_type: Literal[SplitType.CUSTOM] = SplitType.CUSTOM
+    train_csv_path: Path
+    val_csv_path: Path
+    test_csv_path: Path
+
+SplitConfig = Annotated[
+    Union[TrainValTestSplitRatio, CustomSplitConfig],
+    Field(discriminator='split_type')
+]
 
 class ModelConfig(BaseModel, frozen=True):
     model: ModelType
@@ -88,18 +111,16 @@ class TrainerConfig(BaseModel, frozen=True):
 
 class BranchConfig(BaseModel, frozen=True):
     branch_id: str
-    model: ModelConfig
-    trainer: TrainerConfig
+    branch_model_config: ModelConfig
+    trainer_config: TrainerConfig
     dataset_loader: DatasetLoaderType
-    augmentation: List[AugmentationType]
+    augmentation: list[AugmentationType]
 
 class PipelineConfig(BaseModel, frozen=True):
     pipeline_id: str
     data_path: Path
-    output_path: Path
-    val_split_ratio: float
-    test_split_ratio: float
-    branches: List[BranchConfig]
-    eval_metrics: List[MetricsType]
+    split_config: SplitConfig
+    branches: list[BranchConfig]
+    eval_metrics: list[MetricsType]
 
 # ids_df should be separate Pipeline Runner init param

@@ -1,5 +1,6 @@
 from enum import Enum
 
+from dataclasses import dataclass
 from pandas import DataFrame
 import torch
 from torch.utils.data import DataLoader
@@ -10,25 +11,14 @@ class ModelMode(Enum):
     VAL = "val"
     TEST = "test"
 
-class MetricsType(Enum):
-    ACCURACY = "accuracy"
-    PRECISION = "precision"
-    RECALL = "recall"
-    AUC = "auc"
-    F1_SCORE_MACRO = "f1_score_macro"
-    F1_SCORE_WEIGHTED = "f1_score_weighted"
-    SENSITIVITY = "sensitivity"
-    SPECIFICITY = "specificity"
-    
+@dataclass(frozen=True)
+class TrainValTestSplit:
+    train_df: DataFrame
+    val_df: DataFrame
+    test_df: DataFrame
 
-
-
-class TrainValTestSplit(BaseModel, frozen=True):
-    train_ids: DataFrame
-    val_ids: DataFrame
-    test_ids: DataFrame
-
-class TrainValTestDataLoaders(BaseModel, frozen=True):
+@dataclass(frozen=True)
+class TrainValTestDataLoaders:
     train_loader: DataLoader
     val_loader: DataLoader
     test_loader: DataLoader
@@ -39,7 +29,23 @@ class TrainingHistory(BaseModel, frozen=True):
     train_accuracy: list[float]
     val_accuracy: list[float]
 
-class PredictionResult(BaseModel, frozen=True):
+@dataclass(frozen=True)
+class EvalResult:
     y_true: torch.Tensor
     y_pred: torch.Tensor
     y_prob: torch.Tensor
+
+class MetricsResult(BaseModel, frozen=True):
+    f1_macro: float
+    f1_weighted: float
+    accuracy: float
+    precision: float
+    sensitivity: float
+    specificity: float
+    auc: float
+    mcc: float
+
+class BranchResult(BaseModel, frozen=True):
+    branch_id: str
+    training_history: TrainingHistory
+    metrics_result: MetricsResult
