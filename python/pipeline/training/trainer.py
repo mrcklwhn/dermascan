@@ -1,15 +1,23 @@
 from pathlib import Path
 import shutil
 from tempfile import TemporaryDirectory
-
 import torch
 from torch.utils.data import DataLoader
 
-from pipeline.json_dataclasses import OptimizerType, SchedulerType, TrainerConfig, OptimizerConfig, SchedulerConfig
-from pipeline.pipeline_dataclasses import EvalResult, TrainingHistory
-
+from pipeline.dataclasses.pipeline_config import TrainerConfig, OptimizerConfig, SchedulerConfig
+from pipeline.dataclasses.pipeline_runtime import EvalResult, TrainingHistory
+from pipeline.dataclasses.enums import OptimizerType, SchedulerType
 
 class Trainer:
+    """
+    Trainer class responsible for training and evaluating a PyTorch model based on the provided configuration.
+    It handles:
+    - Training the model for a specified number of epochs.
+    - Validating the model on a validation dataset.
+    - Saving the best model based on validation accuracy.
+    - Testing the model on a test dataset and returning evaluation results.
+    - Building the optimizer and scheduler based on the provided configurations.
+    """
     def __init__(self, model: torch.nn.Module, trainer_config: TrainerConfig, device: torch.device, save_path: Path):
         self.model = model
         self.trainer_config = trainer_config
@@ -23,6 +31,16 @@ class Trainer:
         self.model_save_path = save_path / "model.pt"
 
     def train(self, train_loader: DataLoader, val_loader: DataLoader) -> TrainingHistory:
+        """
+        Trains the model for a specified number of epochs, validating after each epoch.
+        Saves the best model based on validation accuracy.
+
+        Args:
+            train_loader (DataLoader): DataLoader for the training dataset.
+            val_loader (DataLoader): DataLoader for the validation dataset.
+        Returns:
+            TrainingHistory: Object containing training and validation loss and accuracy for each epoch.
+        """
         epochs = self.trainer_config.num_epochs
         best_acc = 0.0
 
@@ -31,6 +49,8 @@ class Trainer:
         val_loss = []
         val_accuracy = []
 
+        # Use a temporary directory to save the best model during training, 
+        # then copy it to the final destination at the end
         with TemporaryDirectory() as temp_dir:
             temp_best_model_path = Path(temp_dir) / "best_model.pt"
 
@@ -49,6 +69,7 @@ class Trainer:
                 val_loss.append(epoch_val_loss)
                 val_accuracy.append(epoch_val_acc)
 
+                # Save the best model based on validation accuracy
                 if epoch_val_acc > best_acc:
                     best_acc = epoch_val_acc
                     torch.save(self.model.state_dict(), temp_best_model_path)
@@ -66,6 +87,14 @@ class Trainer:
             val_accuracy=val_accuracy)
 
     def _train_epoch(self, train_loader: DataLoader) -> tuple[float, float]:
+        """
+        Trains the model for one epoch.
+
+        Args:
+            train_loader (DataLoader): DataLoader for the training dataset.
+        Returns:
+            tuple[float, float]: Training loss and accuracy for the epoch.
+        """
         self.model.train()
         running_loss = 0.0
         running_corrects = 0
@@ -92,6 +121,14 @@ class Trainer:
         return epoch_loss, epoch_acc
     
     def _validate_epoch(self, val_loader: DataLoader) -> tuple[float, float]:
+        """
+        Validates the model for one epoch.
+
+        Args:
+            val_loader (DataLoader): DataLoader for the validation dataset.
+        Returns:
+            tuple[float, float]: Validation loss and accuracy for the epoch.
+        """
         self.model.eval()
         running_loss = 0.0
         running_corrects = 0
@@ -116,6 +153,15 @@ class Trainer:
 
 
     def test(self, test_loader: DataLoader) -> EvalResult:
+        """
+        Tests the model on the test dataset.
+
+        Args:
+            test_loader (DataLoader): DataLoader for the test dataset.
+        Returns:
+            EvalResult: Evaluation results containing true labels, predicted labels, and predicted probabilities.
+        """
+        # Load the best model before testing
         self.model.load_state_dict(torch.load(self.model_save_path, weights_only=True, map_location=self.device))
         self.model.eval()
 
@@ -142,7 +188,15 @@ class Trainer:
             y_prob=torch.cat(all_probs),
         )
 
-    def _build_optimizer(self, optimizer_config: OptimizerConfig):
+    def _build_optimizer(self, optimizer_config: OptimizerConfig) -> torch.optim.Optimizer:
+        """
+        Builds the optimizer based on the provided configuration.
+
+        Args:
+            optimizer_config (OptimizerConfig): Configuration for the optimizer.
+        Returns:
+            torch.optim.Optimizer: Initialized optimizer.
+        """
         match optimizer_config.optimizer_type:
             case OptimizerType.ADAM:
                 return torch.optim.Adam(
@@ -159,7 +213,15 @@ class Trainer:
                     weight_decay=optimizer_config.weight_decay,
                     nesterov=optimizer_config.nesterov)
 
-    def _build_scheduler(self, scheduler_config: SchedulerConfig):
+    def _build_scheduler(self, scheduler_config: SchedulerConfig) -> torch.optim.lr_scheduler._LRScheduler:
+        """
+        Builds the learning rate scheduler based on the provided configuration.
+
+        Args:
+            scheduler_config (SchedulerConfig): Configuration for the scheduler.
+        Returns:
+            torch.optim.lr_scheduler._LRScheduler: Initialized learning rate scheduler.
+        """
         match scheduler_config.scheduler_type:
             case SchedulerType.REDUCE_ON_PLATEAU:
                 return torch.optim.lr_scheduler.ReduceLROnPlateau(

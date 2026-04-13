@@ -1,29 +1,42 @@
-import json
-
-from pipeline.metrics_calculator import MetricsCalculator
-from pipeline.json_dataclasses import BranchConfig, MetricsType
-from pipeline.pipeline_dataclasses import MetricsResult, BranchResult, TrainingHistory, TrainValTestDataLoaders
+from pathlib import Path
 import torch
 
-from pathlib import Path
+from pipeline.dataclasses.pipeline_config import BranchConfig, MetricsType
+from pipeline.dataclasses.pipeline_runtime import MetricsResult, BranchResult, TrainingHistory, TrainValTestDataLoaders
 
-from pipeline.model_factory import ModelFactory
-from pipeline.trainer import Trainer
-from python.pipeline.plotter import Plotter
+from pipeline.eval.metrics_calculator import MetricsCalculator
+from pipeline.training.model_factory import ModelFactory
+from pipeline.training.trainer import Trainer
+from pipeline.eval.plotter import Plotter
 
 
 class BranchRunner:
-
+    """
+    BranchRunner class responsible for executing the training and evaluation of a single branch in the pipeline.
+    It handles:
+    - Model initialization based on the branch configuration
+    - Training the model and saving training history
+    - Evaluating the model on the test set and calculating metrics
+    - Saving metrics results and generating plots
+    """
     def __init__(self,
                  branch_config: BranchConfig,
                  data_loaders: TrainValTestDataLoaders,
-                 pipeline_run_path: Path,
-                 eval_metrics: list[MetricsType]
+                 pipeline_run_path: Path
                  ):
+        """
+        Initializes the BranchRunner with the given branch configuration, data loaders, and pipeline run path.
+
+        Args:
+            branch_config (BranchConfig): Configuration for the branch, including model and training settings.
+            data_loaders (TrainValTestDataLoaders): Data loaders for training, validation, and testing.
+            pipeline_run_path (Path): Path to save the results of this branch run.
+        """
         self.branch_config = branch_config
         self.data = data_loaders
         self.branch_run_path = self._get_branch_run_path(pipeline_run_path,
-                                                               branch_config.branch_model_config.filter_type.filter_name)
+                                                         branch_config.branch_id,
+                                                         branch_config.branch_model_config.filter_type.filter_name)
         self.device = self._get_device()
         self.model = ModelFactory.build(branch_config.branch_model_config).to(self.device)
         self.trainer = Trainer(
@@ -31,9 +44,14 @@ class BranchRunner:
             self.branch_config.trainer_config,
             self.device,
             self.branch_run_path)
-        self.eval_metrics = eval_metrics
 
     def run(self) -> BranchResult:
+        """
+        Runs the training and evaluation process for the branch.
+
+        Returns:
+            BranchResult: The result of the branch execution, including training history and metrics.
+        """
         training_history = self.trainer.train(self.data.train_loader, self.data.val_loader)
         self._save_training_history(training_history)
         Plotter.plot_training_history(training_history, self.branch_run_path)
@@ -41,7 +59,7 @@ class BranchRunner:
         eval_results = self.trainer.test(self.data.test_loader)
 
         metrics_calculator = MetricsCalculator()
-        metrics_result = metrics_calculator.calculate(self.eval_metrics, eval_results)
+        metrics_result = metrics_calculator.calculate(eval_results)
         self._save_metrics(metrics_result)
 
         Plotter.plot_confusion_matrix(eval_results, self.branch_run_path)
@@ -52,21 +70,49 @@ class BranchRunner:
             metrics_result=metrics_result
         )
 
-    def _get_branch_run_path(self, pipeline_run_path: Path, filter_name: str) -> Path:
-        branch_run_path = pipeline_run_path / filter_name
+    def _get_branch_run_path(self, pipeline_run_path: Path, branch_id: str, filter_name: str) -> Path:
+        """
+        Generates the path for the branch run and creates the directory if it doesn't exist.
+
+        Args:
+            pipeline_run_path (Path): The base path for the pipeline run.
+            branch_id (str): The identifier for the branch.
+            filter_name (str): The name of the filter used in the model.
+        Returns:
+            Path: The path for the branch run.
+        """
+        branch_run_path = pipeline_run_path / f"{branch_id}_{filter_name}"
         branch_run_path.mkdir(parents=True, exist_ok=True)
         return branch_run_path
     
     def _save_training_history(self, history: TrainingHistory) -> None:
+        """
+        Saves the training history to a JSON file in the branch run path.
+
+        Args:
+            history (TrainingHistory): The training history to be saved.
+        """
         with open(self.branch_run_path / "training_history.json", "w") as f:
             f.write(history.model_dump_json(indent=2))
 
     def _save_metrics(self, metrics: MetricsResult) -> None:
+        """
+        Saves the evaluation metrics to a JSON file in the branch run path.
+
+        Args:
+            metrics (MetricsResult): The metrics to be saved.
+        """
         with open(self.branch_run_path / "metrics.json", "w") as f:
             f.write(metrics.model_dump_json(indent=2))
 
     @staticmethod
     def _get_device() -> torch.device:
+        """
+        Determines the device to be used for training and evaluation.
+
+        Returns:
+            torch.device: The device to be used (CUDA if available, otherwise CPU).
+        """
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"[BranchRunner] Using device: {device}")
         return device

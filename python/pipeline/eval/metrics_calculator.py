@@ -1,14 +1,32 @@
 import numpy as np
-
-from pipeline.pipeline_dataclasses import EvalResult, MetricsResult
-from pipeline.json_dataclasses import MetricsType
-
 from sklearn.metrics import (
     f1_score, roc_auc_score, accuracy_score, confusion_matrix, precision_score, matthews_corrcoef
 )
 
+from pipeline.dataclasses.pipeline_runtime import EvalResult, MetricsResult
+from pipeline.dataclasses.pipeline_config import MetricsType
+
 class MetricsCalculator:
-    def calculate(self, eval_metrics: list[MetricsType],  eval_results: EvalResult):
+    """
+    MetricsCalculator class responsible for calculating evaluation metrics based on the true labels, predicted labels, and predicted probabilities.
+    It calculates:
+    - Accuracy
+    - Precision
+    - F1 Score (macro and weighted)
+    - Sensitivity and Specificity
+    - AUC
+    - Matthews Correlation Coefficient (MCC)
+    """
+    def calculate(self, eval_results: EvalResult) -> MetricsResult:
+        """
+        Calculates the specified evaluation metrics based on the evaluation results.
+
+        Args:
+            eval_results (EvalResult): Evaluation results containing true labels, predicted labels, and predicted probabilities.
+
+        Returns:
+            MetricsResult: Calculated evaluation metrics.
+        """
         y_true = eval_results.y_true
         y_pred = eval_results.y_pred
         all_probs = np.array(eval_results.y_prob)

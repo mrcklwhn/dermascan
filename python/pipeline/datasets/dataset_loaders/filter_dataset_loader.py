@@ -6,18 +6,24 @@ import numpy as np
 import torch
 import pandas as pd
 
-from pipeline.json_dataclasses import FilterType
+from pipeline.dataclasses.enums import FilterType
 
 class FilterDatasetLoader(Dataset):
+    """
+    FilterDatasetLoader is a PyTorch Dataset class responsible for loading filtered features and their corresponding labels from a given DataFrame.
+    Each item retrieved from the dataset consists of:
+    - A tensor of filtered features loaded from a .npy file corresponding to the image.
+    - An integer label corresponding to the lesion index.
+    """
     def __init__(self, dataframe: pd.DataFrame, filter_type: FilterType, data_path: Path, transforms=None):
         """
-        Custom Dataset for HAM10000 skin lesion images.
+        Initializes the FilterDatasetLoader with a DataFrame containing image IDs and labels, a filter type, and a data path.
 
         Args:
-            dataframe: Pandas DataFrame containing image paths and labels
-            filter_type: Type of the filter to apply
-            data_path: Path to the data directory
-            transform: Optional transformations to be applied on the images
+            dataframe (pd.DataFrame): A DataFrame containing the image IDs and labels.
+            filter_type (FilterType): The type of filter applied to the features, which determines the subdirectory from which to load the .npy files.
+            data_path (Path): The path to the data directory.
+            transforms (callable, optional): A function/transform to apply to the filtered features.
         """
         self.dataframe = dataframe
         self.filter_name = filter_type.filter_name
@@ -28,7 +34,7 @@ class FilterDatasetLoader(Dataset):
 
     def __getitem__(self, idx) -> tuple[torch.Tensor, int]:
         """
-        Retrieve an image and its corresponding label.
+        Retrieves the filtered features and their corresponding label for the given index.
 
         Args:
             idx: Index of the item to retrieve

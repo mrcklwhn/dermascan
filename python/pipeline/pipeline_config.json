@@ -1,0 +1,58 @@
+{
+  "pipeline_id": "test_pipeline",
+  "data_path": "/absolute/path/to/data",
+  "split_config": {
+    "split_type": "ratio",
+    "val_ratio": 0.15,
+    "test_ratio": 0.15
+  },
+  "branches": [
+    {
+      "branch_id": "first_test_branch",
+      "branch_model_config": {
+        "model": "resnet18",
+        "filter_type": "RGB",
+        "num_classes": 2,
+        "pretrained": true,
+        "freeze_weights": true
+      },
+      "trainer_config": {
+        "batch_size": 32,
+        "num_epochs": 2,
+        "learning_rate": 0.001,
+        "optimizer": {
+          "optimizer_type": "adam"
+        },
+        "scheduler": {
+          "scheduler_type": "reduce_on_plateau"
+        }
+      },
+      "dataset_loader": "rgb",
+      "augmentation": ["random_horizontal_flip", "random_resize_crop"]
+    },
+    {
+      "branch_id": "second_test_branch",
+      "branch_model_config": {
+        "model": "resnet50",
+        "filter_type": "RGB",
+        "num_classes": 1,
+        "pretrained": true,
+        "freeze_weights": true
+      },
+      "trainer_config": {
+        "batch_size": 32,
+        "num_epochs": 1,
+        "learning_rate": 0.001,
+        "optimizer": {
+          "optimizer_type": "adam"
+        },
+        "scheduler": {
+          "scheduler_type": "reduce_on_plateau"
+        }
+      },
+      "dataset_loader": "rgb",
+      "augmentation": ["random_horizontal_flip", "random_resize_crop"]
+    }
+  ],
+  "eval_metrics": ["accuracy", "precision", "recall", "f1_score_macro"]
+}
