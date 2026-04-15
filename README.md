@@ -57,3 +57,19 @@ Mobile App zur Erfassung von Hautanomalien und Erst‑Einschätzung der Dringlic
 - Datensammlung und rechtliche Prüfung
 - Prototyp UI + Kamera‑Workflow
 - ML‑Baseline trainieren und on‑device testen
+
+## Dokumentation
+
+Alle Informationen zu Analyse, Daten, Modellentwicklung und -export sind in Form von Markdown-Dateien und Jupyter Notebooks organisiert.
+Die Markdown-Dateien im `docs/` Verzeichnis sind der Kern der Projektdokumentation, während die Jupyter Notebooks im `python/` Verzeichnis die detaillierten Schritte der Datenanalyse, Modellierung und Exportierung enthalten.
+Für eine interaktiven Aufruf der Dokumentation reicht es die folgenden Befehle im Terminal auszuführen:
+
+```bash
+# Install mkdocs
+pip install mkdocs
+
+# Serve the documentation locally
+mkdocs serve
+```
+
+Unter `http://127.0.0.1:8000/` kann die Dokumentation dann im Browser aufgerufen werden. Alle Markdown-Dateien und Notebooks sind dort übersichtlich strukturiert und können direkt eingesehen werden.
