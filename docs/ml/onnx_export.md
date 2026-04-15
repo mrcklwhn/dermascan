@@ -1,19 +1,16 @@
 # Übertrag von Pytorch Modellen zu Flutter/Dart
 
-## Export des Klassifikations-Modells
-
-
 ## Export des Lesionsmasken-Modells
 
-Im Notebook `lesion_cutout_model_export` soll das fertig trainierte UNet-Modell in die plattformübergreifend kompatible ONNX-Bibliothek (Open Neural Network Exchange) exportiert werden, um es nahtlos auf Endgeräten nutzen zu können. Hierfür ist es notwendig, sowohl die genaue Modellarchitektur zu definieren als auch einen passenden Beispiel-Tensor bereitzustellen. Letzteres ist beim Export besonders wichtig und hat einen simplen Grund: 
+Im Notebook [lesion_cutout_model_export](../../python/onnx_porting/lesion_cutout_model_export.ipynb) soll das fertig trainierte UNet-Modell in die plattformübergreifend kompatible ONNX-Bibliothek (Open Neural Network Exchange) exportiert werden, um es auf mobilen Endgeräten nutzen zu können. Hierfür ist es notwendig, sowohl die genaue Modellarchitektur zu definieren als auch einen passenden Beispiel-Tensor. Die ONNX Bibliothek erstellt einen sogenannten Execution-Graph, der die inneren Rechenoperationen des Modells aufzeichnet. Dieser Graph ist eine unabhängige Darstellung des Modells, die von verschiedenen Frameworks und Plattformen interpretiert werden kann. Aus diesem Grund ist ein typisierter Bespiel-Tensor zwingend erforderlich, damit der Execution-Graph durch einen dynamischen Durchlauf (Trace) des Modells erstellt werden kann. 
 
-**ONNX benötigt den typisierten Beispiel-Tensor zwingend dazu, um den sogenannten Execution-Graph des Modells einmal dynamisch zu durchlaufen (Trace) und dabei alle inneren Dimensionen und Rechenoperationen aufzuzeichnen.**
-
-*Hinweis:* Bei unserem Export hat sich gezeigt, dass der moderne PyTorch Dynamo-Export Probleme verursachen kann. Die stabilste Lösung bestand daher schlicht darin, den Export-Parameter `dynamo=False` zu setzen.
+Bei unserem Export hat sich zudem gezeigt, dass der moderne PyTorch Dynamo-Export Probleme verursachen kann. Das wurde daran festgestellt, dass für die gleiche Modellkonfiguration und identischem Eingabetensor ein unterschiedlicher Wertebereich der Logits entstanden ist. 
+Die stabilste Lösung bestand daher schlicht darin, den Export-Parameter `dynamo=False` zu setzen.
 
 ### Datenformate: Inputs und Logits
-* **Eingabe-Daten (Inputs):** Das Modell erwartet in diesem Fall einen Daten-Tensor vom Typ `float32`. Die Eingabedimensionen lauten `[1, 3, 256, 256]` (entspricht: Batch-Size 1, 3 Farbkanäle für RGB, 256 Pixel Höhe, 256 Pixel Breite). Die Bildwerte sind dabei auf ein Intervall zwischen `0.0` und `1.0` skaliert.
-* **Ausgabe-Daten (Logits):** Die vom Modell zurückkommenden Werte sind unskalierte und nicht-normalisierte Aktivierungswerte (die Logits) vom Typ `float32`. Je nach Eingabebedienungen und Gewichten können diese nach außen ausgegebenen Modell-Logits bei einem voll trainierten Netz beispielhaft Werte zwischen `-7.4` und `+8.8` umfassen.
+Eingabe-Daten (Inputs): Das Modell erwartet in diesem Fall einen Daten-Tensor vom Typ `float32`. Die Eingabedimensionen lauten `[1, 3, 256, 256]` (entspricht: Batch-Size 1, 3 Farbkanäle für RGB, 256 Pixel Höhe, 256 Pixel Breite). Die Bildwerte sind dabei auf ein Intervall zwischen `0.0` und `1.0` skaliert.
+
+Ausgabe-Daten (Logits): Die vom Modell zurückkommenden Werte sind unskalierte und nicht-normalisierte Aktivierungswerte (die Logits) vom Typ `float32`. Je nach Eingabebedienungen und Gewichten können diese nach außen ausgegebenen Modell-Logits beispielhaft Werte zwischen `-7.42` und `8.89` annehmen. Zur tatsächlichen Interpretation als Lesionsmaske müssen die Logits nachverarbeitet werden, u.a. durch Anwendung einer Sigmoid-Funktion. Diese Nachverarbeitung ist für Python und Dart identisch.
 
 ## Integration in Flutter
 
@@ -47,4 +44,9 @@ Future<Uint8List> runInference() async {
 Das ONNX Model rechnet im 32-Bit Fließkommazahlen (`float32`). In Dart gibt es allerdings keinen primitiven Datentypen dafür, zwingend ein cast zu 64-Bit `double` notwendig ist.
 
 **Verarbeitung & Aufbereitung der Daten:**
-Die im Code-Snippet ersichtlichen Methoden `_preprocess` und `_postprocess` sind Teil der [Neural Lesion Cutout Model](./neural_lesion_cutout.md) und werden dort näher erklärt.
+Die im Code-Snippet ersichtlichen Methoden `_preprocess` und `_postprocess` sind Teil des [Läsionsmaskenmodells](./lesion_cutout.md) und werden dort näher erklärt.
+Für das Klassifikationsmodell sind die Schritte ähnlich, allerdings mit einem anderen Ausgabeformat und einer anderen Nachverarbeitung der Logits.
+
+## Ergebnisse
+
+Wie im bereits genannten Notebook nachzulesen ist, sind die Ausgaben der PyTorch und ONNX-Modelle identisch, was die Korrektheit des Exports bestätigt. Auch bei Inferenz in Dart mit der `flutter_onnxruntime` Bibliothek konnten die gleichen Wertebereiche der Logits beobachtet werden, was auf eine erfolgreiche Integration hindeutet.
