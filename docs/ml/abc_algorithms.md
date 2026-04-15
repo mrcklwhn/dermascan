@@ -3,113 +3,104 @@
 ## Ziel
 Die reine Verwendung eines angepassten CNN-Klassifikators bringt den Nachteil mit sich, dass die Art und Weise der Klassifizierung eines Bildes für den Menschen nicht nachvollziehbar ist.
 Da dieses Projekt im medizinischen Kontext Verwendung finden soll, ist die Nachvollziehbarkeit von Entscheidungen jedoch eine grundlegende Vorraussetzung.
-Aus diesem Grund kam der Gedanke auf, Determinismus in den Prozess der maschinengestützten Entscheidung künstlich einzuführen, wie das Kapitel zur [`Eigenen Klassifikations Architektur`](./multibranch_architecture.md) erklärt.
+Aus diesem Grund kam der Gedanke auf, Determinismus in den Prozess der maschinengestützten Entscheidung künstlich einzuführen, wie das Kapitel zur [`eigenen Klassifikator Architektur`](./multibranch_architecture.md) erklärt.
 
-In der menschlichen Analyse kommen oft die ABCDE-Kriterien als typische Vorgehensweise zur Untersuchung von Hautläsionen.
-Ein Teil dieser Kriterien soll nun mit deterministischen Methoden unter Ausgabe eines Scores nachgebildet werden.
+Die ABCDE-Kriterien sind ein etabliertes Werkzeug für Dermatologen, um die Merkmale von Hautläsionen zu bewerten. Durch die Implementierung von Algorithmen, die diese Kriterien quantifizieren, können erklärbare Informationen bereitgestellt werden, die Ärzten helfen, fundierte Entscheidungen zu treffen.
 
 ## Details zur Implementierung
 
+Für jedes der drei Kriterien (Asymmetrie, Border und Color) wurden zwei verschiedene Implementierungsansätze entwickelt und verglichen. Alle Ansätze wurden in Python implementiert, wobei für jedes Kriterium festgestellt werden soll, welcher Algorithmus am geeignesten ist. Dieser 
+
+Alle Vergleiche von Implementierungsansätzen nutzen Otsu's Thresholding um eine binäre Maske der Läsion zu erstellen. 
+
+Um die Leistung der Algorithmen zu bewerten, wurden sie auf alle 10000 Bilder angewandt und die berechneten Scores nach den beiden relevanten Klassen (Melanom vs. Leberfleck) gruppiert.
+Ein Boxplot dient der Visualisierung der Verteilung der Scores in den beiden Klassen, um die Differenzierungskraft des Algorithmus zu bewerten. Ein signifikanter Unterschied in der Verteilung der Scores zwischen den Klassen würde darauf hindeuten, dass der Algorithmus relevante Merkmale extrahiert, die zur Unterscheidung beitragen können.
+
 ### Kriterium A - Asymmetry (Asymmetrie)
 
-#### Wissenschaftlicher Hintergrund
+Die Asymmetrie eines Muttermals ist eines der wichtigsten Indikatoren zur Unterscheidung zwischen gutartigen Muttermalen und Melanomen. Während gutartige Muttermale in der Regel symmetrisch sind, weisen Melanome oft eine unregelmäßige Form auf, die zu Asymmetrie führt. 
 
-Die Asymmetrie eines Muttermals ist eines der wichtigsten Indikatoren zur Unterscheidung zwischen gutartigen Muttermalen und Melanomen. Der Algorithmus quantifiziert, wie stark eine Läsion von Spiegelsymmetrie abweicht.
+Dazu sollen zwei Ansätze zur Quantifizierung der Asymmetrie auf einer Skala von 0 (völlig symmetrisch) bis 1 (völlig asymmetrisch) verglichen werden. 
+Für die Berechnungen wird ausschließlich die binäre Maske der Läsion verwendet. Farbwerte spielen bei der Asymmetrie-Berechnung keine Rolle, da die Form der Läsion im Vordergrund steht.
 
-**Kernidee:** Eine gutartige Läsion sollte in beide Richtungen (vertikal und horizontal) weitgehend symmetrisch sein. Der Algorithmus misst dies durch:
-1. **Rotationsausrichtung:** Die Läsion wird entlang ihrer Hauptachse ausgerichtet. Dies wird durch die Berechnung der regionalen Momente erreicht – die längste Achse der Läsion wird horizontal/vertikal positioniert
-2. **Spiegelsymmetrie-Vergleich:** Nach Ausrichtung wird die Läsion an der Mittellinie gespiegelt und der Überlappungsgrad zwischen Original und gespiegeltem Bild gemessen
-3. **Normalisierung:** Der Asymmetrie-Score wird auf [0, 1] normalisiert, wobei 0 = völlig symmetrisch und 1 = völlig asymmetrisch
+#### Ansatz 1: Quadranten-basierte Punktsymmetrie
 
-#### Ablauf des Algorithmus
+Dieser Ansatz basiert auf der vereinfachten Annahme, dass sich die Symmetrie einer Läsion durch den Vergleich von vier Quadranten (oben links, oben rechts, unten links, unten rechts) beurteilen lässt. Hierbei wird die Anzahl der Pixel in jedem Quadranten gezählt und der absolute Unterschied zwischen gegenüberliegenden Quadranten (Punktsymmetrie) berechnet.
 
-```mermaid
-graph TD
-    A["1. Binäre Maske erstellen<br/>(Otsu-Schwellenwert)<br/>- Graustufen-Schwellenwert<br/>- Größte zusammenhängende Region"] --> B["2. Hauptachse berechnen<br/>- Regionprops → Orientierung<br/>- Trägheitsmomente der Maske"]
-    B --> C["3. Maske zur Hauptachse rotieren<br/>- Geometrische Transformation<br/>- Schwerpunkt beibehalten"]
-    C --> D["4a. Links spiegeln"]
-    C --> E["4b. Oben spiegeln"]
-    D --> F["5. Overlap-Asymmetrie berechnen<br/>- Schnittmenge & Vereinigung<br/>- Score = 1 - Schnitt/Union"]
-    E --> F
-    F --> G["6. Finale Asymmetrie-Score<br/>- Mittelwert aus links/rechts<br/>und oben/unten<br/>- Ergebnis: Score ∈ [0, 1]"]
-```
+1. Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding
+2. Zentroid-Berechnung: Bestimmung des geometrischen Schwerpunkts der Läsion, um die Quadranten zu definieren
+3. Quadranten-Aufteilung: Aufteilung der Maske in vier Quadranten basierend auf dem Zentroid
+4. Differenberechnung: Berechnung der absoluten Differenz zwischen diagonal gegenüberliegenden Quadranten
+5. Normalisierung: Mittelung der zwei Differenzwerte und Normalisierung auf [0, 1], wobei 0 = völlig symmetrisch und 1 = völlig asymmetrisch
+
+
+#### Ansatz 2: Hauptachsen-basierte Spiegelsymmetrie
+
+Dieser Ansatz ist wissenschaftlich präziser, da er die Spiegelsymmetrie entlang der Hauptachse der Läsion bewertet. Da Muttermale oft oval sind, wird die Läsion zuerst an ihrer längsten Ausdehnung ausgerichtet. Die Asymmetrie wird dann über die Schnittmenge und Vereinigung (Intersection over Union, IoU) der gespiegelten Hälften definiert.
+
+1. Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding
+2. Hauptachsen-Berechnung: Bestimmung der Hauptachse durch Bildmomente
+3. Geometrische Ausrichtung: Rotation der Maske, um die Hauptachse horizontal auszurichten
+4. Symmetrie-Prüfung: Spiegelung der Maske entlang horizontaler und vertikaler Achse und Berechnung der Überlappung 
+5. Analyse der Überlappung: Berechnung der IoU zwischen den gespiegelten Hälften, um die Asymmetrie zu quantifizieren
+6. Normalisierung: Mittelwert aus horizontaler und vertikaler Asymmetrie, normalisiert auf [0, 1], wobei 0 = völlig symmetrisch und 1 = völlig asymmetrisch
+
+
+![Asymmetry Score Verteilung](../images/asymmetry_score_analysis.png)
+
+Wie dem Boxplot zu entnehmen, eignet sich der Ansatz der Hauptachsen-basierten Spiegelsymmetrie deutlich besser zur Differenzierung zwischen Melanomen und Leberflecken, da der Mittelwert der Scores mit 0.27 für Melanome und 0.20 für Leberflecken deutlicher auseiander liegt als bei der quadranten-basierten Punktsymmetrie (0.37 vs. 0.35). Zudem erstreckt sich das 75. Perzentil der Melanom-Scores bis 0.61, was darauf hinweist, dass Melanome tendenziell deutlich asymmetrischer sind als Leberflecken. 
+
 
 ---
 
 ### Kriterium B - Border (Grenzziehung)
 
-#### Wissenschaftlicher Hintergrund
+Unregelmäßige, ausgefranste oder unscharfe Ränder sind ein klinisches Warnzeichen für maligne Hautläsionen. Zur objektiven Quantifizierung dieser Irregularitäten wurden zwei komplementäre Algorithmen implementiert, die unterschiedliche Aspekte der Randgestalt erfassen.
 
-Hautläsionen mit unscharfen, zackigen oder unregelmäßigen Rändern deuten auf ein höheres Melanom-Risiko hin. Der Algorithmus quantifiziert die Grenzunregelmäßigkeit durch zwei komplementäre Methoden:
+#### Ansatz 1: Radiale Distanzvarianz (RDV)
 
-1. **Radiale Distanzvarianz (RDV):** Misst die Variation der Entfernungen von der Läsionsmitte zum Rand
-   - Berechnet: Standardabweichung / Mittlere Distanz
-   - Ergebnis: Maßstabsinvarianter Score für Unregelmäßigkeit
+Die RDV-Methode quantifiziert die Abweichung der Läsionsform von einer idealen Kreisform. Dabei werden die Distanzen vom geometrischen Zentrum (Zentroid) zu allen Punkten auf der Grenzlinie berechnet. Eine perfekt kreisförmige Läsion weist eine minimale Varianz auf, während irreguläre Ränder zu einer hohen statistischen Varianz der Radien führen.
 
-2. **Konkavitäts-Index:** Vergleicht die Läsion mit ihrer konvexen Hülle
-   - Konkavitäten = Einbuchtungen zwischen Hülle und tatsächlicher Grenze
-   - Normalisierung: Gesamtkoncavity-Fläche / Läsions-Fläche
+1. Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding
+2. Zentroid-Berechnung: Bestimmung des geometrischen Schwerpunkts der Läsion
+3. Bestimmung des Umrisses: Aufblähen der Maske durch Dilation und anschließend Subtraktion der ursprünglichen Maske
+4. Radiale Distanzberechnung: Berechnung der euklidischen Distanzen von jedem Punkt auf der Grenzlinie zum Zentroid
+5. Varianzberechnung: Ermittlung des Varainzkoeffizienten (Standardabweichung / Mittelwert) der Radien, um die Unregelmäßigkeit zu quantifizieren
+6. Normalisierung: Skalierung des RDV-Werts auf [0, 1], wobei 0 = perfekte Kreisform und 1 = maximale Irregularität
 
-#### Ablauf des Algorithmus
+#### Ansatz 2: Konkavitäts-Analyse
 
-```mermaid
-graph TD
-    A["1. Binäre Maske erstellen & bereinigen<br/>- Otsu-Schwellenwert<br/>- Morphologisches Closing<br/>- Kleine Löcher füllen"] --> B["2a. RDV-Methode"]
-    A --> C["2b. Konkavität-Methode"]
-    B --> D["3a. Grenzpunkte extrahieren"]
-    D --> E["4a. Distanzen vom Zentroid<br/>zu Grenzpunkten berechnen"]
-    E --> F["5a. Koeff. Variation<br/>berechnen σ/μ"]
-    C --> G["3b. Konvexe Hülle berechnen"]
-    G --> H["4b. Konkavitäten identifizieren<br/>Hülle minus Maske"]
-    H --> I["5b. Konkavitäts-Flächen<br/>summieren"]
-    F --> J["6. Finale Border-Score<br/>- RDV-Score ∈ [0, 1]<br/>- Irregularität ∈ [0, 1]"]
-    I --> J
-```
+Dieser Ansatz bewertet die "Zerklüftung" des Randes durch den Vergleich der tatsächlichen Läsionsmaske mit ihrer konvexen Hülle (dem kleinstmöglichen konvexen Set, das die Läsion umschließt). Die Differenz zwischen der konvexen Hülle und der tatsächlichen Maske ergibt die sogenannten Konkavitäten (Einbuchtungen). Das Verhältnis dieser Konkavitätsfläche zur Gesamtfläche der Läsion dient als Maß für die Randunregelmäßigkeit.
+
+
+1. Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding
+2. Masken-Bereinigung: Entfernung kleiner Löcher in der Maske durch Morphologische Operationen (z.B. Closing)
+3. Konvexe Hülle: Berechnung der konvexen Hülle der Maske, um eine glatte Umhüllung der Läsion zu erhalten
+4. Konkavitätsfläche: Berechnung der Fläche der Konkavitäten durch Subtraktion der tatsächlichen Maske von der konvexen Hülle
+5. Normalisierung: Normalisierung der Konkavitätsflächen durch die Gesamtfläche der Läsion, um einen Wert zwischen 0 (perfekt konvex bzw. sehr gleichmäßige Border) und 1 (maximale Konkavität bzw. sehr unregelmäßige Border) zu erhalten.
+
+
+![Border Score Verteilung](../images/border_score_analysis.png)
+
+Da die Mittelwerte beider Ansätze mit einer Differenz von ungefähr 0.04 relativ nah beieinander liegen und auch die Standardabweichungen sehr ähnlich sind, lässt sich der überlegene Ansatz nur direkt über die Verteilung der Scores beurteilen. Hier zeigt sich, dass der Konkavitäts-Ansatz einen deutlich höheren Zahlenraum an Scores für Melanome abdeckt (bis 0.41) während die Verteilung beim RDV-Ansatz deutlich kompakter ist und nur bis 0.25 reicht. Die starke Überlappung der Verteilungen beider Ansätze deutet darauf hin, dass auch viele Melanome relativ regelmäßige Ränder aufweisen können, was die Differenzierung erschwert. Dennoch scheint der Konkavitäts-Ansatz aufgrund seiner größeren Varianz bei Melanomen eine etwas bessere Trennung zu ermöglichen.
 
 ---
 
 ### Kriterium C - Color (Färbung)
 
-#### Wissenschaftlicher Hintergrund
+Die Farbanalyse ist ein entscheidendes Merkmal bei der Detektion maligner Melanome, da diese oft eine ausgeprägte Farbvariabilität (Variegation) aufweisen. Während gutartige Läsionen meist einfarbig oder homogen gefärbt sind, zeigen Melanome häufig verschiedene Nuancen von Braun, Schwarz sowie rötliche, bläuliche oder graue Areale.
 
-Hautläsionen mit mehreren Farben oder ungleichmäßiger Färbung sind typisch für Melanome. Der Algorithmus quantifiziert die Farbvielfalt durch relative Farbhistogramm-Analyse:
+Um die Farbvielfalt unabhängig von individuellen Hauttypen und variierenden Beleuchtungsbedingungen zu quantifizieren, wird eine [relative Farbhistogramm-Analyse](https://pmc.ncbi.nlm.nih.gov/articles/PMC3184460/) eingesetzt. Der Kern dieses Ansatzes besteht darin, nicht die absoluten RGB-Werte zu betrachten, sondern die Abweichung der Läsionspixel von der durchschnittlichen Hautfarbe der Umgebung. Die Komplexität dieser Farbverteilung wird mathematisch über die Shannon-Entropie gemessen: Eine hohe Entropie korreliert mit einer größeren Vielfalt an relativen Farben und deutet somit auf eine höhere Wahrscheinlichkeit für ein Melanom hin.
 
-1. **Hautfarb-Normalisierung:** Da die Beleuchtung und der Hauttyp variieren, wird die durchschnittliche Hautfarbe berechnet und als Referenz subtrahiert
-2. **Relative Farben:** Lesion-Pixel werden relativ zur durchschnittlichen Hautfarbe ausgedrückt (Farbdifferenz)
-3. **Quantisierung:** Die kontinuierlichen Farbwerte werden in diskrete Bins diskretisiert (z.B. 32×32×32-Gitter im RGB-Raum), um „ähnliche" Farben zu gruppieren
-4. **Entropie:** Die Verteilung der Farben im Histogram wird durch die Shannon-Entropie gemessen – höhere Entropie = größere Farbvielfalt
+1. Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding
+2. Hautfarbenermittlung: Berechnung der durchschnittlichen Hintergrund-Hautfarbe, um eine individuelle Referenz für das jeweilige Bild zu erhalten
+3. Relative Farbberechnung: Von jedem Pixel innerhalb der Läsion wird die Differenz zu der durchschnittlichen Hautfarbe berechnet, um relative Farbwerte zu erhalten
+4. Farbquantisierung: Quantisierung der relativen Farbwerte in ein 3D Histogram mit 32 Bins pro Farbkanal (ergibt 32768 mögliche Farbklassen), um die Komplexität der Farbverteilung zu reduzieren. Ähnliche Farben werden in denselben Bin gruppiert, um die Analyse zu vereinfachen.
+5. Histogram-Filterung: Entfernung von Bins, die zu nah an dem Bin der durchschnittlichen Hautfarbe liegen, um Rauschen durch Hintergrundpixel zu minimieren
+6. Entropie-Berechnung: Quantifizierung der Farbvielfalt durch Berechnung der Shannon-Entropie des gefilterten Histograms.
+7. Normalisierung: Inversion der Entropie und Skalierung auf [0, 1], wobei 0 = hohe Farbvielfalt (eher gutartig) und 1 = geringe Farbvielfalt (eher bösartig) bedeutet.
 
-```mermaid
-graph TD
-    A["1. Hautfarb-Analyse<br/>- Nicht-Läsions-Pixel BG<br/>- Haut-Filter R>G, R>B<br/>- Mittelwert berechnen"] --> B["2. Läsions-Pixel extrahieren<br/>- Alle Pixel in der Maske"]
-    B --> C["3. Relative Farben berechnen<br/>- (Pixel - Hautfarbe)<br/>- Ergebnis ∈ [-1, 1]"]
-    C --> D["4. Quantisierung<br/>- Relative Farben → [0,1]<br/>- Binning n_bins pro Kanal<br/>- z.B. 32³ = 32768 Bins"]
-    D --> E["5. 3D-Farbhistogram erstellen<br/>- Häufigkeitsverteilung<br/>- Normalisierung auf [0, 1]"]
-    E --> F["6. Hautfarb-Ähnliches maskieren<br/>- Bins nahe der Hautfarbe<br/>- Entfernen aus Histogram<br/>- verhindert Haut-Störungen"]
-    F --> G["7. Entropie berechnen<br/>H = -Σ px log₂px<br/>- Höhere Entropie =<br/>mehr Farbvielfalt"]
-    G --> H["8. Finale Color-Score<br/>- Entropie-normiert<br/>- Ergebnis ∈ [0, 1]"]
-```
+![Color Scores](../images/color_score_analysis.png)
 
-
-## Verbesserungsmöglichkeiten
-
-### Erstellen einer binären Maske durch trainiertes Modell
-Derzeit wird die binäre Maske mit der Otsu-Schwellenwertmethode erstellt. Bei komplexeren Bildern wie Läsionen mit unscharfen Rändern, mehreren Farbtönen oder ähnlichen Hauttönen im Hintergrund kann dies zu ungenauen Masken führen.
-
-Eine mögliche Verbesserung wäre die Verwendung eines vortrainierten Segmentierungsmodells (z.B. U-Netzwerk), das speziell auf die Segmentierung von Hautläsionen trainiert wurde. Dieses Modell könnte eine präzisere Maske liefern, was zu einer genaueren Asymmetrie-Berechnung führen würde.
-
-Im folgenden Bild werden einige Beispiele für Probleme bei der Maskenerstellung gezeigt:
-![Beispiele für Probleme bei der Maskenerstellung](../images/binary_mask_examples.png)
-
-
-### Optimierung der Asymmetrie-Berechnung durch Vergleich von Implementierungsansätzen
-
-Eine detaillierte Analyse zeigt zwei grundlegend unterschiedliche Implementierungsansätze:
-
-**OpenCV-basierte Implementierung** (`calculate_asymmetry`):
-- Vorteil: Hohe Performance durch C++-Backend, inoffizielle Kompatibilität auf anderen Plattformen z.B. `opencv-dart`
-- Nachteil: Keine Orientierungserkennung, verwendet einfache geometrische Aufteilung ohne Berücksichtigung der natürlichen Orientierung der Läsion (besser: Ausrichtung entlang der Hauptachse), Vergleich nach Punktsymmetrie ggf. irreführend, wenn Läsion entlang einer schrägen Achse ausgerichtet ist, Normalisierung nach Flächeninhalt des gesamten Bildes statt der Läsion führt zu verfälschten Scores bei kleinen Läsionen (besser: Normalisierung nach Flächeninhalt der Läsion), Skalierung der Maske durch `resize` führt zu Verlust über feine Details der Läsion (besser: np.pad zur Anpassung der Größe ohne Interpolation)
-
-**Scikit-image-basierte Implementierung** (`calculate_asymmetry_skimage`):
-- Vorteil: wissenschaftlich genauer, nutzt `regionprops` zur Ausrichtung der Läsion entlang ihrer Hauptachse, Vergleich nach Spiegelsymmetrie ()
-- Nachteil: Langsamere Performance durch reine Python/NumPy-Operationen, höhere rechnerische Komplexität, keine Kompatibilität auf anderen Plattformen ohne scikit-image
+Da für dieses Kriterium nur ein Ansatz implementiert wurde, kann die Differenzierungskraft nur an der Analyse des Color Uniformity Scores selbst beurteilt werden. Die weiteren Boxplots zu `Effective Color Count` und `Entropy` sind lediglich die Rohwerte der Farbvielfalt darstellen, ohne die Normalisierung und Inversion, die für die finale Score-Berechnung notwendig sind.
+Die Verteilung des Uniformity Scores zeigt wieder eine deutliche Überlappung zwischen Melanomen und Leberflecken, wobei die Mittelwerte ähnlich zu den vorherigen Kriterien, mit einer Differenz von 0.031, relativ nah beieinander liegen. Nur der Abstand zwischen den 25. Perzentilen der beiden Klassen lässt darauf schließen, dass die Farbvielfalt bei Leberfleck tendenziell geringer ist als bei Melanomen. 
