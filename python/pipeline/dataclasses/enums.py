@@ -10,11 +10,17 @@ class DatasetLoaderType(Enum):
     FILTER = "filter"
 
 class AugmentationType(Enum):
-    RANDOM_HORIZONTAL_FLIP = "random_horizontal_flip"
+    # geometric/spatial augmentations
     RANDOM_RESIZE_CROP = "random_resize_crop"
     RESIZE = "resize"
     CENTER_CROP = "center_crop"
-    NORMALIZE = "normalize"
+    RANDOM_HORIZONTAL_FLIP = "random_horizontal_flip"
+    RANDOM_VERTICAL_FLIP = "random_vertical_flip"
+    RANDOM_ROTATION = "random_rotation"
+
+    # color/appearance augmentations
+    COLOR_JITTER = "color_jitter"
+    RANDOM_ERASING = "random_erasing"
 
 class MetricsType(Enum):
     ACCURACY = "accuracy"

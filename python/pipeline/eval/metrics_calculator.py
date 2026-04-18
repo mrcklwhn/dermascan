@@ -4,7 +4,6 @@ from sklearn.metrics import (
 )
 
 from pipeline.dataclasses.pipeline_runtime import EvalResult, MetricsResult
-from pipeline.dataclasses.pipeline_config import MetricsType
 
 class MetricsCalculator:
     """

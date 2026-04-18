@@ -1,10 +1,10 @@
-from pathlib import Path
 from torch.utils.data import Dataset
 import torchvision.transforms.functional
 from PIL import Image
-import numpy as np
 import torch
 import pandas as pd
+import albumentations as A
+import numpy as np
 
 class RGBDatasetLoader(Dataset):
     """
@@ -13,16 +13,16 @@ class RGBDatasetLoader(Dataset):
     - An RGB image transformed into a PyTorch tensor.
     - An integer label corresponding to the lesion index.
     """
-    def __init__(self, dataframe: pd.DataFrame, transforms=None):
+    def __init__(self, dataframe: pd.DataFrame, augmentations: A.Compose = None):
         """
         Initializes the RGBDatasetLoader with a DataFrame containing image paths and labels.
 
         Args:
             dataframe (pd.DataFrame): A DataFrame containing the image paths and labels.
-            transforms (callable, optional): A function/transform to apply to the images.
+            augmentations (A.Compose, optional): An Albumentations Compose object to apply to the images.
         """
         self.dataframe = dataframe
-        self.transform = transforms
+        self.augmentations = augmentations
 
     def __len__(self):
         return len(self.dataframe)
@@ -38,11 +38,13 @@ class RGBDatasetLoader(Dataset):
         """
         img_path = self.dataframe.iloc[idx]['image_path']
         pil_image = Image.open(img_path).convert('RGB')
+        np_image = np.array(pil_image)
 
-        if self.transform:
-            features_tensor = self.transform(pil_image)
+        if self.augmentations:
+            augmented = self.augmentations(image=np_image)
+            features_tensor = augmented['image']
         else:
-            features_tensor = torchvision.transforms.functional.to_tensor(pil_image)
+            features_tensor = torchvision.transforms.functional.to_tensor(np_image)
 
         label = self.dataframe.iloc[idx]['lesion_idx']
 

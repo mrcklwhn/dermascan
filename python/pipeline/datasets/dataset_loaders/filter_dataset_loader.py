@@ -1,10 +1,9 @@
 from pathlib import Path
 from torch.utils.data import Dataset
-import torchvision.transforms.functional
-from PIL import Image
 import numpy as np
 import torch
 import pandas as pd
+import albumentations as A
 
 from pipeline.dataclasses.enums import FilterType
 
@@ -15,7 +14,10 @@ class FilterDatasetLoader(Dataset):
     - A tensor of filtered features loaded from a .npy file corresponding to the image.
     - An integer label corresponding to the lesion index.
     """
-    def __init__(self, dataframe: pd.DataFrame, filter_type: FilterType, data_path: Path, transforms=None):
+    def __init__(self, dataframe: pd.DataFrame,
+                    filter_type: FilterType,
+                    data_path: Path,
+                    augmentations: A.Compose = None):
         """
         Initializes the FilterDatasetLoader with a DataFrame containing image IDs and labels, a filter type, and a data path.
 
@@ -23,12 +25,12 @@ class FilterDatasetLoader(Dataset):
             dataframe (pd.DataFrame): A DataFrame containing the image IDs and labels.
             filter_type (FilterType): The type of filter applied to the features, which determines the subdirectory from which to load the .npy files.
             data_path (Path): The path to the data directory.
-            transforms (callable, optional): A function/transform to apply to the filtered features.
         """
         self.dataframe = dataframe
         self.filter_name = filter_type.filter_name
-        self.transform = transforms
         self.data_path = data_path
+        self.augmentations = augmentations
+
     def __len__(self):
         return len(self.dataframe)
 
@@ -44,9 +46,10 @@ class FilterDatasetLoader(Dataset):
         """
         filtered_path = Path(str(self.data_path) + "/filtered")
         filtered_features = np.load(filtered_path / self.filter_name / (self.dataframe.iloc[idx]['image_id'] + ".npy"))
-    
-        if self.transform:
-            features_tensor = self.transform(filtered_features)
+
+        if self.augmentations:
+            augmented = self.augmentations(image=filtered_features)
+            features_tensor = augmented['image']
         else:
             features_tensor = torch.from_numpy(filtered_features)
 

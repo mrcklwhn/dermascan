@@ -1,10 +1,9 @@
-import pandas as pd
 from pathlib import Path
 
-from pipeline.dataclasses.pipeline_config import CustomSplitConfig, SplitConfig, TrainValTestSplitRatio, SplitType
-from pipeline.dataclasses.pipeline_runtime import TrainValTestSplit
-
+import pandas as pd
 from dataset_manager import DatasetManager
+from pipeline.dataclasses.pipeline_config import CustomSplitConfig, SplitConfig, SplitType, TrainValTestSplitRatio
+from pipeline.dataclasses.pipeline_runtime import TrainValTestSplit
 
 class SplitProvider:
     """
@@ -51,6 +50,7 @@ class SplitProvider:
         print(f"Training samples: {len(train_df)}")
         print(f"Validation samples: {len(val_df)}")
         print(f"Test samples: {len(test_df)}")
+        print("-" * 10)
 
         return TrainValTestSplit(
             train_df=train_df,

@@ -3,6 +3,9 @@ import shutil
 from tempfile import TemporaryDirectory
 import torch
 from torch.utils.data import DataLoader
+import numpy as np
+from sklearn.metrics import f1_score
+from tqdm.auto import tqdm
 
 from pipeline.dataclasses.pipeline_config import TrainerConfig, OptimizerConfig, SchedulerConfig
 from pipeline.dataclasses.pipeline_runtime import EvalResult, TrainingHistory
@@ -25,7 +28,7 @@ class Trainer:
         self.device = device
         self.model = self.model.to(self.device)
 
-        self.criterion = torch.nn.CrossEntropyLoss()
+        self.criterion = self._build_criterion(trainer_config.criterion_weights)
         self.optimizer = self._build_optimizer(trainer_config.optimizer)
         self.scheduler = self._build_scheduler(trainer_config.scheduler)
         self.model_save_path = save_path / "model.pt"
@@ -39,39 +42,50 @@ class Trainer:
             train_loader (DataLoader): DataLoader for the training dataset.
             val_loader (DataLoader): DataLoader for the validation dataset.
         Returns:
-            TrainingHistory: Object containing training and validation loss and accuracy for each epoch.
+            TrainingHistory: Object containing training and validation loss, accuracy, and F1 macro score for each epoch.
         """
         epochs = self.trainer_config.num_epochs
-        best_acc = 0.0
-
+        
         train_loss = []
         train_accuracy = []
         val_loss = []
         val_accuracy = []
+
+        val_f1_macro = []
+        best_f1_macro = 0.0
 
         # Use a temporary directory to save the best model during training, 
         # then copy it to the final destination at the end
         with TemporaryDirectory() as temp_dir:
             temp_best_model_path = Path(temp_dir) / "best_model.pt"
 
-            for epoch in range(epochs):
-                print(f"Epoch {epoch + 1}/{epochs}")
-                print("-" * 10)
-
+            epoch_bar = tqdm(range(epochs), desc="Epochs", leave=True)
+            for epoch in epoch_bar:
                 epoch_train_loss, epoch_train_acc = self._train_epoch(train_loader)
-                epoch_val_loss, epoch_val_acc = self._validate_epoch(val_loader)
+                epoch_val_loss, epoch_val_acc, epoch_val_f1 = self._validate_epoch(val_loader)
 
-                print(f"Train Loss: {epoch_train_loss:.4f} | Train Acc: {epoch_train_acc:.4f}")
-                print(f"Val Loss: {epoch_val_loss:.4f} | Val Acc: {epoch_val_acc:.4f}\n")
+                val_f1_macro.append(epoch_val_f1)
 
+                # epoch_bar.set_postfix(
+                #         train_loss=f"{epoch_train_loss:.4f}",
+                #         train_acc=f"{epoch_train_acc:.4f}",
+                #         val_loss=f"{epoch_val_loss:.4f}",
+                #         val_acc=f"{epoch_val_acc:.4f}",
+                #         val_f1=f"{epoch_val_f1:.4f}"
+                #     )
+
+                tqdm.write(f"Epoch {epoch+1}/{epochs} - "
+                            f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
+                            f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}, Val F1 Macro: {epoch_val_f1:.4f}")
+                
                 train_loss.append(epoch_train_loss)
                 train_accuracy.append(epoch_train_acc)
                 val_loss.append(epoch_val_loss)
                 val_accuracy.append(epoch_val_acc)
 
-                # Save the best model based on validation accuracy
-                if epoch_val_acc > best_acc:
-                    best_acc = epoch_val_acc
+                # Save the best model based on validation F1 macro score 
+                if epoch_val_f1 > best_f1_macro:
+                    best_f1_macro = epoch_val_f1
                     torch.save(self.model.state_dict(), temp_best_model_path)
                 
                 self.scheduler.step(epoch_val_loss)
@@ -84,7 +98,8 @@ class Trainer:
             train_loss=train_loss,
             val_loss=val_loss,
             train_accuracy=train_accuracy,
-            val_accuracy=val_accuracy)
+            val_accuracy=val_accuracy,
+            val_f1_macro=val_f1_macro)
 
     def _train_epoch(self, train_loader: DataLoader) -> tuple[float, float]:
         """
@@ -99,7 +114,7 @@ class Trainer:
         running_loss = 0.0
         running_corrects = 0
 
-        for inputs, labels in train_loader:
+        for inputs, labels in tqdm(train_loader, desc="Training", leave=False):
             inputs = inputs.to(self.device)
             labels = labels.to(self.device)
             
@@ -120,18 +135,21 @@ class Trainer:
 
         return epoch_loss, epoch_acc
     
-    def _validate_epoch(self, val_loader: DataLoader) -> tuple[float, float]:
+    def _validate_epoch(self, val_loader: DataLoader) -> tuple[float, float, float]:
         """
         Validates the model for one epoch.
 
         Args:
             val_loader (DataLoader): DataLoader for the validation dataset.
         Returns:
-            tuple[float, float]: Validation loss and accuracy for the epoch.
+            tuple[float, float, float]: Validation loss, accuracy, and F1 macro score for the epoch.
         """
         self.model.eval()
         running_loss = 0.0
         running_corrects = 0
+
+        all_preds = []
+        all_labels = []
 
         with torch.inference_mode():
             for inputs, labels in val_loader:
@@ -145,11 +163,17 @@ class Trainer:
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data).item()
 
+                all_preds.append(preds.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
+
         n = len(val_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
+        f1 = f1_score(np.concatenate(all_labels),
+                    np.concatenate(all_preds),
+                    average='macro', zero_division=0)
 
-        return epoch_loss, epoch_acc
+        return epoch_loss, epoch_acc, f1
 
 
     def test(self, test_loader: DataLoader) -> EvalResult:
@@ -183,9 +207,9 @@ class Trainer:
                 all_probs.append(probs)
 
         return EvalResult(
-            y_true=torch.cat(all_labels),
-            y_pred=torch.cat(all_preds),
-            y_prob=torch.cat(all_probs),
+            y_true=torch.cat(all_labels).cpu(),
+            y_pred=torch.cat(all_preds).cpu(),
+            y_prob=torch.cat(all_probs).cpu(),
         )
 
     def _build_optimizer(self, optimizer_config: OptimizerConfig) -> torch.optim.Optimizer:
@@ -231,3 +255,18 @@ class Trainer:
                     patience=scheduler_config.patience,
                     min_lr=scheduler_config.min_lr,
                     cooldown=scheduler_config.cooldown)
+
+    def _build_criterion(self, weights=None) -> torch.Tensor:
+        """
+        Builds the loss function criterion, optionally applying class weights.
+
+        Args:
+            weights (list or torch.Tensor): Class weights for the loss function.
+        Returns:
+            torch.Tensor: CrossEntropyLoss criterion with or without class weights.
+        """
+        if weights is None:
+            return torch.nn.CrossEntropyLoss()
+
+        tensor_weights = torch.tensor(weights, dtype=torch.float).to(self.device)
+        return torch.nn.CrossEntropyLoss(weight=tensor_weights)

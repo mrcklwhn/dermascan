@@ -28,6 +28,7 @@ class TrainingHistory(BaseModel, frozen=True):
     val_loss: list[float]
     train_accuracy: list[float]
     val_accuracy: list[float]
+    val_f1_macro: list[float]
 
 @dataclass(frozen=True)
 class EvalResult:

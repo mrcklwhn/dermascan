@@ -3,7 +3,8 @@ from torchvision.models import ResNet18_Weights, ResNet50_Weights, ResNet101_Wei
 import torch
 import torch.nn as nn
 
-from pipeline.dataclasses.pipeline_config import FilterType, ModelType, ModelConfig
+from pipeline.dataclasses.pipeline_config import ModelConfig
+from pipeline.dataclasses.enums import ModelType, FilterType
 
 class ModelFactory:
     """

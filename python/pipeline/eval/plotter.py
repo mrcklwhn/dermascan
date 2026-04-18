@@ -36,9 +36,10 @@ class Plotter:
         ax_loss.legend()
         ax_loss.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
-        # Accuracy
+        # Accuracy + F1 Macro
         ax_acc.plot(epochs, training_history.train_accuracy, label="Train Acc", linewidth=2)
         ax_acc.plot(epochs, training_history.val_accuracy, label="Val Acc", linewidth=2, linestyle="--")
+        ax_acc.plot(epochs, training_history.val_f1_macro, label="Val F1 Macro", linewidth=2, linestyle=":", color="green")
         ax_acc.set_title("Training and Validation Accuracy")
         ax_acc.set_xlabel("Epoch")
         ax_acc.set_ylabel("Accuracy")

@@ -1,13 +1,12 @@
 from pathlib import Path
+
 import torch
-
-from pipeline.dataclasses.pipeline_config import BranchConfig, MetricsType
-from pipeline.dataclasses.pipeline_runtime import MetricsResult, BranchResult, TrainingHistory, TrainValTestDataLoaders
-
+from pipeline.dataclasses.pipeline_config import BranchConfig
+from pipeline.dataclasses.pipeline_runtime import BranchResult, MetricsResult, TrainingHistory, TrainValTestDataLoaders
 from pipeline.eval.metrics_calculator import MetricsCalculator
+from pipeline.eval.plotter import Plotter
 from pipeline.training.model_factory import ModelFactory
 from pipeline.training.trainer import Trainer
-from pipeline.eval.plotter import Plotter
 
 
 class BranchRunner:
@@ -52,6 +51,7 @@ class BranchRunner:
         Returns:
             BranchResult: The result of the branch execution, including training history and metrics.
         """
+        self._save_branch_config()
         training_history = self.trainer.train(self.data.train_loader, self.data.val_loader)
         self._save_training_history(training_history)
         Plotter.plot_training_history(training_history, self.branch_run_path)
@@ -94,6 +94,13 @@ class BranchRunner:
         """
         with open(self.branch_run_path / "training_history.json", "w") as f:
             f.write(history.model_dump_json(indent=2))
+
+    def _save_branch_config(self) -> None:
+        """
+        Saves the branch configuration to a JSON file in the branch run path for auditing.
+        """
+        with open(self.branch_run_path / "branch_config.json", "w") as f:
+            f.write(self.branch_config.model_dump_json(indent=2))
 
     def _save_metrics(self, metrics: MetricsResult) -> None:
         """
