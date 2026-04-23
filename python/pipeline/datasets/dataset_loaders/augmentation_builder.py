@@ -51,6 +51,12 @@ class AugmentationBuilder:
 
         if filter_type == FilterType.RGB:
             augmentations.append(A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]))
+        elif filter_type == FilterType.GABOR:
+            augmentations.append(A.Normalize(mean=[0.5] * 40, std=[0.5] * 40, max_pixel_value=1.0))
+        elif filter_type == FilterType.LBP:
+            augmentations.append(A.Normalize(mean=[0.5] * 8, std=[0.5] * 8, max_pixel_value=1.0))
+        elif filter_type == FilterType.GLCM:
+            augmentations.append(A.Normalize(mean=[0.5] * 32, std=[0.5] * 32, max_pixel_value=1.0))
 
         augmentations.append(ToTensorV2())
         

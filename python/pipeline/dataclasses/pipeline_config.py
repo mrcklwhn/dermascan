@@ -6,20 +6,22 @@ from pipeline.dataclasses.enums import SplitType, ModelType, FilterType, Augment
 from pipeline.dataclasses.training_configs import AdamConfig, SGDConfig, ReduceLROnPlateauConfig
 
 class TrainValTestSplitRatio(BaseModel, frozen=True):
-    split_type: Literal["ratio"] = SplitType.RATIO
+    split_type: SplitType = SplitType.RATIO
     val_ratio: float
     test_ratio: float
 
 class CustomSplitConfig(BaseModel, frozen=True):
-    split_type: Literal["custom"] = SplitType.CUSTOM
+    split_type: SplitType = SplitType.CUSTOM
     train_csv_path: Path
     val_csv_path: Path
     test_csv_path: Path
 
-SplitConfig = Annotated[
-    Union[TrainValTestSplitRatio, CustomSplitConfig],
-    Field(discriminator='split_type')
-]
+# SplitConfig = Annotated[
+#     Union[TrainValTestSplitRatio, CustomSplitConfig],
+#     Field(discriminator='split_type')
+# ]
+
+SplitConfig = Union[TrainValTestSplitRatio, CustomSplitConfig]
 
 class ModelConfig(BaseModel, frozen=True):
     model: ModelType
