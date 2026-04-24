@@ -9,8 +9,11 @@ data/
 kaggle-json
 
 # model output folder
-models/
+results/**/*.pt
 
 # mkdocs build output
 site/
 public/
+
+# results output folder
+results/

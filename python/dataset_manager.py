@@ -6,6 +6,7 @@ from collections import Counter
 import numpy as np
 from skimage import io
 import random
+import torch
 
 lesion_type_dict = {
     "nv": "Melanocytic nevi",
@@ -213,6 +214,8 @@ class DatasetManager:
         plt.ylabel("Count")
         plt.title("Class Distribution")
         plt.xticks(rotation=45)
+        for i, value in enumerate(counts):
+            plt.text(i, value + 5, str(value), ha="center", va="bottom")
         plt.show()
 
     def train_test_val_split(
