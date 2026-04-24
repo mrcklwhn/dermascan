@@ -7,6 +7,7 @@ import albumentations as A
 
 from pipeline.dataclasses.enums import FilterType
 
+
 class FilterDatasetLoader(Dataset):
     """
     FilterDatasetLoader is a PyTorch Dataset class responsible for loading filtered features and their corresponding labels from a given DataFrame.
@@ -14,10 +15,10 @@ class FilterDatasetLoader(Dataset):
     - A tensor of filtered features loaded from a .npy file corresponding to the image.
     - An integer label corresponding to the lesion index.
     """
-    def __init__(self, dataframe: pd.DataFrame,
-                    filter_type: FilterType,
-                    data_path: Path,
-                    augmentations: A.Compose = None):
+
+    def __init__(
+        self, dataframe: pd.DataFrame, filter_type: FilterType, data_path: Path, augmentations: A.Compose = None
+    ):
         """
         Initializes the FilterDatasetLoader with a DataFrame containing image IDs and labels, a filter type, and a data path.
 
@@ -46,7 +47,7 @@ class FilterDatasetLoader(Dataset):
             - label: Integer label of the image (lesion index)
         """
         filtered_path = Path(str(self.data_path) + "/filtered")
-        filtered_features = np.load(filtered_path / self.filter_name / (self.dataframe.iloc[idx]['image_id'] + ".npy"))
+        filtered_features = np.load(filtered_path / self.filter_name / (self.dataframe.iloc[idx]["image_id"] + ".npy"))
         # Convert CHW to HWC if channels are first
         if filtered_features.shape[0] == self.expected_channels:
             filtered_features_hwc = np.moveaxis(filtered_features, 0, -1)
@@ -55,11 +56,11 @@ class FilterDatasetLoader(Dataset):
 
         if self.augmentations:
             augmented = self.augmentations(image=filtered_features_hwc)
-            features_tensor = augmented['image']
+            features_tensor = augmented["image"]
         else:
             filtered_features_chw = np.moveaxis(filtered_features_hwc, -1, 0)
             features_tensor = torch.from_numpy(filtered_features_chw)
 
-        label = self.dataframe.iloc[idx]['lesion_idx']
+        label = self.dataframe.iloc[idx]["lesion_idx"]
 
         return features_tensor, label
