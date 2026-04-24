@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader, Dataset
 from pathlib import Path
 import albumentations as A
 
-from pipeline.dataclasses.enums import AugmentationType, DatasetLoaderType, FilterType
+from pipeline.dataclasses.enums import DatasetLoaderType, FilterType
 from pipeline.dataclasses.pipeline_config import AugmentationConfig
 from pipeline.dataclasses.pipeline_runtime import TrainValTestDataLoaders, TrainValTestSplit
 

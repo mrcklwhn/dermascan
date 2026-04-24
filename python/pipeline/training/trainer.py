@@ -11,6 +11,7 @@ from pipeline.dataclasses.pipeline_config import TrainerConfig, OptimizerConfig,
 from pipeline.dataclasses.pipeline_runtime import EvalResult, TrainingHistory
 from pipeline.dataclasses.enums import OptimizerType, SchedulerType
 
+
 class Trainer:
     """
     Trainer class responsible for training and evaluating a PyTorch model based on the provided configuration.
@@ -21,10 +22,11 @@ class Trainer:
     - Testing the model on a test dataset and returning evaluation results.
     - Building the optimizer and scheduler based on the provided configurations.
     """
+
     def __init__(self, model: torch.nn.Module, trainer_config: TrainerConfig, device: torch.device, save_path: Path):
         self.model = model
         self.trainer_config = trainer_config
-        
+
         self.device = device
         self.model = self.model.to(self.device)
 
@@ -45,7 +47,7 @@ class Trainer:
             TrainingHistory: Object containing training and validation loss, accuracy, and F1 macro score for each epoch.
         """
         epochs = self.trainer_config.num_epochs
-        
+
         train_loss = []
         train_accuracy = []
         val_loss = []
@@ -54,7 +56,7 @@ class Trainer:
         val_f1_macro = []
         best_f1_macro = 0.0
 
-        # Use a temporary directory to save the best model during training, 
+        # Use a temporary directory to save the best model during training,
         # then copy it to the final destination at the end
         with TemporaryDirectory() as temp_dir:
             temp_best_model_path = Path(temp_dir) / "best_model.pt"
@@ -74,20 +76,22 @@ class Trainer:
                 #         val_f1=f"{epoch_val_f1:.4f}"
                 #     )
 
-                tqdm.write(f"Epoch {epoch+1}/{epochs} - "
-                            f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
-                            f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}, Val F1 Macro: {epoch_val_f1:.4f}")
-                
+                tqdm.write(
+                    f"Epoch {epoch + 1}/{epochs} - "
+                    f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
+                    f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}, Val F1 Macro: {epoch_val_f1:.4f}"
+                )
+
                 train_loss.append(epoch_train_loss)
                 train_accuracy.append(epoch_train_acc)
                 val_loss.append(epoch_val_loss)
                 val_accuracy.append(epoch_val_acc)
 
-                # Save the best model based on validation F1 macro score 
+                # Save the best model based on validation F1 macro score
                 if epoch_val_f1 > best_f1_macro:
                     best_f1_macro = epoch_val_f1
                     torch.save(self.model.state_dict(), temp_best_model_path)
-                
+
                 self.scheduler.step(epoch_val_loss)
 
             if temp_best_model_path.exists():
@@ -99,7 +103,8 @@ class Trainer:
             val_loss=val_loss,
             train_accuracy=train_accuracy,
             val_accuracy=val_accuracy,
-            val_f1_macro=val_f1_macro)
+            val_f1_macro=val_f1_macro,
+        )
 
     def _train_epoch(self, train_loader: DataLoader) -> tuple[float, float]:
         """
@@ -117,7 +122,7 @@ class Trainer:
         for inputs, labels in tqdm(train_loader, desc="Training", leave=False):
             inputs = inputs.to(self.device)
             labels = labels.to(self.device)
-            
+
             self.optimizer.zero_grad()
 
             outputs = self.model(inputs)
@@ -133,8 +138,12 @@ class Trainer:
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
 
+        # Clear GPU memory after each epoch
+        del inputs, labels, outputs, preds, loss
+        torch.cuda.empty_cache()
+
         return epoch_loss, epoch_acc
-    
+
     def _validate_epoch(self, val_loader: DataLoader) -> tuple[float, float, float]:
         """
         Validates the model for one epoch.
@@ -169,12 +178,13 @@ class Trainer:
         n = len(val_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
-        f1 = f1_score(np.concatenate(all_labels),
-                    np.concatenate(all_preds),
-                    average='macro', zero_division=0)
+        f1 = f1_score(np.concatenate(all_labels), np.concatenate(all_preds), average="macro", zero_division=0)
+
+        # Clear GPU memory after each epoch
+        del inputs, labels, outputs, preds, loss
+        torch.cuda.empty_cache()
 
         return epoch_loss, epoch_acc, f1
-
 
     def test(self, test_loader: DataLoader) -> EvalResult:
         """
@@ -202,15 +212,21 @@ class Trainer:
                 probs = torch.softmax(outputs, dim=1)
                 preds = torch.argmax(probs, dim=1)
 
-                all_preds.append(preds)
-                all_labels.append(labels)
-                all_probs.append(probs)
+                all_preds.append(preds.detach().cpu())
+                all_labels.append(labels.detach().cpu())
+                all_probs.append(probs.detach().cpu())
 
-        return EvalResult(
+        result = EvalResult(
             y_true=torch.cat(all_labels).cpu(),
             y_pred=torch.cat(all_preds).cpu(),
             y_prob=torch.cat(all_probs).cpu(),
         )
+
+        # Clear the lists from GPU memory
+        del all_preds, all_labels, all_probs
+        torch.cuda.empty_cache()
+
+        return result
 
     def _build_optimizer(self, optimizer_config: OptimizerConfig) -> torch.optim.Optimizer:
         """
@@ -224,18 +240,20 @@ class Trainer:
         match optimizer_config.optimizer_type:
             case OptimizerType.ADAM:
                 return torch.optim.Adam(
-                    self.model.parameters(), 
+                    self.model.parameters(),
                     lr=self.trainer_config.learning_rate,
                     weight_decay=optimizer_config.weight_decay,
                     betas=optimizer_config.betas,
-                    eps=optimizer_config.eps)
+                    eps=optimizer_config.eps,
+                )
             case OptimizerType.SGD:
                 return torch.optim.SGD(
-                    self.model.parameters(), 
-                    lr=self.trainer_config.learning_rate, 
+                    self.model.parameters(),
+                    lr=self.trainer_config.learning_rate,
                     momentum=optimizer_config.momentum,
                     weight_decay=optimizer_config.weight_decay,
-                    nesterov=optimizer_config.nesterov)
+                    nesterov=optimizer_config.nesterov,
+                )
 
     def _build_scheduler(self, scheduler_config: SchedulerConfig) -> torch.optim.lr_scheduler._LRScheduler:
         """
@@ -249,12 +267,13 @@ class Trainer:
         match scheduler_config.scheduler_type:
             case SchedulerType.REDUCE_ON_PLATEAU:
                 return torch.optim.lr_scheduler.ReduceLROnPlateau(
-                    self.optimizer, 
-                    mode=scheduler_config.mode, 
-                    factor=scheduler_config.factor, 
+                    self.optimizer,
+                    mode=scheduler_config.mode,
+                    factor=scheduler_config.factor,
                     patience=scheduler_config.patience,
                     min_lr=scheduler_config.min_lr,
-                    cooldown=scheduler_config.cooldown)
+                    cooldown=scheduler_config.cooldown,
+                )
 
     def _build_criterion(self, weights=None) -> torch.Tensor:
         """

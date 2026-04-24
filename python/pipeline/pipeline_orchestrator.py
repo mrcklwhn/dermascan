@@ -1,5 +1,7 @@
 from datetime import datetime
 from pathlib import Path
+import gc
+import torch
 
 from pipeline.dataclasses.pipeline_config import PipelineConfig
 from pipeline.dataclasses.pipeline_runtime import BranchResult
@@ -7,6 +9,7 @@ from pipeline.dataclasses.pipeline_runtime import BranchResult
 from pipeline.datasets.dataset_loaders.data_loader_factory import DataLoaderFactory
 from pipeline.branch_runner import BranchRunner
 from pipeline.datasets.split_provider import SplitProvider
+
 
 class PipelineOrchestrator:
     """
@@ -17,6 +20,7 @@ class PipelineOrchestrator:
     - Saving results and generating plots for each branch
     - Managing the overall pipeline run and output paths
     """
+
     def __init__(
         self,
         # pipeline_config_path: Path,
@@ -25,9 +29,7 @@ class PipelineOrchestrator:
     ):
         self.pipeline_config = pipeline_config
         # self.pipeline_config = self._load_config(pipeline_config_path, project_root_path / "data")
-        self.pipeline_run_path = self._get_pipeline_output_path(
-            self.pipeline_config.pipeline_id, project_root_path
-        )
+        self.pipeline_run_path = self._get_pipeline_output_path(self.pipeline_config.pipeline_id, project_root_path)
 
     def run(self) -> list[BranchResult]:
         """
@@ -53,14 +55,19 @@ class PipelineOrchestrator:
                 branch_config.augmentation,
             )
 
-            branch_runner = BranchRunner(
-                branch_config, data_loaders, self.pipeline_run_path
-            )
+            branch_runner = BranchRunner(branch_config, data_loaders, self.pipeline_run_path)
 
-            results.append(branch_runner.run())
+            branch_result = branch_runner.run()
+            results.append(branch_result)
+
+            # Encourage timely cleanup between sequential branch runs.
+            del branch_runner
+            del data_loaders
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
         return results
-    
 
     def _load_config(self, config_path: Path, data_path: Path) -> PipelineConfig:
         """
@@ -75,7 +82,7 @@ class PipelineOrchestrator:
         config_path = config_path.resolve()
         if not config_path.is_file():
             raise FileNotFoundError(f"Pipeline configuration file not found: {config_path}")
-        
+
         raw = config_path.read_text()
         pipeline_config = PipelineConfig.model_validate_json(raw)
         return pipeline_config.model_copy(update={"data_path": data_path})
