@@ -56,7 +56,7 @@ class DataLoaderFactory:
             val_augmentations = None
             test_augmentations = None
 
-        def make_loader(ids_df: DataFrame,  shuffle: bool, augmentations: A.Compose = None) -> DataLoader:
+        def make_loader(ids_df: DataFrame,  sampler: bool,shuffle: bool, augmentations: A.Compose = None) -> DataLoader:
             """
             Inner function to create a DatasetLoader and wrap it in a DataLoader.
 
@@ -68,9 +68,12 @@ class DataLoaderFactory:
                 DataLoader: A PyTorch DataLoader instance for the specified dataset split.
             """
             dataset = DataLoaderFactory._build_dataset(dataset_loader_type, ids_df, filter_type, filtered_data_path, augmentations)
+            # if sampler is True shuffle must be False
+            sampler = DataLoaderFactory._build_weighted_sampler(ids_df) if sampler and not shuffle else None
             return DataLoader(
                 dataset,
                 batch_size=batch_size,
+                sampler=sampler,
                 shuffle=shuffle,
                 num_workers=DataLoaderFactory._NUM_WORKERS,
                 pin_memory=DataLoaderFactory._PIN_MEMORY,
@@ -79,9 +82,9 @@ class DataLoaderFactory:
             )
         
         return TrainValTestDataLoaders(
-            train_loader=make_loader(df_split.train_df, shuffle=True, augmentations=train_augmentations),
-            val_loader=make_loader(df_split.val_df, shuffle=False, augmentations=val_augmentations),
-            test_loader=make_loader(df_split.test_df, shuffle=False, augmentations=test_augmentations)
+            train_loader=make_loader(df_split.train_df, sampler=True, shuffle=False, augmentations=train_augmentations),
+            val_loader=make_loader(df_split.val_df, sampler=False, shuffle=False, augmentations=val_augmentations),
+            test_loader=make_loader(df_split.test_df, sampler=False, shuffle=False, augmentations=test_augmentations)
         )
         
     @staticmethod
@@ -111,3 +114,22 @@ class DataLoaderFactory:
                                            filter_type=filter_type,
                                            data_path=data_path,
                                            augmentations=augmentations)
+
+    @staticmethod
+    def _build_weighted_sampler(ids_df: DataFrame) -> torch.utils.data.WeightedRandomSampler:
+        """
+        Builds a WeightedRandomSampler to address class imbalance in the dataset.
+
+        Args:
+            ids_df (DataFrame): The DataFrame containing the image IDs and labels for the dataset split.
+
+        Returns:
+            WeightedRandomSampler: A PyTorch WeightedRandomSampler instance that can be used in a DataLoader to sample data points with probabilities inversely proportional to their class frequencies.
+        """
+        class_counts = ids_df['lesion_idx'].value_counts().to_dict()
+        total_samples = len(ids_df)
+        class_weights = {cls: total_samples / count for cls, count in class_counts.items()}
+        sample_weights = torch.tensor(
+            ids_df['lesion_idx'].map(class_weights).values,
+            dtype=torch.float)
+        return torch.utils.data.WeightedRandomSampler(sample_weights, num_samples=total_samples, replacement=True)
