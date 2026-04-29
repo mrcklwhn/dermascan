@@ -1,6 +1,6 @@
 from pathlib import Path
-from typing import Annotated, Literal, Union
-from pydantic import BaseModel, Field, field_validator
+from typing import Union, Optional
+from pydantic import BaseModel, field_validator
 
 from pipeline.dataclasses.enums import SplitType, ModelType, FilterType, AugmentationType, DatasetLoaderType
 from pipeline.dataclasses.training_configs import AdamConfig, SGDConfig, ReduceLROnPlateauConfig
@@ -62,7 +62,7 @@ class BranchConfig(BaseModel, frozen=True):
     branch_model_config: ModelConfig
     trainer_config: TrainerConfig
     dataset_loader: DatasetLoaderType
-    augmentation: AugmentationConfig = None
+    augmentation: Optional[AugmentationConfig] = None
 
 class PipelineConfig(BaseModel, frozen=True):
     pipeline_id: str
