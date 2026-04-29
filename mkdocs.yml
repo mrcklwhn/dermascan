@@ -17,7 +17,11 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Flutter App: ./app/app.md
-  - Machine Learning: ./machine_learning/machine_learning.md
-  - Multibranch Architecture: ./machine_learning/multibranch_architecture.md
+  - Flutter App: ./app/README.md
+  - Datenbank: ./db/README.md
+  - Machine Learning: ./ml/README.md
+  - ABC Algorithmen: ./ml/abc_algorithms.md
+  - Multibranch Architektur: ./ml/multibranch_architecture.md
+  - Modell Export: ./ml/onnx_export.md
+  - Läsionsmasken: ./ml/lesion_cutout.md
 

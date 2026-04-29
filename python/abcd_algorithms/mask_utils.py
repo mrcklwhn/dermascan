@@ -1,8 +1,6 @@
-from skimage import morphology
 import numpy as np
 import cv2
 from skimage.measure import regionprops, label
-from skimage.transform import rotate
 from skimage.measure._regionprops import RegionProperties
 
 
@@ -16,7 +14,7 @@ def create_simple_binary_mask(image: np.ndarray) -> np.ndarray:
         Binary mask of the lesion.
     """
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     # Otsu's thresholding
     _, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -38,8 +36,8 @@ def create_simple_binary_mask(image: np.ndarray) -> np.ndarray:
             M = cv2.moments(contour)
             if M["m00"] == 0:
                 return float("inf")
-            cx = int(M["m10"] / M["m00"])
-            cy = int(M["m01"] / M["m00"])
+            cx = M["m10"] / M["m00"]
+            cy = M["m01"] / M["m00"]
             contour_center = np.array([cy, cx])
             distance = np.linalg.norm(contour_center - image_center)
             area = cv2.contourArea(contour)
@@ -61,8 +59,7 @@ def boundary_extraction(binary_mask: np.ndarray) -> np.ndarray:
         Binary mask of the boundary (outline).
     """
 
-    contour = morphology.dilation(binary_mask)
-    contour -= binary_mask
+    contour = cv2.dilate(binary_mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)), iterations=2) - binary_mask
 
     return contour
 
@@ -110,10 +107,11 @@ def get_largest_region_skimage(binary_mask: np.ndarray) -> RegionProperties:
     Returns:
         The largest connected region as a binary mask.
     """
+    if not np.any(binary_mask):
+        raise ValueError("No regions found in the binary mask.")
+
     labeled = label(binary_mask)
     regions = regionprops(labeled)
-    if not regions:
-        return np.zeros_like(binary_mask)
 
     largest_region = max(regions, key=lambda r: r.area)
 
@@ -133,19 +131,36 @@ def rotate_mask_to_principal_axis(
         - rotated_mask: The mask rotated so its major axis is vertical
         - angle_degrees: The rotation angle applied in degrees
     """
-    largest_region = get_largest_region_skimage(binary_mask)
-    orientation_angle = largest_region.orientation
-    angle_degrees = np.degrees(orientation_angle)
+    import math
 
-    rotated_mask = rotate(
-        image=binary_mask.astype(float),
-        resize=not preserve_original_dimensions,
-        angle=-angle_degrees,
-        order=0,
-        mode="constant",
-        cval=0,
-        preserve_range=True,
-    )
-    rotated_mask = (rotated_mask > 0.5).astype(int)
+    M = cv2.moments(binary_mask.astype(np.uint8))
+    if M["m00"] == 0:
+        return binary_mask, 0.0
+
+    angle_rad = 0.5 * math.atan2(2 * M["mu11"], M["mu20"] - M["mu02"])
+    angle_degrees = math.degrees(angle_rad)
+
+    cx = int(M["m10"] / M["m00"])
+    cy = int(M["m01"] / M["m00"])
+
+    rot_mat = cv2.getRotationMatrix2D((cx, cy), angle_degrees, 1.0)
+
+    cos_a = abs(rot_mat[0, 0])
+    sin_a = abs(rot_mat[0, 1])
+
+    new_width = int(np.ceil(binary_mask.shape[0] * sin_a + binary_mask.shape[1] * cos_a))
+    new_height = int(np.ceil(binary_mask.shape[0] * cos_a + binary_mask.shape[1] * sin_a))
+
+    if new_width % 2 != 0:
+        new_width += 1
+    if new_height % 2 != 0:
+        new_height += 1
+
+    tx = rot_mat[0, 2] + (new_width / 2.0) - cx
+    ty = rot_mat[1, 2] + (new_height / 2.0) - cy
+    rot_mat[0, 2] = tx
+    rot_mat[1, 2] = ty
+
+    rotated_mask = cv2.warpAffine(binary_mask.astype(np.uint8), rot_mat, (new_width, new_height))
 
     return rotated_mask, angle_degrees

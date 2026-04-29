@@ -76,39 +76,28 @@ def calculate_asymmetry_skimage(image: np.ndarray) -> float:
     # Step 2: Rotate mask to principal axis
     rotated_mask, angle_degrees = rotate_mask_to_principal_axis(mask_binary)
 
-    # Step 3: Get centroid of rotated mask
-    rotated_region = get_largest_region_skimage(rotated_mask)
-    cy, cx = int(rotated_region.centroid[0]), int(rotated_region.centroid[1])
+    # Step 3: Get centroid of rotated mask (should be at the center after rotation)
+    cx, cy = rotated_mask.shape[1] // 2, rotated_mask.shape[0] // 2
 
     # Step 4: Calculate left-right asymmetry
     left_half = rotated_mask[:, :cx]
+    left_half_flipped = np.fliplr(left_half)
     right_half = rotated_mask[:, cx:]
-    right_half_flipped = np.fliplr(right_half)
-
-    # Resize to match dimensions
-    min_width = min(left_half.shape[1], right_half_flipped.shape[1])
-    left_half_resized = left_half[:, :min_width]
-    right_half_resized = right_half_flipped[:, :min_width]
 
     # Calculate overlap asymmetry (1 - overlap ratio)
-    intersection_lr = np.logical_and(left_half_resized, right_half_resized)
-    union_lr = np.logical_or(left_half_resized, right_half_resized)
-    lr_asymmetry = 1.0 - (np.sum(intersection_lr) / (np.sum(union_lr) + 1e-7))
+    intersection_lr = cv2.bitwise_and(left_half_flipped, right_half)
+    union_lr = cv2.bitwise_or(left_half_flipped, right_half)
+    lr_asymmetry = 1.0 - (np.count_nonzero(intersection_lr) / (np.count_nonzero(union_lr) + 1e-12))
 
     # Step 5: Calculate top-bottom asymmetry
     top_half = rotated_mask[:cy, :]
+    top_half_flipped = np.flipud(top_half)
     bottom_half = rotated_mask[cy:, :]
-    bottom_half_flipped = np.flipud(bottom_half)
-
-    # Resize to match dimensions
-    min_height = min(top_half.shape[0], bottom_half_flipped.shape[0])
-    top_half_resized = top_half[:min_height, :]
-    bottom_half_resized = bottom_half_flipped[:min_height, :]
 
     # Calculate overlap asymmetry
-    intersection_tb = np.logical_and(top_half_resized, bottom_half_resized)
-    union_tb = np.logical_or(top_half_resized, bottom_half_resized)
-    tb_asymmetry = 1.0 - (np.sum(intersection_tb) / (np.sum(union_tb) + 1e-7))
+    intersection_tb = cv2.bitwise_and(top_half_flipped, bottom_half)
+    union_tb = cv2.bitwise_or(top_half_flipped, bottom_half)
+    tb_asymmetry = 1.0 - (np.count_nonzero(intersection_tb) / (np.count_nonzero(union_tb) + 1e-12))
 
     # Step 6: Average the asymmetry scores
     total_asymmetry = (lr_asymmetry + tb_asymmetry) / 2.0

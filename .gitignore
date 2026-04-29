@@ -1,3 +1,6 @@
+# supabase db-password
+dermascan_db.txt
+
 # python data
 .venv*
 __pycache__/
@@ -8,12 +11,17 @@ data/
 # kagglehub auth file
 kaggle-json
 
+# python model output folder (keeps flutter assets)
+python/*/models/
 # model output folder
 results/**/*.pt
 
 # mkdocs build output
 site/
 public/
+
+# intellij
+.idea/
 
 # results output folder
 results/

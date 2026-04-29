@@ -1,6 +1,6 @@
 import numpy as np
 from abcd_algorithms.mask_utils import boundary_extraction
-from skimage.morphology import convex_hull_image, closing, remove_small_holes, disk
+from skimage.morphology import closing, remove_small_holes, disk
 from skimage.measure import label, regionprops, find_contours
 from typing import Any
 
@@ -33,10 +33,7 @@ def calculate_rdv_metrics(mask: np.ndarray, centroid_x: int, centroid_y: int) ->
         raise ValueError("No boundary points found in the lesion mask.")
 
     # Calculate Euclidean distances from centroid to each boundary point
-    distances = np.sqrt(
-        (boundary_points[:, 1] - centroid_x) ** 2
-        + (boundary_points[:, 0] - centroid_y) ** 2
-    )
+    distances = np.sqrt((boundary_points[:, 1] - centroid_x) ** 2 + (boundary_points[:, 0] - centroid_y) ** 2)
 
     # Calculate statistical metrics
     mean_distance = np.mean(distances)
@@ -160,7 +157,7 @@ def calculate_irregularity_index(
       - feature_areas: list of areas (pixel units) for individual concavities
     """
     # Step 0: Preprocess to mitigate thin hair cuts
-    mask = preprocess_lesion(binary_mask)
+    mask = binary_mask
 
     lesion_area = float(np.sum(mask > 0))
     if lesion_area == 0:
@@ -171,7 +168,22 @@ def calculate_irregularity_index(
         }
 
     # Convex hull to capture indentation baseline
-    hull = convex_hull_image(mask.astype(bool)).astype(np.uint8)
+    import cv2
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    hull_mask = np.zeros_like(mask)
+    if contours:
+        max_area = 0
+        max_index = 0
+        for i, c in enumerate(contours):
+            area = cv2.contourArea(c)
+            if area > max_area:
+                max_area = area
+                max_index = i
+
+        hull_points = cv2.convexHull(contours[max_index], clockwise=False)
+        cv2.drawContours(hull_mask, [hull_points], 0, 1, thickness=cv2.FILLED)
+    hull = hull_mask
 
     # Concavity regions: hull minus original mask
     concavities = (hull > 0) & ~(mask > 0)
@@ -186,7 +198,7 @@ def calculate_irregularity_index(
     most_significant = (max(feature_areas) / lesion_area) if feature_areas else 0.0
 
     return {
-        "overall_irregularity_index": float(np.clip(overall_index, 0.0, 1.0)),
+        "overall_irregularity_index": float(overall_index),
         "most_significant_index": float(np.clip(most_significant, 0.0, 1.0)),
         "feature_areas": feature_areas,
     }
