@@ -4,6 +4,14 @@
 In Zusammenarbeit mit einer Dermatologin wurden die Anforderungen und Funktionen der App definiert.
 Die App soll Dermatologen bei der Dokumentation und Diagnose von Hautläsion unterstützen und die Integration eines ML-basierten Klassifikators ermöglichen ohne zusätzliche Hardware und Infrastruktur zu benötigen.
 
+## Projektstruktur
+
+```
+flutter/                      # Flutter-App (iOS/Android)
+    ├── lib/
+    ├── android/
+    └── ios/
+```
 
 ## Funktionen der App
 - Patientenverwaltung (anlegen, bearbeiten)
