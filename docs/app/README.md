@@ -1,8 +1,8 @@
 # Flutter App
 
-Die alltägliche Arbeit von Dermatologen soll durch die entwickelte App erleichtert werden.
-Die App ermöglicht es Ärzten, Patientendaten und Bilder von Hautläsionen zu verwalten und mithilfe eines integrierten ML-Modells eine erste Einschätzung der Läsionen zu erhalten.
-Insofern dient die App als unterstützendes Werkzeug im klinischen Alltag.
+## Zielsetzung
+In Zusammenarbeit mit einer Dermatologin wurden die Anforderungen und Funktionen der App definiert.
+Die App soll Dermatologen bei der Dokumentation und Diagnose von Hautläsion unterstützen und die Integration eines ML-basierten Klassifikators ermöglichen ohne zusätzliche Hardware und Infrastruktur zu benötigen.
 
 ## Projektstruktur
 
@@ -23,8 +23,8 @@ flutter/                      # Flutter-App (iOS/Android)
 
 ## Konten und Rollen
 - Rollen: Praxis-Account, Arzt-Account.
-- Nutzer können Praxis-Account und Arzt-Accounts selbstständig erstellen.
-- Praxis-Account kann Ärzte zur Praxis hinzufügen.
+- Praxis-Account und Arzt Account können direkt von Nutzer in der App erstellt werden
+- Arzt-Accounts sind nach erstellen noch keiner Praxis zugeordnet; befinden sich im "Wartestatus" bis sie von einem Praxis-Account der jeweiligen Praxis akzeptiert werden
 - Datenzugriff:
-  - Alle Ärzte einer Praxis können die Patientendaten der Praxis einsehen.
-  - Ärzte aus unterschiedlichen Praxen haben keinen Zugriff aufeinander.
+  - Alle Ärzte einer Praxis können die Patientendaten der Praxis einsehen
+  - Ärzte aus unterschiedlichen Praxen haben keinen Zugriff auf die Praxisdaten einer anderen Praxis

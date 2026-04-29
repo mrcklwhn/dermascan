@@ -25,27 +25,13 @@ def compute_avg_skin_color(image: np.ndarray, lesion_mask: np.ndarray) -> np.nda
     img = img_as_float(image)
 
     # Background = non-lesion pixels
-    bg_mask = ~lesion_mask
+    skin_mask = ~lesion_mask
 
-    # Optional: basic skin filter in RGB (avoid dark corners, clothes etc.)
-    r = img[..., 0]
-    g = img[..., 1]
-    b = img[..., 2]
-    skin_like = (r > b) & (r > g) & (r > 0.35)
-
-    valid_bg = bg_mask & skin_like
-
-    # Fallback: if filter is too strict, use all non-lesion pixels
-    if np.count_nonzero(valid_bg) < 0.01 * img.size / 3:
-        valid_bg = bg_mask
-
-    avg_skin = img[valid_bg].mean(axis=0)
+    avg_skin = img[skin_mask].mean(axis=0)
     return avg_skin
 
 
-def extract_lesion_relative_colors(
-    image: np.ndarray, lesion_mask: np.ndarray, avg_skin: np.ndarray
-) -> np.ndarray:
+def extract_lesion_relative_colors(image: np.ndarray, lesion_mask: np.ndarray, avg_skin: np.ndarray) -> np.ndarray:
     """
     Convert lesion pixels to relative color by subtracting average skin color.
 
@@ -134,9 +120,7 @@ def skin_like_bin(avg_skin: np.ndarray, n_bins: int = 32) -> np.ndarray:
     return (avg_shifted * (n_bins - 1)).astype(np.int32)
 
 
-def mask_skin_like_in_hist(
-    hist: np.ndarray, avg_skin: np.ndarray, n_bins: int = 32, radius: int = 1
-) -> np.ndarray:
+def mask_skin_like_in_hist(hist: np.ndarray, avg_skin: np.ndarray, n_bins: int = 32, radius: int = 1) -> np.ndarray:
     """
     Remove colors similar to average skin from histogram.
 
@@ -265,9 +249,7 @@ def calculate_color_uniformity_score(
     hist = build_color_histogram(bin_indices, n_bins=n_bins)
 
     # 5. Remove skin-like colors
-    hist_filtered = mask_skin_like_in_hist(
-        hist, avg_skin, n_bins=n_bins, radius=skin_radius
-    )
+    hist_filtered = mask_skin_like_in_hist(hist, avg_skin, n_bins=n_bins, radius=skin_radius)
 
     # 6. Calculate uniformity metrics
     entropy = histogram_entropy(hist_filtered)
@@ -318,16 +300,12 @@ def analyze_lesion_colors(
     rel_colors = extract_lesion_relative_colors(image, lesion_mask, avg_skin)
     bin_indices = quantize_relative_colors(rel_colors, n_bins=n_bins)
     hist = build_color_histogram(bin_indices, n_bins=n_bins)
-    hist_filtered = mask_skin_like_in_hist(
-        hist, avg_skin, n_bins=n_bins, radius=skin_radius
-    )
+    hist_filtered = mask_skin_like_in_hist(hist, avg_skin, n_bins=n_bins, radius=skin_radius)
 
     entropy = histogram_entropy(hist_filtered)
     n_eff = effective_color_count(hist_filtered, min_prob=1e-4)
 
     # Calculate uniformity score
-    uniformity_score = calculate_color_uniformity_score(
-        image, mask, n_bins=n_bins, skin_radius=skin_radius
-    )
+    uniformity_score = calculate_color_uniformity_score(image, mask, n_bins=n_bins, skin_radius=skin_radius)
 
     return (uniformity_score, n_eff, entropy)

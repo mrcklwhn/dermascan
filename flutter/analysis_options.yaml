@@ -1,9 +1,319 @@
+# This line includes the recommended base linter rules from Flutter.
+# Custom rules can override or extend this set.
 include: package:flutter_lints/flutter.yaml
 
 linter:
   rules:
-    avoid_print: true
-    prefer_single_quotes: true
+    # =======================================================
+    # Style & Formatting
+    # Rules for a consistent and clean code style.
+    # =======================================================
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+    # Enforces that the body of control structures always starts on a new line.
+    # Bad: if (condition) doSomething();
+    # Good:
+    #   if (condition) {
+    #     doSomething();
+    #   }
+    # - always_put_control_body_on_new_line
+
+    # Enforces curly braces {} for all control structures to prevent common errors.
+    # Bad: if (condition) doSomething();
+    # Good:
+    #   if (condition) {
+    #     doSomething();
+    #   }
+    - curly_braces_in_flow_control_structures
+
+    # Ensures a standardized order for import/export directives.
+    # Bad: import 'package:flutter/material.dart';\nimport 'dart:async';
+    # Good: import 'dart:async';\n\nimport 'package:flutter/material.dart';
+    - directives_ordering
+
+    # Ensures that every file ends with a single newline character.
+    - eol_at_end_of_file
+
+    # Enforces file names to be in snake_case_format (lowercase_with_underscores).
+    # Bad: "MyWidget.dart"
+    # Good: "my_widget.dart"
+    - file_names
+
+    # Requires a standardized format for TODO comments for better trackability.
+    # Bad: // todo fix this
+    # Good: // TODO(username): Fix this issue.
+    - flutter_style_todos
+
+    # Prevents unnecessary blank lines at the beginning of multiline strings.
+    # Bad: var s = '''\n\n  Some text.''';
+    # Good: var s = '''  Some text.''';
+    - leading_newlines_in_multiline_strings
+
+    # Prefers single quotes when double quotes are not needed.
+    # Bad: var name = "Flutter";
+    # Good: var name = 'Flutter';
+    - prefer_single_quotes
+
+    # Requires a trailing comma after the last element in lists, making Git diffs cleaner.
+    # Bad: Column(children: [\n  Text('Hello')\n])
+    # Good: Column(children: [\n  Text('Hello'),\n])
+    - require_trailing_commas
+
+
+    # =======================================================
+    # Clarity & Readability
+    # Rules that make code more understandable and self-explanatory.
+    # =======================================================
+
+    # Avoids positional boolean parameters, as their purpose is unclear at the call site.
+    # Bad: Task(true, false);
+    # Good: Task(isComplete: true, isArchived: false);
+    - avoid_positional_boolean_parameters
+
+    # Prefers constructors over static methods for instance creation.
+    # Bad: class C { static C newInstance() {...} }
+    # Good: class C { C(); }
+    - prefer_constructors_over_static_methods
+
+    # Recommends the null-coalescing operator (??) for clearer fallbacks.
+    # Bad: var name = user.name != null ? user.name : 'Guest';
+    # Good: var name = user.name ?? 'Guest';
+    - prefer_if_null_operators
+
+    # Prefers string interpolation ($) over concatenation with (+).
+    # Bad: var greeting = 'Hello ' + name;
+    # Good: var greeting = 'Hello $name';
+    - prefer_interpolation_to_compose_strings
+
+    # Use .isEmpty for better readability.
+    # Bad: if (list.length == 0)
+    # Good: if (list.isEmpty)
+    - prefer_is_empty
+
+    # Use .isNotEmpty for better readability.
+    # Bad: if (list.length != 0)
+    # Good: if (list.isNotEmpty)
+    - prefer_is_not_empty
+
+    # Recommends null-aware operators (?.) instead of explicit if-null checks.
+    # Bad: if (user != null) { user.logout(); }
+    # Good: user?.logout();
+    - prefer_null_aware_operators
+
+    # =======================================================
+    # Code Modernization & Cleanup
+    # Rules to remove boilerplate and adopt modern Dart syntax.
+    # =======================================================
+
+    # Modernizes constructor syntax by forwarding parameters directly to the super-class.
+    # Bad: MyWidget({Key? key, this.color}) : super(key: key);
+    # Good: MyWidget({super.key, this.color});
+    - use_super_parameters
+
+    # Prefers direct collection initialization ([]) instead of legacy constructors.
+    # Bad: var points = List<Point>();
+    # Good: var points = <Point>[];
+    - prefer_collection_literals
+
+    # Removes the `new` keyword, which has long been optional in Dart.
+    # Bad: var button = new ElevatedButton(...);
+    # Good: var button = ElevatedButton(...);
+    - unnecessary_new
+
+    # Finds `const` keywords that are redundant (e.g., inside another const expression).
+    # Bad: const MyWidget(child: const Text('...'));
+    # Good: const MyWidget(child: Text('...'));
+    - unnecessary_const
+
+    # Reports unnecessary `break` statements in switch cases.
+    # Bad: case 1: return true; break;
+    # Good: case 1: return true;
+    - unnecessary_breaks
+
+    # Reports raw strings (r'...') that don't contain characters that need escaping.
+    # Bad: print(r'A normal string');
+    # Good: print('A normal string');
+    - unnecessary_raw_strings
+
+    # Prevents naming used variables with underscores.
+    # Bad: list.forEach((_item) => print('hello'));
+    # Good: list.forEach((item) => print(item));
+    - unnecessary_underscores
+
+    # =======================================================
+    # Error Prevention & Safety
+    # Rules to avoid runtime errors and unsafe patterns.
+    # =======================================================
+
+    # Reports empty `else` blocks, which often indicate incomplete logic.
+    # Bad: if (condition) { ... } else {}
+    # Good: if (condition) { ... }
+    - avoid_empty_else
+
+    # Ensures that overridden methods are annotated with @override.
+    # Bad: class MyWidget extends StatelessWidget { build(context) { ... } }
+    # Good: class MyWidget extends StatelessWidget { @override build(context) { ... } }
+    - annotate_overrides
+
+    # Avoids print() in production code; use a logger instead.
+    # Bad: print('Error occurred: $e');
+    # Good: log('Error occurred: $e'); // from dart:developer
+    - avoid_print
+
+    # Prevents using `BuildContext` across asynchronous gaps.
+    # Bad: await Future.delayed(...); Navigator.of(context).pop();
+    # Good: if (!context.mounted) return; Navigator.of(context).pop();
+    - use_build_context_synchronously
+
+    # Ensures that Sinks (e.g., StreamControllers) are always closed.
+    - close_sinks
+
+    # Ensures that StreamSubscriptions are always canceled to prevent memory leaks.
+    - cancel_subscriptions
+
+    # Prevents errors from comparing with runtimeType.
+    # Bad: if (object.runtimeType.toString() == 'MyType')
+    # Good: if (object is MyType)
+    - no_runtimeType_toString
+
+    # Enforces that only instances of Error or Exception are thrown.
+    # Bad: throw 'An error happened';
+    # Good: throw Exception('An error happened');
+    - only_throw_errors
+
+    # =======================================================
+    # Type Safety
+    # Rules to strengthen the type system and prevent type errors.
+    # =======================================================
+
+    # Enforces explicit return types for functions.
+    # Bad: sum(int a, int b) => a + b;
+    # Good: int sum(int a, int b) => a + b;
+    - always_declare_return_types
+
+    # Requires explicit type declarations for variables.
+    # Bad: var count = 10;
+    # Good: int count = 10;
+    - always_specify_types
+
+    # Prevents risky calls on dynamically typed objects.
+    # Bad: dynamic value; value.doSomething();
+    # Good: (value as MyType).doSomething();
+    - avoid_dynamic_calls
+
+    # Prefers Future<void> over the legacy Future<Null>.
+    # Bad: Future<Null> doSomething() async { ... }
+    # Good: Future<void> doSomething() async { ... }
+    - prefer_void_to_null
+
+    # Recommends using enums for a fixed set of values.
+    # Bad: void setStatus(String status) { ... } // status can be 'loading', 'success'
+    # Good: enum Status { loading, success } void setStatus(Status status) { ... }
+    - use_enums
+
+    # Uses the null-aware spread operator (...?) in collections.
+    # Bad: var list = [item1, if (otherList != null) ...otherList];
+    # Good: var list = [item1, ...?otherList];
+    - use_null_aware_elements
+
+    # =======================================================
+    # Immutability & Performance
+    # Rules to promote immutable data structures and efficient code.
+    # =======================================================
+
+    # Prevents initializing fields in const classes.
+    # Bad: const class C { final f = 1; }
+    # Good: const class C { final int f; const C(this.f); }
+    - avoid_field_initializers_in_const_classes
+
+    # Use `const` wherever possible to create compile-time constant widgets.
+    # Bad: return MyWidget();
+    # Good: return const MyWidget();
+    - prefer_const_constructors
+
+    # Use `const` when creating immutable literals (lists, maps).
+    # Bad: var widgets = [Text('a'), Text('b')];
+    # Good: var widgets = const [Text('a'), Text('b')];
+    - prefer_const_literals_to_create_immutables
+
+    # Declare class fields as `final` if they are not reassigned after initialization.
+    # Bad: class User { String name; }
+    # Good: class User { final String name; }
+    - prefer_final_fields
+
+    # Declares loop variables in for-each loops as `final`.
+    # Bad: for (var item in list) { ... }
+    # Good: for (final item in list) { ... }
+    - prefer_final_in_for_each
+
+    # Declares local variables as `final` if they are not reassigned.
+    # Bad: String name = 'Flutter'; print(name);
+    # Good: final String name = 'Flutter'; print(name);
+    - prefer_final_locals
+
+    # =======================================================
+    # Asynchrony
+    # Rules for the correct handling of Futures and async/await.
+    # =======================================================
+
+    # `await` should only be used for Futures.
+    # Bad: await 5;
+    # Good: await Future.value(5);
+    - await_only_futures
+
+    # Avoids slow, synchronous I/O operations in `dart:io`.
+    - avoid_slow_async_io
+
+    # Avoids `async` functions with a `void` return type, as errors cannot be caught.
+    # Bad: void loadData() async { ... }
+    # Good: Future<void> loadData() async { ... }
+    - avoid_void_async
+
+    # Warns about Futures that are called but not awaited.
+    # Bad: myAsyncFunction();
+    # Good: await myAsyncFunction();
+    - unawaited_futures
+
+    # =======================================================
+    # Flutter Specific
+    # Rules that apply specifically to development with the Flutter UI framework.
+    # =======================================================
+
+    # Warns against `Container` widgets that have no special properties and can be removed.
+    # Bad: Container(child: Text('Hello'));
+    # Good: Text('Hello');
+    - avoid_unnecessary_containers
+
+    # Prevents logic in `createState()`. This logic should be in `initState()` instead.
+    # Bad: State createState() => MyState(complexObject: computeSomething());
+    # Good: State createState() => MyState();
+    - no_logic_in_create_state
+
+    # Enforces the use of package imports instead of relative paths.
+    # Bad: import '../widgets/my_widget.dart';
+    # Good: import 'package:my_app/widgets/my_widget.dart';
+    - always_use_package_imports
+
+    # Ensures that the 'child' or 'children' property in widgets is defined last.
+    # Bad: Padding(child: Text('...'), padding: EdgeInsets.all(8))
+    # Good: Padding(padding: EdgeInsets.all(8), child: Text('...'))
+    - sort_child_properties_last
+
+    # Recommends `SizedBox` instead of `Container` for creating whitespace.
+    # Bad: return Container(height: 20);
+    # Good: return const SizedBox(height: 20);
+    - sized_box_for_whitespace
+
+    # Recommends `ColoredBox` instead of `Container` for simple colored boxes.
+    # Bad: return Container(color: Colors.blue);
+    # Good: return const ColoredBox(color: Colors.blue);
+    - use_colored_box
+
+    # Recommends `DecoratedBox` instead of `Container` when only a decoration is needed.
+    # Bad: return Container(decoration: myDecoration);
+    # Good: return DecoratedBox(decoration: myDecoration);
+    - use_decorated_box
+
+    # Ensures that all widget constructors have a `Key` parameter.
+    # Bad: class MyWidget extends StatelessWidget { MyWidget(); }
+    # Good: class MyWidget extends StatelessWidget { const MyWidget({super.key}); }
+    - use_key_in_widget_constructors
