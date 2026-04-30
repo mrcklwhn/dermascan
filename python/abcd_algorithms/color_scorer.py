@@ -292,8 +292,8 @@ def analyze_lesion_colors(
     """
     lesion_mask = mask.astype(bool)
 
-    if not lesion_mask.any():
-        return (1.0, 0, 0.0)
+    if not (~lesion_mask).any():
+        return (np.nan, -1, np.nan)
 
     # Compute metrics
     avg_skin = compute_avg_skin_color(image, lesion_mask)

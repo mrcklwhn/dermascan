@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dartcv4/dartcv.dart' as cv;
-import 'package:dermascan/core/utils/lesion.dart';
+import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -17,11 +17,14 @@ class OnnxCutoutPage extends StatefulWidget {
 class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
   bool _isProcessing = false;
   bool _isInitialized = false;
+  String _selectedModel = 'RGB';
+  final List<String> _models = ['RGB', 'Gabor', 'GLCM', 'SoftEnsemble', 'HardEnsemble'];
 
   Uint8List? _selectedImageData;
   cv.Mat? _selectedImageMat;
   Map<String, cv.Mat>? _lesionMasks;
   Map<String, double>? abcScores;
+  Map<String, dynamic>? classificationResults;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -50,6 +53,7 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
         _selectedImageMat = mat;
         _lesionMasks = null;
         abcScores = null;
+        classificationResults = null;
       });
     }
   }
@@ -61,8 +65,8 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
       _isProcessing = true;
     });
 
-    final Lesion lesion = Lesion(_selectedImageMat!);
-    await lesion.runLesionAnalysis(useNeuralModel: false);
+    final LesionAnalysis lesion = LesionAnalysis(_selectedImageMat!);
+    await lesion.runLesionAnalysis(useNeuralModel: false, modelType: _selectedModel);
 
     final cv.Mat rawMask = lesion.rawLesionMask;
     final cv.Mat cleanedMask = lesion.cleanedLesionMask;
@@ -87,6 +91,13 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
         'Border Score': lesion.borderScore,
         'Color Uniformity Score': lesion.colorUniformityScore,
       };
+      if (lesion.labelText != null) {
+        classificationResults = <String, dynamic>{
+          'Prediction': lesion.labelText,
+          'Confidence': '${(lesion.labelConfidence! * 100).toStringAsFixed(2)}%',
+          'Class Index': lesion.labelIdx,
+        };
+      }
     });
 
     setState(() {
@@ -118,6 +129,7 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
               ),
 
             // Display generated mask
+            /*
             if (_lesionMasks != null && _lesionMasks!.isNotEmpty)
               SizedBox(
                 height: 256,
@@ -148,11 +160,29 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
                   },
                 ),
               ),
+             */
 
             // Display Model Info
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                DropdownButton<String>(
+                  value: _selectedModel,
+                  items: _models.map((String model) {
+                    return DropdownMenuItem<String>(
+                      value: model,
+                      child: Text(model),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedModel = newValue;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: (_isProcessing || _selectedImageMat == null) ? null : _runInference,
                   style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12)),
@@ -165,27 +195,55 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child:
-              abcScores == null || abcScores!.isEmpty
-                  ? const Center(child: Text('Run prediction to see ABC scores'))
-                  : ListView.builder(
-                itemCount: abcScores!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final String key = abcScores!.keys.elementAt(index);
-                  final double value = abcScores![key]!;
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(flex: 2, child: Text(key, style: const TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 3, child: Text(value.toStringAsFixed(4))),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: abcScores == null || abcScores!.isEmpty
+                        ? const Center(child: Text('Run prediction first'))
+                        : ListView.builder(
+                            itemCount: abcScores!.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final String key = abcScores!.keys.elementAt(index);
+                              final double value = abcScores![key]!;
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 8, right: 4),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Row(
+                                    children: <Widget>[
+                                      Expanded(flex: 2, child: Text(key, style: const TextStyle(fontWeight: FontWeight.bold))),
+                                      Expanded(flex: 3, child: Text(value.toStringAsFixed(4))),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  Expanded(
+                    child: classificationResults == null || classificationResults!.isEmpty
+                        ? const Center(child: Text('Run prediction first'))
+                        : ListView.builder(
+                            itemCount: classificationResults!.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final String key = classificationResults!.keys.elementAt(index);
+                              final dynamic value = classificationResults![key];
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 8, left: 4),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Row(
+                                    children: <Widget>[
+                                      Expanded(flex: 2, child: Text(key, style: const TextStyle(fontWeight: FontWeight.bold))),
+                                      Expanded(flex: 3, child: Text(value.toString())),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
               ),
             ),
           ],
