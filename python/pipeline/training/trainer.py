@@ -68,14 +68,6 @@ class Trainer:
 
                 val_f1_macro.append(epoch_val_f1)
 
-                # epoch_bar.set_postfix(
-                #         train_loss=f"{epoch_train_loss:.4f}",
-                #         train_acc=f"{epoch_train_acc:.4f}",
-                #         val_loss=f"{epoch_val_loss:.4f}",
-                #         val_acc=f"{epoch_val_acc:.4f}",
-                #         val_f1=f"{epoch_val_f1:.4f}"
-                #     )
-
                 tqdm.write(
                     f"Epoch {epoch + 1}/{epochs} - "
                     f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
@@ -120,8 +112,8 @@ class Trainer:
         running_corrects = 0
 
         for inputs, labels in tqdm(train_loader, desc="Training", leave=False):
-            inputs = inputs.to(self.device)
-            labels = labels.to(self.device)
+            inputs = inputs.to(self.device, non_blocking=True)
+            labels = labels.to(self.device, non_blocking=True)
 
             self.optimizer.zero_grad()
 
@@ -134,12 +126,13 @@ class Trainer:
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data).item()
 
+            del inputs, labels, outputs, preds, loss
+
         n = len(train_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
 
         # Clear GPU memory after each epoch
-        del inputs, labels, outputs, preds, loss
         torch.cuda.empty_cache()
 
         return epoch_loss, epoch_acc
@@ -162,8 +155,8 @@ class Trainer:
 
         with torch.inference_mode():
             for inputs, labels in val_loader:
-                inputs = inputs.to(self.device)
-                labels = labels.to(self.device)
+                inputs = inputs.to(self.device, non_blocking=True)
+                labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
                 _, preds = torch.max(outputs, 1)
@@ -175,13 +168,14 @@ class Trainer:
                 all_preds.append(preds.cpu().numpy())
                 all_labels.append(labels.cpu().numpy())
 
+                del inputs, labels, outputs, preds, loss
+
         n = len(val_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
         f1 = f1_score(np.concatenate(all_labels), np.concatenate(all_preds), average="macro", zero_division=0)
 
         # Clear GPU memory after each epoch
-        del inputs, labels, outputs, preds, loss
         torch.cuda.empty_cache()
 
         return epoch_loss, epoch_acc, f1
@@ -205,16 +199,16 @@ class Trainer:
 
         with torch.inference_mode():
             for inputs, labels in test_loader:
-                inputs = inputs.to(self.device)
-                labels = labels.to(self.device)
+                inputs = inputs.to(self.device, non_blocking=True)
+                labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
                 probs = torch.softmax(outputs, dim=1)
                 preds = torch.argmax(probs, dim=1)
 
-                all_preds.append(preds.detach().cpu())
-                all_labels.append(labels.detach().cpu())
-                all_probs.append(probs.detach().cpu())
+                all_preds.append(preds.cpu())
+                all_labels.append(labels.cpu())
+                all_probs.append(probs.cpu())
 
         result = EvalResult(
             y_true=torch.cat(all_labels).cpu(),
