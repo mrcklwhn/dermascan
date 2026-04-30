@@ -3,9 +3,10 @@ dermascan_db.txt
 
 # python data
 .venv*
-.dermascan-venv*
-.dermascan-venv_old*
 __pycache__/
+
+# mlflow output
+mlruns/
 
 # other data
 data/

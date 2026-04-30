@@ -1,6 +1,7 @@
 from pathlib import Path
-
 import torch
+import mlflow
+
 from pipeline.dataclasses.pipeline_config import BranchConfig
 from pipeline.dataclasses.pipeline_runtime import BranchResult, MetricsResult, TrainingHistory, TrainValTestDataLoaders
 from pipeline.eval.metrics_calculator import MetricsCalculator
@@ -51,24 +52,43 @@ class BranchRunner:
         Returns:
             BranchResult: The result of the branch execution, including training history and metrics.
         """
-        self._save_branch_config()
-        training_history = self.trainer.train(self.data.train_loader, self.data.val_loader)
-        self._save_training_history(training_history)
-        Plotter.plot_training_history(training_history, self.branch_run_path)
-        
-        eval_results = self.trainer.test(self.data.test_loader)
+        with mlflow.start_run(run_name=self.branch_config.branch_id, nested=True):
+            self._save_branch_config()
+            
+            config = self.branch_config
+            mlflow.log_params({
+                "branch_id": config.branch_id,
+                "model": config.branch_model_config.model.value,
+                "filter_type": config.branch_model_config.filter_type.filter_name,
+                "pretrained": config.branch_model_config.pretrained,
+                "freeze_weights": config.branch_model_config.freeze_weights,
+                "batch_size": config.trainer_config.batch_size,
+                "num_epochs": config.trainer_config.num_epochs,
+                "learning_rate": config.trainer_config.learning_rate,
+                "optimizer": config.trainer_config.optimizer.optimizer_type.value,
+                "dataset_loader": config.dataset_loader.value,
+            })
+            
+            training_history = self.trainer.train(self.data.train_loader, self.data.val_loader)
+            self._save_training_history(training_history)
+            Plotter.plot_training_history(training_history, self.branch_run_path)
+            
+            eval_results = self.trainer.test(self.data.test_loader)
 
-        metrics_calculator = MetricsCalculator()
-        metrics_result = metrics_calculator.calculate(eval_results)
-        self._save_metrics(metrics_result)
+            metrics_calculator = MetricsCalculator()
+            metrics_result = metrics_calculator.calculate(eval_results)
+            self._save_metrics(metrics_result)
+            mlflow.log_metrics(metrics_result.model_dump())
 
-        Plotter.plot_confusion_matrix(eval_results, self.branch_run_path)
+            Plotter.plot_confusion_matrix(eval_results, self.branch_run_path)
+            
+            mlflow.log_artifacts(str(self.branch_run_path))
 
-        return BranchResult(
-            branch_id=self.branch_config.branch_id,
-            training_history=training_history,
-            metrics_result=metrics_result
-        )
+            return BranchResult(
+                branch_id=self.branch_config.branch_id,
+                training_history=training_history,
+                metrics_result=metrics_result
+            )
 
     def _get_branch_run_path(self, pipeline_run_path: Path, branch_id: str, filter_name: str) -> Path:
         """

@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 from sklearn.metrics import f1_score
 from tqdm.auto import tqdm
+import mlflow
 
 from pipeline.dataclasses.pipeline_config import TrainerConfig, OptimizerConfig, SchedulerConfig
 from pipeline.dataclasses.pipeline_runtime import EvalResult, TrainingHistory
@@ -82,6 +83,14 @@ class Trainer:
                     f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}, Val F1 Macro: {epoch_val_f1:.4f}"
                 )
 
+                mlflow.log_metrics({
+                    "train_loss": epoch_train_loss,
+                    "train_acc": epoch_train_acc,
+                    "val_loss": epoch_val_loss,
+                    "val_acc": epoch_val_acc,
+                    "val_f1_macro": epoch_val_f1,
+                }, step=epoch)
+
                 train_loss.append(epoch_train_loss)
                 train_accuracy.append(epoch_train_acc)
                 val_loss.append(epoch_val_loss)
@@ -134,12 +143,13 @@ class Trainer:
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data).item()
 
+            del inputs, labels, outputs, preds, loss
+
         n = len(train_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
 
         # Clear GPU memory after each epoch
-        del inputs, labels, outputs, preds, loss
         torch.cuda.empty_cache()
 
         return epoch_loss, epoch_acc
@@ -174,6 +184,8 @@ class Trainer:
 
                 all_preds.append(preds.cpu().numpy())
                 all_labels.append(labels.cpu().numpy())
+                            
+                del inputs, labels, outputs, preds, loss
 
         n = len(val_loader.dataset)
         epoch_loss = running_loss / n
@@ -181,7 +193,6 @@ class Trainer:
         f1 = f1_score(np.concatenate(all_labels), np.concatenate(all_preds), average="macro", zero_division=0)
 
         # Clear GPU memory after each epoch
-        del inputs, labels, outputs, preds, loss
         torch.cuda.empty_cache()
 
         return epoch_loss, epoch_acc, f1
@@ -212,9 +223,9 @@ class Trainer:
                 probs = torch.softmax(outputs, dim=1)
                 preds = torch.argmax(probs, dim=1)
 
-                all_preds.append(preds.detach().cpu())
-                all_labels.append(labels.detach().cpu())
-                all_probs.append(probs.detach().cpu())
+                all_preds.append(preds.cpu())
+                all_labels.append(labels.cpu())
+                all_probs.append(probs.cpu())
 
         result = EvalResult(
             y_true=torch.cat(all_labels).cpu(),
