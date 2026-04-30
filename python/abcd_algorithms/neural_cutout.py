@@ -133,7 +133,7 @@ def resize_mask_to_original(mask, original_size):
 
 
 def clean_generated_mask(
-    raw_mask, threshold=0.5, use_sigmoid=True, morph_kernel_size=7, blur_kernel_size=9, resize_to_shape=(256, 256)
+    raw_mask, threshold=0.5, use_sigmoid=True, resize_to_shape=(256, 256)
 ):
     """
     Full cleanup pipeline:
@@ -147,8 +147,7 @@ def clean_generated_mask(
     largest = get_largest_connected_area(binary)
     filled = fill_holes_in_mask(largest)
     resized = resize_mask_to_original(filled, original_size=resize_to_shape)
-    smoothed = smooth_mask_edges(resized, morph_kernel_size=morph_kernel_size, blur_kernel_size=blur_kernel_size)
-    return smoothed
+    return resized
 
 
 # Global cached model to prevent reloading it repeatedly
@@ -192,7 +191,7 @@ def create_binary_mask(image, model_path=None):
     # Post-processing and cleanup
     cleaned_mask = clean_generated_mask(
         generated_mask,
-        threshold=0.6,
+        threshold=0.7,
         use_sigmoid=True,
         morph_kernel_size=7,
         blur_kernel_size=9,
