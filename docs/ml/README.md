@@ -15,27 +15,21 @@ python/
 ├── requirements.txt
 ├── ham10000_overview.ipynb       # Datensatzübersicht und -analyse
 ├── dataset_manager.py            # Manager für Datensatz (Laden, Augmentieren, Aufteilen)
-├── preprocessing/
-│   ├── image_filters.py          # 3D RGB → 3D B/W Filter
-│   ├── pipeline_resnet_finetuning.ipynb
-│   └── resnet_finetune_train.py
-├── abcd_algorithms/              # Deterministische ABCD-Kriterien
-│   ├── asymmetry_analysis.ipynb
-│   ├── asymmetry_scorer.py
-│   ├── border_analysis.ipynb
-│   ├── border_scorer.py
-│   ├── color_analysis.ipynb
-│   ├── color_scorer.py
-│   └── mask_utils.py             # Hilfsfunktionen für Segmentierungsmasken
-├── pipeline/                                   # Ablage für ML-Pipeline Komponenten
-│   ├── dataset_loader.py                       # lädt Daten (Filter/RGB) beim Training in das Model 
-│   ├── resnet_finetune_train.py                # Model Training und Evaluation
-│   └── pipeline_resnet_finetuning.ipynb        # Test für Model Traing
-└── prototypes/
-    ├── simple_cnn_training/      # Primitive CNN-Modelle
-    │   └── simple_resnet_finetuning.ipynb
-    └── resnet_finetuning/        # Transfer Learning mit ResNet50
-        └── simple_resnet_finetuning.ipynb
+├── abcd_algorithms/              # Deterministische ABC-Kriterien
+│   ├── enhanced_lesion_cutout/   # Neuronale Segmentierung der Läsionsmaske
+│   └── ...                       # Notizbücher und Skripte für die Implementierung der ABC-Kriterien
+├── dualbranch/                   # Implementierung der Trainingspipeline für die Multibranch Architektur
+├── ensemble_voting/              # Implementerung des Ensemble Voting Moduls
+├── onnx_porting/                 # Skript und Notizbuch zur Konvertierung von PyTorch Modellen in ONNX Format
+├── pipeline/                     # Ablage für ML-Pipeline Komponenten
+├── preprocessing/                # Ablage für Vorverarbeitungs- und Augmentierungsfunktionen
+├── prototypes/
+|   ├── simple_cnn_training/      # Primitive CNN-Modelle
+|   │   └── simple_resnet_finetuning.ipynb
+|   └── resnet_finetuning/        # Transfer Learning mit ResNet50
+|       └── simple_resnet_finetuning.ipynb
+└── results/                      # Diagramme und Metriken der Trainingsläufe
+
 ```
 
 ## Datensätze
