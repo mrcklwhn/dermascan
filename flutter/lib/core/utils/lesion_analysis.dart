@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:dartcv4/dartcv.dart' as cv;
-
 import 'package:dermascan/core/utils/lesion_utils.dart';
+import 'package:dermascan/core/utils/neural_lesion_classification.dart';
 import 'package:dermascan/core/utils/neural_lesion_cutout.dart';
 import 'package:dermascan/core/utils/otsus_lesion_cutout.dart';
 
-class Lesion {
+class LesionAnalysis {
   late cv.Mat rawLesionMask;
   late cv.Mat cleanedLesionMask;
   cv.Mat image;
@@ -23,13 +23,20 @@ class Lesion {
 
   cv.Mat? get rotatedMask => _rotatedMask;
 
-  late NeuralLesionCutout _neuralCutout;
+  // Cache classification
+  int? labelIdx;
+  double? labelConfidence;
+  String? labelText;
 
-  Lesion(this.image) {
+  late NeuralLesionCutout _neuralCutout;
+  late NeuralLesionClassification _neuralLesionClassification;
+
+  LesionAnalysis(this.image) {
     _neuralCutout = NeuralLesionCutout();
+    _neuralLesionClassification = NeuralLesionClassification();
   }
 
-  Future<void> runLesionAnalysis({bool useNeuralModel = false}) async {
+  Future<void> runLesionAnalysis({bool useNeuralModel = false, String modelType = 'RGB'}) async {
     if (useNeuralModel) {
       await _neuralCutout.initializeModel();
       rawLesionMask = await _neuralCutout.run(image);
@@ -40,6 +47,25 @@ class Lesion {
       rawLesionMask = OtsusLesionCutout().run(image);
     }
 
+    // Classification
+    Map<String, dynamic> inferenceResult = {};
+    if (modelType == 'Gabor') {
+      inferenceResult = await _neuralLesionClassification.runGabor(image);
+    } else if (modelType == 'GLCM') {
+      inferenceResult = await _neuralLesionClassification.runGLCM(image);
+    } else if (modelType == 'SoftEnsemble') {
+      inferenceResult = await _neuralLesionClassification.runEnsemble(image);
+    } else if (modelType == 'HardEnsemble') {
+      inferenceResult = await _neuralLesionClassification.runEnsemble(image, useSoftVoting: false);
+    } else {
+      inferenceResult = await _neuralLesionClassification.runRGB(image);
+    }
+
+    labelIdx = inferenceResult['label_int'] as int?;
+    labelConfidence = inferenceResult['confidence'] as double?;
+    labelText = inferenceResult['label_text'] as String?;
+
+    // Masks for ABC Algos
     if (rawLesionMask.isEmpty) return;
 
     cleanedLesionMask = LesionUtils.cleanLesionMask(rawLesionMask, <int>[image.rows, image.cols]);

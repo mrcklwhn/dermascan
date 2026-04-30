@@ -9,7 +9,7 @@ class NeuralLesionCutout {
   OrtModelMetadata? _modelMetadata;
   final String modelPath;
 
-  NeuralLesionCutout({this.modelPath = 'assets/models/unet1.onnx'});
+  NeuralLesionCutout({this.modelPath = 'assets/models/unet_lesion_cutout.onnx'});
 
   Future<void> initializeModel() async {
     _session ??= await OnnxRuntime().createSessionFromAsset(modelPath);
