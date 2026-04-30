@@ -69,14 +69,6 @@ class Trainer:
 
                 val_f1_macro.append(epoch_val_f1)
 
-                # epoch_bar.set_postfix(
-                #         train_loss=f"{epoch_train_loss:.4f}",
-                #         train_acc=f"{epoch_train_acc:.4f}",
-                #         val_loss=f"{epoch_val_loss:.4f}",
-                #         val_acc=f"{epoch_val_acc:.4f}",
-                #         val_f1=f"{epoch_val_f1:.4f}"
-                #     )
-
                 tqdm.write(
                     f"Epoch {epoch + 1}/{epochs} - "
                     f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
@@ -129,8 +121,8 @@ class Trainer:
         running_corrects = 0
 
         for inputs, labels in tqdm(train_loader, desc="Training", leave=False):
-            inputs = inputs.to(self.device)
-            labels = labels.to(self.device)
+            inputs = inputs.to(self.device, non_blocking=True)
+            labels = labels.to(self.device, non_blocking=True)
 
             self.optimizer.zero_grad()
 
@@ -172,8 +164,8 @@ class Trainer:
 
         with torch.inference_mode():
             for inputs, labels in val_loader:
-                inputs = inputs.to(self.device)
-                labels = labels.to(self.device)
+                inputs = inputs.to(self.device, non_blocking=True)
+                labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
                 _, preds = torch.max(outputs, 1)
@@ -185,6 +177,8 @@ class Trainer:
                 all_preds.append(preds.cpu().numpy())
                 all_labels.append(labels.cpu().numpy())
                             
+                del inputs, labels, outputs, preds, loss
+
                 del inputs, labels, outputs, preds, loss
 
         n = len(val_loader.dataset)
@@ -216,8 +210,8 @@ class Trainer:
 
         with torch.inference_mode():
             for inputs, labels in test_loader:
-                inputs = inputs.to(self.device)
-                labels = labels.to(self.device)
+                inputs = inputs.to(self.device, non_blocking=True)
+                labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
                 probs = torch.softmax(outputs, dim=1)

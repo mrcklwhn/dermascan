@@ -1,5 +1,5 @@
 {
-  "pipeline_id": "ml_flow_test",
+  "pipeline_id": "test_pipeline",
   "data_path": "C:\\Users\\T22127A\\Documents\\priv\\Uni\\priv_dev\\dermascan\\data",
   "split_config": {
     "split_type": "custom",
@@ -9,7 +9,7 @@
   },
   "branches": [
     {
-      "branch_id": "rgb_resnet18",
+      "branch_id": "first_test_branch",
       "branch_model_config": {
         "model": "resnet18",
         "filter_type": [
@@ -21,8 +21,8 @@
         "freeze_weights": true
       },
       "trainer_config": {
-        "batch_size": 16,
-        "num_epochs": 30,
+        "batch_size": 32,
+        "num_epochs": 2,
         "learning_rate": 0.001,
         "criterion_weights": [
           0.87,
@@ -50,11 +50,11 @@
       "augmentation": {
         "train": [
           "random_horizontal_flip",
-          "random_vertical_flip",
-          "random_resize_crop",
-          "color_jitter"
+          "random_resize_crop"
         ],
-        "val": []
+        "val": [
+          "center_crop"
+        ]
       }
     }
   ]
