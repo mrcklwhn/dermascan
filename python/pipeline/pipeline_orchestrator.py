@@ -29,8 +29,7 @@ class PipelineOrchestrator:
     ):
         self.pipeline_config = pipeline_config
         self.pipeline_run_path = self._get_pipeline_output_path(self.pipeline_config.pipeline_id, project_root_path)
-
-        mlflow.set_tracking_uri(f"file:///{project_root_path / 'mlruns'}")
+        mlflow.set_tracking_uri(f"sqlite:///{project_root_path}/results/mlflow.db")
 
     def run(self) -> list[BranchResult]:
         """

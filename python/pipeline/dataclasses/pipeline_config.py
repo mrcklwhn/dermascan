@@ -16,11 +16,6 @@ class CustomSplitConfig(BaseModel, frozen=True):
     val_csv_path: Path
     test_csv_path: Path
 
-# SplitConfig = Annotated[
-#     Union[TrainValTestSplitRatio, CustomSplitConfig],
-#     Field(discriminator='split_type')
-# ]
-
 SplitConfig = Union[TrainValTestSplitRatio, CustomSplitConfig]
 
 class ModelConfig(BaseModel, frozen=True):
@@ -49,7 +44,7 @@ class TrainerConfig(BaseModel, frozen=True):
     batch_size: int
     num_epochs: int
     learning_rate: float
-    criterion_weights: tuple[float, float] | None = (0.87, 0.13)
+    criterion_weights: tuple[float, float] | None = (1/0.13, 1/0.87)
     optimizer: OptimizerConfig
     scheduler: SchedulerConfig
 

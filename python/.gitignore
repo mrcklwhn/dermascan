@@ -1,7 +1,5 @@
 # python data
 .venv*
-.dermascan-venv
-.dermascan-venv_old
 .onnx-venv
 __pycache__/
 
