@@ -56,7 +56,7 @@ class DataLoaderFactory:
             val_augmentations = None
             test_augmentations = None
 
-        def make_loader(ids_df: DataFrame,  sampler: bool,shuffle: bool, augmentations: A.Compose = None) -> DataLoader:
+        def make_loader(ids_df: DataFrame, sampler: bool, shuffle: bool, augmentations: A.Compose = None) -> DataLoader:
             """
             Inner function to create a DatasetLoader and wrap it in a DataLoader.
 
@@ -69,7 +69,7 @@ class DataLoaderFactory:
             """
             dataset = DataLoaderFactory._build_dataset(dataset_loader_type, ids_df, filter_type, filtered_data_path, augmentations)
             # if sampler is True shuffle must be False
-            sampler = DataLoaderFactory._build_weighted_sampler(ids_df) if sampler and not shuffle else None
+            sampler = DataLoaderFactory._build_weighted_sampler(ids_df) if sampler and not shuffle else False
             return DataLoader(
                 dataset,
                 batch_size=batch_size,
