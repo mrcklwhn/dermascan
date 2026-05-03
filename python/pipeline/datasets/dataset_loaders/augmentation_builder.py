@@ -6,13 +6,14 @@ from pipeline.dataclasses.enums import AugmentationType, FilterType
 class AugmentationBuilder:
 
     @staticmethod
-    def build(filter_type: FilterType,augmentation_types: list[AugmentationType]) -> A.Compose:
+    def build(filter_type: FilterType,augmentation_types: list[AugmentationType], seed: int | None = None) -> A.Compose:
         """
         Builds a list of augmentation transforms based on the specified augmentation types and filter type.
 
         Args:
             filter_type (FilterType): The type of filter to apply (only relevant for certain augmentations).
             augmentation_types (list[AugmentationType]): A list of augmentation types to apply.
+            seed (int | None): The seed for reproducibility.
         Returns:
             A.Compose: A composed augmentation transform to be applied to the dataset.
         """
@@ -60,4 +61,4 @@ class AugmentationBuilder:
 
         augmentations.append(ToTensorV2())
         
-        return A.Compose(augmentations)
+        return A.Compose(augmentations, seed=seed)

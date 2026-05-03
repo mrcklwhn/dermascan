@@ -21,7 +21,8 @@ class BranchRunner:
     def __init__(self,
                  branch_config: BranchConfig,
                  data_loaders: TrainValTestDataLoaders,
-                 pipeline_run_path: Path
+                 pipeline_run_path: Path,
+                 seed: int | None = None
                  ):
         """
         Initializes the BranchRunner with the given branch configuration, data loaders, and pipeline run path.
@@ -30,6 +31,7 @@ class BranchRunner:
             branch_config (BranchConfig): Configuration for the branch, including model and training settings.
             data_loaders (TrainValTestDataLoaders): Data loaders for training, validation, and testing.
             pipeline_run_path (Path): Path to save the results of this branch run.
+            seed (int | None): The seed for reproducibility.
         """
         self.branch_config = branch_config
         self.data = data_loaders
@@ -37,12 +39,13 @@ class BranchRunner:
                                                          branch_config.branch_id,
                                                          branch_config.branch_model_config.filter_type.filter_name)
         self.device = self._get_device()
-        self.model = ModelFactory.build(branch_config.branch_model_config).to(self.device)
+        self.model = ModelFactory.build(branch_config.branch_model_config, seed=seed).to(self.device)
         self.trainer = Trainer(
             self.model,
             self.branch_config.trainer_config,
             self.device,
-            self.branch_run_path)
+            self.branch_run_path
+            )
 
     def run(self) -> BranchResult:
         """
