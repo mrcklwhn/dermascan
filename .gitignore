@@ -16,8 +16,6 @@ kaggle-json
 
 # python model output folder (keeps flutter assets)
 python/*/models/
-# model output folder
-results/**/*.pt
 
 # mkdocs build output
 site/
@@ -27,4 +25,4 @@ public/
 .idea/
 
 # results output folder
-results/
+results/*
