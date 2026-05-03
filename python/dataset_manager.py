@@ -43,6 +43,7 @@ class DatasetManager:
         self.images_dir = self.data_dir / "raw"
         self.df = None  # Will hold the metadata
 
+
     def load_dataset(
         self,
         filter_melanoma_only=True,
@@ -219,7 +220,7 @@ class DatasetManager:
         plt.show()
 
     def train_test_val_split(
-        self, test_size=0.2, val_size=0.1, random_state=42
+        self, test_size=0.2, val_size=0.1, random_state: int = None
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """
         Split data into train/test/val while respecting stratified by lesion type.

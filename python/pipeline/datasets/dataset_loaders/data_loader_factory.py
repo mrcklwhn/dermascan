@@ -1,8 +1,10 @@
 from pandas import DataFrame
 import torch
+import numpy as np
 from torch.utils.data import DataLoader, Dataset
 from pathlib import Path
 import albumentations as A
+import random
 
 from pipeline.dataclasses.enums import DatasetLoaderType, FilterType
 from pipeline.dataclasses.pipeline_config import AugmentationConfig
@@ -31,7 +33,8 @@ class DataLoaderFactory:
               df_split: TrainValTestSplit,
               filtered_data_path: Path,
               batch_size: int,
-              augmentation: AugmentationConfig = None) -> TrainValTestDataLoaders:
+              augmentation: AugmentationConfig = None,
+              seed: int | None = None) -> TrainValTestDataLoaders:
         """
         Builds PyTorch DataLoader instances for training, validation, and testing datasets based on the specified dataset loader type and filter type.
 
@@ -42,21 +45,22 @@ class DataLoaderFactory:
             filtered_data_path (Path): The path to the directory containing filtered .npy files (only relevant for FilterDatasetLoader).
             batch_size (int): The batch size for the DataLoader.
             augmentation (AugmentationConfig): A dataclass containing the train and validation augmentations.
+            seed (int | None): The seed for reproducibility.
 
         Returns:
             TrainValTestDataLoaders: A dataclass containing the train, validation, and test DataLoader instances.
         """
 
         if augmentation:
-            train_augmentations = AugmentationBuilder.build(filter_type, augmentation.train)
-            val_augmentations = AugmentationBuilder.build(filter_type, augmentation.val)
-            test_augmentations = AugmentationBuilder.build(filter_type, [])  # only apply normalization to test set if using filter dataset loader
+            train_augmentations = AugmentationBuilder.build(filter_type, augmentation.train, seed)
+            val_augmentations = AugmentationBuilder.build(filter_type, augmentation.val, seed)
+            test_augmentations = AugmentationBuilder.build(filter_type, [], seed)  # only apply normalization to test set if using filter dataset loader
         else:
             train_augmentations = None
             val_augmentations = None
             test_augmentations = None
 
-        def make_loader(ids_df: DataFrame,  shuffle: bool, augmentations: A.Compose = None) -> DataLoader:
+        def make_loader(ids_df: DataFrame,  shuffle: bool, augmentations: A.Compose = None, seed: int | None = None) -> DataLoader:
             """
             Inner function to create a DatasetLoader and wrap it in a DataLoader.
 
@@ -64,10 +68,27 @@ class DataLoaderFactory:
                 ids_df (DataFrame): The DataFrame containing the image IDs and labels for the dataset split.
                 shuffle (bool): Whether to shuffle the dataset (typically True for training and False for validation/test).
                 augmentations (A.Compose, optional): A composed augmentation transform to be applied to the dataset items. Defaults to None.
+                seed (int | None): The seed for reproducibility.
             Returns:
                 DataLoader: A PyTorch DataLoader instance for the specified dataset split.
             """
+            def worker_init(worker_id):
+                if seed is not None:
+                    torch.manual_seed(seed)
+                    np.random.seed(seed)
+                    random.seed(seed)
+                    np.random.seed(seed)
+                    torch.manual_seed(seed)
+                    if torch.cuda.is_available():
+                        torch.cuda.manual_seed_all(seed)
+
             dataset = DataLoaderFactory._build_dataset(dataset_loader_type, ids_df, filter_type, filtered_data_path, augmentations)
+
+            generator = None
+            if seed is not None:
+                generator = torch.Generator()
+                generator.manual_seed(seed)
+
             return DataLoader(
                 dataset,
                 batch_size=batch_size,
@@ -75,13 +96,15 @@ class DataLoaderFactory:
                 num_workers=DataLoaderFactory._NUM_WORKERS,
                 pin_memory=DataLoaderFactory._PIN_MEMORY,
                 prefetch_factor=DataLoaderFactory._PREFETCH_FACTOR,
-                persistent_workers=DataLoaderFactory._PERSISTENT_WORKERS
+                persistent_workers=DataLoaderFactory._PERSISTENT_WORKERS,
+                worker_init_fn=worker_init if seed is not None else None,
+                generator=generator
             )
         
         return TrainValTestDataLoaders(
-            train_loader=make_loader(df_split.train_df, shuffle=True, augmentations=train_augmentations),
-            val_loader=make_loader(df_split.val_df, shuffle=False, augmentations=val_augmentations),
-            test_loader=make_loader(df_split.test_df, shuffle=False, augmentations=test_augmentations)
+            train_loader=make_loader(df_split.train_df, shuffle=True, augmentations=train_augmentations, seed=seed),
+            val_loader=make_loader(df_split.val_df, shuffle=False, augmentations=val_augmentations, seed=seed),
+            test_loader=make_loader(df_split.test_df, shuffle=False, augmentations=test_augmentations, seed=seed)
         )
         
     @staticmethod

@@ -69,3 +69,4 @@ class PipelineConfig(BaseModel, frozen=True):
     data_path: Path
     split_config: SplitConfig
     branches: list[BranchConfig]
+    seed: int | None = None
