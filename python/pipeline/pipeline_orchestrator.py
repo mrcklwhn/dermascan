@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 import gc
 import torch
+import mlflow
 
 from pipeline.dataclasses.pipeline_config import PipelineConfig
 from pipeline.dataclasses.pipeline_runtime import BranchResult
@@ -23,13 +24,12 @@ class PipelineOrchestrator:
 
     def __init__(
         self,
-        # pipeline_config_path: Path,
         pipeline_config: PipelineConfig,
         project_root_path: Path,
     ):
         self.pipeline_config = pipeline_config
-        # self.pipeline_config = self._load_config(pipeline_config_path, project_root_path / "data")
         self.pipeline_run_path = self._get_pipeline_output_path(self.pipeline_config.pipeline_id, project_root_path)
+        mlflow.set_tracking_uri(f"sqlite:///{project_root_path}/results/mlflow.db")
 
     def run(self) -> list[BranchResult]:
         """
@@ -40,34 +40,43 @@ class PipelineOrchestrator:
         print(f"Starting pipeline run: {self.pipeline_config.pipeline_id}")
         print(f"Pipeline run path: {self.pipeline_run_path}")
         print("-" * 10)
-        train_val_test_split = SplitProvider.get_split(
-            self.pipeline_config.data_path, self.pipeline_config.split_config
-        )
 
-        results = []
-        for branch_config in self.pipeline_config.branches:
-            data_loaders = DataLoaderFactory.build(
-                branch_config.dataset_loader,
-                branch_config.branch_model_config.filter_type,
-                train_val_test_split,
-                self.pipeline_config.data_path,
-                branch_config.trainer_config.batch_size,
-                branch_config.augmentation,
+        mlflow.set_experiment(self.pipeline_config.pipeline_id)
+        with mlflow.start_run(run_name=self.pipeline_config.pipeline_id):
+
+            train_val_test_split = SplitProvider.get_split(
+                self.pipeline_config.data_path, self.pipeline_config.split_config
             )
 
-            branch_runner = BranchRunner(branch_config, data_loaders, self.pipeline_run_path)
+            mlflow.log_params({
+                "split_type": self.pipeline_config.split_config.split_type.value,
+                "num_branches": len(self.pipeline_config.branches),
+            })
 
-            branch_result = branch_runner.run()
-            results.append(branch_result)
+            results = []
+            for branch_config in self.pipeline_config.branches:
+                data_loaders = DataLoaderFactory.build(
+                    branch_config.dataset_loader,
+                    branch_config.branch_model_config.filter_type,
+                    train_val_test_split,
+                    self.pipeline_config.data_path,
+                    branch_config.trainer_config.batch_size,
+                    branch_config.sampler_weights,
+                    branch_config.augmentation,
+                )
 
-            # Encourage timely cleanup between sequential branch runs.
-            del branch_runner
-            del data_loaders
-            gc.collect()
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
+                branch_runner = BranchRunner(branch_config, data_loaders, self.pipeline_run_path)
 
-        return results
+                branch_result = branch_runner.run()
+                results.append(branch_result)
+
+                del branch_runner
+                del data_loaders
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+
+            return results
 
     def _load_config(self, config_path: Path, data_path: Path) -> PipelineConfig:
         """
