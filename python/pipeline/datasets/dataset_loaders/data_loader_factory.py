@@ -69,7 +69,7 @@ class DataLoaderFactory:
             """
             dataset = DataLoaderFactory._build_dataset(dataset_loader_type, ids_df, filter_type, filtered_data_path, augmentations)
             # if sampler is True shuffle must be False
-            weighted_sampler = DataLoaderFactory._build_weighted_sampler(ids_df) if sampler and not shuffle else False
+            weighted_sampler = DataLoaderFactory._build_weighted_sampler(ids_df) if sampler and not shuffle else None
             return DataLoader(
                 dataset,
                 batch_size=batch_size,
