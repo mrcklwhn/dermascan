@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 class OnnxCutoutPage extends StatefulWidget {
   const OnnxCutoutPage({super.key});
 
-
   @override
   State<OnnxCutoutPage> createState() => _OnnxCutoutPageState();
 }
@@ -18,7 +17,13 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
   bool _isProcessing = false;
   bool _isInitialized = false;
   String _selectedModel = 'RGB';
-  final List<String> _models = ['RGB', 'Gabor', 'GLCM', 'SoftEnsemble', 'HardEnsemble'];
+  final List<String> _models = <String>[
+    'RGB',
+    'Gabor',
+    'GLCM',
+    'SoftEnsemble',
+    'HardEnsemble',
+  ];
 
   Uint8List? _selectedImageData;
   cv.Mat? _selectedImageMat;
@@ -47,7 +52,7 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
     if (image != null) {
       final Uint8List bytes = await image.readAsBytes();
       final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
-      
+
       setState(() {
         _selectedImageData = bytes;
         _selectedImageMat = mat;
@@ -66,14 +71,17 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
     });
 
     final LesionAnalysis lesion = LesionAnalysis(_selectedImageMat!);
-    await lesion.runLesionAnalysis(useNeuralModel: false, modelType: _selectedModel);
+    await lesion.runLesionAnalysis(
+      useNeuralModel: false,
+      modelType: _selectedModel,
+    );
 
     final cv.Mat rawMask = lesion.rawLesionMask;
     final cv.Mat cleanedMask = lesion.cleanedLesionMask;
-    
+
     final cv.Mat contourOverlay = lesion.getLesionContourOverlay();
     final cv.Mat concavityOverlay = lesion.getConcavityOverlay();
-    
+
     lesion.getAsymmetryScore();
     lesion.getBorderScore();
     lesion.getColorUniformityScore();
@@ -94,7 +102,8 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
       if (lesion.labelText != null) {
         classificationResults = <String, dynamic>{
           'Prediction': lesion.labelText,
-          'Confidence': '${(lesion.labelConfidence! * 100).toStringAsFixed(2)}%',
+          'Confidence':
+              '${(lesion.labelConfidence! * 100).toStringAsFixed(2)}%',
           'Class Index': lesion.labelIdx,
         };
       }
@@ -108,9 +117,7 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
   @override
   Widget build(BuildContext context) {
     if (!_isInitialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
       body: Padding(
@@ -125,7 +132,11 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
             if (_selectedImageData != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: Image.memory(_selectedImageData!, height: 200, fit: BoxFit.contain)
+                child: Image.memory(
+                  _selectedImageData!,
+                  height: 200,
+                  fit: BoxFit.contain,
+                ),
               ),
 
             // Display generated mask
@@ -184,11 +195,21 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
-                  onPressed: (_isProcessing || _selectedImageMat == null) ? null : _runInference,
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12)),
-                  child:
-                  _isProcessing
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.0))
+                  onPressed: (_isProcessing || _selectedImageMat == null)
+                      ? null
+                      : _runInference,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: _isProcessing
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2.0),
+                        )
                       : const Text('Predict', style: TextStyle(fontSize: 16)),
                 ),
               ],
@@ -203,16 +224,32 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
                         : ListView.builder(
                             itemCount: abcScores!.length,
                             itemBuilder: (BuildContext context, int index) {
-                              final String key = abcScores!.keys.elementAt(index);
+                              final String key = abcScores!.keys.elementAt(
+                                index,
+                              );
                               final double value = abcScores![key]!;
                               return Card(
-                                margin: const EdgeInsets.only(bottom: 8, right: 4),
+                                margin: const EdgeInsets.only(
+                                  bottom: 8,
+                                  right: 4,
+                                ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(12.0),
                                   child: Row(
                                     children: <Widget>[
-                                      Expanded(flex: 2, child: Text(key, style: const TextStyle(fontWeight: FontWeight.bold))),
-                                      Expanded(flex: 3, child: Text(value.toStringAsFixed(4))),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          key,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Text(value.toStringAsFixed(4)),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -221,21 +258,38 @@ class _OnnxCutoutPageState extends State<OnnxCutoutPage> {
                           ),
                   ),
                   Expanded(
-                    child: classificationResults == null || classificationResults!.isEmpty
+                    child:
+                        classificationResults == null ||
+                            classificationResults!.isEmpty
                         ? const Center(child: Text('Run prediction first'))
                         : ListView.builder(
                             itemCount: classificationResults!.length,
                             itemBuilder: (BuildContext context, int index) {
-                              final String key = classificationResults!.keys.elementAt(index);
+                              final String key = classificationResults!.keys
+                                  .elementAt(index);
                               final dynamic value = classificationResults![key];
                               return Card(
-                                margin: const EdgeInsets.only(bottom: 8, left: 4),
+                                margin: const EdgeInsets.only(
+                                  bottom: 8,
+                                  left: 4,
+                                ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(12.0),
                                   child: Row(
                                     children: <Widget>[
-                                      Expanded(flex: 2, child: Text(key, style: const TextStyle(fontWeight: FontWeight.bold))),
-                                      Expanded(flex: 3, child: Text(value.toString())),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          key,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Text(value.toString()),
+                                      ),
                                     ],
                                   ),
                                 ),

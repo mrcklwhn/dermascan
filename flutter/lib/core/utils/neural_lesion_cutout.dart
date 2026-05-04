@@ -9,7 +9,9 @@ class NeuralLesionCutout {
   OrtModelMetadata? _modelMetadata;
   final String modelPath;
 
-  NeuralLesionCutout({this.modelPath = 'assets/models/unet_lesion_cutout.onnx'});
+  NeuralLesionCutout({
+    this.modelPath = 'assets/models/unet_lesion_cutout.onnx',
+  });
 
   Future<void> initializeModel() async {
     _session ??= await OnnxRuntime().createSessionFromAsset(modelPath);
@@ -30,19 +32,22 @@ class NeuralLesionCutout {
 
     final Float32List inputData = preprocess(image);
 
-    final OrtValue inputTensor = await OrtValue.fromList(
-      inputData,
-      <int>[1, 3, 256, 256],
-    );
+    final OrtValue inputTensor = await OrtValue.fromList(inputData, <int>[
+      1,
+      3,
+      256,
+      256,
+    ]);
 
     final String inputName = _session!.inputNames.first;
     final String outputName = _session!.outputNames.first;
 
-    final Map<String, OrtValue> outputs = await _session!.run(<String, OrtValue>{
-      inputName: inputTensor,
-    });
+    final Map<String, OrtValue> outputs = await _session!.run(
+      <String, OrtValue>{inputName: inputTensor},
+    );
 
-    final List<double> maskScores = (await outputs[outputName]!.asFlattenedList()).cast<double>();
+    final List<double> maskScores =
+        (await outputs[outputName]!.asFlattenedList()).cast<double>();
 
     final cv.Mat rawMask = postprocess(maskScores);
 
@@ -56,15 +61,18 @@ class NeuralLesionCutout {
 
   static Float32List preprocess(cv.Mat image) {
     final cv.Mat rgbImage = cv.cvtColor(image, cv.COLOR_BGR2RGB);
-    final cv.Mat resized = cv.resize(rgbImage, (256, 256), interpolation: cv.INTER_NEAREST);
+    final cv.Mat resized = cv.resize(rgbImage, (
+      256,
+      256,
+    ), interpolation: cv.INTER_NEAREST);
     final Float32List tensor = Float32List(1 * 3 * 256 * 256);
     final Uint8List bytes = resized.data;
     for (int y = 0; y < 256; y++) {
       for (int x = 0; x < 256; x++) {
         final int index = (y * 256 + x) * 3;
-        tensor[0 * 256 * 256 + y * 256 + x] = bytes[index + 0] / 255.0; 
-        tensor[1 * 256 * 256 + y * 256 + x] = bytes[index + 1] / 255.0; 
-        tensor[2 * 256 * 256 + y * 256 + x] = bytes[index + 2] / 255.0; 
+        tensor[0 * 256 * 256 + y * 256 + x] = bytes[index + 0] / 255.0;
+        tensor[1 * 256 * 256 + y * 256 + x] = bytes[index + 1] / 255.0;
+        tensor[2 * 256 * 256 + y * 256 + x] = bytes[index + 2] / 255.0;
       }
     }
     return tensor;
