@@ -9,8 +9,8 @@ class AuthMiddleware extends GetMiddleware {
     final AuthService authService = Get.find<AuthService>();
 
     if (kDebugMode) {
-      print('[AUTH_MIDDLEWARE] Route Destination: $route');
-      print(
+      debugPrint('[AUTH_MIDDLEWARE] Route Destination: $route');
+      debugPrint(
         '[AUTH_MIDDLEWARE] AuthService status (userLoggedIn): ${authService.isLoggedIn}',
       );
     }
@@ -18,7 +18,7 @@ class AuthMiddleware extends GetMiddleware {
     if (!authService.isLoggedIn) {
       if (route != '/auth/login') {
         if (kDebugMode) {
-          print('[AUTH_MIDDLEWARE] Forbidden route! Redirecting to /auth');
+          debugPrint('[AUTH_MIDDLEWARE] Forbidden route! Redirecting to /auth');
         }
         return const RouteSettings(name: '/auth/login');
       }
@@ -27,7 +27,7 @@ class AuthMiddleware extends GetMiddleware {
     if (!authService.isInitialDataLoaded.value) {
       if (route != '/splash') {
         if (kDebugMode) {
-          print(
+          debugPrint(
             '[AUTH_MIDDLEWARE] Initial Data not loaded yet! Redirecting to /splash',
           );
         }

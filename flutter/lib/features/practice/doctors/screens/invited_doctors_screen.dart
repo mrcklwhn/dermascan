@@ -67,7 +67,7 @@ class InvitedDoctorsScreen extends GetView<InvitedDoctorsController> {
 
   Widget _buildDoctorList() {
     return Padding(
-      padding: AppTheme.scaffoldPadding.copyWith(top: 0),
+      padding: AppTheme.scaffoldPadding.copyWith(top: 0, bottom: 0),
       child: Column(
         children: <Widget>[
           SearchBar(
@@ -87,28 +87,31 @@ class InvitedDoctorsScreen extends GetView<InvitedDoctorsController> {
           const SizedBox(height: AppTheme.spaceMedium),
           Obx(
             () => Expanded(
-              child: ListView.separated(
+              child: ListView.builder(
                 controller: controller.listScrollController,
                 scrollDirection: Axis.vertical,
                 itemCount: controller.visibleDoctors.length,
-                separatorBuilder: (BuildContext context, int index) =>
-                    const SizedBox(height: AppTheme.spaceSmall),
                 itemBuilder: (BuildContext context, int index) {
                   final Doctor doctor = controller.visibleDoctors[index];
-                  return Card(
-                    child: ListTile(
-                      title: Text(doctor.name),
-                      leading: const Icon(Icons.person),
-                      trailing: const Icon(Icons.arrow_forward),
-                      subtitle: Text(
-                        'E-Mail: ${doctor.email}\nBorn on ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
+                  return Column(
+                    children: <Widget>[
+                      Card(
+                        child: ListTile(
+                          title: Text(doctor.name),
+                          leading: const Icon(Icons.person),
+                          trailing: const Icon(Icons.arrow_forward),
+                          subtitle: Text(
+                            'E-Mail: ${doctor.email}\nBorn on ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
+                          ),
+                          onTap: controller.isInitializing.value
+                              ? null
+                              : () => controller.showDoctorProfile(
+                                  doctorId: doctor.id,
+                                ),
+                        ),
                       ),
-                      onTap: controller.isInitializing.value
-                          ? null
-                          : () => controller.showDoctorProfile(
-                              doctorId: doctor.id,
-                            ),
-                    ),
+                      const SizedBox(height: AppTheme.spaceSmall),
+                    ],
                   );
                 },
               ),

@@ -13,9 +13,7 @@ class PatientsController extends GetxController {
   DBService dbService = Get.find<DBService>();
 
   ScrollController listScrollController = ScrollController();
-
   TextEditingController searchBarController = TextEditingController();
-
   FocusNode searchBarFocusNode = FocusNode();
 
   RxBool isInitializing = true.obs;
@@ -36,6 +34,17 @@ class PatientsController extends GetxController {
     unawaited(_initializeData());
   }
 
+  void _sortLists() {
+    patients.sort(
+      (Patient a, Patient b) =>
+          a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
+    visiblePatients.sort(
+      (Patient a, Patient b) =>
+          a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
+  }
+
   Future<void> _initializeData() async {
     try {
       await loadPatients();
@@ -51,15 +60,15 @@ class PatientsController extends GetxController {
   Future<void> loadPatients() async {
     final Practice? practiceOfDoctor = await dbService.checkDoctorHasPractice();
 
-    if (practiceOfDoctor == null) {
-      return;
-    }
+    if (practiceOfDoctor == null) return;
+
     final List<Patient> fetchedPatients = await dbService.fetchPatients(
       practiceId: practiceOfDoctor.id,
     );
 
     patients.assignAll(fetchedPatients);
     visiblePatients.assignAll(fetchedPatients);
+    _sortLists();
   }
 
   void filterPatients({required String query}) {
@@ -71,6 +80,7 @@ class PatientsController extends GetxController {
       );
       visiblePatients.assignAll(filtered);
     }
+    _sortLists();
   }
 
   void unfocusSearchBar() {
@@ -79,17 +89,27 @@ class PatientsController extends GetxController {
 
   void clearSearchBar() {
     searchBarController.clear();
-    filterPatients(query: searchBarController.value.text);
+    filterPatients(query: '');
   }
 
   void addNewPatient({required Patient newPatient}) {
     patients.add(newPatient);
     visiblePatients.add(newPatient);
+    _sortLists();
   }
 
-  void removePatient({required String patientId}) {
-    patients.removeWhere((Patient part) => part.id == patientId);
-    visiblePatients.removeWhere((Patient part) => part.id == patientId);
+  void editPatient({required Patient patient}) {
+    final int index = patients.indexWhere((Patient p) => p.id == patient.id);
+    if (index != -1) {
+      patients[index] = patient;
+    }
+    final int visibleIndex = visiblePatients.indexWhere(
+      (Patient p) => p.id == patient.id,
+    );
+    if (visibleIndex != -1) {
+      visiblePatients[visibleIndex] = patient;
+    }
+    _sortLists();
   }
 
   Future<void> openAddNewPatientScreen() async {
@@ -112,7 +132,7 @@ class PatientsController extends GetxController {
       '/doctor/patient-details',
       arguments: <String, Object>{
         'patient': selectedPatient,
-        'removePatient': removePatient,
+        'editPatient': editPatient,
       },
     );
   }

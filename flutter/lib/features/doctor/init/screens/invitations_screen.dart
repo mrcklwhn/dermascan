@@ -67,7 +67,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
 
   Widget _buildInvitationList(BuildContext context) {
     return Padding(
-      padding: AppTheme.scaffoldPadding.copyWith(top: 0),
+      padding: AppTheme.scaffoldPadding.copyWith(top: 0, bottom: 0),
       child: Column(
         children: <Widget>[
           SearchBar(
@@ -87,31 +87,35 @@ class InvitationsScreen extends GetView<InvitationsController> {
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Expanded(
-            child: ListView.separated(
+            child: ListView.builder(
               controller: controller.listScrollController,
               scrollDirection: Axis.vertical,
               itemCount: controller.visiblePendingInvitations.length,
-              separatorBuilder: (BuildContext context, int index) =>
-                  const SizedBox(height: AppTheme.spaceSmall),
               itemBuilder: (BuildContext context, int index) {
                 final PracticeInvitation invitation =
                     controller.visiblePendingInvitations[index];
-                return Card(
-                  child: ListTile(
-                    title: Text(invitation.practice.name),
-                    leading: const Icon(Icons.local_hospital),
-                    trailing: const Icon(Icons.arrow_forward),
-                    subtitle: Text(
-                      'Invited on ${DateFormat.yMMMd().format(invitation.createdAt)} at ${DateFormat.Hm().format(invitation.createdAt)}',
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Card(
+                      child: ListTile(
+                        title: Text(invitation.practice.name),
+                        leading: const Icon(Icons.local_hospital),
+                        trailing: const Icon(Icons.arrow_forward),
+                        subtitle: Text(
+                          'Invited on ${DateFormat.yMMMd().format(invitation.createdAt)} at ${DateFormat.Hm().format(invitation.createdAt)}',
+                        ),
+                        onTap: () =>
+                            controller.isLoading.value ||
+                                controller.isInitializing.value
+                            ? null
+                            : controller.showPracticeJoinDialog(
+                                practiceId: invitation.practice.id,
+                              ),
+                      ),
                     ),
-                    onTap: () =>
-                        controller.isLoading.value ||
-                            controller.isInitializing.value
-                        ? null
-                        : controller.showPracticeJoinDialog(
-                            practiceId: invitation.practice.id,
-                          ),
-                  ),
+                    const SizedBox(height: AppTheme.spaceSmall),
+                  ],
                 );
               },
             ),

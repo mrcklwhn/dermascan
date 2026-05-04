@@ -1,0 +1,235 @@
+import 'dart:typed_data';
+
+import 'package:dermascan/app/app_theme.dart';
+import 'package:dermascan/core/models/body_lesion.dart';
+import 'package:dermascan/core/models/country.dart';
+import 'package:dermascan/core/models/diagnosis.dart';
+import 'package:dermascan/core/models/patient.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
+class PatientInfoBottomSheetController extends GetxController {
+  final List<BodyLesion> lesions;
+  final ScrollController listScrollController = ScrollController();
+
+  PatientInfoBottomSheetController({required this.lesions});
+
+  List<({Diagnosis diagnosis, String location})> get latestDiagnoses {
+    return lesions
+        .expand(
+          (BodyLesion lesion) => lesion.diagnoses.map(
+            (Diagnosis diagnosis) =>
+                (diagnosis: diagnosis, location: lesion.location),
+          ),
+        )
+        .toList()
+      ..sort(
+        (
+          ({Diagnosis diagnosis, String location}) a,
+          ({Diagnosis diagnosis, String location}) b,
+        ) => b.diagnosis.date.compareTo(a.diagnosis.date),
+      );
+  }
+
+  List<({Diagnosis diagnosis, String location})> get top5Diagnoses =>
+      latestDiagnoses.take(5).toList();
+
+  @override
+  void onClose() {
+    listScrollController.dispose();
+    super.onClose();
+  }
+}
+
+class PatientInfoBottomSheet extends StatelessWidget {
+  final List<BodyLesion> lesions;
+  final Patient patient;
+  final VoidCallback openEditPatientPage;
+  final Function({required String bodyPartId, bool fromInfoSheet})
+  openDiagnosisDialog;
+
+  const PatientInfoBottomSheet({
+    super.key,
+    required this.lesions,
+    required this.patient,
+    required this.openEditPatientPage,
+    required this.openDiagnosisDialog,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final PatientInfoBottomSheetController controller = Get.put(
+      PatientInfoBottomSheetController(lesions: lesions),
+    );
+
+    return Container(
+      height: MediaQuery.sizeOf(context).height * 0.7,
+      padding: AppTheme.scaffoldPadding.copyWith(top: 0, bottom: 0),
+      decoration: const BoxDecoration(
+        color: AppTheme.highlightColor,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppTheme.radiusLarge),
+        ),
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: AppTheme.spaceMedium),
+            width: 32,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSecondaryFixedVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              controller: controller.listScrollController,
+              children: <Widget>[
+                Card(
+                  color: AppTheme.scaffoldBg,
+                  child: ListTile(
+                    title: Text(
+                      patient.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    leading: const Icon(Icons.person),
+                    trailing: const Icon(Icons.arrow_forward),
+                    subtitle: Text(
+                      'Birthday: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}\n'
+                      'Country: ${allCountries.firstWhereOrNull((Country c) => c.isoCode == patient.birthCountry)?.name ?? ''}\n'
+                      'Gender: ${patient.gender.name.capitalizeFirst}',
+                    ),
+                    onTap: () {
+                      Get.back();
+                      openEditPatientPage();
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: AppTheme.spaceMedium),
+                if (patient.previousSunburns ||
+                    patient.previousSkinSurgeries ||
+                    patient.tanningBedExposure) ...<Widget>[
+                  Text(
+                    'Medical History',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: AppTheme.spaceSmall),
+
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: <Widget>[
+                        _buildHistoryChip(
+                          'Sunburn History',
+                          patient.previousSunburns,
+                        ),
+                        _buildHistoryChip(
+                          'Skin Surgery',
+                          patient.previousSkinSurgeries,
+                        ),
+                        _buildHistoryChip(
+                          'Tanning Bed Use',
+                          patient.tanningBedExposure,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spaceMedium),
+                ],
+                Text(
+                  'Timeline (Latest Diagnoses)',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: AppTheme.spaceSmall),
+
+                Obx(() {
+                  final List<({Diagnosis diagnosis, String location})>
+                  diagnoses = controller.top5Diagnoses;
+                  if (diagnoses.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(AppTheme.spaceMedium),
+                      child: Center(child: Text('No Diagnosis available!')),
+                    );
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: diagnoses.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final ({Diagnosis diagnosis, String location}) item =
+                          diagnoses[index];
+
+                      final Uint8List bytes =
+                          item.diagnosis.analyzedImages!['original']!;
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Card(
+                            color: AppTheme.scaffoldBg,
+                            child: ListTile(
+                              title: const Text('Diagnosis'),
+                              leading: AspectRatio(
+                                aspectRatio: 1.0,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusSmall,
+                                  ),
+                                  child: Image(
+                                    image: MemoryImage(bytes),
+                                    fit: BoxFit.cover,
+                                    gaplessPlayback: true,
+                                    errorBuilder:
+                                        (
+                                          BuildContext context,
+                                          Object error,
+                                          StackTrace? stackTrace,
+                                        ) => const Icon(Icons.broken_image),
+                                  ),
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Location: ${item.location}\n'
+                                'Date: ${DateFormat('dd.MM.yyyy').format(item.diagnosis.date)}',
+                              ),
+                              onTap: () {
+                                Get.back();
+                                openDiagnosisDialog(
+                                  bodyPartId: item.location,
+                                  fromInfoSheet: true,
+                                );
+                              },
+                              trailing: const Icon(Icons.arrow_forward),
+                            ),
+                          ),
+                          const SizedBox(height: AppTheme.spaceSmall),
+                        ],
+                      );
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryChip(String title, bool visible) {
+    if (!visible) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Chip(
+        label: Text(title),
+        avatar: const Icon(Icons.check, size: 16),
+        backgroundColor: AppTheme.scaffoldBg,
+        side: BorderSide.none,
+      ),
+    );
+  }
+}

@@ -9,15 +9,17 @@ class DoctorMiddleware extends GetMiddleware {
     final AuthService authService = Get.find<AuthService>();
 
     if (kDebugMode) {
-      print('[DOCTOR_MIDDLEWARE] Route Destination: $route');
-      print(
+      debugPrint('[DOCTOR_MIDDLEWARE] Route Destination: $route');
+      debugPrint(
         '[DOCTOR_MIDDLEWARE] AuthService status (userLoggedIn): ${authService.isLoggedIn}',
       );
     }
     if (!authService.isLoggedIn) {
       if (route != '/auth/login') {
         if (kDebugMode) {
-          print('[DOCTOR_MIDDLEWARE] Forbidden route! Redirecting to /auth');
+          debugPrint(
+            '[DOCTOR_MIDDLEWARE] Forbidden route! Redirecting to /auth',
+          );
         }
         return const RouteSettings(name: '/auth/login');
       }
@@ -27,7 +29,7 @@ class DoctorMiddleware extends GetMiddleware {
           route != '/doctor/invitations' &&
           route != '/doctor/practice-details') {
         if (kDebugMode) {
-          print(
+          debugPrint(
             '[DOCTOR_MIDDLEWARE] Forbidden route! Redirecting to /doctor/init',
           );
         }

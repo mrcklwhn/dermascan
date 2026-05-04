@@ -19,6 +19,7 @@ class CustomTextField extends StatelessWidget {
   final String labelText;
   final TextInputType textInputType;
   final List<CheckCriteria>? checkCriteria;
+  final Color? backgroundColor;
 
   const CustomTextField({
     super.key,
@@ -29,6 +30,7 @@ class CustomTextField extends StatelessWidget {
     required this.prefixIcon,
     required this.textInputType,
     this.checkCriteria,
+    this.backgroundColor,
   });
 
   @override
@@ -55,6 +57,7 @@ class CustomTextField extends StatelessWidget {
             onSubmitted: onSubmitted,
             onTapOutside: (_) => focusNode.unfocus(),
             decoration: InputDecoration(
+              fillColor: backgroundColor,
               labelText: labelText,
               prefixIcon: Icon(prefixIcon),
               suffixIcon: isPasswordField
