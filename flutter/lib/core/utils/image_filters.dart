@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
+
 import 'package:dartcv4/dartcv.dart' as cv;
 
 class ImageFilters {
@@ -19,7 +20,7 @@ class ImageFilters {
     double globalMin = double.infinity;
     double globalMax = -double.infinity;
 
-    List<cv.Mat> responses = <cv.Mat>[];
+    final List<cv.Mat> responses = <cv.Mat>[];
 
     for (final _ComplexKernelMat kernel in _gaborKernelMats!) {
       final cv.Mat filteredReal = cv.filter2D(
@@ -122,7 +123,7 @@ class ImageFilters {
     final int nChannels = properties.length * angles.length * distances.length;
     final List<Float64List> featMaps = List<Float64List>.generate(
       nChannels,
-          (_) => Float64List(gh * gw),
+      (_) => Float64List(gh * gw),
     );
 
     int iy = 0;
@@ -173,7 +174,13 @@ class ImageFilters {
     double globalMax = -double.infinity;
 
     for (int ch = 0; ch < nChannels; ch++) {
-      final Float64List fullRes = _resizeBilinear(featMaps[ch], gh, gw, rows, cols);
+      final Float64List fullRes = _resizeBilinear(
+        featMaps[ch],
+        gh,
+        gw,
+        rows,
+        cols,
+      );
       upsampledChannels.add(fullRes);
 
       for (int i = 0; i < pixels; i++) {
@@ -193,7 +200,8 @@ class ImageFilters {
     int writeIdx = 0;
     for (final Float64List channel in upsampledChannels) {
       for (int i = 0; i < pixels; i++) {
-        glcmNormalized[writeIdx++] = ((channel[i] - globalMin) / denom).toDouble();
+        glcmNormalized[writeIdx++] = ((channel[i] - globalMin) / denom)
+            .toDouble();
       }
     }
 
@@ -224,13 +232,15 @@ class ImageFilters {
     final List<double> frequencies = <double>[0.05, 0.1, 0.2, 0.3, 0.4];
     final List<double> thetas = List<double>.generate(
       8,
-          (int i) => i * (math.pi / 8.0),
+      (int i) => i * (math.pi / 8.0),
     );
 
     final List<_ComplexKernel> kernels = <_ComplexKernel>[];
     for (final double freq in frequencies) {
       for (final double theta in thetas) {
-        kernels.add(_buildGaborKernelSkimageCompatible(frequency: freq, theta: theta));
+        kernels.add(
+          _buildGaborKernelSkimageCompatible(frequency: freq, theta: theta),
+        );
       }
     }
     return kernels;
@@ -240,9 +250,19 @@ class ImageFilters {
     _gaborKernels ??= _buildDefaultGaborKernels();
     return _gaborKernels!
         .map(
-          (kernel) => _ComplexKernelMat(
-            cv.Mat.fromList(kernel.height, kernel.width, cv.MatType.CV_32FC1, kernel.real),
-            cv.Mat.fromList(kernel.height, kernel.width, cv.MatType.CV_32FC1, kernel.imag),
+          (_ComplexKernel kernel) => _ComplexKernelMat(
+            cv.Mat.fromList(
+              kernel.height,
+              kernel.width,
+              cv.MatType.CV_32FC1,
+              kernel.real,
+            ),
+            cv.Mat.fromList(
+              kernel.height,
+              kernel.width,
+              cv.MatType.CV_32FC1,
+              kernel.imag,
+            ),
           ),
         )
         .toList(growable: false);
@@ -321,50 +341,8 @@ class ImageFilters {
     final double b = bandwidth;
     return (1.0 / math.pi) *
         math.sqrt(math.log(2.0) / 2.0) *
-        (((math.pow(2.0, b) as double) + 1.0) / ((math.pow(2.0, b) as double) - 1.0));
-  }
-
-  static Float64List _convolveSameZeroPad(
-    Float64List image,
-    int rows,
-    int cols,
-    Float64List kernel,
-    int kernelHeight,
-    int kernelWidth,
-  ) {
-    final Float64List flipped = Float64List(kernel.length);
-    for (int ky = 0; ky < kernelHeight; ky++) {
-      for (int kx = 0; kx < kernelWidth; kx++) {
-        flipped[ky * kernelWidth + kx] =
-        kernel[(kernelHeight - 1 - ky) * kernelWidth + (kernelWidth - 1 - kx)];
-      }
-    }
-
-    final Float64List out = Float64List(rows * cols);
-    final int cy = kernelHeight ~/ 2;
-    final int cx = kernelWidth ~/ 2;
-
-    for (int y = 0; y < rows; y++) {
-      for (int x = 0; x < cols; x++) {
-        double acc = 0.0;
-        for (int ky = 0; ky < kernelHeight; ky++) {
-          final int iy = y + ky - cy;
-          if (iy < 0 || iy >= rows) {
-            continue;
-          }
-          for (int kx = 0; kx < kernelWidth; kx++) {
-            final int ix = x + kx - cx;
-            if (ix < 0 || ix >= cols) {
-              continue;
-            }
-            acc += image[iy * cols + ix] * flipped[ky * kernelWidth + kx];
-          }
-        }
-        out[y * cols + x] = acc;
-      }
-    }
-
-    return out;
+        (((math.pow(2.0, b) as double) + 1.0) /
+            ((math.pow(2.0, b) as double) - 1.0));
   }
 
   static int _roundHalfAwayFromZero(double value) {
@@ -375,15 +353,15 @@ class ImageFilters {
   }
 
   static Float64List _graycomatrixSkimageCompatible(
-      Uint8List image,
-      int rows,
-      int cols,
-      List<double> distances,
-      List<double> angles,
-      int levels, {
-        bool symmetric = false,
-        bool normed = false,
-      }) {
+    Uint8List image,
+    int rows,
+    int cols,
+    List<double> distances,
+    List<double> angles,
+    int levels, {
+    bool symmetric = false,
+    bool normed = false,
+  }) {
     final int numDist = distances.length;
     final int numAngle = angles.length;
     Float64List out = Float64List(levels * levels * numDist * numAngle);
@@ -392,8 +370,12 @@ class ImageFilters {
       final double angle = angles[aIdx];
       for (int dIdx = 0; dIdx < numDist; dIdx++) {
         final double distance = distances[dIdx];
-        final int offsetRow = _roundHalfAwayFromZero(math.sin(angle) * distance);
-        final int offsetCol = _roundHalfAwayFromZero(math.cos(angle) * distance);
+        final int offsetRow = _roundHalfAwayFromZero(
+          math.sin(angle) * distance,
+        );
+        final int offsetCol = _roundHalfAwayFromZero(
+          math.cos(angle) * distance,
+        );
 
         final int startRow = math.max(0, -offsetRow);
         final int endRow = math.min(rows, rows - offsetRow);
@@ -415,7 +397,15 @@ class ImageFilters {
               continue;
             }
 
-            final int idx = _glcmIndex(src, dst, dIdx, aIdx, levels, numDist, numAngle);
+            final int idx = _glcmIndex(
+              src,
+              dst,
+              dIdx,
+              aIdx,
+              levels,
+              numDist,
+              numAngle,
+            );
             out[idx] += 1.0;
           }
         }
@@ -429,7 +419,15 @@ class ImageFilters {
           for (int d = 0; d < numDist; d++) {
             for (int a = 0; a < numAngle; a++) {
               final int idx = _glcmIndex(i, j, d, a, levels, numDist, numAngle);
-              final int tIdx = _glcmIndex(j, i, d, a, levels, numDist, numAngle);
+              final int tIdx = _glcmIndex(
+                j,
+                i,
+                d,
+                a,
+                levels,
+                numDist,
+                numAngle,
+              );
               sym[idx] = out[idx] + out[tIdx];
             }
           }
@@ -465,12 +463,12 @@ class ImageFilters {
   }
 
   static Float64List _graycopropsSkimageCompatible(
-      Float64List p,
-      int numLevel,
-      int numDist,
-      int numAngle,
-      String prop,
-      ) {
+    Float64List p,
+    int numLevel,
+    int numDist,
+    int numAngle,
+    String prop,
+  ) {
     final Set<String> supported = <String>{
       'contrast',
       'dissimilarity',
@@ -521,7 +519,8 @@ class ImageFilters {
           double asm = 0.0;
           for (int i = 0; i < numLevel; i++) {
             for (int j = 0; j < numLevel; j++) {
-              final double v = pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
+              final double v =
+                  pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
               asm += v * v;
             }
           }
@@ -533,7 +532,8 @@ class ImageFilters {
           double mean = 0.0;
           for (int i = 0; i < numLevel; i++) {
             for (int j = 0; j < numLevel; j++) {
-              mean += i * pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
+              mean +=
+                  i * pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
             }
           }
 
@@ -545,7 +545,9 @@ class ImageFilters {
               final double di = i - mean;
               final double di2 = di * di;
               for (int j = 0; j < numLevel; j++) {
-                variance += pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)] * di2;
+                variance +=
+                    pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)] *
+                    di2;
               }
             }
             results[outIdx] = prop == 'std' ? math.sqrt(variance) : variance;
@@ -557,7 +559,8 @@ class ImageFilters {
           double entropy = 0.0;
           for (int i = 0; i < numLevel; i++) {
             for (int j = 0; j < numLevel; j++) {
-              final double v = pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
+              final double v =
+                  pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
               if (v != 0.0) {
                 entropy += v * (-math.log(v));
               }
@@ -572,7 +575,8 @@ class ImageFilters {
           double meanJ = 0.0;
           for (int i = 0; i < numLevel; i++) {
             for (int j = 0; j < numLevel; j++) {
-              final double v = pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
+              final double v =
+                  pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
               meanI += i * v;
               meanJ += j * v;
             }
@@ -585,7 +589,8 @@ class ImageFilters {
             final double di = i - meanI;
             for (int j = 0; j < numLevel; j++) {
               final double dj = j - meanJ;
-              final double v = pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
+              final double v =
+                  pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
               stdI += v * di * di;
               stdJ += v * dj * dj;
               cov += v * di * dj;
@@ -606,7 +611,8 @@ class ImageFilters {
         double acc = 0.0;
         for (int i = 0; i < numLevel; i++) {
           for (int j = 0; j < numLevel; j++) {
-            final double v = pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
+            final double v =
+                pn[_glcmIndex(i, j, d, a, numLevel, numDist, numAngle)];
             final int diff = i - j;
             if (prop == 'contrast') {
               acc += v * diff * diff;
@@ -625,14 +631,14 @@ class ImageFilters {
   }
 
   static int _glcmIndex(
-      int i,
-      int j,
-      int d,
-      int a,
-      int levels,
-      int numDist,
-      int numAngle,
-      ) {
+    int i,
+    int j,
+    int d,
+    int a,
+    int levels,
+    int numDist,
+    int numAngle,
+  ) {
     return (((i * levels) + j) * numDist + d) * numAngle + a;
   }
 
@@ -674,12 +680,12 @@ class ImageFilters {
   }
 
   static Float64List _resizeBilinear(
-      Float64List src,
-      int srcRows,
-      int srcCols,
-      int dstRows,
-      int dstCols,
-      ) {
+    Float64List src,
+    int srcRows,
+    int srcCols,
+    int dstRows,
+    int dstCols,
+  ) {
     final Float64List dst = Float64List(dstRows * dstCols);
     if (srcRows == 0 || srcCols == 0 || dstRows == 0 || dstCols == 0) {
       return dst;

@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dermascan/app/constants.dart';
+import 'package:dermascan/core/models/body_lesion.dart';
+import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/invitation.dart';
 import 'package:dermascan/core/models/patient.dart';
@@ -13,6 +16,212 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DBService extends GetxService {
   AuthService authService = Get.find<AuthService>();
+
+  Future<String?> uploadFile({
+    required String bucket,
+    required String storagePath,
+    required File file,
+    required String mimeType,
+  }) async {
+    try {
+      final String filePath = await authService.supabaseClient.storage
+          .from(bucket)
+          .upload(
+            storagePath,
+            file,
+            fileOptions: FileOptions(contentType: mimeType),
+          );
+      return filePath;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<Uint8List?> downloadFile({required String filePath}) async {
+    try {
+      final List<String> segments = filePath.split('/');
+
+      final String bucket = segments[0];
+
+      final String storagePath = segments.sublist(1).join('/');
+
+      return await authService.supabaseClient.storage
+          .from(bucket)
+          .download(storagePath);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<bool> deleteFile({
+    required String bucket,
+    required String storagePath,
+  }) async {
+    try {
+      final List<FileObject> deletedFiles = await authService
+          .supabaseClient
+          .storage
+          .from(bucket)
+          .remove(<String>[storagePath]);
+      if (deletedFiles.isEmpty) {
+        if (kDebugMode) {
+          debugPrint('Error: File not found or no permissions.');
+        }
+        return false;
+      }
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return false;
+    }
+  }
+
+  Future<Diagnosis?> createDiagnosis({required Diagnosis diagnosis}) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'create-diagnosis',
+            body: <String, dynamic>{
+              'date': diagnosis.date.toUtc().toIso8601String(),
+              'id': diagnosis.id,
+              'imagePath': diagnosis.imagePath,
+              'doctorId': diagnosis.doctorId,
+              'lesionId': diagnosis.lesionId,
+              'aScore': diagnosis.aScore,
+              'bScore': diagnosis.bScore,
+              'cScore': diagnosis.cScore,
+              'cutoutType': diagnosis.cutoutType?.name,
+              'prediction': diagnosis.prediction?.index,
+              'confidence': diagnosis.confidence,
+            },
+          );
+
+      if (response.status == 201) {
+        if (response.data != null) {
+          final Map<String, dynamic> responseMap = response.data;
+          responseMap.addAll(<String, dynamic>{
+            'analyzedImages': <String, Uint8List?>{
+              'original': await downloadFile(filePath: diagnosis.imagePath),
+            },
+          });
+          return Diagnosis.fromJson(responseMap);
+        }
+      } else {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return null;
+      }
+      return null;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<bool> deleteDiagnosis({required String diagnosisId}) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'delete-diagnosis',
+            body: <String, String?>{'id': diagnosisId},
+          );
+
+      if (response.status != 200) {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return false;
+      }
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return false;
+    }
+  }
+
+  Future<bool> updateLesion({
+    required String lesionId,
+    required bool suspicious,
+  }) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'update-lesion',
+            body: <String, dynamic>{
+              'lesionId': lesionId,
+              'suspicious': suspicious,
+            },
+          );
+
+      if (response.status != 200) {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return false;
+      }
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return false;
+    }
+  }
+
+  Future<BodyLesion?> createLesion({
+    required String patientId,
+    required String location,
+  }) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'create-lesion',
+            body: <String, String?>{
+              'patientId': patientId,
+              'location': location,
+            },
+          );
+
+      if (response.status == 201) {
+        if (response.data != null) {
+          final Map<String, dynamic> responseMap = response.data;
+          return BodyLesion.fromJson(responseMap);
+        }
+      } else {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return null;
+      }
+      return null;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return null;
+    }
+  }
 
   Future<bool> acceptPracticeInvitation({required String practiceId}) async {
     try {
@@ -111,9 +320,13 @@ class DBService extends GetxService {
   Future<Patient?> createPatientProfile({
     required String practiceId,
     required String name,
-    required DateTime? dateOfBirth,
-    required String? gender,
-    required String email,
+    required DateTime dateOfBirth,
+    required String gender,
+    required bool tanningBedExposure,
+    required bool previousSkinSurgeries,
+    required bool previousSunburns,
+    required String birthCountry,
+    required String currentCountry,
   }) async {
     try {
       final FunctionResponse response = await authService
@@ -121,16 +334,69 @@ class DBService extends GetxService {
           .functions
           .invoke(
             'create-patient',
-            body: <String, String?>{
+            body: <String, dynamic>{
               'practiceId': practiceId,
               'name': name,
-              'dateOfBirth': dateOfBirth?.toIso8601String().split('T').first,
+              'dateOfBirth': dateOfBirth.toIso8601String().split('T').first,
               'gender': gender,
-              'email': email,
+              'tanningBedExposure': tanningBedExposure,
+              'previousSkinSurgeries': previousSkinSurgeries,
+              'previousSunburns': previousSunburns,
+              'birthCountry': birthCountry,
+              'currentCountry': currentCountry,
             },
           );
 
       if (response.status == 201) {
+        final Map<String, dynamic> responseMap = response.data;
+        return Patient.fromJson(responseMap);
+      } else {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return null;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<Patient?> updatePatientProfile({
+    required String patientId,
+    required String practiceId,
+    required String name,
+    required DateTime dateOfBirth,
+    required String gender,
+    required bool tanningBedExposure,
+    required bool previousSkinSurgeries,
+    required bool previousSunburns,
+    required String birthCountry,
+    required String currentCountry,
+  }) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'update-patient',
+            body: <String, dynamic>{
+              'id': patientId,
+              'practiceId': practiceId,
+              'name': name,
+              'dateOfBirth': dateOfBirth.toIso8601String().split('T').first,
+              'gender': gender,
+              'tanningBedExposure': tanningBedExposure,
+              'previousSkinSurgeries': previousSkinSurgeries,
+              'previousSunburns': previousSunburns,
+              'birthCountry': birthCountry,
+              'currentCountry': currentCountry,
+            },
+          );
+
+      if (response.status == 200) {
         final Map<String, dynamic> responseMap = response.data;
         return Patient.fromJson(responseMap);
       } else {
@@ -220,6 +486,57 @@ class DBService extends GetxService {
         debugPrint('Error: $e');
       }
       return <Doctor>[];
+    }
+  }
+
+  Future<List<BodyLesion>> fetchLesions({required String? patientId}) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'fetch-patient-lesions',
+            body: <String, String?>{'patientId': patientId},
+          );
+
+      if (response.status == 200) {
+        final List<dynamic> responseList = response.data;
+        final List<BodyLesion> parsedLesions = <BodyLesion>[];
+
+        for (final dynamic item in responseList) {
+          final Map<String, dynamic> lesionMap = item as Map<String, dynamic>;
+
+          final List<dynamic> diagnosesList =
+              (lesionMap['diagnoses'] as List<dynamic>?) ?? <dynamic>[];
+
+          for (final dynamic diagnosisItem in diagnosesList) {
+            final Map<String, dynamic> diagnosisMap =
+                diagnosisItem as Map<String, dynamic>;
+
+            final String? imagePath = diagnosisMap['imagePath'] as String?;
+
+            if (imagePath != null && imagePath.isNotEmpty) {
+              diagnosisMap['analyzedImages'] = <String, Uint8List?>{
+                'original': await downloadFile(filePath: imagePath),
+              };
+            }
+          }
+
+          parsedLesions.add(BodyLesion.fromJson(lesionMap));
+        }
+
+        return parsedLesions;
+      } else {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return <BodyLesion>[];
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return <BodyLesion>[];
     }
   }
 
