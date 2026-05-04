@@ -1,8 +1,10 @@
 import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/models/country.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/widgets/custom_bottom_sheets/country_selector_bottom_sheet.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,14 +17,22 @@ class AddPatientController extends GetxController {
   ScrollController scrollController = ScrollController();
 
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
   final TextEditingController birthdayController = TextEditingController();
+  final TextEditingController currentCountryTextController =
+      TextEditingController();
+  final TextEditingController birthCountryTextController =
+      TextEditingController();
 
   final FocusNode nameFocusNode = FocusNode();
   final FocusNode emailFocusNode = FocusNode();
 
   RxBool isLoading = false.obs;
-  RxBool isValidEmail = false.obs;
+  RxBool tanningBedExposure = false.obs;
+  RxBool previousSkinSurgeries = false.obs;
+  RxBool previousSunburns = false.obs;
+
+  String? currentCountry;
+  String? birthCountry;
 
   DateTime? dateOfBirth;
 
@@ -34,19 +44,10 @@ class AddPatientController extends GetxController {
   void onClose() {
     scrollController.dispose();
     nameController.dispose();
-    emailController.dispose();
     birthdayController.dispose();
+    currentCountryTextController.dispose();
+    birthCountryTextController.dispose();
     super.onClose();
-  }
-
-  @override
-  void onInit() {
-    super.onInit();
-    emailController.addListener(() {
-      isValidEmail.value = RegExp(
-        r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-      ).hasMatch(emailController.text);
-    });
   }
 
   Future<void> selectDate(BuildContext context) async {
@@ -67,30 +68,40 @@ class AddPatientController extends GetxController {
     nameFocusNode.unfocus();
   }
 
+  Future<void> showCountryBottomSheet({
+    required BuildContext context,
+    required bool isBirthCountry,
+  }) async {
+    await Get.bottomSheet(
+      CountrySelectorBottomSheet(
+        onCountrySelected: (Country country) {
+          if (isBirthCountry) {
+            birthCountry = country.isoCode;
+            birthCountryTextController.text = country.name;
+          } else {
+            currentCountry = country.isoCode;
+            currentCountryTextController.text = country.name;
+          }
+        },
+      ),
+      isScrollControlled: true,
+    );
+  }
+
   Future<void> submitPatientData() async {
     if (isLoading.value) return;
 
     if (selectedGender == null ||
         nameController.text.trim().isEmpty ||
         dateOfBirth == null ||
-        emailController.text.trim().isEmpty) {
+        birthCountry == null ||
+        currentCountry == null) {
       Get.showSnackbar(
         CustomSnackBar(
           icon: Icons.error,
           title: 'Missing Information',
           message:
               'Please fill in all required fields to create a patient profile.',
-        ),
-      );
-      return;
-    }
-
-    if (!isValidEmail.value) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Invalid E-Mail',
-          message: 'Your e-mail is not formatted correctly.',
         ),
       );
       return;
@@ -130,9 +141,13 @@ class AddPatientController extends GetxController {
       final Patient? createdPatient = await dbService.createPatientProfile(
         name: nameController.text.trim(),
         gender: selectedGender!.name,
-        dateOfBirth: dateOfBirth,
-        email: emailController.text.trim(),
+        dateOfBirth: dateOfBirth!,
+        birthCountry: birthCountry!,
+        currentCountry: currentCountry!,
         practiceId: practiceOfDoctor.id,
+        tanningBedExposure: tanningBedExposure.value,
+        previousSkinSurgeries: previousSkinSurgeries.value,
+        previousSunburns: previousSunburns.value,
       );
 
       if (createdPatient != null) {

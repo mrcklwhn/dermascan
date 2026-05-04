@@ -11,6 +11,8 @@ from pipeline.dataclasses.pipeline_config import TrainerConfig, OptimizerConfig,
 from pipeline.dataclasses.pipeline_runtime import EvalResult, TrainingHistory
 from pipeline.dataclasses.enums import OptimizerType, SchedulerType
 
+from pipeline.utils.mlflow_logger import MLFlowLogger
+
 
 class Trainer:
     """
@@ -56,8 +58,6 @@ class Trainer:
         val_f1_macro = []
         best_f1_macro = 0.0
 
-        # Use a temporary directory to save the best model during training,
-        # then copy it to the final destination at the end
         with TemporaryDirectory() as temp_dir:
             temp_best_model_path = Path(temp_dir) / "best_model.pt"
 
@@ -68,19 +68,19 @@ class Trainer:
 
                 val_f1_macro.append(epoch_val_f1)
 
-                # epoch_bar.set_postfix(
-                #         train_loss=f"{epoch_train_loss:.4f}",
-                #         train_acc=f"{epoch_train_acc:.4f}",
-                #         val_loss=f"{epoch_val_loss:.4f}",
-                #         val_acc=f"{epoch_val_acc:.4f}",
-                #         val_f1=f"{epoch_val_f1:.4f}"
-                #     )
-
                 tqdm.write(
                     f"Epoch {epoch + 1}/{epochs} - "
                     f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
                     f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}, Val F1 Macro: {epoch_val_f1:.4f}"
                 )
+                
+                MLFlowLogger.log_epoch(epoch_train_loss,
+                                       epoch_train_acc,
+                                       epoch_val_loss,
+                                       epoch_val_acc,
+                                       epoch_val_f1,
+                                       self.optimizer.param_groups[0]["lr"],
+                                       epoch)
 
                 train_loss.append(epoch_train_loss)
                 train_accuracy.append(epoch_train_acc)
@@ -120,8 +120,8 @@ class Trainer:
         running_corrects = 0
 
         for inputs, labels in tqdm(train_loader, desc="Training", leave=False):
-            inputs = inputs.to(self.device)
-            labels = labels.to(self.device)
+            inputs = inputs.to(self.device, non_blocking=True)
+            labels = labels.to(self.device, non_blocking=True)
 
             self.optimizer.zero_grad()
 
@@ -134,12 +134,12 @@ class Trainer:
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data).item()
 
+            del inputs, labels, outputs, preds, loss
+
         n = len(train_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
 
-        # Clear GPU memory after each epoch
-        del inputs, labels, outputs, preds, loss
         torch.cuda.empty_cache()
 
         return epoch_loss, epoch_acc
@@ -162,8 +162,8 @@ class Trainer:
 
         with torch.inference_mode():
             for inputs, labels in val_loader:
-                inputs = inputs.to(self.device)
-                labels = labels.to(self.device)
+                inputs = inputs.to(self.device, non_blocking=True)
+                labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
                 _, preds = torch.max(outputs, 1)
@@ -174,19 +174,19 @@ class Trainer:
 
                 all_preds.append(preds.cpu().numpy())
                 all_labels.append(labels.cpu().numpy())
+                            
+                del inputs, labels, outputs, preds, loss
 
         n = len(val_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
         f1 = f1_score(np.concatenate(all_labels), np.concatenate(all_preds), average="macro", zero_division=0)
 
-        # Clear GPU memory after each epoch
-        del inputs, labels, outputs, preds, loss
         torch.cuda.empty_cache()
 
         return epoch_loss, epoch_acc, f1
 
-    def test(self, test_loader: DataLoader) -> EvalResult:
+    def test(self, test_loader: DataLoader) -> tuple[EvalResult, torch.nn.Module]:
         """
         Tests the model on the test dataset.
 
@@ -195,7 +195,6 @@ class Trainer:
         Returns:
             EvalResult: Evaluation results containing true labels, predicted labels, and predicted probabilities.
         """
-        # Load the best model before testing
         self.model.load_state_dict(torch.load(self.model_save_path, weights_only=True, map_location=self.device))
         self.model.eval()
 
@@ -205,16 +204,16 @@ class Trainer:
 
         with torch.inference_mode():
             for inputs, labels in test_loader:
-                inputs = inputs.to(self.device)
-                labels = labels.to(self.device)
+                inputs = inputs.to(self.device, non_blocking=True)
+                labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
                 probs = torch.softmax(outputs, dim=1)
                 preds = torch.argmax(probs, dim=1)
 
-                all_preds.append(preds.detach().cpu())
-                all_labels.append(labels.detach().cpu())
-                all_probs.append(probs.detach().cpu())
+                all_preds.append(preds.cpu())
+                all_labels.append(labels.cpu())
+                all_probs.append(probs.cpu())
 
         result = EvalResult(
             y_true=torch.cat(all_labels).cpu(),
@@ -222,11 +221,10 @@ class Trainer:
             y_prob=torch.cat(all_probs).cpu(),
         )
 
-        # Clear the lists from GPU memory
         del all_preds, all_labels, all_probs
         torch.cuda.empty_cache()
 
-        return result
+        return result, self.model
 
     def _build_optimizer(self, optimizer_config: OptimizerConfig) -> torch.optim.Optimizer:
         """
@@ -255,7 +253,7 @@ class Trainer:
                     nesterov=optimizer_config.nesterov,
                 )
 
-    def _build_scheduler(self, scheduler_config: SchedulerConfig) -> torch.optim.lr_scheduler._LRScheduler:
+    def _build_scheduler(self, scheduler_config: SchedulerConfig) -> torch.optim.lr_scheduler.LRScheduler:
         """
         Builds the learning rate scheduler based on the provided configuration.
 
@@ -275,7 +273,7 @@ class Trainer:
                     cooldown=scheduler_config.cooldown,
                 )
 
-    def _build_criterion(self, weights=None) -> torch.Tensor:
+    def _build_criterion(self, weights=None) -> torch.nn.CrossEntropyLoss:
         """
         Builds the loss function criterion, optionally applying class weights.
 

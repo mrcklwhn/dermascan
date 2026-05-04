@@ -160,7 +160,24 @@ class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radiusMedium),
       ),
-      titleTextStyle: const TextStyle(color: textDark, fontWeight: FontWeight.w500, fontSize: 16),
+      titleTextStyle: const TextStyle(
+        color: textDark,
+        fontWeight: FontWeight.w500,
+        fontSize: 16,
+      ),
+    ),
+
+    expansionTileTheme: ExpansionTileThemeData(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radiusMedium),
+      ),
+      collapsedShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radiusMedium),
+      ),
+      tilePadding: const EdgeInsets.all(spaceSmall),
+      childrenPadding: const EdgeInsets.all(spaceSmall),
+      iconColor: AppTheme.primary,
+      collapsedIconColor: AppTheme.primary,
     ),
 
     // Search Bar

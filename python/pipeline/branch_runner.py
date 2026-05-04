@@ -1,10 +1,12 @@
 from pathlib import Path
-
 import torch
+import mlflow
+
 from pipeline.dataclasses.pipeline_config import BranchConfig
 from pipeline.dataclasses.pipeline_runtime import BranchResult, MetricsResult, TrainingHistory, TrainValTestDataLoaders
-from pipeline.eval.metrics_calculator import MetricsCalculator
-from pipeline.eval.plotter import Plotter
+from pipeline.utils.metrics_calculator import MetricsCalculator
+from pipeline.utils.plotter import Plotter
+from pipeline.utils.mlflow_logger import MLFlowLogger
 from pipeline.training.model_factory import ModelFactory
 from pipeline.training.trainer import Trainer
 
@@ -54,24 +56,30 @@ class BranchRunner:
         Returns:
             BranchResult: The result of the branch execution, including training history and metrics.
         """
-        self._save_branch_config()
-        training_history = self.trainer.train(self.data.train_loader, self.data.val_loader)
-        self._save_training_history(training_history)
-        Plotter.plot_training_history(training_history, self.branch_run_path)
-        
-        eval_results = self.trainer.test(self.data.test_loader)
+        with mlflow.start_run(run_name=self.branch_config.branch_id, nested=True):
+            self._save_branch_config()
+            MLFlowLogger.log_branch_params(self.branch_config)
+            
+            training_history = self.trainer.train(self.data.train_loader, self.data.val_loader)
+            self._save_training_history(training_history)
+            Plotter.plot_training_history(training_history, self.branch_run_path)
+            
+            eval_results, self.model = self.trainer.test(self.data.test_loader)
 
-        metrics_calculator = MetricsCalculator()
-        metrics_result = metrics_calculator.calculate(eval_results)
-        self._save_metrics(metrics_result)
+            metrics_calculator = MetricsCalculator()
+            metrics_result = metrics_calculator.calculate(eval_results)
+            self._save_metrics(metrics_result)
 
-        Plotter.plot_confusion_matrix(eval_results, self.branch_run_path)
+            Plotter.plot_confusion_matrix(eval_results, self.branch_run_path)
+            MLFlowLogger.log_branch_results(self.branch_run_path, metrics_result)
+            sample_input, _ = next(iter(self.data.test_loader))
+            MLFlowLogger.log_model(self.model, self.branch_config.branch_id, sample_input[:1].cpu())
 
-        return BranchResult(
-            branch_id=self.branch_config.branch_id,
-            training_history=training_history,
-            metrics_result=metrics_result
-        )
+            return BranchResult(
+                branch_id=self.branch_config.branch_id,
+                training_history=training_history,
+                metrics_result=metrics_result
+            )
 
     def _get_branch_run_path(self, pipeline_run_path: Path, branch_id: str, filter_name: str) -> Path:
         """

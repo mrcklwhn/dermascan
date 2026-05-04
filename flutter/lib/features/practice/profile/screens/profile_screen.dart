@@ -45,7 +45,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
           prefixIcon: Icons.local_hospital,
           textInputType: TextInputType.name,
         ),
-        const SizedBox(height: AppTheme.spaceLarge),
+        const SizedBox(height: AppTheme.spaceMedium),
         Card(
           child: ListTile(
             leading: const Icon(Icons.mail),

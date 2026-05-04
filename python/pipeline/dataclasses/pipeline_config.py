@@ -1,6 +1,6 @@
 from pathlib import Path
-from typing import Annotated, Literal, Union
-from pydantic import BaseModel, Field, field_validator
+from typing import Union, Optional
+from pydantic import BaseModel, field_validator
 
 from pipeline.dataclasses.enums import SplitType, ModelType, FilterType, AugmentationType, DatasetLoaderType
 from pipeline.dataclasses.training_configs import AdamConfig, SGDConfig, ReduceLROnPlateauConfig
@@ -15,11 +15,6 @@ class CustomSplitConfig(BaseModel, frozen=True):
     train_csv_path: Path
     val_csv_path: Path
     test_csv_path: Path
-
-# SplitConfig = Annotated[
-#     Union[TrainValTestSplitRatio, CustomSplitConfig],
-#     Field(discriminator='split_type')
-# ]
 
 SplitConfig = Union[TrainValTestSplitRatio, CustomSplitConfig]
 
@@ -49,7 +44,7 @@ class TrainerConfig(BaseModel, frozen=True):
     batch_size: int
     num_epochs: int
     learning_rate: float
-    criterion_weights: tuple[float, float] | None = (0.87, 0.13)
+    criterion_weights: tuple[float, float] | None = (1/0.13, 1/0.87)
     optimizer: OptimizerConfig
     scheduler: SchedulerConfig
 
@@ -62,7 +57,8 @@ class BranchConfig(BaseModel, frozen=True):
     branch_model_config: ModelConfig
     trainer_config: TrainerConfig
     dataset_loader: DatasetLoaderType
-    augmentation: AugmentationConfig = None
+    sampler_weights: Optional[tuple[float, float]] = None
+    augmentation: Optional[AugmentationConfig] = None
 
 class PipelineConfig(BaseModel, frozen=True):
     pipeline_id: str
