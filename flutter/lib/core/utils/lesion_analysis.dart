@@ -36,19 +36,23 @@ class LesionAnalysis {
     _neuralLesionClassification = NeuralLesionClassification();
   }
 
-  Future<void> runLesionAnalysis({bool useNeuralModel = false, String modelType = 'RGB'}) async {
+  Future<void> runLesionAnalysis({
+    bool useNeuralModel = false,
+    String modelType = 'RGB',
+  }) async {
     if (useNeuralModel) {
       await _neuralCutout.initializeModel();
       rawLesionMask = await _neuralCutout.run(image);
-      rawLesionMask = cv.resize(rawLesionMask, (image.cols, image.rows), interpolation: cv.INTER_NEAREST);
-    }
-    else
-    {
+      rawLesionMask = cv.resize(rawLesionMask, (
+        image.cols,
+        image.rows,
+      ), interpolation: cv.INTER_NEAREST);
+    } else {
       rawLesionMask = OtsusLesionCutout().run(image);
     }
 
     // Classification
-    Map<String, dynamic> inferenceResult = {};
+    Map<String, dynamic> inferenceResult = <String, dynamic>{};
     if (modelType == 'Gabor') {
       inferenceResult = await _neuralLesionClassification.runGabor(image);
     } else if (modelType == 'GLCM') {
@@ -56,7 +60,10 @@ class LesionAnalysis {
     } else if (modelType == 'SoftEnsemble') {
       inferenceResult = await _neuralLesionClassification.runEnsemble(image);
     } else if (modelType == 'HardEnsemble') {
-      inferenceResult = await _neuralLesionClassification.runEnsemble(image, useSoftVoting: false);
+      inferenceResult = await _neuralLesionClassification.runEnsemble(
+        image,
+        useSoftVoting: false,
+      );
     } else {
       inferenceResult = await _neuralLesionClassification.runRGB(image);
     }
@@ -68,14 +75,20 @@ class LesionAnalysis {
     // Masks for ABC Algos
     if (rawLesionMask.isEmpty) return;
 
-    cleanedLesionMask = LesionUtils.cleanLesionMask(rawLesionMask, <int>[image.rows, image.cols]);
+    cleanedLesionMask = LesionUtils.cleanLesionMask(rawLesionMask, <int>[
+      image.rows,
+      image.cols,
+    ]);
 
     // Align mask for asymmetry
     _rotatedMask = LesionUtils.alignMaskByDominantAxis(rawLesionMask);
     // Contour and hulls
     _lesionContourMask = LesionUtils.getLesionContourMask(rawLesionMask);
     _convexHullMask = LesionUtils.getConvexHullMask(rawLesionMask);
-    _concavityMask = LesionUtils.getConcavityMask(rawLesionMask, _convexHullMask!);
+    _concavityMask = LesionUtils.getConcavityMask(
+      rawLesionMask,
+      _convexHullMask!,
+    );
   }
 
   double getAsymmetryScore() {
@@ -86,32 +99,51 @@ class LesionAnalysis {
 
   double getBorderScore() {
     if (_concavityMask == null) return 0.0;
-    borderScore = LesionUtils.calculateBorderRatio(_concavityMask!, rawLesionMask);
+    borderScore = LesionUtils.calculateBorderRatio(
+      _concavityMask!,
+      rawLesionMask,
+    );
     return borderScore;
   }
 
   double getColorUniformityScore() {
-
-    final List<double> avgSkin = LesionUtils.getAvgSkinColor(image, rawLesionMask);
+    final List<double> avgSkin = LesionUtils.getAvgSkinColor(
+      image,
+      rawLesionMask,
+    );
     final cv.Mat imageFloat = LesionUtils.transformImageToFloat(image);
 
-    final List<List<double>> relColors = LesionUtils.transformImageToRelColors(imageFloat, rawLesionMask, avgSkin);
-    final List<List<int>> quantColors = LesionUtils.quantizeRelativeColors(relColors);
-    final List<double> histogram = LesionUtils.getRelColorHistogram(quantColors);
-    final List<double> filteredHistogram = LesionUtils.filterSkinInHistogram(histogram, avgSkin);
-
+    final List<List<double>> relColors = LesionUtils.transformImageToRelColors(
+      imageFloat,
+      rawLesionMask,
+      avgSkin,
+    );
+    final List<List<int>> quantColors = LesionUtils.quantizeRelativeColors(
+      relColors,
+    );
+    final List<double> histogram = LesionUtils.getRelColorHistogram(
+      quantColors,
+    );
+    final List<double> filteredHistogram = LesionUtils.filterSkinInHistogram(
+      histogram,
+      avgSkin,
+    );
 
     final double entropy = LesionUtils.getHistogramEntropy(filteredHistogram);
-    final int effColorCount = LesionUtils.getEffColorCount(filteredHistogram, 1e-4);
+    final int effColorCount = LesionUtils.getEffColorCount(
+      filteredHistogram,
+      1e-4,
+    );
 
-    final double maxEntropy = (math.log(math.max(effColorCount, 1)) / math.log(2));
+    final double maxEntropy =
+        (math.log(math.max(effColorCount, 1)) / math.log(2));
 
     if (maxEntropy > 0.0) {
       colorUniformityScore = 1.0 - math.min(entropy / (maxEntropy + 5.0), 1.0);
     } else {
       colorUniformityScore = 1.0;
     }
-    return colorUniformityScore;
+    return 1 - colorUniformityScore;
   }
 
   cv.Mat getLesionContourOverlay() {
@@ -125,7 +157,9 @@ class LesionAnalysis {
     if (_concavityMask == null || _concavityMask!.isEmpty) return image;
     final cv.Mat overlay = image.clone();
     overlay.setTo(cv.Scalar.fromRgb(255, 0, 0), mask: _concavityMask);
-    final cv.Mat hullOutlineMask = LesionUtils.getLesionContourMask(_convexHullMask!);
+    final cv.Mat hullOutlineMask = LesionUtils.getLesionContourMask(
+      _convexHullMask!,
+    );
     overlay.setTo(cv.Scalar.fromRgb(0, 255, 0), mask: hullOutlineMask);
     return overlay;
   }

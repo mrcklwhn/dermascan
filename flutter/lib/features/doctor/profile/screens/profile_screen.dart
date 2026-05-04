@@ -60,7 +60,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
                 : Text(DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)),
           ),
         ),
-        const SizedBox(height: AppTheme.spaceLarge),
+        const SizedBox(height: AppTheme.spaceMedium),
         Card(
           child: ListTile(
             leading: const Icon(Icons.local_hospital),
@@ -74,7 +74,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
                 : controller.showLeavePracticeDialog,
           ),
         ),
-        const SizedBox(height: AppTheme.spaceLarge),
+        const SizedBox(height: AppTheme.spaceMedium),
         Card(
           child: ListTile(
             leading: const Icon(Icons.mail),

@@ -1,6 +1,7 @@
 from skimage import io
 import numpy as np
 from pathlib import Path
+import cv2
 
 class FilterService:
     
@@ -9,7 +10,7 @@ class FilterService:
         self.images_dir = self.data_dir / raw_images
         self.filtered_output_dir = self.data_dir / filtered_output_dir
     
-    def apply_texture_filters(self, image_id: str, filter_list: list[callable], **kwargs) -> dict[str, np.ndarray]:
+    def apply_texture_filters(self, image_id: str, filter_list: list[callable], image_size: int = 224, **kwargs) -> dict[str, np.ndarray]:
         """
         Apply specified texture filters to the image.
 
@@ -23,6 +24,7 @@ class FilterService:
 
         image_path = Path(self.images_dir) / (image_id + ".jpg")
         image_gray = io.imread(image_path, as_gray=True)
+        # resized_gray_image = cv2.resize(image_gray, (image_size, image_size), interpolation=cv2.INTER_AREA)
 
         filters_result_dict = {}
         for filter_name in filter_list:

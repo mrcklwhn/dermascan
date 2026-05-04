@@ -1,20 +1,24 @@
 import 'package:dermascan/core/models/diagnosis.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
-class Lesion {
+class BodyLesion {
   final String id;
   final String location;
   final String patientId;
-  final List<Diagnosis> diagnoses;
+  final RxList<Diagnosis> diagnoses;
 
-  Lesion({
+  RxBool isSuspicious;
+
+  BodyLesion({
     required this.id,
     required this.location,
     required this.patientId,
     required this.diagnoses,
+    required this.isSuspicious,
   });
 
-  factory Lesion.fromJson(Map<String, dynamic> json) {
-    return Lesion(
+  factory BodyLesion.fromJson(Map<String, dynamic> json) {
+    return BodyLesion(
       id: json['id'] as String,
       location: json['location'] as String,
       patientId: json['patientId'] as String,
@@ -22,7 +26,9 @@ class Lesion {
           .map(
             (dynamic item) => Diagnosis.fromJson(item as Map<String, dynamic>),
           )
-          .toList(),
+          .toList()
+          .obs,
+      isSuspicious: (json['suspicious'] as bool).obs,
     );
   }
 
@@ -31,6 +37,7 @@ class Lesion {
       'id': id,
       'location': location,
       'patientId': patientId,
+      'suspicious': isSuspicious,
       'diagnoses': diagnoses.map((Diagnosis d) => d.toJson()).toList(),
     };
   }
