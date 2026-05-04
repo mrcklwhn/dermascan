@@ -128,7 +128,7 @@ class AuthService extends GetxService {
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        debugPrint(e.toString());
       }
       return null;
     }
@@ -143,7 +143,7 @@ class AuthService extends GetxService {
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        debugPrint(e.toString());
       }
       return null;
     }

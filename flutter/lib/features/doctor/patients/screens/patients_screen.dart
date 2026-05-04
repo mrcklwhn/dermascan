@@ -78,7 +78,7 @@ class PatientsScreen extends GetView<PatientsController> {
 
   Widget _buildPatientList() {
     return Padding(
-      padding: AppTheme.scaffoldPadding.copyWith(top: 0),
+      padding: AppTheme.scaffoldPadding.copyWith(top: 0, bottom: 0),
       child: Column(
         children: <Widget>[
           SearchBar(
@@ -99,28 +99,32 @@ class PatientsScreen extends GetView<PatientsController> {
           const SizedBox(height: AppTheme.spaceMedium),
           Obx(
             () => Expanded(
-              child: ListView.separated(
+              child: ListView.builder(
                 controller: controller.listScrollController,
                 scrollDirection: Axis.vertical,
                 itemCount: controller.visiblePatients.length,
-                separatorBuilder: (BuildContext context, int index) =>
-                    const SizedBox(height: AppTheme.spaceSmall),
                 itemBuilder: (BuildContext context, int index) {
                   final Patient patient = controller.visiblePatients[index];
-                  return Card(
-                    child: ListTile(
-                      title: Text(patient.name),
-                      leading: const Icon(Icons.person),
-                      trailing: const Icon(Icons.arrow_forward),
-                      subtitle: Text(
-                        'Born on ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}\nLast visited on ...',
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Card(
+                        child: ListTile(
+                          title: Text(patient.name),
+                          leading: const Icon(Icons.person),
+                          trailing: const Icon(Icons.arrow_forward),
+                          subtitle: Text(
+                            'Born on ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}',
+                          ),
+                          onTap: controller.isInitializing.value
+                              ? null
+                              : () => controller.openPatientProfile(
+                                  patientId: patient.id,
+                                ),
+                        ),
                       ),
-                      onTap: controller.isInitializing.value
-                          ? null
-                          : () => controller.openPatientProfile(
-                              patientId: patient.id,
-                            ),
-                    ),
+                      const SizedBox(height: AppTheme.spaceSmall),
+                    ],
                   );
                 },
               ),

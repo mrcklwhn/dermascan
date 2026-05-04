@@ -7,7 +7,11 @@ class Patient {
   final Gender gender;
   final String? note;
   final String practiceId;
-  final String email;
+  final String birthCountry;
+  final String currentCountry;
+  final bool tanningBedExposure;
+  final bool previousSkinSurgeries;
+  final bool previousSunburns;
 
   Patient({
     required this.id,
@@ -16,7 +20,11 @@ class Patient {
     required this.gender,
     this.note,
     required this.practiceId,
-    required this.email,
+    required this.birthCountry,
+    required this.currentCountry,
+    required this.tanningBedExposure,
+    required this.previousSkinSurgeries,
+    required this.previousSunburns,
   });
 
   factory Patient.fromJson(Map<String, dynamic> json) {
@@ -27,7 +35,11 @@ class Patient {
       gender: Gender.values.byName(json['gender'] as String),
       note: json['note'] as String?,
       practiceId: json['practiceId'] as String,
-      email: json['email'] as String,
+      birthCountry: json['birthCountry'] as String,
+      currentCountry: json['currentCountry'] as String,
+      tanningBedExposure: json['tanningBedExposure'] as bool,
+      previousSkinSurgeries: json['previousSkinSurgeries'] as bool,
+      previousSunburns: json['previousSunburns'] as bool,
     );
   }
 
@@ -39,7 +51,11 @@ class Patient {
       'gender': gender.name,
       'note': note,
       'practiceId': practiceId,
-      'email': email,
+      'birthCountry': birthCountry,
+      'currentCountry': currentCountry,
+      'tanningBedExposure': tanningBedExposure,
+      'previousSkinSurgeries': previousSkinSurgeries,
+      'previousSunburns': previousSunburns,
     };
   }
 }
