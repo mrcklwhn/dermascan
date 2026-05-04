@@ -61,6 +61,7 @@ class PipelineOrchestrator:
                     train_val_test_split,
                     self.pipeline_config.data_path,
                     branch_config.trainer_config.batch_size,
+                    branch_config.sampler_weights,
                     branch_config.augmentation,
                 )
 

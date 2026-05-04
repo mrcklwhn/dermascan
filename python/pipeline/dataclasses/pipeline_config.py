@@ -57,6 +57,7 @@ class BranchConfig(BaseModel, frozen=True):
     branch_model_config: ModelConfig
     trainer_config: TrainerConfig
     dataset_loader: DatasetLoaderType
+    sampler_weights: Optional[tuple[float, float]] = None
     augmentation: Optional[AugmentationConfig] = None
 
 class PipelineConfig(BaseModel, frozen=True):

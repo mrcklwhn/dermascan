@@ -31,7 +31,8 @@ class DataLoaderFactory:
               df_split: TrainValTestSplit,
               filtered_data_path: Path,
               batch_size: int,
-              augmentation: AugmentationConfig = None) -> TrainValTestDataLoaders:
+              sampler_weights: tuple[float, float] | None = None,
+              augmentation: AugmentationConfig | None = None) -> TrainValTestDataLoaders:
         """
         Builds PyTorch DataLoader instances for training, validation, and testing datasets based on the specified dataset loader type and filter type.
 
@@ -41,6 +42,7 @@ class DataLoaderFactory:
             df_split (TrainValTestSplit): A dataclass containing the train, validation, and test DataFrames.
             filtered_data_path (Path): The path to the directory containing filtered .npy files (only relevant for FilterDatasetLoader).
             batch_size (int): The batch size for the DataLoader.
+            sampler_weights (tuple[float, float] | None): Weights for WeightedRandomSampler (class_0_weight, class_1_weight). If None, shuffle=True is used instead.
             augmentation (AugmentationConfig): A dataclass containing the train and validation augmentations.
 
         Returns:
@@ -56,7 +58,7 @@ class DataLoaderFactory:
             val_augmentations = None
             test_augmentations = None
 
-        def make_loader(ids_df: DataFrame, sampler: bool, shuffle: bool, augmentations: A.Compose = None) -> DataLoader:
+        def make_loader(ids_df: DataFrame, sampler_weights: tuple[float, float] | None, shuffle: bool, augmentations: A.Compose | None = None) -> DataLoader:
             """
             Inner function to create a DatasetLoader and wrap it in a DataLoader.
 
@@ -69,7 +71,7 @@ class DataLoaderFactory:
             """
             dataset = DataLoaderFactory._build_dataset(dataset_loader_type, ids_df, filter_type, filtered_data_path, augmentations)
             # if sampler is True shuffle must be False
-            weighted_sampler = DataLoaderFactory._build_weighted_sampler(ids_df) if sampler and not shuffle else None
+            weighted_sampler = DataLoaderFactory._build_weighted_sampler(ids_df, sampler_weights) if sampler_weights is not None and not shuffle else None
             return DataLoader(
                 dataset,
                 batch_size=batch_size,
@@ -82,9 +84,9 @@ class DataLoaderFactory:
             )
         
         return TrainValTestDataLoaders(
-            train_loader=make_loader(df_split.train_df, sampler=True, shuffle=False, augmentations=train_augmentations),
-            val_loader=make_loader(df_split.val_df, sampler=False, shuffle=False, augmentations=val_augmentations),
-            test_loader=make_loader(df_split.test_df, sampler=False, shuffle=False, augmentations=test_augmentations)
+            train_loader=make_loader(df_split.train_df, sampler_weights=sampler_weights, shuffle=sampler_weights is None, augmentations=train_augmentations),
+            val_loader=make_loader(df_split.val_df, sampler_weights=None, shuffle=False, augmentations=val_augmentations),
+            test_loader=make_loader(df_split.test_df, sampler_weights=None, shuffle=False, augmentations=test_augmentations)
         )
         
     @staticmethod
@@ -116,20 +118,24 @@ class DataLoaderFactory:
                                            augmentations=augmentations)
 
     @staticmethod
-    def _build_weighted_sampler(ids_df: DataFrame) -> torch.utils.data.WeightedRandomSampler:
+    def _build_weighted_sampler(ids_df: DataFrame, class_weights: tuple[float, float]) -> torch.utils.data.WeightedRandomSampler:
         """
         Builds a WeightedRandomSampler to address class imbalance in the dataset.
 
         Args:
             ids_df (DataFrame): The DataFrame containing the image IDs and labels for the dataset split.
+            class_weights (tuple[float, float]): Per-class sampling weights (class_0, class_1).
 
         Returns:
             WeightedRandomSampler: A PyTorch WeightedRandomSampler instance that can be used in a DataLoader to sample data points with probabilities inversely proportional to their class frequencies.
         """
-        class_counts = ids_df['lesion_idx'].value_counts().to_dict()
-        total_samples = len(ids_df)
-        class_weights = {cls: total_samples / count for cls, count in class_counts.items()}
+        weight_map = {0: class_weights[0], 1: class_weights[1]}
         sample_weights = torch.tensor(
-            ids_df['lesion_idx'].map(class_weights).values,
-            dtype=torch.float)
-        return torch.utils.data.WeightedRandomSampler(sample_weights, num_samples=total_samples, replacement=True)
+            ids_df['lesion_idx'].map(weight_map).values,
+            dtype=torch.float
+        )
+        print("WEIGHTS: ", sample_weights)
+
+        return torch.utils.data.WeightedRandomSampler(
+            sample_weights, num_samples=len(ids_df), replacement=True
+        )
