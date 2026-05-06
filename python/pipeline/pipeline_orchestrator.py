@@ -12,7 +12,7 @@ from pipeline.branch_runner import BranchRunner
 from pipeline.datasets.split_provider import SplitProvider
 
 
-class PipelineOrchestrator:
+class   PipelineOrchestrator:
     """
     PipelineOrchestrator class responsible for orchestrating the entire pipeline execution, including data splitting, branch execution, and result aggregation.
     It handles:
@@ -65,10 +65,10 @@ class PipelineOrchestrator:
                     branch_config.trainer_config.batch_size,
                     branch_config.sampler_weights,
                     branch_config.augmentation,
-                seed=self.pipeline_config.seed,
+                    seed=self.pipeline_config.seed,
                 )
 
-            branch_runner = BranchRunner(branch_config, data_loaders, self.pipeline_run_path, seed=self.pipeline_config.seed)
+                branch_runner = BranchRunner(branch_config, data_loaders, self.pipeline_run_path, seed=self.pipeline_config.seed)
 
                 branch_result = branch_runner.run()
                 results.append(branch_result)

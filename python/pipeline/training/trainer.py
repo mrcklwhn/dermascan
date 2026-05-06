@@ -56,7 +56,9 @@ class Trainer:
         val_accuracy = []
 
         val_f1_macro = []
+        
         best_f1_macro = 0.0
+        best_f1_epoch = 0
 
         with TemporaryDirectory() as temp_dir:
             temp_best_model_path = Path(temp_dir) / "best_model.pt"
@@ -90,6 +92,7 @@ class Trainer:
                 # Save the best model based on validation F1 macro score
                 if epoch_val_f1 > best_f1_macro:
                     best_f1_macro = epoch_val_f1
+                    best_f1_epoch = epoch + 1 
                     torch.save(self.model.state_dict(), temp_best_model_path)
 
                 self.scheduler.step(epoch_val_loss)
@@ -97,6 +100,8 @@ class Trainer:
             if temp_best_model_path.exists():
                 self.model_save_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(temp_best_model_path, self.model_save_path)
+
+        print(f"Best epoch: {best_f1_epoch} with f1 {best_f1_macro}")
 
         return TrainingHistory(
             train_loss=train_loss,
@@ -136,6 +141,7 @@ class Trainer:
 
             del inputs, labels, outputs, preds, loss
 
+    
         n = len(train_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
@@ -209,11 +215,11 @@ class Trainer:
 
                 outputs = self.model(inputs)
                 probs = torch.softmax(outputs, dim=1)
-                preds = torch.argmax(probs, dim=1)
+                preds = torch.max(probs, dim=1)
 
-                all_preds.append(preds.cpu())
-                all_labels.append(labels.cpu())
-                all_probs.append(probs.cpu())
+                all_preds.append(preds)
+                all_labels.append(labels)
+                all_probs.append(probs)
 
         result = EvalResult(
             y_true=torch.cat(all_labels).cpu(),
