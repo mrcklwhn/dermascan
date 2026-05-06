@@ -157,7 +157,6 @@ class DataLoaderFactory:
             ids_df['lesion_idx'].map(weight_map).values,
             dtype=torch.float
         )
-        print("WEIGHTS: ", sample_weights)
 
         return torch.utils.data.WeightedRandomSampler(
             sample_weights, num_samples=len(ids_df), replacement=True
