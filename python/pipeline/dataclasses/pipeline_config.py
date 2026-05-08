@@ -44,7 +44,7 @@ class TrainerConfig(BaseModel, frozen=True):
     batch_size: int
     num_epochs: int
     learning_rate: float
-    criterion_weights: tuple[float, float] | None = (1/0.13, 1/0.87)
+    criterion_weights: tuple[float, float] | None = (1/0.87, 1/0.13)
     optimizer: OptimizerConfig
     scheduler: SchedulerConfig
 
@@ -65,3 +65,4 @@ class PipelineConfig(BaseModel, frozen=True):
     data_path: Path
     split_config: SplitConfig
     branches: list[BranchConfig]
+    seed: int | None = None

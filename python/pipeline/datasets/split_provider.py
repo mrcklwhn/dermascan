@@ -13,7 +13,7 @@ class SplitProvider:
     - Custom splits provided via CSV files.
     """
     @staticmethod
-    def get_split(data_path: Path, split_config: SplitConfig) -> TrainValTestSplit:
+    def get_split(data_path: Path, split_config: SplitConfig, seed: int | None = None) -> TrainValTestSplit:
         """
         Provides the train/validation/test split of the dataset based on the specified configuration.
 
@@ -22,16 +22,17 @@ class SplitProvider:
             split_config (SplitConfig): The configuration for how to split the dataset, which can be either:
                 - TrainValTestSplitRatio: Specifies the ratios for train/validation/test splits.
                 - CustomSplitConfig: Specifies paths to CSV files containing the splits.
+            seed (int | None): The seed for reproducibility.
         Returns:
             TrainValTestSplit: An object containing the train, validation, and test splits as pandas DataFrames.
         """
         if split_config.split_type == SplitType.CUSTOM:
             return SplitProvider._load_custom_split(split_config)
         else:
-            return SplitProvider._create_split(data_path, split_config)
+            return SplitProvider._create_split(data_path, split_config, seed)
             
     @staticmethod
-    def _create_split(data_path: Path, train_val_test_split_ratio: TrainValTestSplitRatio) -> TrainValTestSplit:
+    def _create_split(data_path: Path, train_val_test_split_ratio: TrainValTestSplitRatio, seed: int | None = None) -> TrainValTestSplit:
         """
         Creates a train/validation/test split of the dataset based on the specified ratios.
 
@@ -45,7 +46,8 @@ class SplitProvider:
         manager.load_cleaned_metadata(filter_melanoma_only=True)
         train_df, val_df, test_df = manager.train_test_val_split(
             train_val_test_split_ratio.val_ratio,
-            train_val_test_split_ratio.test_ratio)
+            train_val_test_split_ratio.test_ratio,
+            random_state=seed)
         
         print(f"Training samples: {len(train_df)}")
         print(f"Validation samples: {len(val_df)}")

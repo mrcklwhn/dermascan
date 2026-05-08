@@ -12,7 +12,7 @@ from pipeline.branch_runner import BranchRunner
 from pipeline.datasets.split_provider import SplitProvider
 
 
-class PipelineOrchestrator:
+class   PipelineOrchestrator:
     """
     PipelineOrchestrator class responsible for orchestrating the entire pipeline execution, including data splitting, branch execution, and result aggregation.
     It handles:
@@ -29,6 +29,7 @@ class PipelineOrchestrator:
     ):
         self.pipeline_config = pipeline_config
         self.pipeline_run_path = self._get_pipeline_output_path(self.pipeline_config.pipeline_id, project_root_path)
+        self._set_seeds(self.pipeline_config.seed)
         mlflow.set_tracking_uri(f"sqlite:///{project_root_path}/results/mlflow.db")
 
     def run(self) -> list[BranchResult]:
@@ -45,7 +46,7 @@ class PipelineOrchestrator:
         with mlflow.start_run(run_name=self.pipeline_config.pipeline_id):
 
             train_val_test_split = SplitProvider.get_split(
-                self.pipeline_config.data_path, self.pipeline_config.split_config
+                self.pipeline_config.data_path, self.pipeline_config.split_config, seed=self.pipeline_config.seed
             )
 
             mlflow.log_params({
@@ -55,6 +56,7 @@ class PipelineOrchestrator:
 
             results = []
             for branch_config in self.pipeline_config.branches:
+                self._set_seeds(self.pipeline_config.seed)
                 data_loaders = DataLoaderFactory.build(
                     branch_config.dataset_loader,
                     branch_config.branch_model_config.filter_type,
@@ -63,9 +65,10 @@ class PipelineOrchestrator:
                     branch_config.trainer_config.batch_size,
                     branch_config.sampler_weights,
                     branch_config.augmentation,
+                    seed=self.pipeline_config.seed,
                 )
 
-                branch_runner = BranchRunner(branch_config, data_loaders, self.pipeline_run_path)
+                branch_runner = BranchRunner(branch_config, data_loaders, self.pipeline_run_path, seed=self.pipeline_config.seed)
 
                 branch_result = branch_runner.run()
                 results.append(branch_result)
@@ -110,3 +113,23 @@ class PipelineOrchestrator:
         pipeline_run_path = project_root_path / "results" / (pipeline_id + "_" + timestamp)
         pipeline_run_path.mkdir(parents=True, exist_ok=True)
         return pipeline_run_path
+
+    def _set_seeds(self, seed: int) -> None:
+        """
+        Sets the seed for reproducibility if any was provided.
+
+        Args:
+            seed (int): The seed value to be set for random number generators.
+        """
+        if seed is not None:
+            import random
+            import numpy as np
+
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+
+            random.seed(seed)
+            np.random.seed(seed)
+            torch.manual_seed(seed)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed_all(seed)

@@ -95,6 +95,7 @@ class Trainer:
                 self.scheduler.step(epoch_val_loss)
 
             if temp_best_model_path.exists():
+                print(f"New best F1 macro score found: {best_f1_macro:.4f} at epoch {epoch + 1}")
                 self.model_save_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(temp_best_model_path, self.model_save_path)
 
@@ -209,7 +210,7 @@ class Trainer:
 
                 outputs = self.model(inputs)
                 probs = torch.softmax(outputs, dim=1)
-                preds = torch.argmax(probs, dim=1)
+                _, preds = torch.max(probs, dim=1)
 
                 all_preds.append(preds.cpu())
                 all_labels.append(labels.cpu())
