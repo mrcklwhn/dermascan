@@ -95,6 +95,7 @@ class Trainer:
                 self.scheduler.step(epoch_val_loss)
 
             if temp_best_model_path.exists():
+                print(f"New best F1 macro score found: {best_f1_macro:.4f} at epoch {epoch + 1}")
                 self.model_save_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(temp_best_model_path, self.model_save_path)
 
