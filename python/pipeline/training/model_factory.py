@@ -22,7 +22,7 @@ class ModelFactory:
     }
 
     @classmethod
-    def build(cls, model_config: ModelConfig) -> nn.Module:
+    def build(cls, model_config: ModelConfig, seed: int | None = None) -> nn.Module:
         """
         Builds a model based on the provided ModelConfig.
 
@@ -39,7 +39,7 @@ class ModelFactory:
         
         # Modify Input and Output layers, and freeze weights if specified
         model = cls._freeze_weights(model) if model_config.freeze_weights else model
-        model = cls._modify_input_layer(model, model_config.filter_type.num_channels) if model_config.filter_type is not FilterType.RGB else model
+        model = cls._modify_input_layer(model, model_config.filter_type.num_channels, seed=seed) if model_config.filter_type is not FilterType.RGB else model
         model = cls._modify_output_layer(model, model_config.num_classes)
 
         return model
@@ -59,13 +59,14 @@ class ModelFactory:
         return model
     
     @staticmethod
-    def _modify_input_layer(model, num_input_channels) -> nn.Module:
+    def _modify_input_layer(model, num_input_channels, seed: int | None = None) -> nn.Module:
         """
         Modifies the input layer of the model to accommodate a different number of input channels.
 
         Args:
             model (nn.Module): The model whose input layer is to be modified.
             num_input_channels (int): The number of input channels for the new input layer.
+            seed (int | None): The seed for reproducibility.
         Returns:
             nn.Module: The model with the modified input layer.
         """
@@ -82,10 +83,15 @@ class ModelFactory:
         )
         # new input layer weights need to be initialized
         with torch.no_grad():
+            generator = None
+            if seed is not None:
+                generator = torch.Generator()
+                generator.manual_seed(seed)
             # init all input channels with kaiming normal
             nn.init.kaiming_normal_(model.conv1.weight,
                                     mode='fan_out',
-                                    nonlinearity='relu')
+                                    nonlinearity='relu',
+                                    generator=generator)
         return model
     
     @staticmethod
