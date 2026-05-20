@@ -176,12 +176,22 @@ class CustomDiagnosisSheet extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleSmall,
-          textAlign: TextAlign.left,
+        Row(
+          children: <Widget>[
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall,
+              textAlign: TextAlign.left,
+            ),
+            const Spacer(),
+            Text(
+              '${(score*100).toStringAsFixed(2)} %',
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.left,
+            ),
+          ],
         ),
-        const SizedBox(height: AppTheme.spaceMedium),
+        const SizedBox(height: AppTheme.spaceSmall),
         LinearProgressIndicator(
           value: score,
           minHeight: 8,

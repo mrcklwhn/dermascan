@@ -5,14 +5,23 @@ from torch.utils.data import DataLoader, Dataset
 from pathlib import Path
 import albumentations as A
 import random
+from functools import partial
 
-from pipeline.dataclasses.enums import DatasetLoaderType, FilterType
+from pipeline.dataclasses.enums import DatasetLoaderType, FilterType, ModelType
 from pipeline.dataclasses.pipeline_config import AugmentationConfig
 from pipeline.dataclasses.pipeline_runtime import TrainValTestDataLoaders, TrainValTestSplit
 
 from pipeline.datasets.dataset_loaders.rgb_dataset_loader import RGBDatasetLoader
 from pipeline.datasets.dataset_loaders.filter_dataset_loader import FilterDatasetLoader
 from pipeline.datasets.dataset_loaders.augmentation_builder import AugmentationBuilder
+
+def _worker_init_fn(worker_id: int, base_seed: int) -> None:
+    worker_seed = base_seed + worker_id
+    torch.manual_seed(worker_seed)
+    np.random.seed(worker_seed % (2**32))
+    random.seed(worker_seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(worker_seed)
 
 class DataLoaderFactory:
     """
@@ -30,6 +39,7 @@ class DataLoaderFactory:
     @staticmethod
     def build(dataset_loader_type: DatasetLoaderType,
               filter_type: FilterType,
+              model_type: ModelType,
               df_split: TrainValTestSplit,
               filtered_data_path: Path,
               batch_size: int,
@@ -54,9 +64,9 @@ class DataLoaderFactory:
         """
 
         if augmentation:
-            train_augmentations = AugmentationBuilder.build(filter_type, augmentation.train, seed)
-            val_augmentations = AugmentationBuilder.build(filter_type, augmentation.val, seed)
-            test_augmentations = AugmentationBuilder.build(filter_type, [], seed)  # only apply normalization to test set if using filter dataset loader
+            train_augmentations = AugmentationBuilder.build(filter_type, model_type, augmentation.train, seed)
+            val_augmentations = AugmentationBuilder.build(filter_type, model_type, augmentation.val, seed)
+            test_augmentations = AugmentationBuilder.build(filter_type, model_type, [], seed)  # only apply normalization to test set if using filter dataset loader
         else:
             train_augmentations = None
             val_augmentations = None
@@ -74,15 +84,7 @@ class DataLoaderFactory:
             Returns:
                 DataLoader: A PyTorch DataLoader instance for the specified dataset split.
             """
-            def worker_init(worker_id):
-                if seed is not None:
-                    torch.manual_seed(seed)
-                    np.random.seed(seed)
-                    random.seed(seed)
-                    np.random.seed(seed)
-                    torch.manual_seed(seed)
-                    if torch.cuda.is_available():
-                        torch.cuda.manual_seed_all(seed)
+            worker_init = partial(_worker_init_fn, base_seed=seed) if seed is not None else None
 
             dataset = DataLoaderFactory._build_dataset(dataset_loader_type, ids_df, filter_type, filtered_data_path, augmentations)
             # if sampler is True shuffle must be False

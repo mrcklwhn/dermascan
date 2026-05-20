@@ -40,7 +40,14 @@ class MetricsCalculator:
         sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0.0
         specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
 
-        auc = roc_auc_score(y_true, all_probs[:, 1])
+        if all_probs.ndim == 2 and all_probs.shape[1] == 2:
+            positive_probs = all_probs[:, 1]
+        elif all_probs.ndim == 2 and all_probs.shape[1] == 1:
+            positive_probs = all_probs[:, 0]
+        else:
+            positive_probs = all_probs.reshape(-1)
+
+        auc = roc_auc_score(y_true, positive_probs)
 
         return MetricsResult(
             f1_macro=f1_macro,

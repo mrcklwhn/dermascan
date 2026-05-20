@@ -1,12 +1,14 @@
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from pipeline.dataclasses.enums import AugmentationType, FilterType
+from pipeline.training.model_archs import _modelArchRegistry
+
+from pipeline.dataclasses.enums import AugmentationType, FilterType, ModelType
 
 class AugmentationBuilder:
 
     @staticmethod
-    def build(filter_type: FilterType,augmentation_types: list[AugmentationType], seed: int | None = None) -> A.Compose:
+    def build(filter_type: FilterType, model_type: ModelType, augmentation_types: list[AugmentationType], seed: int | None = None) -> A.Compose:
         """
         Builds a list of augmentation transforms based on the specified augmentation types and filter type.
 
@@ -17,16 +19,18 @@ class AugmentationBuilder:
         Returns:
             A.Compose: A composed augmentation transform to be applied to the dataset.
         """
+        image_size = _modelArchRegistry.get(model_type).image_size
+
         augmentations = []
 
         for aug_type in augmentation_types:
             match aug_type:
                 case AugmentationType.RESIZE:
-                    augmentations.append(A.Resize(height=224, width=224))
+                    augmentations.append(A.Resize(height=image_size, width=image_size))
                 case AugmentationType.CENTER_CROP:
-                    augmentations.append(A.CenterCrop(height=224, width=224))
+                    augmentations.append(A.CenterCrop(height=image_size, width=image_size))
                 case AugmentationType.RANDOM_RESIZE_CROP:
-                    augmentations.append(A.RandomResizedCrop(size=(224, 224),
+                    augmentations.append(A.RandomResizedCrop(size=(image_size, image_size),
                                                             scale=(0.8, 1.0), 
                                                             ratio=(0.75, 1.33)))
                 case AugmentationType.RANDOM_HORIZONTAL_FLIP:
@@ -55,7 +59,7 @@ class AugmentationBuilder:
         elif filter_type == FilterType.GABOR:
             augmentations.append(A.Normalize(mean=[0.5] * 40, std=[0.5] * 40, max_pixel_value=1.0))
         elif filter_type == FilterType.LBP:
-            augmentations.append(A.Normalize(mean=[0.5] * 8, std=[0.5] * 8, max_pixel_value=1.0))
+            augmentations.append(A.Normalize(mean=[0.5] * 1, std=[0.5] * 1, max_pixel_value=1.0))
         elif filter_type == FilterType.GLCM:
             augmentations.append(A.Normalize(mean=[0.5] * 32, std=[0.5] * 32, max_pixel_value=1.0))
 
