@@ -4,6 +4,15 @@ class ModelType(Enum):
     RESNET_18 = "resnet18"
     RESNET_50 = "resnet50"
     RESNET_101 = "resnet101"
+    EFFICIENTNET_V2_S = "efficientnet_v2_s"
+    INCEPTION_V3 = "inception_v3"
+    SQUEEZENET_1_1 = "squeezenet_1_1" 
+    MOBILENET_V3_SMALL = "mobilenet_v3_small"
+    MOBILENET_V3_LARGE = "mobilenet_v3_large"
+
+class LossType(Enum):
+    BCE_WITH_LOGITS = "bce_with_logits" # used for single node binary classification
+    CROSS_ENTROPY = "cross_entropy" # used for multi-node binary classification
 
 class DatasetLoaderType(Enum):
     RGB = "rgb"
@@ -44,10 +53,12 @@ class FilterType(Enum):
 
 class OptimizerType(Enum):
     ADAM = "adam"
+    ADAMW = "adamw"
     SGD = "sgd"
 
 class SchedulerType(Enum):
     REDUCE_ON_PLATEAU = "reduce_on_plateau"
+    COSINE_ANNEALING = "cosine_annealing"
 
 class SplitType(Enum):
     RATIO = "ratio"

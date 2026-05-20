@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 
 from pipeline.dataclasses.pipeline_config import TrainerConfig, OptimizerConfig, SchedulerConfig
 from pipeline.dataclasses.pipeline_runtime import EvalResult, TrainingHistory
-from pipeline.dataclasses.enums import OptimizerType, SchedulerType
+from pipeline.dataclasses.enums import OptimizerType, SchedulerType, LossType
 
 from pipeline.utils.mlflow_logger import MLFlowLogger
 
@@ -28,11 +28,12 @@ class Trainer:
     def __init__(self, model: torch.nn.Module, trainer_config: TrainerConfig, device: torch.device, save_path: Path):
         self.model = model
         self.trainer_config = trainer_config
+        self.loss_type = trainer_config.loss_type
 
         self.device = device
         self.model = self.model.to(self.device)
 
-        self.criterion = self._build_criterion(trainer_config.criterion_weights)
+        self.criterion = self._build_criterion(trainer_config.class_weights, trainer_config.pos_weight)
         self.optimizer = self._build_optimizer(trainer_config.optimizer)
         self.scheduler = self._build_scheduler(trainer_config.scheduler)
         self.model_save_path = save_path / "model.pt"
@@ -57,6 +58,7 @@ class Trainer:
 
         val_f1_macro = []
         best_f1_macro = 0.0
+        best_epoch: int = 0
 
         with TemporaryDirectory() as temp_dir:
             temp_best_model_path = Path(temp_dir) / "best_model.pt"
@@ -68,11 +70,11 @@ class Trainer:
 
                 val_f1_macro.append(epoch_val_f1)
 
-                tqdm.write(
-                    f"Epoch {epoch + 1}/{epochs} - "
-                    f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
-                    f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}, Val F1 Macro: {epoch_val_f1:.4f}"
-                )
+                #tqdm.write(
+                #    f"Epoch {epoch + 1}/{epochs} - "
+                #    f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
+                #    f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}, Val F1 Macro: {epoch_val_f1:.4f}"
+                #)
                 
                 MLFlowLogger.log_epoch(epoch_train_loss,
                                        epoch_train_acc,
@@ -80,7 +82,9 @@ class Trainer:
                                        epoch_val_acc,
                                        epoch_val_f1,
                                        self.optimizer.param_groups[0]["lr"],
-                                       epoch)
+                                       epoch,
+                                       best_epoch,
+                                       best_f1_macro)
 
                 train_loss.append(epoch_train_loss)
                 train_accuracy.append(epoch_train_acc)
@@ -90,12 +94,16 @@ class Trainer:
                 # Save the best model based on validation F1 macro score
                 if epoch_val_f1 > best_f1_macro:
                     best_f1_macro = epoch_val_f1
+                    best_epoch = epoch + 1
                     torch.save(self.model.state_dict(), temp_best_model_path)
 
-                self.scheduler.step(epoch_val_loss)
+                if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                    self.scheduler.step(epoch_val_loss)
+                else:
+                    self.scheduler.step()
 
             if temp_best_model_path.exists():
-                print(f"New best F1 macro score found: {best_f1_macro:.4f} at epoch {epoch + 1}")
+                print(f"Best F1 macro score found: {best_f1_macro:.4f} at epoch {best_epoch}")
                 self.model_save_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(temp_best_model_path, self.model_save_path)
 
@@ -105,6 +113,7 @@ class Trainer:
             train_accuracy=train_accuracy,
             val_accuracy=val_accuracy,
             val_f1_macro=val_f1_macro,
+            best_epoch=best_epoch,
         )
 
     def _train_epoch(self, train_loader: DataLoader) -> tuple[float, float]:
@@ -127,8 +136,8 @@ class Trainer:
             self.optimizer.zero_grad()
 
             outputs = self.model(inputs)
-            _, preds = torch.max(outputs, 1)
-            loss = self.criterion(outputs, labels)
+            loss_inputs, loss_labels, preds = self._prepare_outputs_labels_preds(outputs, labels)
+            loss = self.criterion(loss_inputs, loss_labels)
             loss.backward()
             self.optimizer.step()
 
@@ -167,8 +176,8 @@ class Trainer:
                 labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
-                _, preds = torch.max(outputs, 1)
-                loss = self.criterion(outputs, labels)
+                loss_inputs, loss_labels, preds = self._prepare_outputs_labels_preds(outputs, labels)
+                loss = self.criterion(loss_inputs, loss_labels)
 
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data).item()
@@ -209,8 +218,12 @@ class Trainer:
                 labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
-                probs = torch.softmax(outputs, dim=1)
-                _, preds = torch.max(probs, dim=1)
+                if self.loss_type == LossType.BCE_WITH_LOGITS:
+                    probs = torch.sigmoid(outputs.squeeze(-1))
+                    preds = (probs >= 0.5).long()
+                else:
+                    probs = torch.softmax(outputs, dim=1)
+                    _, preds = torch.max(probs, dim=1)
 
                 all_preds.append(preds.cpu())
                 all_labels.append(labels.cpu())
@@ -253,6 +266,14 @@ class Trainer:
                     weight_decay=optimizer_config.weight_decay,
                     nesterov=optimizer_config.nesterov,
                 )
+            case OptimizerType.ADAMW:
+                return torch.optim.AdamW(
+                    self.model.parameters(),
+                    lr=self.trainer_config.learning_rate,
+                    weight_decay=optimizer_config.weight_decay,
+                    betas=optimizer_config.betas,
+                    eps=optimizer_config.eps,
+                )
 
     def _build_scheduler(self, scheduler_config: SchedulerConfig) -> torch.optim.lr_scheduler.LRScheduler:
         """
@@ -273,18 +294,51 @@ class Trainer:
                     min_lr=scheduler_config.min_lr,
                     cooldown=scheduler_config.cooldown,
                 )
+            case SchedulerType.COSINE_ANNEALING:
+                return torch.optim.lr_scheduler.CosineAnnealingLR(
+                    self.optimizer,
+                    T_max=scheduler_config.t_max,
+                    eta_min=scheduler_config.eta_min,
+                )
 
-    def _build_criterion(self, weights=None) -> torch.nn.CrossEntropyLoss:
+    def _build_criterion(self, weights=None, pos_weight: float = 1.0) -> torch.nn.Module:
         """
         Builds the loss function criterion, optionally applying class weights.
 
         Args:
             weights (list or torch.Tensor): Class weights for the loss function.
+            pos_weight (float): Positive class weight for BCE loss.
         Returns:
-            torch.Tensor: CrossEntropyLoss criterion with or without class weights.
+            torch.nn.Module: Loss criterion with or without class weights.
         """
+        if self.loss_type == LossType.BCE_WITH_LOGITS:
+            tensor_pos_weight = torch.tensor([pos_weight], dtype=torch.float).to(self.device)
+            return torch.nn.BCEWithLogitsLoss(pos_weight=tensor_pos_weight)
+
         if weights is None:
             return torch.nn.CrossEntropyLoss()
 
         tensor_weights = torch.tensor(weights, dtype=torch.float).to(self.device)
         return torch.nn.CrossEntropyLoss(weight=tensor_weights)
+
+    def _prepare_outputs_labels_preds(
+        self,
+        outputs: torch.Tensor,
+        labels: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        Prepare outputs and labels for the configured loss.
+        Handles special output types like InceptionOutputs by extracting logits.
+        """
+        # Extract logits from special output types (e.g., InceptionOutputs)
+        if hasattr(outputs, 'logits'):
+            outputs = outputs.logits
+        
+        if self.loss_type == LossType.BCE_WITH_LOGITS:
+            loss_inputs = outputs.squeeze(-1)
+            loss_labels = labels.float()
+            preds = (torch.sigmoid(loss_inputs) >= 0.5).long()
+            return loss_inputs, loss_labels, preds
+
+        _, preds = torch.max(outputs, 1)
+        return outputs, labels.long(), preds

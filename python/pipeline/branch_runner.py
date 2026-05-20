@@ -57,6 +57,8 @@ class BranchRunner:
             BranchResult: The result of the branch execution, including training history and metrics.
         """
         with mlflow.start_run(run_name=self.branch_config.branch_id, nested=True):
+            print(f"[BranchRunner] Starting run for branch: {self.branch_config.branch_id}")
+
             self._save_branch_config()
             MLFlowLogger.log_branch_params(self.branch_config)
             
@@ -68,12 +70,16 @@ class BranchRunner:
 
             metrics_calculator = MetricsCalculator()
             metrics_result = metrics_calculator.calculate(eval_results)
+
             self._save_metrics(metrics_result)
 
             Plotter.plot_confusion_matrix(eval_results, self.branch_run_path)
+            Plotter.plot_precision_recall_curve(eval_results, self.branch_run_path)
+            Plotter.plot_roc_curve(eval_results, self.branch_run_path)
+            Plotter.plot_confidence_distribution(eval_results, self.branch_run_path)
             MLFlowLogger.log_branch_results(self.branch_run_path, metrics_result)
             sample_input, _ = next(iter(self.data.test_loader))
-            MLFlowLogger.log_model(self.model, self.branch_config.branch_id, sample_input[:1].cpu())
+            MLFlowLogger.log_model(self.model, self.branch_config.branch_id, sample_input[:1].cpu(), step=training_history.best_epoch)
 
             return BranchResult(
                 branch_id=self.branch_config.branch_id,
@@ -132,5 +138,6 @@ class BranchRunner:
             torch.device: The device to be used (CUDA if available, otherwise CPU).
         """
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"[BranchRunner] Using device: {device}")
+        if not torch.cuda.is_available():
+            print("[BranchRunner] CUDA is not available. Using CPU for training and evaluation.")
         return device

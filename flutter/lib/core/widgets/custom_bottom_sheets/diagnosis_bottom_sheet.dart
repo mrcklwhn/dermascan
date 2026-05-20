@@ -296,7 +296,6 @@ class DiagnosisController extends GetxController {
     final LesionAnalysis lesion = LesionAnalysis(mat);
     await lesion.runLesionAnalysis(
       useNeuralModel: type == CutoutType.ml ? true : false,
-      modelType: 'Gabor',
     );
 
     diagnosis.aScore = lesion.getAsymmetryScore();
