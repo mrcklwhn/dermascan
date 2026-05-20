@@ -159,7 +159,6 @@ class DoctorProfileController extends GetxController {
       final bool success = await dbService.leaveCurrentPractice(
         doctorId: authService.currentDoctor.value!.id,
       );
-      if (Get.isDialogOpen ?? false) Get.back();
       if (success) {
         Get.showSnackbar(
           CustomSnackBar(
@@ -188,19 +187,25 @@ class DoctorProfileController extends GetxController {
   Future<void> showLeavePracticeDialog() async {
     if (isLoading.value || isInitializing.value) return;
 
-    await Get.dialog(
-      Obx(
-        () => CustomDialog(
-          title: 'Leave Practice?',
-          subtitle:
-              'You are about to leave this practice. You will no longer have access to any shared data with it. Do you want to continue?',
-          isDismissable: true,
-          onSubmit: isLoading.value || isInitializing.value
-              ? null
-              : () async => await leaveCurrentPractice(),
-          submitText: 'Leave',
-        ),
-      ),
+    await CustomDialogHelper.show(
+      routeName: 'leave-practice-dialog',
+
+      title: 'Leave Practice?',
+
+      subtitle:
+          'You are about to leave this practice. '
+          'You will no longer have access to any shared data with it. '
+          'Do you want to continue?',
+
+      isDismissable: true,
+
+      submitText: 'Leave',
+
+      onSubmit: isLoading.value || isInitializing.value
+          ? null
+          : () async {
+              await leaveCurrentPractice();
+            },
     );
   }
 
@@ -223,6 +228,21 @@ class DoctorProfileController extends GetxController {
   Future<void> showLogoutDialog() async {
     if (isLoading.value || isInitializing.value) return;
 
-    await Get.dialog(const CustomLogoutDialog());
+    await CustomDialogHelper.show(
+      routeName: 'logout-dialog',
+
+      title: 'Logout?',
+
+      subtitle:
+          'You are about to log out of your account. Are you sure you want to proceed?',
+
+      isDismissable: true,
+
+      submitText: 'Logout',
+
+      onSubmit: () async {
+        await authService.signOut();
+      },
+    );
   }
 }

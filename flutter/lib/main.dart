@@ -3,6 +3,7 @@ import 'package:dermascan/app/constants.dart';
 import 'package:dermascan/app/navigation_routes.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/local_asset_server.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
@@ -15,6 +16,8 @@ Future<void> main() async {
 
   await Get.putAsync(() async => AuthService());
   await Get.putAsync(() async => DBService());
+
+  await LocalAssetServer.start();
 
   runApp(const MyApp());
 }

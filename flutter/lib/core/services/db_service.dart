@@ -156,8 +156,31 @@ class DBService extends GetxService {
     }
   }
 
+  Future<bool> deleteLesion({required String lesionId}) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke('delete-lesion', body: <String, String?>{'id': lesionId});
+
+      if (response.status != 200) {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return false;
+      }
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return false;
+    }
+  }
+
   Future<bool> updateLesion({
     required String lesionId,
+    required String locationName,
     required bool suspicious,
   }) async {
     try {
@@ -168,6 +191,7 @@ class DBService extends GetxService {
             'update-lesion',
             body: <String, dynamic>{
               'lesionId': lesionId,
+              'locationName': locationName,
               'suspicious': suspicious,
             },
           );
@@ -189,7 +213,8 @@ class DBService extends GetxService {
 
   Future<BodyLesion?> createLesion({
     required String patientId,
-    required String location,
+    required String position,
+    required String normal,
   }) async {
     try {
       final FunctionResponse response = await authService
@@ -199,7 +224,8 @@ class DBService extends GetxService {
             'create-lesion',
             body: <String, String?>{
               'patientId': patientId,
-              'location': location,
+              'position': position,
+              'normal': normal,
             },
           );
 
