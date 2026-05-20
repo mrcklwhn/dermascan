@@ -29,8 +29,13 @@ class DiagnosisController extends GetxController {
 
   final BodyLesion lesion;
   final Patient patient;
+  final String? selectedDiagnosisId;
 
-  DiagnosisController({required this.lesion, required this.patient});
+  DiagnosisController({
+    required this.lesion,
+    required this.patient,
+    this.selectedDiagnosisId,
+  });
 
   final Uuid uuid = const Uuid();
   final PageController pageController = PageController();
@@ -50,7 +55,10 @@ class DiagnosisController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    unawaited(_initializeData());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _initializeData();
+      navigateToSelectedDiagnosis(selectedDiagnosisId);
+    });
   }
 
   Future<void> _initializeData() async {
@@ -64,6 +72,20 @@ class DiagnosisController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void navigateToSelectedDiagnosis(String? selectedDiagnosisId) {
+    if (selectedDiagnosisId == null) return;
+    final Diagnosis? selectedDiagnosis = lesion.diagnoses.firstWhereOrNull(
+      (Diagnosis diagnosis) => diagnosis.id == selectedDiagnosisId,
+    );
+    if (selectedDiagnosis == null) return;
+    final int index = lesion.diagnoses.indexOf(selectedDiagnosis);
+    pageController.animateToPage(
+      index + 1,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
   }
 
   Future<void> drawOverlays() async {
@@ -81,6 +103,7 @@ class DiagnosisController extends GetxController {
         'concavity': cv.imencode('.png', lesion.getConcavityOverlay()).$2,
       });
     }
+    lesion.diagnoses.refresh();
   }
 
   Future<void> fetchDoctorNames() async {
@@ -91,6 +114,7 @@ class DiagnosisController extends GetxController {
       if (doctor == null) return;
       diagnosis.doctorName = doctor.name;
     }
+    lesion.diagnoses.refresh();
   }
 
   Uint8List? cutoutML;
@@ -207,11 +231,13 @@ class DiagnosisController extends GetxController {
 
       processState.value = DiagnosisProcessState.drafting;
 
-      await pageController.animateToPage(
-        1,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
+      if (pageController.hasClients) {
+        await pageController.animateToPage(
+          1,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error: Could not create lesion cutout.');
@@ -244,11 +270,13 @@ class DiagnosisController extends GetxController {
       processState.value = DiagnosisProcessState.idle;
       lesion.diagnoses.insert(0, diagnosis);
 
-      await pageController.animateToPage(
-        1,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
+      if (pageController.hasClients) {
+        await pageController.animateToPage(
+          1,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error: Could not finish diagnosis pipeline.');
@@ -332,11 +360,9 @@ class DiagnosisController extends GetxController {
 
   Future<void> deleteDiagnosis({required Diagnosis diagnosis}) async {
     if (isLoading.value) return;
-
     if (authService.currentDoctor.value == null) return;
 
     final String? doctorId = authService.currentUser.value?.id;
-
     if (doctorId == null) {
       Get.showSnackbar(
         CustomSnackBar(
@@ -349,7 +375,6 @@ class DiagnosisController extends GetxController {
     }
 
     final String? diagnosisId = diagnosis.id;
-
     if (diagnosisId == null) {
       Get.showSnackbar(
         CustomSnackBar(
@@ -364,53 +389,32 @@ class DiagnosisController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool successDiagnosis = await dbService.deleteDiagnosis(
+      final bool success = await dbService.deleteDiagnosis(
         diagnosisId: diagnosisId,
       );
 
-      if (Get.isDialogOpen ?? false) Get.back();
-      if (successDiagnosis) {
-        final List<String> segments = diagnosis.imagePath.split('/');
-        final String bucket = segments[0];
-        final String storagePath = segments.sublist(1).join('/');
-        final bool successImage = await dbService.deleteFile(
-          bucket: bucket,
-          storagePath: storagePath,
+      if (success) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.check,
+            title: 'Diagnosis Deleted',
+            message: 'The Diagnosis and its image have been deleted.',
+          ),
         );
-        if (successImage) {
-          Get.showSnackbar(
-            CustomSnackBar(
-              icon: Icons.check,
-              title: 'Diagnosis Deleted',
-              message: 'The Diagnosis has been deleted.',
-            ),
-          );
-          await pageController.animateToPage(
-            currentPage.value - 1,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOut,
-          );
 
-          lesion.diagnoses.removeWhere(
-            (Diagnosis diagnosis) => diagnosis.id == diagnosisId,
-          );
-        } else {
-          Get.showSnackbar(
-            CustomSnackBar(
-              icon: Icons.error,
-              title: 'Error Deleting Image',
-              message:
-                  'The Image could not be deleted. It may already be deleted.',
-            ),
-          );
-        }
+        await pageController.animateToPage(
+          currentPage.value - 1,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+
+        lesion.diagnoses.removeWhere((Diagnosis d) => d.id == diagnosisId);
       } else {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
             title: 'Error Deleting Diagnosis',
-            message:
-                'The Diagnosis could not be deleted. It may already be deleted.',
+            message: 'The Diagnosis could not be deleted.',
           ),
         );
       }
@@ -422,227 +426,198 @@ class DiagnosisController extends GetxController {
   Future<void> showDeleteDiagnosisDialog({required Diagnosis diagnosis}) async {
     if (isLoading.value) return;
 
-    await Get.dialog(
-      Obx(
-        () => CustomDialog(
-          title: 'Delete Diagnosis?',
-          subtitle:
-              'You are about to delete this diagnosis. This will delete all Information including the images. Do you want to continue?',
-          isDismissable: true,
-          onSubmit: isLoading.value
-              ? null
-              : () async => await deleteDiagnosis(diagnosis: diagnosis),
-          submitText: 'Delete',
-        ),
-      ),
+    await CustomDialogHelper.show(
+      routeName: 'delete-diagnosis-dialog',
+
+      title: 'Delete Diagnosis?',
+
+      subtitle:
+          'You are about to delete this diagnosis. '
+          'This will delete all information including the images. '
+          'Do you want to continue?',
+
+      isDismissable: !isLoading.value,
+
+      submitText: 'Delete',
+
+      onSubmit: isLoading.value
+          ? null
+          : () async {
+              await deleteDiagnosis(diagnosis: diagnosis);
+            },
     );
-  }
-
-  Future<void> changeLesionState({
-    required BodyLesion lesion,
-    required bool suspicious,
-  }) async {
-    if (isLoading.value) return;
-
-    if (authService.currentDoctor.value == null) return;
-
-    final String? doctorId = authService.currentUser.value?.id;
-
-    if (doctorId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
-      return;
-    }
-
-    isLoading.value = true;
-    try {
-      final bool successful = await dbService.updateLesion(
-        lesionId: lesion.id,
-        suspicious: suspicious,
-      );
-
-      if (successful) {
-        lesion.isSuspicious.value = suspicious;
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check,
-            title: 'Updated Lesion',
-            message: suspicious
-                ? 'The Lesion has been marked as suspicious.'
-                : 'The Lesion has been marked as not suspicious.',
-          ),
-        );
-      } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Error Updating Lesion',
-            message: 'The Lesion could not be updated.',
-          ),
-        );
-      }
-    } finally {
-      isLoading.value = false;
-    }
   }
 }
 
 class DiagnosisBottomSheet extends StatelessWidget {
   final Patient patient;
   final BodyLesion lesion;
+  final String? selectedDiagnosisId;
+  final Function() openEditLesionPage;
 
   const DiagnosisBottomSheet({
     super.key,
     required this.lesion,
     required this.patient,
+    this.selectedDiagnosisId,
+    required this.openEditLesionPage,
   });
 
   @override
   Widget build(BuildContext context) {
     final DiagnosisController controller = Get.put<DiagnosisController>(
-      DiagnosisController(lesion: lesion, patient: patient),
+      DiagnosisController(
+        lesion: lesion,
+        selectedDiagnosisId: selectedDiagnosisId,
+        patient: patient,
+      ),
       tag: lesion.id,
     );
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Obx(() {
-          if (controller.lesion.diagnoses.isNotEmpty) {
-            return Padding(
-              padding: AppTheme.scaffoldPadding,
-              child: Card(
-                child: ListTile(
-                  title: const Text('Suspicious Lesion'),
-                  trailing: controller.isLoading.value
-                      ? const CircularProgressIndicator.adaptive()
-                      : Checkbox(
-                          value: controller.lesion.isSuspicious.value,
-                          onChanged: controller.isLoading.value
-                              ? null
-                              : (bool? value) {
-                                  if (value != null) {
-                                    controller.changeLesionState(
-                                      lesion: controller.lesion,
-                                      suspicious: value,
-                                    );
-                                  }
-                                },
-                        ),
-                ),
-              ),
-            );
-          }
-          return const Center();
-        }),
-        Obx(() {
-          final DiagnosisProcessState currentState =
-              controller.processState.value;
-          final int pageCount =
-              (currentState == DiagnosisProcessState.drafting ? 2 : 1) +
-              controller.lesion.diagnoses.length;
+    return Obx(() {
+      final DiagnosisProcessState currentState = controller.processState.value;
 
-          double currentHeight() {
-            if (controller.currentPage.value == 0) {
-              return 250.0;
-            }
-            if (currentState == DiagnosisProcessState.drafting &&
-                controller.currentPage.value == 1) {
-              return 250.0;
-            }
-            return MediaQuery.sizeOf(context).height * 0.70;
-          }
+      final int pageCount =
+          (currentState == DiagnosisProcessState.drafting ? 2 : 1) +
+          controller.lesion.diagnoses.length;
 
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            height: currentHeight(),
-            decoration: const BoxDecoration(
-              color: AppTheme.highlightColor,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(AppTheme.radiusLarge),
-              ),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              children: <Widget>[
-                Container(
-                  margin: const EdgeInsets.symmetric(
-                    vertical: AppTheme.spaceMedium,
-                  ),
-                  width: 32,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onSecondaryFixedVariant
-                        .withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
+      bool isCompactPage() {
+        final int page = controller.currentPage.value;
+
+        final bool isDraftPreview =
+            currentState == DiagnosisProcessState.drafting && page == 1;
+
+        return page == 0 || isDraftPreview;
+      }
+
+      double currentHeight() {
+        return isCompactPage()
+            ? 250.0
+            : MediaQuery.sizeOf(context).height * 0.70;
+      }
+
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        height: currentHeight() + 40,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: <Widget>[
+            Positioned.fill(
+              top: 20,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppTheme.highlightColor,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(AppTheme.radiusLarge),
                   ),
                 ),
-                Expanded(
-                  child: PageView.builder(
-                    controller: controller.pageController,
-                    onPageChanged: (int index) =>
-                        controller.currentPage.value = index,
-                    itemCount: pageCount,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == 0) {
-                        return CustomCaptureSheet(controller: controller);
-                      }
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                        vertical: AppTheme.spaceMedium,
+                      ),
+                      width: 32,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSecondaryFixedVariant
+                            .withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
 
-                      if (currentState == DiagnosisProcessState.drafting) {
-                        if (index == 1) {
-                          return CustomCutoutSheet(
+                    Expanded(
+                      child: PageView.builder(
+                        controller: controller.pageController,
+                        onPageChanged: (int index) =>
+                            controller.currentPage.value = index,
+                        itemCount: pageCount,
+                        itemBuilder: (BuildContext context, int index) {
+                          if (index == 0) {
+                            return CustomCaptureSheet(controller: controller);
+                          }
+
+                          if (currentState == DiagnosisProcessState.drafting) {
+                            if (index == 1) {
+                              return CustomCutoutSheet(
+                                controller: controller,
+                                diagnosis: controller.draftDiagnosis!,
+                              );
+                            }
+
+                            return CustomDiagnosisSheet(
+                              diagnosis: controller.lesion.diagnoses[index - 2],
+                              controller: controller,
+                            );
+                          }
+
+                          return CustomDiagnosisSheet(
+                            diagnosis: controller.lesion.diagnoses[index - 1],
                             controller: controller,
-                            diagnosis: controller.draftDiagnosis!,
                           );
-                        }
-                        return CustomDiagnosisSheet(
-                          diagnosis: controller.lesion.diagnoses[index - 2],
-                          controller: controller,
-                        );
-                      } else {
-                        return CustomDiagnosisSheet(
-                          diagnosis: controller.lesion.diagnoses[index - 1],
-                          controller: controller,
-                        );
-                      }
-                    },
-                  ),
+                        },
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppTheme.spaceMedium,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List<Widget>.generate(pageCount, (int index) {
+                          return AnimatedContainer(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: AppTheme.spaceSmall / 2,
+                            ),
+                            duration: const Duration(milliseconds: 200),
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: controller.currentPage.value == index
+                                  ? AppTheme.primary
+                                  : AppTheme.scaffoldBg,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppTheme.spaceMedium,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List<Widget>.generate(pageCount, (int index) {
-                      return AnimatedContainer(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: AppTheme.spaceSmall / 2,
-                        ),
-                        duration: const Duration(milliseconds: 200),
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: controller.currentPage.value == index
-                              ? AppTheme.primary
-                              : AppTheme.scaffoldBg,
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ],
+              ),
             ),
-          );
-        }),
-      ],
-    );
+
+            Positioned(
+              top: -AppTheme.spaceSmall,
+              right: AppTheme.spaceLarge,
+              child: Container(
+                padding: const EdgeInsets.all(AppTheme.spaceSmall),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: SizedBox(
+                  width: AppTheme.radiusLarge * 2,
+                  height: AppTheme.radiusLarge * 2,
+                  child: FloatingActionButton(
+                    heroTag: 'edit_lesion_fab_${lesion.id}',
+                    elevation: 0,
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                    onPressed: openEditLesionPage,
+                    child: const Icon(Icons.edit),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

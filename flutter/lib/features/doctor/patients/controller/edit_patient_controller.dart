@@ -16,8 +16,6 @@ class EditPatientController extends GetxController {
   DBService dbService = Get.find<DBService>();
   AuthService authService = Get.find<AuthService>();
 
-  late void Function({required Patient patient})? editPatient;
-
   ScrollController scrollController = ScrollController();
 
   final TextEditingController nameController = TextEditingController();
@@ -45,6 +43,7 @@ class EditPatientController extends GetxController {
   List<Gender> get genderOptions => Gender.values;
 
   late Patient patient;
+  late final void Function({required Patient patient})? editPatient;
 
   @override
   void onClose() {
@@ -193,14 +192,13 @@ class EditPatientController extends GetxController {
 
       if (updatedPatient != null) {
         editPatient?.call(patient: updatedPatient);
-        Get.back(result: updatedPatient);
+        Get.back(closeOverlays: true);
 
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.check_circle,
-            title: 'Patient Created',
-            message:
-                'The profile was successfully updated and added to your Practice.',
+            title: 'Patient Updated',
+            message: 'The profile was successfully updated.',
           ),
         );
       } else {
