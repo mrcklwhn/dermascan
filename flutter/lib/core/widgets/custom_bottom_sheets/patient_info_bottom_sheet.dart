@@ -15,25 +15,29 @@ class PatientInfoBottomSheetController extends GetxController {
 
   PatientInfoBottomSheetController({required this.lesions});
 
-  List<({Diagnosis diagnosis, String location})> get latestDiagnoses {
+  List<({Diagnosis diagnosis, String? locationName, String position})>
+  get latestDiagnoses {
     return lesions
         .expand(
           (BodyLesion lesion) => lesion.diagnoses.map(
-            (Diagnosis diagnosis) =>
-                (diagnosis: diagnosis, location: lesion.location),
+            (Diagnosis diagnosis) => (
+              diagnosis: diagnosis,
+              locationName: lesion.locationName,
+              position: lesion.position,
+            ),
           ),
         )
         .toList()
       ..sort(
         (
-          ({Diagnosis diagnosis, String location}) a,
-          ({Diagnosis diagnosis, String location}) b,
+          ({Diagnosis diagnosis, String? locationName, String position}) a,
+          ({Diagnosis diagnosis, String? locationName, String position}) b,
         ) => b.diagnosis.date.compareTo(a.diagnosis.date),
       );
   }
 
-  List<({Diagnosis diagnosis, String location})> get top5Diagnoses =>
-      latestDiagnoses.take(5).toList();
+  List<({Diagnosis diagnosis, String? locationName, String position})>
+  get top5Diagnoses => latestDiagnoses.take(5).toList();
 
   @override
   void onClose() {
@@ -46,7 +50,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
   final List<BodyLesion> lesions;
   final Patient patient;
   final VoidCallback openEditPatientPage;
-  final Function({required String bodyPartId, bool fromInfoSheet})
+  final Function({required String position, String? diagnosisId})
   openDiagnosisDialog;
 
   const PatientInfoBottomSheet({
@@ -148,7 +152,13 @@ class PatientInfoBottomSheet extends StatelessWidget {
                 const SizedBox(height: AppTheme.spaceSmall),
 
                 Obx(() {
-                  final List<({Diagnosis diagnosis, String location})>
+                  final List<
+                    ({
+                      Diagnosis diagnosis,
+                      String? locationName,
+                      String position,
+                    })
+                  >
                   diagnoses = controller.top5Diagnoses;
                   if (diagnoses.isEmpty) {
                     return const Padding(
@@ -161,8 +171,12 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: diagnoses.length,
                     itemBuilder: (BuildContext context, int index) {
-                      final ({Diagnosis diagnosis, String location}) item =
-                          diagnoses[index];
+                      final ({
+                        Diagnosis diagnosis,
+                        String? locationName,
+                        String position,
+                      })
+                      item = diagnoses[index];
 
                       final Uint8List bytes =
                           item.diagnosis.analyzedImages!['original']!;
@@ -193,14 +207,14 @@ class PatientInfoBottomSheet extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                'Location: ${item.location}\n'
+                                'Location: ${item.locationName ?? 'Not specified'}\n'
                                 'Date: ${DateFormat('dd.MM.yyyy').format(item.diagnosis.date)}',
                               ),
                               onTap: () {
                                 Get.back();
                                 openDiagnosisDialog(
-                                  bodyPartId: item.location,
-                                  fromInfoSheet: true,
+                                  position: item.position,
+                                  diagnosisId: item.diagnosis.id,
                                 );
                               },
                               trailing: const Icon(Icons.arrow_forward),

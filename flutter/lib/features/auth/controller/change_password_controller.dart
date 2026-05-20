@@ -121,15 +121,23 @@ class ChangePasswordController extends GetxController {
         );
       } else {
         Get.back(result: true);
-        await Get.dialog(
-          CustomDialog(
-            title: 'Password Changed',
-            subtitle:
-                "It's highly recommended to log out now, click the link in your email, and then log back in with your new credentials.",
-            isDismissable: true,
-            onSubmit: () => authService.signOut(),
-            submitText: 'Logout',
-          ),
+        await CustomDialogHelper.show(
+          routeName: 'password-changed-dialog',
+
+          title: 'Password Changed',
+
+          subtitle:
+              "It's highly recommended to log out now, "
+              'click the link in your email, and then log back in '
+              'with your new credentials.',
+
+          isDismissable: true,
+
+          submitText: 'Logout',
+
+          onSubmit: () async {
+            await authService.signOut();
+          },
         );
       }
     } finally {

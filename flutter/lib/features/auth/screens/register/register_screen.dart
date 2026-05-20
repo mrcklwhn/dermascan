@@ -109,6 +109,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
         const SizedBox(width: AppTheme.spaceMedium),
         Expanded(
           child: DropdownButtonFormField<Gender>(
+            isExpanded: true,
             initialValue: doctorRegisterController.selectedGender,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
@@ -118,7 +119,10 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
             items: Gender.values.map((Gender g) {
               return DropdownMenuItem<Gender>(
                 value: g,
-                child: Text(g.name[0].toUpperCase() + g.name.substring(1)),
+                child: Text(
+                  g.name[0].toUpperCase() + g.name.substring(1),
+                  overflow: TextOverflow.ellipsis,
+                ),
               );
             }).toList(),
             onChanged: (Gender? newValue) {

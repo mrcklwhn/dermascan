@@ -88,8 +88,10 @@ class EditPatientScreen extends GetView<EditPatientController> {
                   subtitle: const Text('Has the patient ever had a sunburn?'),
                   value: controller.previousSunburns.value,
                   onChanged: (bool? value) {
-                    if (value != null) {
-                      controller.previousSunburns.value = value;
+                    if (!controller.isLoading.value) {
+                      if (value != null) {
+                        controller.previousSunburns.value = value;
+                      }
                     }
                   },
                 ),
@@ -113,8 +115,10 @@ class EditPatientScreen extends GetView<EditPatientController> {
                   subtitle: const Text('Any previous skin-related surgeries?'),
                   value: controller.previousSkinSurgeries.value,
                   onChanged: (bool? value) {
-                    if (value != null) {
-                      controller.previousSkinSurgeries.value = value;
+                    if (!controller.isLoading.value) {
+                      if (value != null) {
+                        controller.previousSkinSurgeries.value = value;
+                      }
                     }
                   },
                 ),
@@ -138,8 +142,10 @@ class EditPatientScreen extends GetView<EditPatientController> {
                   subtitle: const Text('Does the patient use tanning beds?'),
                   value: controller.tanningBedExposure.value,
                   onChanged: (bool? value) {
-                    if (value != null) {
-                      controller.tanningBedExposure.value = value;
+                    if (!controller.isLoading.value) {
+                      if (value != null) {
+                        controller.tanningBedExposure.value = value;
+                      }
                     }
                   },
                 ),
