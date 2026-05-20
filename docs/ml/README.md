@@ -3,7 +3,7 @@ Die grundlegende Eignung und Funktionsfähigkeit unseres Klassifikationsansatzes
 
 
 ## Python Umgebung
-Zum Ausführen ist Version 3.13.11 zu empfohlen.
+Zum Ausführen ist Version 3.13.11 empfohlen.
 Alle nötigen Bibliotheken sind in [`/python/requirements.txt`](/python/requirements.txt) aufgelistet.
 Für pyTorch mit GPU Beschleunigung sollte die [Installationsbeschreibung](https://pytorch.org/get-started/locally/) auf der offiziellen Webseite befolgt werden. 
 Die python Umgebung wurde ausschließlich für die Modellentwicklung und Evaluation genutzt.
@@ -39,7 +39,7 @@ Letzteres ist ein Subset, dass auch als [HAM10000 Datensatz](https://www.kaggle.
 
 Dieser Datensatz wurde unsererseits durch die Anwendung verschiedener Bildfilter (z.B. LBP, Gabor und GLCM) augmentiert, um die Relevanz von Texturmerkmalen zu analysieren.
 
-Eine detaillierte Übersicht über die Datenanalyse und -vorbereitung findet sich in [`ham10000_overview.ipynb`](/python/ham10000_overview.ipynb). Eine Kernaussage des Notizbuchs ist, dass es ein hohes Ungleichgewicht zwischen den Klassen gibt, was durch gezielte Augmentation und Sampling-Strategien adressiert werden muss.
+Eine detaillierte Übersicht über die Datenanalyse und -vorbereitung findet sich in [`ham10000_overview.ipynb`](/python/ham10000_overview.ipynb).
 
 ## Klassifikatorentwicklung
 Hauptziel ist die Entwicklung eines Klassifikators, der auf mobilen Endgeräten lauffähig ist.
@@ -77,13 +77,13 @@ Nach Vorbild der Literatur wurde als nächster Schritt die Verwendung von vortra
 Die zugehörigen Artefakte sind in `/python/prototypes/resnet_finetuning/` dokumentiert.
 Insofern ist ein Wechsel der Bibliothek von TensorFlow Keras zu PyTorch erfolgt, da PyTorch als flexibler und benutzerfreundlicher für die Implementierung von Transfer Learning gilt. Weiterhin bietet PyTorch breitere Anbindung an Bibliotheken für die Modellkonvertierung zu mobilen Formaten.
 
-
-
 ### Multibranch Architektur
 
 Als besondere Aufgabe wurde eine eigene CNN-Architektur entwickelt, die mehrere spezialisierte Branches kombiniert, um verschiedene Merkmale der Hautläsion zu analysieren.
 
 Nähere Informationen zur Multibranch Architektur finden sich in der [zugehörigen Beschreibung](multibranch_architecture.md).
+
+
 
 
 ## Anwendung von ABCDE-Kriterien
