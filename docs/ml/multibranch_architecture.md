@@ -35,11 +35,11 @@ graph TD
     Fusion --> Head[Classification Head<br/>Dense -> 1 sigmoid output]
 ```
 
-### Ansatz 2: Soft Voting
-Aufbau eines **Dualbranch-CNN**, welches die Enschätzung zweier **getrennt** trainierter CNNs nach Soft Voting kombiniert.
+### Ansatz 2: Ensemble Voting
+Aufbau eines **Dualbranch-CNN**, welches die Enschätzung zweier **getrennt** trainierter CNNs nach Ensemble Voting kombiniert.
   - Zwei CNNs erzeugen getrennte Feature-Vektoren
   - Jeweils Klassifikation via Dense NN, SVM, Decision Tree
-  - Soft-Voting der beiden Wahrscheinlichkeiten für das Endergebnis
+  - Ensemble-Voting der beiden Wahrscheinlichkeiten für das Endergebnis
 
 ```mermaid
 graph TD
@@ -50,7 +50,7 @@ graph TD
     B2 --> FV2[Feature Vector<br/>512-dim]
     FV1 --> P1[Dense/SVM<br/>Probability P1]
     FV2 --> P2[Dense/SVM<br/>Probability P2]
-    P1 --> Voting[Soft Voting<br/>weighted average]
+    P1 --> Voting[Ensemble Voting<br/>weighted average]
     P2 --> Voting
     Voting --> Output[Final Binary Output]
 ```
@@ -125,6 +125,12 @@ ENSEMBLE_CONFIG = {
 }
 ``` 
 
+### Auditing von Trainingsergebnissen
+
+Die Trainingspipeline speichert alle relevanten Informationen zu einem Trainingslauf, um die Rückverfolgung und Reproduzierbarkeit der Ergebnisse zu gewährleisten. Dazu gehören die Modellgewichte, der Trainingsverlauf, die finalen Metriken und die Konfiguration des Branches.
+
+Weitere Informationen zum Auditing-Prozess und der Rückverfolgung von Modellen finden sich in der [Auditing Dokumentation](auditing.md).
+
 
 ## Ergebnisse
 
@@ -146,7 +152,7 @@ Die Metriken soll hier noch einmal kurz erklärt werden:
 
 ### Zwischenergebnisse vom einfachen Training 25.02.2026
 
-Die verwendeten Modelle sind in der [FAUBox](https://faubox.rrze.uni-erlangen.de/getlink/fiBdx9pHi9z1Qo3cPAcJmh/Dermascan) abgelegt.
+Die verwendeten Modelle sind in der [FAUBox](https://faubox.rrze.uni-erlangen.de/getlink/fiBdx9pHi9z1Qo3cPAcJmh/Dermascan) im Verzeichnis `trained models` abgelegt.
 
 Um einen erste Eindruck der Sinnhaftigkeit der Multibranch Architektur zu gewinnen, wurden noch unter manueller Arbeit 4 ResNet-Modelle trainiert, von denen jedes auf einem anderen Filter-Datensatz trainiert wurde (Original RGB, LBP, Gabor, GLCM). Alle Modelle wurden mit den gleichen Hyperparametern trainiert (`30 Epochen`, `Batch Size 16`, `AdamW Optimizer mit LR 1e-4 und Weight Decay 1e-4`, `ReduceOnPlateau Scheduler mit Patience 3`).
 
