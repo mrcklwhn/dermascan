@@ -29,6 +29,7 @@ class TrainingHistory(BaseModel, frozen=True):
     train_accuracy: list[float]
     val_accuracy: list[float]
     val_f1_macro: list[float]
+    best_epoch: int
 
 @dataclass(frozen=True)
 class EvalResult:

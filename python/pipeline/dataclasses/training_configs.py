@@ -12,6 +12,13 @@ class AdamConfig(BaseModel, frozen=True):
     eps: float = 1e-8
 
 
+class AdamWConfig(BaseModel, frozen=True):
+    optimizer_type: OptimizerType = OptimizerType.ADAMW
+    weight_decay: float = 1e-4
+    betas: Tuple[float, float] = (0.9, 0.999)
+    eps: float = 1e-8
+
+
 class SGDConfig(BaseModel, frozen=True):
     optimizer_type: OptimizerType = OptimizerType.SGD
     momentum: float = 0.9
@@ -28,3 +35,9 @@ class ReduceLROnPlateauConfig(BaseModel, frozen=True):
     patience: int = 10
     min_lr: float = 0
     cooldown: int = 0
+
+
+class CosineAnnealingLRConfig(BaseModel, frozen=True):
+    scheduler_type: SchedulerType = SchedulerType.COSINE_ANNEALING
+    t_max: int = 50
+    eta_min: float = 1e-5

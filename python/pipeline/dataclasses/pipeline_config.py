@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import Union, Optional
 from pydantic import BaseModel, field_validator
 
-from pipeline.dataclasses.enums import SplitType, ModelType, FilterType, AugmentationType, DatasetLoaderType
-from pipeline.dataclasses.training_configs import AdamConfig, SGDConfig, ReduceLROnPlateauConfig
+from pipeline.dataclasses.enums import SplitType, ModelType, FilterType, AugmentationType, DatasetLoaderType, LossType
+from pipeline.dataclasses.training_configs import AdamConfig, AdamWConfig, SGDConfig, ReduceLROnPlateauConfig, CosineAnnealingLRConfig
 
 class TrainValTestSplitRatio(BaseModel, frozen=True):
     split_type: SplitType = SplitType.RATIO
@@ -19,7 +19,7 @@ class CustomSplitConfig(BaseModel, frozen=True):
 SplitConfig = Union[TrainValTestSplitRatio, CustomSplitConfig]
 
 class ModelConfig(BaseModel, frozen=True):
-    model: ModelType
+    model_type: ModelType
     filter_type: FilterType
     num_classes: int
     pretrained: bool = True
@@ -36,15 +36,17 @@ class ModelConfig(BaseModel, frozen=True):
             raise ValueError(f"No FilterType with value {v}")
         return v
 
-OptimizerConfig = Union[AdamConfig, SGDConfig]
+OptimizerConfig = Union[AdamConfig, AdamWConfig, SGDConfig]
 
-SchedulerConfig = Union[ReduceLROnPlateauConfig]
+SchedulerConfig = Union[ReduceLROnPlateauConfig, CosineAnnealingLRConfig]
 
 class TrainerConfig(BaseModel, frozen=True):
     batch_size: int
     num_epochs: int
     learning_rate: float
-    criterion_weights: tuple[float, float] | None = (1/0.87, 1/0.13)
+    loss_type: LossType = LossType.BCE_WITH_LOGITS
+    pos_weight: float = 1.0 
+    class_weights: Optional[tuple[float, float]] = None
     optimizer: OptimizerConfig
     scheduler: SchedulerConfig
 

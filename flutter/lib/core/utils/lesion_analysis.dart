@@ -38,7 +38,6 @@ class LesionAnalysis {
 
   Future<void> runLesionAnalysis({
     bool useNeuralModel = false,
-    String modelType = 'RGB',
   }) async {
     if (useNeuralModel) {
       await _neuralCutout.initializeModel();
@@ -52,21 +51,7 @@ class LesionAnalysis {
     }
 
     // Classification
-    Map<String, dynamic> inferenceResult = <String, dynamic>{};
-    if (modelType == 'Gabor') {
-      inferenceResult = await _neuralLesionClassification.runGabor(image);
-    } else if (modelType == 'GLCM') {
-      inferenceResult = await _neuralLesionClassification.runGLCM(image);
-    } else if (modelType == 'SoftEnsemble') {
-      inferenceResult = await _neuralLesionClassification.runEnsemble(image);
-    } else if (modelType == 'HardEnsemble') {
-      inferenceResult = await _neuralLesionClassification.runEnsemble(
-        image,
-        useSoftVoting: false,
-      );
-    } else {
-      inferenceResult = await _neuralLesionClassification.runRGB(image);
-    }
+    final Map<String, dynamic> inferenceResult = await _neuralLesionClassification.run(image);
 
     labelIdx = inferenceResult['label_int'] as int?;
     labelConfidence = inferenceResult['confidence'] as double?;

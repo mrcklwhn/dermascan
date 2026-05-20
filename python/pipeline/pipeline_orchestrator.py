@@ -60,6 +60,7 @@ class   PipelineOrchestrator:
                 data_loaders = DataLoaderFactory.build(
                     branch_config.dataset_loader,
                     branch_config.branch_model_config.filter_type,
+                    branch_config.branch_model_config.model_type,
                     train_val_test_split,
                     self.pipeline_config.data_path,
                     branch_config.trainer_config.batch_size,
