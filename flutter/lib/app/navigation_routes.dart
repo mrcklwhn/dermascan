@@ -12,6 +12,7 @@ import 'package:dermascan/features/doctor/init/screens/init_screen.dart';
 import 'package:dermascan/features/doctor/init/screens/invitations_screen.dart';
 import 'package:dermascan/features/doctor/patients/bindings/patients_bindings.dart';
 import 'package:dermascan/features/doctor/patients/screens/add_patient_screen.dart';
+import 'package:dermascan/features/doctor/patients/screens/edit_lesion_screen.dart';
 import 'package:dermascan/features/doctor/patients/screens/edit_patient_screen.dart';
 import 'package:dermascan/features/doctor/patients/screens/patient_details_screen.dart';
 import 'package:dermascan/features/practice/doctors/bindings/doctors_bindings.dart';
@@ -81,6 +82,12 @@ class NavigationRoutes {
     GetPage<dynamic>(
       name: '/doctor/edit-patient',
       page: () => const EditPatientScreen(),
+      binding: PatientsBindings(),
+      middlewares: <GetMiddleware>[AuthMiddleware(), DoctorMiddleware()],
+    ),
+    GetPage<dynamic>(
+      name: '/doctor/edit-lesion',
+      page: () => const EditLesionScreen(),
       binding: PatientsBindings(),
       middlewares: <GetMiddleware>[AuthMiddleware(), DoctorMiddleware()],
     ),

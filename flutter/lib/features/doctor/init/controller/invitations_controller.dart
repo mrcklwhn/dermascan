@@ -117,7 +117,6 @@ class InvitationsController extends GetxController {
       final bool success = await dbService.acceptPracticeInvitation(
         practiceId: practice.id,
       );
-      if (Get.isDialogOpen ?? false) Get.back();
       if (success) {
         Get.showSnackbar(
           CustomSnackBar(
@@ -142,29 +141,34 @@ class InvitationsController extends GetxController {
     }
   }
 
-  void showPracticeJoinDialog({required String practiceId}) {
+  Future<void> showPracticeJoinDialog({required String practiceId}) async {
     if (isLoading.value || isInitializing.value) return;
 
     final PracticeInvitation selectedInvitation = pendingInvitations.firstWhere(
       (PracticeInvitation invitation) => invitation.practice.id == practiceId,
     );
 
-    Get.dialog(
-      barrierDismissible: false,
-      Obx(
-        () => CustomDialog(
-          title: 'Invitation of ${selectedInvitation.practice.name}?',
-          subtitle:
-              'Accepting this invitation grants you access to the practice data. Please note that your professional data will also be visible to the practice owner.',
-          isDismissable: true,
-          onSubmit: isLoading.value || isInitializing.value
-              ? null
-              : () async => await acceptPracticeInvitation(
-                  practice: selectedInvitation.practice,
-                ),
-          submitText: 'Accept',
-        ),
-      ),
+    await CustomDialogHelper.show(
+      routeName: 'accept-practice-invitation-dialog',
+
+      title: 'Invitation of ${selectedInvitation.practice.name}?',
+
+      subtitle:
+          'Accepting this invitation grants you access to the practice data. '
+          'Please note that your professional data will also be visible '
+          'to the practice owner.',
+
+      isDismissable: true,
+
+      submitText: 'Accept',
+
+      onSubmit: isLoading.value || isInitializing.value
+          ? null
+          : () async {
+              await acceptPracticeInvitation(
+                practice: selectedInvitation.practice,
+              );
+            },
     );
   }
 }

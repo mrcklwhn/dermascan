@@ -140,6 +140,21 @@ class PracticeProfileController extends GetxController {
   Future<void> showLogoutDialog() async {
     if (isLoading.value || isInitializing.value) return;
 
-    await Get.dialog(const CustomLogoutDialog());
+    await CustomDialogHelper.show(
+      routeName: 'logout-dialog',
+
+      title: 'Logout?',
+
+      subtitle:
+          'You are about to log out of your account. Are you sure you want to proceed?',
+
+      isDismissable: true,
+
+      submitText: 'Logout',
+
+      onSubmit: () async {
+        await authService.signOut();
+      },
+    );
   }
 }

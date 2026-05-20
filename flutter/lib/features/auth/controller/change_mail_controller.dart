@@ -118,15 +118,23 @@ class ChangeEmailController extends GetxController {
         );
       } else {
         Get.back(result: true);
-        await Get.dialog(
-          CustomDialog(
-            title: 'Almost there!',
-            subtitle:
-                'We have sent a confirmation link to your new email address. It is highly recommended to log out now, click the link in your email, and then log back in with your new credentials.',
-            isDismissable: true,
-            onSubmit: () => authService.signOut(),
-            submitText: 'Logout',
-          ),
+        await CustomDialogHelper.show(
+          routeName: 'confirm-email-dialog',
+
+          title: 'Almost there!',
+
+          subtitle:
+              'We have sent a confirmation link to your new email address. '
+              'It is highly recommended to log out now, click the link in your email, '
+              'and then log back in with your new credentials.',
+
+          isDismissable: true,
+
+          submitText: 'Logout',
+
+          onSubmit: () async {
+            await authService.signOut();
+          },
         );
       }
     } finally {

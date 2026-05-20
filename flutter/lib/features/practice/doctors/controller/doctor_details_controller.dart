@@ -83,8 +83,6 @@ class DoctorDetailsController extends GetxController {
         doctorId: doctor.id,
       );
 
-      if (Get.isDialogOpen ?? false) Get.back();
-
       if (success) {
         if (invitationAlreadySentOnInit) {
           addToList?.call(doctor: doctor);
@@ -117,20 +115,24 @@ class DoctorDetailsController extends GetxController {
   Future<void> showInviteDialog() async {
     if (isLoading.value || isInitializing.value || invitationSent.value) return;
 
-    await Get.dialog(
-      Obx(
-        () => CustomDialog(
-          title: 'Invite Doctor?',
-          subtitle:
-              "You are about to invite '${doctor.name}' to your practice. This allows access to all the practice data.",
-          isDismissable: true,
-          onSubmit:
-              isLoading.value || isInitializing.value || invitationSent.value
-              ? null
-              : () async => await inviteDoctorToCurrentPractice(),
-          submitText: 'Invite',
-        ),
-      ),
+    await CustomDialogHelper.show(
+      routeName: 'invite-doctor-dialog',
+
+      title: 'Invite Doctor?',
+
+      subtitle:
+          "You are about to invite '${doctor.name}' to your practice. "
+          'This allows access to all the practice data.',
+
+      isDismissable: true,
+
+      submitText: 'Invite',
+
+      onSubmit: isLoading.value || isInitializing.value || invitationSent.value
+          ? null
+          : () async {
+              await inviteDoctorToCurrentPractice();
+            },
     );
   }
 
@@ -159,8 +161,6 @@ class DoctorDetailsController extends GetxController {
         practiceId: practiceId,
         doctorId: doctor.id,
       );
-
-      if (Get.isDialogOpen ?? false) Get.back();
 
       if (success) {
         if (invitationAlreadySentOnInit) {
@@ -197,20 +197,22 @@ class DoctorDetailsController extends GetxController {
       return;
     }
 
-    await Get.dialog(
-      Obx(
-        () => CustomDialog(
-          title: 'Revoke Invitation?',
-          subtitle:
-              "You are about to revoke your invitation for '${doctor.name}'.",
-          isDismissable: true,
-          onSubmit:
-              isLoading.value || isInitializing.value || !invitationSent.value
-              ? null
-              : () async => await revokeInvitationOfCurrentPractice(),
-          submitText: 'Revoke',
-        ),
-      ),
+    await CustomDialogHelper.show(
+      routeName: 'revoke-invitation-dialog',
+
+      title: 'Revoke Invitation?',
+
+      subtitle: "You are about to revoke your invitation for '${doctor.name}'.",
+
+      isDismissable: true,
+
+      submitText: 'Revoke',
+
+      onSubmit: isLoading.value || isInitializing.value || !invitationSent.value
+          ? null
+          : () async {
+              await revokeInvitationOfCurrentPractice();
+            },
     );
   }
 
@@ -240,8 +242,6 @@ class DoctorDetailsController extends GetxController {
       final bool success = await dbService.leaveCurrentPractice(
         doctorId: doctor.id,
       );
-
-      if (Get.isDialogOpen ?? false) Get.back();
 
       if (success) {
         removeFromList?.call(doctorId: doctor.id);
@@ -276,22 +276,28 @@ class DoctorDetailsController extends GetxController {
       return;
     }
 
-    await Get.dialog(
-      Obx(
-        () => CustomDialog(
-          title: 'Remove Doctor?',
-          subtitle:
-              "You are about to remove '${doctor.name}' from your practice. This removes access to any shared data with it. Do you want to continue?",
-          isDismissable: true,
-          onSubmit:
-              isLoading.value ||
-                  isInitializing.value ||
-                  !isAssignedToCurrentPractice.value
-              ? null
-              : () async => await removeDoctorFromCurrentPractice(),
-          submitText: 'Remove',
-        ),
-      ),
+    await CustomDialogHelper.show(
+      routeName: 'remove-doctor-dialog',
+
+      title: 'Remove Doctor?',
+
+      subtitle:
+          "You are about to remove '${doctor.name}' from your practice. "
+          'This removes access to any shared data with it. '
+          'Do you want to continue?',
+
+      isDismissable: true,
+
+      submitText: 'Remove',
+
+      onSubmit:
+          isLoading.value ||
+              isInitializing.value ||
+              !isAssignedToCurrentPractice.value
+          ? null
+          : () async {
+              await removeDoctorFromCurrentPractice();
+            },
     );
   }
 }
