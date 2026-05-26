@@ -14,6 +14,8 @@
 #    - Transparency: YES (Transparent background, logo only)
 # ==============================================================================
 
+# RUN: dart run flutter_launcher_icons -f flutter_launcher_icons.yaml
+
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
