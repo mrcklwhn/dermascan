@@ -14,6 +14,8 @@
 #    - Transparency: YES (Transparent background, logo only)
 # ==============================================================================
 
+# RUN: dart run flutter_native_splash:create --path=flutter_native_splash.yaml
+
 flutter_native_splash:
   color: "#FFFFFF"
   image: "assets/app_icon_full.png"
