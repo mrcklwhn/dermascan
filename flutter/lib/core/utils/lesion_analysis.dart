@@ -50,6 +50,8 @@ class LesionAnalysis {
       rawLesionMask = OtsusLesionCutout().run(image);
     }
 
+    // TODO: Only run model if not just an overlay is required
+
     // Classification
     final Map<String, dynamic> inferenceResult = await _neuralLesionClassification.run(image);
 
