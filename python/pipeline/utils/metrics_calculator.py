@@ -59,6 +59,18 @@ class MetricsCalculator:
         )
     
     def get_threshold(self, y_true: np.ndarray, y_prob: np.ndarray, min_specificity=0.7):
+        """
+        Finds the optimal threshold for converting predicted probabilities to binary predictions based on maximizing sensitivity while ensuring a minimum specificity.
+        
+        Args:
+            y_true (np.ndarray): The true binary labels.
+            y_prob (np.ndarray): The predicted probabilities for the positive class.
+            min_specificity (float): The minimum required specificity. Thresholds that do not meet this requirement will be ignored. Defaults to 0.7.
+        
+        Returns:
+            float: The optimal threshold that maximizes sensitivity while meeting the minimum specificity requirement.
+        
+        """
         best_threshold = 0.5
         best_sensitivity = -1.0
 
@@ -79,6 +91,16 @@ class MetricsCalculator:
 
 
     def _calculate_sensitivity_specificity(self, y_true: np.ndarray, y_pred: np.ndarray):
+        """
+        Calculates sensitivity (recall) and specificity based on true and predicted labels.
+
+        Args:
+            y_true (np.ndarray): The true binary labels.
+            y_pred (np.ndarray): The predicted binary labels.
+
+        Returns:
+            tuple: Sensitivity and specificity values.
+        """
         tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
         sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0.0
         specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
