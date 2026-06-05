@@ -65,18 +65,24 @@ class BranchRunner:
             training_history = self.trainer.train(self.data.train_loader, self.data.val_loader)
             self._save_training_history(training_history)
             Plotter.plot_training_history(training_history, self.branch_run_path)
-            
-            eval_results, self.model = self.trainer.test(self.data.test_loader)
+
+            val_result, _ = self.trainer.test(self.data.val_loader, threshold=0.5)
 
             metrics_calculator = MetricsCalculator()
-            metrics_result = metrics_calculator.calculate(eval_results)
+            optimal_threshold = metrics_calculator.get_threshold(val_result.y_true.numpy(), val_result.y_prob.numpy())
+            print(f"Optimal threshold found: {optimal_threshold}")
+            MLFlowLogger.log_param("optimal_threshold", optimal_threshold)
+            
+            test_results, self.model = self.trainer.test(self.data.test_loader, threshold=optimal_threshold)
 
+            metrics_result = metrics_calculator.get_eval_metrics(test_results)
             self._save_metrics(metrics_result)
 
-            Plotter.plot_confusion_matrix(eval_results, self.branch_run_path)
-            Plotter.plot_precision_recall_curve(eval_results, self.branch_run_path)
-            Plotter.plot_roc_curve(eval_results, self.branch_run_path)
-            Plotter.plot_confidence_distribution(eval_results, self.branch_run_path)
+            Plotter.plot_confusion_matrix(test_results, self.branch_run_path)
+            Plotter.plot_precision_recall_curve(test_results, self.branch_run_path)
+            Plotter.plot_roc_curve(test_results, self.branch_run_path)
+            Plotter.plot_confidence_distribution(test_results, self.branch_run_path)
+
             MLFlowLogger.log_branch_results(self.branch_run_path, metrics_result)
             sample_input, _ = next(iter(self.data.test_loader))
             MLFlowLogger.log_model(self.model, self.branch_config.branch_id, sample_input[:1].cpu(), step=training_history.best_epoch)

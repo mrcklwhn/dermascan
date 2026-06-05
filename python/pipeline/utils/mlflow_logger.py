@@ -77,3 +77,7 @@ class MLFlowLogger:
             input_example=sample_input,
             step = step,
         )
+
+    @staticmethod
+    def log_param(key: str, value: any):
+        mlflow.log_param(key, value)

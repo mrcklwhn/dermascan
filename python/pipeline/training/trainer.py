@@ -2,6 +2,7 @@ from pathlib import Path
 import shutil
 from tempfile import TemporaryDirectory
 import torch
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import numpy as np
 from sklearn.metrics import f1_score
@@ -167,7 +168,7 @@ class Trainer:
         running_loss = 0.0
         running_corrects = 0
 
-        all_preds = []
+        all_probs = []
         all_labels = []
 
         with torch.inference_mode():
@@ -176,13 +177,15 @@ class Trainer:
                 labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
-                loss_inputs, loss_labels, preds = self._prepare_outputs_labels_preds(outputs, labels)
+                loss_inputs, loss_labels, probs = self._prepare_outputs_labels_preds(outputs, labels)
                 loss = self.criterion(loss_inputs, loss_labels)
+
+                preds = (probs >= 0.5).long()
 
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data).item()
 
-                all_preds.append(preds.cpu().numpy())
+                all_probs.append(preds.cpu().numpy())
                 all_labels.append(labels.cpu().numpy())
                             
                 del inputs, labels, outputs, preds, loss
@@ -190,13 +193,13 @@ class Trainer:
         n = len(val_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
-        f1 = f1_score(np.concatenate(all_labels), np.concatenate(all_preds), average="macro", zero_division=0)
+        f1 = f1_score(np.concatenate(all_labels), np.concatenate(all_probs), average="macro", zero_division=0)
 
         torch.cuda.empty_cache()
 
         return epoch_loss, epoch_acc, f1
 
-    def test(self, test_loader: DataLoader) -> tuple[EvalResult, torch.nn.Module]:
+    def test(self, test_loader: DataLoader, threshold: float = 0.5) -> tuple[EvalResult, torch.nn.Module]:
         """
         Tests the model on the test dataset.
 
@@ -218,12 +221,10 @@ class Trainer:
                 labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
-                if self.loss_type == LossType.BCE_WITH_LOGITS:
-                    probs = torch.sigmoid(outputs.squeeze(-1))
-                    preds = (probs >= 0.5).long()
-                else:
-                    probs = torch.softmax(outputs, dim=1)
-                    _, preds = torch.max(probs, dim=1)
+
+                _, _, probs = self._prepare_outputs_labels_preds(outputs, labels)
+
+                preds = (probs >= threshold).long()
 
                 all_preds.append(preds.cpu())
                 all_labels.append(labels.cpu())
@@ -337,8 +338,11 @@ class Trainer:
         if self.loss_type == LossType.BCE_WITH_LOGITS:
             loss_inputs = outputs.squeeze(-1)
             loss_labels = labels.float()
-            preds = (torch.sigmoid(loss_inputs) >= 0.5).long()
-            return loss_inputs, loss_labels, preds
+            probs = torch.sigmoid(loss_inputs)
+            return loss_inputs, loss_labels, probs
 
-        _, preds = torch.max(outputs, 1)
-        return outputs, labels.long(), preds
+        loss_inputs = outputs
+        loss_labels = labels.long()
+
+        probs = F.softmax(outputs, dim=1)[:, 1]
+        return loss_inputs, loss_labels, probs
