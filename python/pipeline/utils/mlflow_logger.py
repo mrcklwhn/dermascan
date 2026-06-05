@@ -7,9 +7,22 @@ from pipeline.dataclasses.pipeline_config import BranchConfig
 from pipeline.dataclasses.pipeline_runtime import MetricsResult
 
 class MLFlowLogger:
-
+    """
+    MLFlowLogger is a utility class responsible for logging parameters, metrics, and artifacts to MLflow during the execution of a branch in the pipeline.
+    It provides static methods for:
+    - Logging branch parameters and configurations.
+    - Logging evaluation metrics and artifacts after branch execution.
+    - Logging epoch-level metrics during training.
+    - Logging the model architecture and weights at specific steps during training.
+    - Logging individual parameters as needed.
+    """
     @staticmethod
     def log_branch_params(branch_config: BranchConfig):
+        """
+        Logs the parameters and configurations of a branch to MLflow.
+        Args:
+            branch_config (BranchConfig): The configuration of the branch to be logged.
+        """
         mlflow.log_params({
             "branch_id": branch_config.branch_id,
             "model": branch_config.branch_model_config.model_type.value,
@@ -36,6 +49,12 @@ class MLFlowLogger:
 
     @staticmethod
     def log_branch_results(branch_run_path: Path, metrics_result: MetricsResult):
+        """
+        Logs the evaluation metrics and artifacts of a branch execution to MLflow.
+        Args:
+            branch_run_path (Path): The path to the branch run directory containing artifacts.
+            metrics_result (MetricsResult): The evaluation metrics result to be logged.
+        """
         mlflow.log_metrics(metrics_result.model_dump())
 
         mlflow.log_artifact(str(branch_run_path / "confusion_matrix.png"))
@@ -56,6 +75,20 @@ class MLFlowLogger:
                   epoch: int,
                   best_epoch: int,
                   best_f1: float):
+        """
+        Logs epoch-level metrics during training to MLflow.
+                
+        Args:            
+            epoch_train_loss (float): The average training loss for the epoch.
+            epoch_train_acc (float): The average training accuracy for the epoch.
+            epoch_val_loss (float): The average validation loss for the epoch.
+            epoch_val_acc (float): The average validation accuracy for the epoch.
+            epoch_val_f1 (float): The average validation F1 score for the epoch.
+            learning_rate (float): The learning rate used during the epoch.
+            epoch (int): The current epoch number.
+            best_epoch (int): The epoch number with the best validation F1 score so far.
+            best_f1 (float): The best validation F1 score achieved so far.
+        """
         mlflow.log_metrics({
             "train_loss": epoch_train_loss,
             "train_acc": epoch_train_acc,
@@ -69,6 +102,14 @@ class MLFlowLogger:
 
     @staticmethod
     def log_model(model: torch.nn.Module, name: str, sample_input: torch.Tensor, step: int):
+        """
+        Logs the model architecture and weights to MLflow at a specific step during training.
+        Args:
+            model (torch.nn.Module): The PyTorch model to be logged.
+            name (str): The name under which the model will be logged in MLflow.
+            sample_input (torch.Tensor): A sample input tensor for the model, used for input schema inference.
+            step (int): The training step or epoch number at which the model is being logged.
+        """
         model.eval()
         mlflow.pytorch.log_model(
             pytorch_model=model,
@@ -80,4 +121,9 @@ class MLFlowLogger:
 
     @staticmethod
     def log_param(key: str, value: any):
+        """Logs an individual parameter to MLflow.
+        Args:
+            key (str): The name of the parameter to log.
+            value (any): The value of the parameter to log.
+        """
         mlflow.log_param(key, value)

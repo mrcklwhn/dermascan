@@ -17,7 +17,7 @@ class FilterDatasetLoader(Dataset):
     """
 
     def __init__(
-        self, dataframe: pd.DataFrame, filter_type: FilterType, data_path: Path, augmentations: A.Compose = None
+        self, dataframe: pd.DataFrame, filter_type: FilterType, data_path: Path, augmentations: A.Compose | None = None
     ):
         """
         Initializes the FilterDatasetLoader with a DataFrame containing image IDs and labels, a filter type, and a data path.
@@ -26,6 +26,7 @@ class FilterDatasetLoader(Dataset):
             dataframe (pd.DataFrame): A DataFrame containing the image IDs and labels.
             filter_type (FilterType): The type of filter applied to the features, which determines the subdirectory from which to load the .npy files.
             data_path (Path): The path to the data directory.
+            augmentations (A.Compose | None, optional): A composed augmentation transform to be applied to the dataset items. Defaults to None.
         """
         self.dataframe = dataframe
         self.filter_name = filter_type.filter_name

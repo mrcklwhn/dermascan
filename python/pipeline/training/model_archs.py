@@ -26,6 +26,10 @@ class _ModelArchConfig:
     get_output_layer: Callable[[nn.Module], nn.Module]
     set_output_layer: Callable[[nn.Module, nn.Linear], None]
 
+# configs for supported model architectures with pretrained weights and layer accessors for input and output layers
+# supported architectures:
+# ResNet18, ResNet50, ResNet101, EfficientNet_V2_S, Inception_V3, SqueezeNet_1_1, MobileNet_V3_Small, MobileNet_V3_Large
+
 def _resnet_config(builder, weights) -> _ModelArchConfig:
     def set_input_layer(m, l): m.conv1 = l
     def set_ouput_layer(m, l): m.fc = l
@@ -95,6 +99,8 @@ def _mobilenet_config(builder, weights) -> _ModelArchConfig:
         get_output_layer=lambda m: m.classifier[3],
         set_output_layer=set_ouput_layer
     )
+
+# registry for supported model architectures
 
 _modelArchRegistry: dict[ModelType, _ModelArchConfig] = {
         # ──────────────────────────────────────────

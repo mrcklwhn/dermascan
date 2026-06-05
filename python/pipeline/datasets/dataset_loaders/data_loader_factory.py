@@ -52,11 +52,12 @@ class DataLoaderFactory:
         Args:
             dataset_loader_type (DatasetLoaderType): The type of dataset loader to use (RGB or Filter).
             filter_type (FilterType): The type of filter to apply (only relevant for FilterDatasetLoader).
+            model_type (ModelType): The model architecture, used to build model-size-aware augmentations.
             df_split (TrainValTestSplit): A dataclass containing the train, validation, and test DataFrames.
             filtered_data_path (Path): The path to the directory containing filtered .npy files (only relevant for FilterDatasetLoader).
             batch_size (int): The batch size for the DataLoader.
             sampler_weights (tuple[float, float] | None): Weights for WeightedRandomSampler (class_0_weight, class_1_weight). If None, shuffle=True is used instead.
-            augmentation (AugmentationConfig): A dataclass containing the train and validation augmentations.
+            augmentation (AugmentationConfig | None): A dataclass containing the train and validation augmentations.
             seed (int | None): The seed for reproducibility.
 
         Returns:
@@ -79,7 +80,7 @@ class DataLoaderFactory:
             Args:
                 ids_df (DataFrame): The DataFrame containing the image IDs and labels for the dataset split.
                 shuffle (bool): Whether to shuffle the dataset (typically True for training and False for validation/test).
-                augmentations (A.Compose, optional): A composed augmentation transform to be applied to the dataset items. Defaults to None.
+                augmentations (A.Compose | None, optional): A composed augmentation transform to be applied to the dataset items. Defaults to None.
                 seed (int | None): The seed for reproducibility.
             Returns:
                 DataLoader: A PyTorch DataLoader instance for the specified dataset split.
@@ -119,7 +120,7 @@ class DataLoaderFactory:
                        ids_df: DataFrame,
                        filter_type: FilterType,
                        data_path: Path,
-                       augmentations: A.Compose = None) -> Dataset:
+                       augmentations: A.Compose | None = None) -> Dataset:
         """
         Builds a DatasetLoader instance based on the specified dataset loader type and filter type.
 
@@ -128,7 +129,7 @@ class DataLoaderFactory:
             ids_df (DataFrame): The DataFrame containing the image IDs and labels for the dataset split.
             filter_type (FilterType): The type of filter to apply (only relevant for FilterDatasetLoader).
             data_path (Path): The path to the directory containing filtered .npy files (only relevant for FilterDatasetLoader).
-            augmentations (A.Compose, optional): A composed augmentation transform to be applied to the dataset items. Defaults to None.
+            augmentations (A.Compose | None, optional): A composed augmentation transform to be applied to the dataset items. Defaults to None.
         Returns:
             Dataset: A PyTorch Dataset instance for the specified dataset split.
         """

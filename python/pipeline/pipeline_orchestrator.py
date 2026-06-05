@@ -12,13 +12,14 @@ from pipeline.branch_runner import BranchRunner
 from pipeline.datasets.split_provider import SplitProvider
 
 
-class   PipelineOrchestrator:
+class PipelineOrchestrator:
     """
     PipelineOrchestrator class responsible for orchestrating the entire pipeline execution, including data splitting, branch execution, and result aggregation.
     It handles:
     - Data splitting based on the specified configuration
     - Executing each branch in the pipeline and collecting results
-    - Saving results and generating plots for each branch
+    - Creating the pipeline run output path
+    - Initializing MLflow tracking and reproducibility seeds
     - Managing the overall pipeline run and output paths
     """
 

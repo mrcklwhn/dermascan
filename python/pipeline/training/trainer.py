@@ -21,12 +21,15 @@ class Trainer:
     It handles:
     - Training the model for a specified number of epochs.
     - Validating the model on a validation dataset.
-    - Saving the best model based on validation accuracy.
+    - Saving the best model based on validation F1 macro score.
     - Testing the model on a test dataset and returning evaluation results.
     - Building the optimizer and scheduler based on the provided configurations.
+    - Building the loss criterion, optionally applying class weights.
+    - Preparing model outputs and labels for loss calculation, handling special output types like InceptionOutputs.
     """
 
     def __init__(self, model: torch.nn.Module, trainer_config: TrainerConfig, device: torch.device, save_path: Path):
+        """Initializes the Trainer with the given model, training configuration, device, and save path."""
         self.model = model
         self.trainer_config = trainer_config
         self.loss_type = trainer_config.loss_type
@@ -42,7 +45,7 @@ class Trainer:
     def train(self, train_loader: DataLoader, val_loader: DataLoader) -> TrainingHistory:
         """
         Trains the model for a specified number of epochs, validating after each epoch.
-        Saves the best model based on validation accuracy.
+        Saves the best model based on validation F1 macro score.
 
         Args:
             train_loader (DataLoader): DataLoader for the training dataset.
@@ -205,8 +208,10 @@ class Trainer:
 
         Args:
             test_loader (DataLoader): DataLoader for the test dataset.
+            threshold (float): Threshold for converting predicted probabilities to binary predictions. Defaults to 0.5.
         Returns:
             EvalResult: Evaluation results containing true labels, predicted labels, and predicted probabilities.
+            torch.nn.Module: The model with the best weights loaded.
         """
         self.model.load_state_dict(torch.load(self.model_save_path, weights_only=True, map_location=self.device))
         self.model.eval()
@@ -304,11 +309,11 @@ class Trainer:
 
     def _build_criterion(self, weights=None, pos_weight: float = 1.0) -> torch.nn.Module:
         """
-        Builds the loss function criterion, optionally applying class weights.
+        Builds the loss criterion based on the configured loss type.
 
         Args:
-            weights (list or torch.Tensor): Class weights for the loss function.
-            pos_weight (float): Positive class weight for BCE loss.
+            weights (list or torch.Tensor): Class weights for CrossEntropyLoss.
+            pos_weight (float): Positive class weight for BCEWithLogitsLoss.
         Returns:
             torch.nn.Module: Loss criterion with or without class weights.
         """
@@ -328,8 +333,13 @@ class Trainer:
         labels: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
-        Prepare outputs and labels for the configured loss.
-        Handles special output types like InceptionOutputs by extracting logits.
+        Prepares model outputs and labels for loss calculation, handling special output types like InceptionOutputs.
+
+        Args:
+            outputs (torch.Tensor): The raw outputs from the model's forward pass.
+            labels (torch.Tensor): The true labels corresponding to the inputs.
+        Returns:
+            tuple[torch.Tensor, torch.Tensor, torch.Tensor]: Prepared loss inputs, loss labels, and predicted probabilities.
         """
         # Extract logits from special output types (e.g., InceptionOutputs)
         if hasattr(outputs, 'logits'):

@@ -19,6 +19,8 @@ class BranchRunner:
     - Training the model and saving training history
     - Evaluating the model on the test set and calculating metrics
     - Saving metrics results and generating plots
+    - Logging all relevant information to MLflow for experiment tracking
+    The BranchRunner is designed to be modular and reusable for different branches with varying configurations.
     """
     def __init__(self,
                  branch_config: BranchConfig,
