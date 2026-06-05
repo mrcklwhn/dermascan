@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/enums.dart';
@@ -10,7 +9,6 @@ import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -56,20 +54,20 @@ class DiagnosisDetailController extends GetxController {
 
     if (!hasNotesChanged) return;
 
-    final String? diagnosisId = diagnosis.id;
-    if (diagnosisId == null) return;
+    final String diagnosisId = diagnosis.id;
 
     isLoading.value = true;
 
     try {
       final bool success = await dbService.updateDiagnosis(
         diagnosisId: diagnosisId,
-        notes: currentNotesText.value,
+        notes: currentNotesText.value.trim(),
       );
 
       if (success) {
-        diagnosis.notes = currentNotesText.value;
-        currentNotesText.value = notesController.text;
+        diagnosis.notes = currentNotesText.value.trim();
+        currentNotesText.value = diagnosis.notes;
+        notesController.text = diagnosis.notes;
 
         if (!Get.isSnackbarOpen) {
           Get.showSnackbar(
@@ -114,19 +112,7 @@ class DiagnosisDetailController extends GetxController {
       return;
     }
 
-    final String? diagnosisId = diagnosis.id;
-    if (diagnosisId == null) {
-      if (!Get.isSnackbarOpen) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Diagnosis Error',
-            message: 'No diagnosis is currently selected. Please try again.',
-          ),
-        );
-      }
-      return;
-    }
+    final String diagnosisId = diagnosis.id;
 
     isLoading.value = true;
 
@@ -199,12 +185,6 @@ class CustomDiagnosisSheet extends StatelessWidget {
     final DiagnosisDetailController controller =
         Get.find<DiagnosisDetailController>(tag: diagnosis.id);
 
-    final double size =
-        (MediaQuery.of(context).size.width -
-            AppTheme.spaceMedium * 2 -
-            AppTheme.spaceSmall * 3) /
-        2;
-
     return Obx(() {
       if (mainController.isLoading.value || controller.isLoading.value) {
         return const Center(child: CircularProgressIndicator.adaptive());
@@ -214,35 +194,34 @@ class CustomDiagnosisSheet extends StatelessWidget {
         padding: AppTheme.scaffoldPadding,
         children: <Widget>[
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              if (diagnosis.analyzedImages != null &&
-                  diagnosis.analyzedImages!['original'] != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                  child: Image.memory(
-                    diagnosis.analyzedImages!['original']!,
-                    height: 100,
-                    width: 100,
-                    fit: BoxFit.cover,
-                  ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                child: Image.memory(
+                  diagnosis.image,
+                  height: 100,
+                  width: 100,
+                  fit: BoxFit.cover,
                 ),
+              ),
               const SizedBox(width: AppTheme.spaceMedium),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      'Diagnosis',
+                      'Diagnosis ${(mainController.lesion.diagnoses.length - mainController.currentPage.value) + 1}',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
+                    const SizedBox(height: AppTheme.spaceSmall),
                     Text(
-                      'Date: ${DateFormat.yMMMd().format(diagnosis.date)} at ${DateFormat.Hm().format(diagnosis.date)}',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      'Date: ${DateFormat.yMMMd().format(diagnosis.date)}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
                     ),
                     Text(
                       'Doctor: ${diagnosis.doctorName}',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -254,10 +233,10 @@ class CustomDiagnosisSheet extends StatelessWidget {
           const SizedBox(height: AppTheme.spaceSmall),
           _buildScoreIndicator(
             context,
-            title: diagnosis.prediction?.name.capitalizeFirst,
+            title: diagnosis.prediction.name.capitalizeFirst,
             textLeft: 'Uncertain',
             textRight: 'Confident',
-            score: diagnosis.confidence ?? 0.0,
+            score: diagnosis.confidence,
             color: diagnosis.prediction == LesionType.nevi
                 ? Colors.green
                 : Colors.red,
@@ -269,7 +248,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
           _buildScoreIndicator(
             context,
             title: 'Asymmetry',
-            score: diagnosis.aScore ?? 0.0,
+            score: diagnosis.aScore,
             textLeft: 'Symmetric',
             textRight: 'Asymmetric',
           ),
@@ -277,7 +256,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
           _buildScoreIndicator(
             context,
             title: 'Border',
-            score: diagnosis.bScore ?? 0.0,
+            score: diagnosis.bScore,
             textLeft: 'Circular',
             textRight: 'Irregular',
           ),
@@ -285,7 +264,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
           _buildScoreIndicator(
             context,
             title: 'Color Uniformity',
-            score: diagnosis.cScore ?? 0.0,
+            score: diagnosis.cScore,
             textLeft: 'Uniform',
             textRight: 'Variegated',
           ),
@@ -308,81 +287,21 @@ class CustomDiagnosisSheet extends StatelessWidget {
           ),
           Obx(() {
             if (!controller.hasNotesChanged) {
-              return const Center();
+              return
+                const SizedBox(height: AppTheme.spaceLarge);
             }
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                const SizedBox(height: AppTheme.spaceMedium),
-                FilledButton.icon(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () => controller.submittedNotes(),
-                  icon: const Icon(Icons.save),
-                  label: const Text('Save'),
-                ),
-              ],
+            return Padding(
+              padding: const EdgeInsets.only(top:AppTheme.spaceLarge, bottom: AppTheme.spaceMedium),
+              child: FilledButton.icon(
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : () => controller.submittedNotes(),
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save'),
+                  ),
             );
           }),
-          if (diagnosis.analyzedImages != null &&
-              diagnosis.analyzedImages!.entries
-                  .where(
-                    (MapEntry<String, Uint8List?> e) => e.key != 'original',
-                  )
-                  .isNotEmpty) ...<Widget>[
-            const SizedBox(height: AppTheme.spaceMedium),
-            ExpansionTile(
-              collapsedBackgroundColor: AppTheme.scaffoldBg,
-              backgroundColor: AppTheme.scaffoldBg,
-              initiallyExpanded: false,
 
-              title: Text(
-                'Analysis Insights',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: diagnosis.analyzedImages!.entries
-                      .where(
-                        (MapEntry<String, Uint8List?> e) => e.key != 'original',
-                      )
-                      .map((MapEntry<String, Uint8List?> entry) {
-                        return Column(
-                          children: <Widget>[
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.radiusMedium,
-                              ),
-                              child: Image(
-                                image: MemoryImage(entry.value!),
-                                height: size,
-                                width: size,
-                                fit: BoxFit.cover,
-                                gaplessPlayback: true,
-                                errorBuilder:
-                                    (
-                                      BuildContext context,
-                                      Object error,
-                                      StackTrace? stackTrace,
-                                    ) => const Icon(Icons.broken_image),
-                              ),
-                            ),
-                            const SizedBox(height: AppTheme.spaceSmall),
-                            Text(
-                              entry.key,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        );
-                      })
-                      .toList(),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: AppTheme.spaceLarge),
           OutlinedButton.icon(
             onPressed: controller.isLoading.value
                 ? null

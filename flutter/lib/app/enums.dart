@@ -9,3 +9,12 @@ enum DiagnosisProcessState { idle, cutout }
 enum CutoutType { algorithmic, ml }
 
 enum LesionType { nevi, melanoma }
+
+enum ExportableDiagnosisMetric {
+  asymmetry,
+  border,
+  color,
+  classification,
+  confidence,
+  notes,
+}

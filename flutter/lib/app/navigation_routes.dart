@@ -15,6 +15,7 @@ import 'package:dermascan/features/doctor/patients/screens/add_patient_screen.da
 import 'package:dermascan/features/doctor/patients/screens/edit_lesion_screen.dart';
 import 'package:dermascan/features/doctor/patients/screens/edit_patient_screen.dart';
 import 'package:dermascan/features/doctor/patients/screens/patient_details_screen.dart';
+import 'package:dermascan/features/doctor/patients/screens/pdf_export_lesion_list_screen.dart';
 import 'package:dermascan/features/practice/doctors/bindings/doctors_bindings.dart';
 import 'package:dermascan/features/practice/doctors/screens/available_doctors_screen.dart';
 import 'package:dermascan/features/practice/doctors/screens/doctor_details_screen.dart';
@@ -97,6 +98,18 @@ class NavigationRoutes {
       binding: PatientsBindings(),
       middlewares: <GetMiddleware>[AuthMiddleware(), DoctorMiddleware()],
     ),
+    GetPage<dynamic>(
+      name: '/doctor/patient-pdf-export/lesions',
+      page: () => const PdfExportLesionSelectionScreen(),
+      binding: PatientsBindings(),
+      middlewares: <GetMiddleware>[AuthMiddleware(), DoctorMiddleware()],
+    ),
+    // GetPage<dynamic>(
+    //   name: '/doctor/patient-pdf-export/lesion',
+    //   page: () => const PdfExportLesionDetailScreen(),
+    //   binding: PdfExportBindings(),
+    //   middlewares: <GetMiddleware>[AuthMiddleware(), DoctorMiddleware()],
+    // ),
 
     // Practice - Screens
     GetPage<dynamic>(
