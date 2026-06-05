@@ -36,7 +36,8 @@ class Trainer:
 
         self.device = device
         self.model = self.model.to(self.device)
-        self.model = torch.compile(self.model)
+        # only Linux
+        # self.model = torch.compile(self.model)
 
         self.criterion = self._build_criterion(trainer_config.class_weights, trainer_config.pos_weight)
         self.optimizer = self._build_optimizer(trainer_config.optimizer)
