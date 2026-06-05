@@ -35,7 +35,6 @@ class DiagnosisMainController extends GetxController {
   final RxBool isLoading = true.obs;
   final Rx<DiagnosisProcessState> processState = DiagnosisProcessState.idle.obs;
 
-
   //Draft Diagnosis values
   String? draftId;
   String? draftImagePath;
@@ -49,7 +48,6 @@ class DiagnosisMainController extends GetxController {
 
   Uint8List? cutoutML;
   Uint8List? cutoutAlgo;
-
 
   @override
   void onClose() {
@@ -86,7 +84,7 @@ class DiagnosisMainController extends GetxController {
     Get.delete<CutoutController>();
     for (final Diagnosis diagnosis in lesion.diagnoses) {
       Get.delete<DiagnosisDetailController>(tag: diagnosis.id);
-        }
+    }
   }
 
   void registerChildControllers({required Diagnosis? diagnosis}) {
@@ -95,14 +93,13 @@ class DiagnosisMainController extends GetxController {
       Get.put(CutoutController(mainController: this));
       for (final Diagnosis diagnosis in lesion.diagnoses) {
         Get.put(
-          DiagnosisDetailController(
-            diagnosis: diagnosis,
-            mainController: this,
-          ),
+          DiagnosisDetailController(diagnosis: diagnosis, mainController: this),
           tag: diagnosis.id,
         );
-            }
-    } else if (!Get.isRegistered<DiagnosisDetailController>(tag: diagnosis.id)) {
+      }
+    } else if (!Get.isRegistered<DiagnosisDetailController>(
+      tag: diagnosis.id,
+    )) {
       Get.put(
         DiagnosisDetailController(diagnosis: diagnosis, mainController: this),
         tag: diagnosis.id,
@@ -241,7 +238,9 @@ class DiagnosisBottomSheet extends StatelessWidget {
                         itemBuilder: (BuildContext context, int index) {
                           if (isRemoved) {
                             if (index == 0) {
-                              return const RemovedLesionSheet();
+                              return RemovedLesionSheet(
+                                mainController: mainController,
+                              );
                             }
                             return CustomDiagnosisSheet(
                               diagnosis: diagnoses[index - 1],
