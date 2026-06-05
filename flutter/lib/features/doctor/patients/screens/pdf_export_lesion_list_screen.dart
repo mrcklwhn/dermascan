@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
@@ -32,16 +33,18 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
         }
 
         return FilledButton.icon(
-          icon: controller.isExporting.value 
-            ? const SizedBox(
-                width: 16.0,
-                height: 16.0,
-                child: CircularProgressIndicator(strokeWidth: 2.0),
-              ) 
-            : const Icon(Icons.picture_as_pdf),
-          onPressed: (controller.isExporting.value || !controller.exportablePatientData.value.canExport.value)
-            ? null 
-            : controller.exportPDF,
+          icon: controller.isExporting.value
+              ? const SizedBox(
+                  width: 16.0,
+                  height: 16.0,
+                  child: CircularProgressIndicator(strokeWidth: 2.0),
+                )
+              : const Icon(Icons.picture_as_pdf),
+          onPressed:
+              (controller.isExporting.value ||
+                  !controller.exportablePatientData.value.canExport.value)
+              ? null
+              : controller.exportPDF,
           label: const Text('Export'),
         );
       }),
@@ -80,10 +83,11 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
           return const SizedBox.shrink();
         }
 
-        final List<Uint8List> previewImages = (controller.lesionPreviewImages[lesion.id] ?? <Uint8List>[])
-            .where((Uint8List bytes) => bytes.isNotEmpty)
-            .take(3)
-            .toList();
+        final List<Uint8List> previewImages =
+            (controller.lesionPreviewImages[lesion.id] ?? <Uint8List>[])
+                .where((Uint8List bytes) => bytes.isNotEmpty)
+                .take(3)
+                .toList();
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -94,44 +98,58 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
                 title: Text(lesion.locationName),
                 leading: AspectRatio(
                   aspectRatio: 1.0,
-                  child: Builder(builder: (BuildContext context) {
-                    if (previewImages.isEmpty) {
-                      return const Stack(
-                        children: <Widget>[
-                          Positioned.fill(
-                            child: Icon(Icons.image_not_supported, size: 40.0),
-                          ),
-                        ],
-                      );
-                    }
-
-                    return Stack(
-                      clipBehavior: Clip.none,
-                      children: List<Widget>.generate(previewImages.length, (int index) {
-                        final int imageIndex = previewImages.length - 1 - index;
-                        final Uint8List bytes = previewImages[imageIndex];
-
-                        final double offset = imageIndex * 4.0;
-
-                        return Positioned(
-                          top: offset,
-                          left: offset,
-                          right: 4.0 * (previewImages.length - 1) - offset,
-                          bottom: 4.0 * (previewImages.length - 1) - offset,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                            child: Image(
-                              image: MemoryImage(bytes),
-                              fit: BoxFit.cover,
-                              gaplessPlayback: true,
-                              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) =>
-                                  const Icon(Icons.broken_image),
+                  child: Builder(
+                    builder: (BuildContext context) {
+                      if (previewImages.isEmpty) {
+                        return const Stack(
+                          children: <Widget>[
+                            Positioned.fill(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                size: 40.0,
+                              ),
                             ),
-                          ),
+                          ],
                         );
-                      }),
-                    );
-                  }),
+                      }
+
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: List<Widget>.generate(previewImages.length, (
+                          int index,
+                        ) {
+                          final int imageIndex =
+                              previewImages.length - 1 - index;
+                          final Uint8List bytes = previewImages[imageIndex];
+
+                          final double offset = imageIndex * 4.0;
+
+                          return Positioned(
+                            top: offset,
+                            left: offset,
+                            right: 4.0 * (previewImages.length - 1) - offset,
+                            bottom: 4.0 * (previewImages.length - 1) - offset,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusSmall,
+                              ),
+                              child: Image(
+                                image: MemoryImage(bytes),
+                                fit: BoxFit.cover,
+                                gaplessPlayback: true,
+                                errorBuilder:
+                                    (
+                                      BuildContext context,
+                                      Object error,
+                                      StackTrace? stackTrace,
+                                    ) => const Icon(Icons.broken_image),
+                              ),
+                            ),
+                          );
+                        }),
+                      );
+                    },
+                  ),
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,8 +157,14 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
                     Text(
                       'Date: ${lesion.diagnoses.isNotEmpty ? DateFormat('dd.MM.yyyy').format(lesion.diagnoses[0].date) : 'Not specified'}',
                     ),
-                    Text('Status: ${lesion.isSuspicious.value ? 'Suspicious' : 'Not Suspicious'}'),
-                    Obx(() => Text('Selected: ${controller.getExportedRatioText(lesion)}')),
+                    Text(
+                      'Status: ${lesion.isSuspicious.value ? 'Suspicious' : 'Not Suspicious'}',
+                    ),
+                    Obx(
+                      () => Text(
+                        'Selected: ${controller.getExportedRatioText(lesion)}',
+                      ),
+                    ),
                   ],
                 ),
                 onTap: () {
@@ -158,7 +182,6 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
           ],
         );
       },
-      );
-
+    );
   }
 }

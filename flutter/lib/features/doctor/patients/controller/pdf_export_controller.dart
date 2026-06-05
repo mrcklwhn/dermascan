@@ -15,7 +15,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-
 class PdfExportController extends GetxController {
   AuthService authService = Get.find<AuthService>();
   DBService dbService = Get.find<DBService>();
@@ -31,7 +30,8 @@ class PdfExportController extends GetxController {
 
   ExportableBodyLesionData? _draftLesion;
 
-  Map<String, List<Uint8List>> lesionPreviewImages = <String, List<Uint8List>>{}.obs;
+  Map<String, List<Uint8List>> lesionPreviewImages =
+      <String, List<Uint8List>>{}.obs;
 
   @override
   void onInit() {
@@ -48,9 +48,8 @@ class PdfExportController extends GetxController {
       // Prepare exportable data structure
       exportablePatientData = ExportablePatientData(
         patient: patient,
-        lesions: lesions,        
+        lesions: lesions,
       ).obs;
-
 
       // Copy latest 3 original images for preview from lesion.diagnoses
       for (final BodyLesion lesion in lesions) {
@@ -61,7 +60,7 @@ class PdfExportController extends GetxController {
             .toList();
 
         lesionPreviewImages[lesion.id] = previewImages;
-      }      
+      }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error while loading lesions: $e');
@@ -78,7 +77,12 @@ class PdfExportController extends GetxController {
   }
 
   int getSelectedDiagnosesCount(BodyLesion lesion) {
-    return exportablePatientData.value.lesionData[lesion.id]?.selectedDiagnoses.length ?? 0;
+    return exportablePatientData
+            .value
+            .lesionData[lesion.id]
+            ?.selectedDiagnoses
+            .length ??
+        0;
   }
 
   String getExportedRatioText(BodyLesion lesion) {
@@ -107,11 +111,12 @@ class PdfExportController extends GetxController {
 
   void openLesionDetail(BodyLesion lesion) {
     // open diagnosis selection screen with the given lesion
-    final ExportableBodyLesionData? committedLesion = exportablePatientData.value.lesionData[lesion.id];
+    final ExportableBodyLesionData? committedLesion =
+        exportablePatientData.value.lesionData[lesion.id];
     _draftLesion = committedLesion == null
         ? ExportableBodyLesionData(lesion: lesion)
         : ExportableBodyLesionData.copyOf(committedLesion);
-    
+
     Get.to(() => PdfExportDiagnosisSelectionScreen(lesion: lesion));
   }
 
@@ -132,7 +137,7 @@ class PdfExportController extends GetxController {
     }
 
     exportablePatientData.value.toggleAllDiagnosesForLesion(draftLesion);
-    exportablePatientData.refresh(); 
+    exportablePatientData.refresh();
   }
 
   void commitDraftDiagnosisSelection() {
@@ -141,7 +146,7 @@ class PdfExportController extends GetxController {
     }
 
     exportablePatientData.value.setDiagnosisSelection(_draftLesion!);
-    exportablePatientData.refresh(); 
+    exportablePatientData.refresh();
   }
 
   void toggleDiagnosisMetricSelection(ExportableDiagnosisMetric metric) {
@@ -158,7 +163,9 @@ class PdfExportController extends GetxController {
     } else if (Platform.isAndroid) {
       directory = Directory('/storage/emulated/0/Download');
       if (!directory.existsSync()) {
-        directory = await getExternalStorageDirectory() ?? await getApplicationDocumentsDirectory();
+        directory =
+            await getExternalStorageDirectory() ??
+            await getApplicationDocumentsDirectory();
       }
     } else {
       throw UnsupportedError('Unsupported platform');
@@ -166,11 +173,11 @@ class PdfExportController extends GetxController {
 
     return directory;
   }
-  
+
   Future<void> exportPDF() async {
     isExporting.value = true;
     final pw.Document pdf = buildPdf();
-    final Directory output = await getDownloadsDirectory(); 
+    final Directory output = await getDownloadsDirectory();
     final File file = File('${output.path}/example.pdf');
     await file.writeAsBytes(await pdf.save());
     isExporting.value = false;
@@ -189,28 +196,29 @@ class PdfExportController extends GetxController {
         margin: const pw.EdgeInsets.all(24),
         header: (pw.Context context) => pw.Padding(
           padding: const pw.EdgeInsets.only(bottom: 8),
-          child: 
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: <pw.Widget>[
-                pw.Text(
-                  'Dermascan Report',
-                  style: const pw.TextStyle(fontSize: 10),
+          child: pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: <pw.Widget>[
+              pw.Text(
+                'Dermascan Report',
+                style: const pw.TextStyle(fontSize: 10),
+              ),
+              pw.Text(
+                'Generated on ${_formatDate(DateTime.now(), includeTime: true)}',
+                style: const pw.TextStyle(
+                  fontSize: 10,
+                  color: PdfColors.grey600,
                 ),
-                pw.Text(
-                  'Generated on ${_formatDate(DateTime.now(), includeTime: true)}',
-                  style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
-                ),
-              ],
-            )
+              ),
+            ],
+          ),
         ),
         footer: (pw.Context context) => pw.Padding(
           padding: const pw.EdgeInsets.only(top: 8),
-          child: 
-            pw.Text(
-              'Page ${context.pageNumber} of ${context.pagesCount}',
-              style: const pw.TextStyle(fontSize: 10),
-            ),
+          child: pw.Text(
+            'Page ${context.pageNumber} of ${context.pagesCount}',
+            style: const pw.TextStyle(fontSize: 10),
+          ),
         ),
         build: (pw.Context context) => <pw.Widget>[
           _buildPatientSummarySection(data.patient),
@@ -246,23 +254,48 @@ class PdfExportController extends GetxController {
             _buildGridRow('Gender', patient.gender.name),
             _buildGridRow('Birth country', patient.birthCountry),
             _buildGridRow('Current country', patient.currentCountry),
-            _buildGridRow('Tanning bed exposure', _formatYesNo(patient.tanningBedExposure)),
-            _buildGridRow('Previous skin surgeries', _formatYesNo(patient.previousSkinSurgeries)),
-            _buildGridRow('Previous sunburns', _formatYesNo(patient.previousSunburns)),
+            _buildGridRow(
+              'Tanning bed exposure',
+              _formatYesNo(patient.tanningBedExposure),
+            ),
+            _buildGridRow(
+              'Previous skin surgeries',
+              _formatYesNo(patient.previousSkinSurgeries),
+            ),
+            _buildGridRow(
+              'Previous sunburns',
+              _formatYesNo(patient.previousSunburns),
+            ),
           ],
         ),
       ],
     );
   }
 
-  List<pw.Widget> _buildLesionSection(ExportableBodyLesionData selection, int index) {
-    final bool includeAsymmetry = selection.includesMetric(ExportableDiagnosisMetric.asymmetry);
-    final bool includeBorder = selection.includesMetric(ExportableDiagnosisMetric.border);
-    final bool includeColor = selection.includesMetric(ExportableDiagnosisMetric.color);
-    final bool includeConfidence = selection.includesMetric(ExportableDiagnosisMetric.confidence);
-    final bool includeClassification = selection.includesMetric(ExportableDiagnosisMetric.classification);
-    final bool includeNotes = selection.includesMetric(ExportableDiagnosisMetric.notes);
-    final List<ExportableDiagnosisTableRow> diagnosisRows = selection.buildDiagnosisRows();
+  List<pw.Widget> _buildLesionSection(
+    ExportableBodyLesionData selection,
+    int index,
+  ) {
+    final bool includeAsymmetry = selection.includesMetric(
+      ExportableDiagnosisMetric.asymmetry,
+    );
+    final bool includeBorder = selection.includesMetric(
+      ExportableDiagnosisMetric.border,
+    );
+    final bool includeColor = selection.includesMetric(
+      ExportableDiagnosisMetric.color,
+    );
+    final bool includeConfidence = selection.includesMetric(
+      ExportableDiagnosisMetric.confidence,
+    );
+    final bool includeClassification = selection.includesMetric(
+      ExportableDiagnosisMetric.classification,
+    );
+    final bool includeNotes = selection.includesMetric(
+      ExportableDiagnosisMetric.notes,
+    );
+    final List<ExportableDiagnosisTableRow> diagnosisRows = selection
+        .buildDiagnosisRows();
 
     return <pw.Widget>[
       pw.Padding(
@@ -347,8 +380,10 @@ class PdfExportController extends GetxController {
             if (includeAsymmetry) _tableCell(_formatScore(row.asymmetryScore)),
             if (includeBorder) _tableCell(_formatScore(row.borderScore)),
             if (includeColor) _tableCell(_formatScore(row.colorScore)),
-            if (includeClassification) _tableCell(row.predictionLabel ?? 'Unknown'),
-            if (includeConfidence) _tableCell(_formatConfidence(row.confidence)),
+            if (includeClassification)
+              _tableCell(row.predictionLabel ?? 'Unknown'),
+            if (includeConfidence)
+              _tableCell(_formatConfidence(row.confidence)),
             if (includeNotes) _tableCell(row.notes),
           ],
         ),
@@ -372,7 +407,11 @@ class PdfExportController extends GetxController {
     );
   }
 
-  pw.TableRow _buildGridRow(String label, String value, {bool isHeader = false}) {
+  pw.TableRow _buildGridRow(
+    String label,
+    String value, {
+    bool isHeader = false,
+  }) {
     return pw.TableRow(
       children: <pw.Widget>[
         _tableCell(label, isHeader: true),
@@ -401,16 +440,18 @@ class PdfExportController extends GetxController {
         width: 100,
         height: 100,
         color: PdfColors.grey300,
-        child: pw.Center(
-          child: pw.Text(
-            'No Image',
-          ),
-        ),
+        child: pw.Center(child: pw.Text('No Image')),
       );
     }
     final pw.MemoryImage image = pw.MemoryImage(imageBytes);
 
-    return pw.Image(image, fit: pw.BoxFit.fill, alignment: pw.Alignment.center, width: 100, height: 100);
+    return pw.Image(
+      image,
+      fit: pw.BoxFit.fill,
+      alignment: pw.Alignment.center,
+      width: 100,
+      height: 100,
+    );
   }
 
   String _formatDate(DateTime date, {bool includeTime = false}) {
@@ -425,7 +466,6 @@ class PdfExportController extends GetxController {
     }
     return '$day.$month.${localDate.year}';
   }
-
 
   String _formatYesNo(bool value) => value ? 'Yes' : 'No';
 

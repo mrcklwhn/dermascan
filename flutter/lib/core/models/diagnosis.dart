@@ -19,7 +19,6 @@ class Diagnosis {
   double confidence;
   LesionType prediction;
 
-
   Diagnosis({
     required this.id,
     required this.notes,
