@@ -10,9 +10,9 @@ class BodyLesion {
 
   RxBool wasRemoved;
   RxBool isSuspicious;
-  String? locationName;
-  String? testResult;
-  String? notes;
+  String locationName;
+  String testResult;
+  String notes;
 
   BodyLesion({
     required this.id,
@@ -21,16 +21,16 @@ class BodyLesion {
     required this.isSuspicious,
     required this.position,
     required this.normal,
-    this.locationName,
-    this.testResult,
+    required this.locationName,
+    required this.testResult,
     required this.wasRemoved,
-    this.notes,
+    required this.notes,
   });
 
   factory BodyLesion.fromJson(Map<String, dynamic> json) {
     return BodyLesion(
       id: json['id'] as String,
-      locationName: json['locationName'] as String?,
+      locationName: json['locationName'] as String,
       position: json['position'] as String,
       normal: json['normal'] as String,
       patientId: json['patientId'] as String,

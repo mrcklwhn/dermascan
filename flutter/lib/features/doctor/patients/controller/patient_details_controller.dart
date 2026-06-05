@@ -220,4 +220,15 @@ class PatientDetailsController extends GetxController {
       isScrollControlled: true,
     );
   }
+
+  Future<void> openPdfExportLesionSelectionPage() async {
+    await Get.toNamed(
+      '/doctor/patient-pdf-export/lesions',
+      preventDuplicates: false,
+      arguments: <String, dynamic>{
+        'patient': patient,
+        'lesions': lesions,
+      },
+    );
+  }
 }

@@ -84,13 +84,10 @@ class HumanBody3DController extends GetxController {
         const viewer = document.getElementById('viewer');
         if (!viewer) return;
         
-        // Setzt Kamera-Orbit, Target und Field of View auf die Standardwerte des Modells zurück
         viewer.cameraOrbit = 'unset';
         viewer.cameraTarget = 'unset';
         viewer.fieldOfView = 'unset';
         
-        // Optional: Löscht die Selektion im Controller, falls gewünscht
-        // viewer.jumpToCameraGoal(); // Erzwingt das sofortige Zurückspringen ohne Animation
       })();
     ''';
 
@@ -132,6 +129,9 @@ class HumanBody3DController extends GetxController {
           diagnoses: <Diagnosis>[].obs,
           isSuspicious: false.obs,
           wasRemoved: false.obs,
+          notes: '',
+          locationName: '',
+          testResult: '',
         );
 
         selectedPosition.value = newLesion.position;
@@ -256,7 +256,6 @@ class HumanBody3DController extends GetxController {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
-    /* touch-action: none verhindert, dass der Browser versucht, die Seite zu scrollen */
     html, body { 
       width: 100%; 
       height: 100%; 
@@ -265,7 +264,6 @@ class HumanBody3DController extends GetxController {
       touch-action: none; 
     }
     
-    /* Verhindert "passive event listener" Konflikte bei Gesten */
     model-viewer { 
       width: 100vw; 
       height: 100vh; 
@@ -285,7 +283,6 @@ class HumanBody3DController extends GetxController {
   <script>
     const viewer = document.getElementById('viewer');
     
-    // Verhindert das standardmäßige Touch-Verhalten im gesamten Dokument, falls model-viewer feuert
     document.addEventListener('touchmove', function(e) {
       if (e.cancelable) e.preventDefault();
     }, { passive: false });

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dartcv4/dartcv.dart' as cv;
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/enums.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
@@ -9,7 +8,6 @@ import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
-import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_capture_sheet.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_cutout_sheet.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_diagnosis_sheet.dart';
@@ -37,9 +35,21 @@ class DiagnosisMainController extends GetxController {
   final RxBool isLoading = true.obs;
   final Rx<DiagnosisProcessState> processState = DiagnosisProcessState.idle.obs;
 
-  Diagnosis? draftDiagnosis;
+
+  //Draft Diagnosis values
+  String? draftId;
+  String? draftImagePath;
+  CutoutType? draftCutoutType;
+  double? draftAScore;
+  double? draftBScore;
+  double? draftCScore;
+  Uint8List? draftImage;
+  double? draftConfidence;
+  LesionType? draftPrediction;
+
   Uint8List? cutoutML;
   Uint8List? cutoutAlgo;
+
 
   @override
   void onClose() {
@@ -61,7 +71,6 @@ class DiagnosisMainController extends GetxController {
 
   Future<void> _initializeData() async {
     try {
-      await drawOverlays();
       await fetchDoctorNames();
     } catch (e) {
       if (kDebugMode) {
@@ -76,10 +85,8 @@ class DiagnosisMainController extends GetxController {
     Get.delete<CaptureController>();
     Get.delete<CutoutController>();
     for (final Diagnosis diagnosis in lesion.diagnoses) {
-      if (diagnosis.id != null) {
-        Get.delete<DiagnosisDetailController>(tag: diagnosis.id);
-      }
-    }
+      Get.delete<DiagnosisDetailController>(tag: diagnosis.id);
+        }
   }
 
   void registerChildControllers({required Diagnosis? diagnosis}) {
@@ -87,18 +94,15 @@ class DiagnosisMainController extends GetxController {
       Get.put(CaptureController(mainController: this));
       Get.put(CutoutController(mainController: this));
       for (final Diagnosis diagnosis in lesion.diagnoses) {
-        if (diagnosis.id != null) {
-          Get.put(
-            DiagnosisDetailController(
-              diagnosis: diagnosis,
-              mainController: this,
-            ),
-            tag: diagnosis.id,
-          );
-        }
-      }
-    } else if (diagnosis.id != null &&
-        !Get.isRegistered<DiagnosisDetailController>(tag: diagnosis.id)) {
+        Get.put(
+          DiagnosisDetailController(
+            diagnosis: diagnosis,
+            mainController: this,
+          ),
+          tag: diagnosis.id,
+        );
+            }
+    } else if (!Get.isRegistered<DiagnosisDetailController>(tag: diagnosis.id)) {
       Get.put(
         DiagnosisDetailController(diagnosis: diagnosis, mainController: this),
         tag: diagnosis.id,
@@ -128,29 +132,6 @@ class DiagnosisMainController extends GetxController {
         curve: Curves.easeInOut,
       );
     }
-  }
-
-  Future<void> drawOverlays() async {
-    for (final Diagnosis diagnosis in lesion.diagnoses) {
-      final Uint8List bytes = diagnosis.analyzedImages!['original']!;
-      final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
-
-      final LesionAnalysis lesionAnalysis = LesionAnalysis(mat);
-      await lesionAnalysis.runLesionAnalysis(
-        useNeuralModel: diagnosis.cutoutType == CutoutType.ml ? true : false,
-        onlyMask: true,
-      );
-
-      diagnosis.analyzedImages?.addAll(<String, Uint8List>{
-        'contour': cv
-            .imencode('.png', lesionAnalysis.getLesionContourOverlay())
-            .$2,
-        'concavity': cv
-            .imencode('.png', lesionAnalysis.getConcavityOverlay())
-            .$2,
-      });
-    }
-    lesion.diagnoses.refresh();
   }
 
   Future<void> fetchDoctorNames() async {
@@ -277,7 +258,6 @@ class DiagnosisBottomSheet extends StatelessWidget {
                           if (currentState == DiagnosisProcessState.cutout) {
                             if (index == 1) {
                               return CustomCutoutSheet(
-                                diagnosis: mainController.draftDiagnosis!,
                                 mainController: mainController,
                               );
                             }

@@ -41,11 +41,6 @@ class EditLesionScreen extends GetView<EditLesionController> {
             Obx(
               () => Card(
                 child: CheckboxListTile(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(AppTheme.radiusSmall),
-                    ),
-                  ),
                   title: const Text('Suspicious Lesion'),
                   subtitle: const Text('Mark this lesion as suspicious.'),
                   value: controller.isSuspicious.value,
@@ -63,11 +58,6 @@ class EditLesionScreen extends GetView<EditLesionController> {
             Obx(
               () => Card(
                 child: CheckboxListTile(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(AppTheme.radiusSmall),
-                    ),
-                  ),
                   title: const Text('Excised'),
                   subtitle: const Text('Mark this lesion as excised.'),
                   value: controller.wasRemoved.value,

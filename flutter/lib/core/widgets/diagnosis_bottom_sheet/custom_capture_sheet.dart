@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:dartcv4/dartcv.dart' as cv;
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/enums.dart';
-import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
 import 'package:dermascan/core/utils/lesion_analysis.dart';
@@ -98,18 +97,11 @@ class CaptureController extends GetxController {
         return;
       }
 
-      mainController.draftDiagnosis = Diagnosis(
-        doctorId: authService.currentDoctor.value!.id,
-        doctorName: authService.currentDoctor.value!.name,
-        lesionId: mainController.lesion.id,
-        id: currentDiagnosisId,
-        date: DateTime.now(),
-        imagePath: imagePath,
-        notes: '',
-        analyzedImages: <String, Uint8List?>{'original': bytes},
-      );
+      mainController.draftId = currentDiagnosisId;
+      mainController.draftImagePath = imagePath;
+      mainController.draftImage = bytes;
 
-      await generateCutouts(diagnosis: mainController.draftDiagnosis!);
+      await generateCutouts();
     } catch (e) {
       if (!Get.isSnackbarOpen) {
         Get.showSnackbar(
@@ -126,11 +118,11 @@ class CaptureController extends GetxController {
     }
   }
 
-  Future<void> generateCutouts({required Diagnosis diagnosis}) async {
+  Future<void> generateCutouts() async {
     try {
       isLoading.value = true;
 
-      final Uint8List bytes = diagnosis.analyzedImages!['original']!;
+      final Uint8List bytes = mainController.draftImage!;
       final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
 
       final LesionAnalysis lesionML = LesionAnalysis(mat);
