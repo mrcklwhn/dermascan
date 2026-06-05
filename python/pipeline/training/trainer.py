@@ -33,6 +33,7 @@ class Trainer:
 
         self.device = device
         self.model = self.model.to(self.device)
+        self.model = torch.compile(self.model)
 
         self.criterion = self._build_criterion(trainer_config.class_weights, trainer_config.pos_weight)
         self.optimizer = self._build_optimizer(trainer_config.optimizer)
@@ -137,9 +138,11 @@ class Trainer:
             self.optimizer.zero_grad()
 
             outputs = self.model(inputs)
-            loss_inputs, loss_labels, preds = self._prepare_outputs_labels_preds(outputs, labels)
+            loss_inputs, loss_labels, probs = self._prepare_outputs_labels_preds(outputs, labels)
+            preds = (probs >= 0.5).long()
             loss = self.criterion(loss_inputs, loss_labels)
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
             self.optimizer.step()
 
             running_loss += loss.item() * inputs.size(0)
