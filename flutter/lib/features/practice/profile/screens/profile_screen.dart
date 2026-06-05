@@ -34,6 +34,13 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
       children: <Widget>[
         const CustomIcon(iconData: Icons.local_hospital),
         const SizedBox(height: AppTheme.spaceLarge),
+
+        Text(
+          'Practice Information',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+
+        const SizedBox(height: AppTheme.spaceSmall),
         CustomTextField(
           textEditingController: controller.nameController,
           focusNode: controller.nameFocusNode,
@@ -46,6 +53,13 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
           textInputType: TextInputType.name,
         ),
         const SizedBox(height: AppTheme.spaceMedium),
+
+        Text(
+          'Security & Account',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+
+        const SizedBox(height: AppTheme.spaceSmall),
         Card(
           child: ListTile(
             leading: const Icon(Icons.mail),

@@ -103,6 +103,7 @@ class DBService extends GetxService {
               'cutoutType': diagnosis.cutoutType?.name,
               'prediction': diagnosis.prediction?.index,
               'confidence': diagnosis.confidence,
+              'notes': diagnosis.notes,
             },
           );
 
@@ -156,6 +157,34 @@ class DBService extends GetxService {
     }
   }
 
+  Future<bool> updateDiagnosis({
+    required String diagnosisId,
+    required String notes,
+  }) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'update-diagnosis',
+            body: <String, dynamic>{'diagnosisId': diagnosisId, 'notes': notes},
+          );
+
+      if (response.status != 200) {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return false;
+      }
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return false;
+    }
+  }
+
   Future<bool> deleteLesion({required String lesionId}) async {
     try {
       final FunctionResponse response = await authService
@@ -181,7 +210,10 @@ class DBService extends GetxService {
   Future<bool> updateLesion({
     required String lesionId,
     required String locationName,
+    required String testResult,
+    required String notes,
     required bool suspicious,
+    required bool wasRemoved,
   }) async {
     try {
       final FunctionResponse response = await authService
@@ -192,6 +224,9 @@ class DBService extends GetxService {
             body: <String, dynamic>{
               'lesionId': lesionId,
               'locationName': locationName,
+              'testResult': testResult,
+              'wasRemoved': wasRemoved,
+              'notes': notes,
               'suspicious': suspicious,
             },
           );
@@ -213,8 +248,12 @@ class DBService extends GetxService {
 
   Future<BodyLesion?> createLesion({
     required String patientId,
+    required String locationName,
+    required String testResult,
+    required String notes,
     required String position,
     required String normal,
+    required bool wasRemoved,
   }) async {
     try {
       final FunctionResponse response = await authService
@@ -222,9 +261,13 @@ class DBService extends GetxService {
           .functions
           .invoke(
             'create-lesion',
-            body: <String, String?>{
+            body: <String, dynamic>{
               'patientId': patientId,
+              'locationName': locationName,
               'position': position,
+              'testResult': testResult,
+              'wasRemoved': wasRemoved,
+              'notes': notes,
               'normal': normal,
             },
           );
@@ -348,6 +391,10 @@ class DBService extends GetxService {
     required String name,
     required DateTime dateOfBirth,
     required String gender,
+    required bool previousCancerSurgeries,
+    required bool sunscreenUse,
+    required bool personalHistoryMelanoma,
+    required bool familyHistoryMelanoma,
     required bool tanningBedExposure,
     required bool previousSkinSurgeries,
     required bool previousSunburns,
@@ -365,6 +412,10 @@ class DBService extends GetxService {
               'name': name,
               'dateOfBirth': dateOfBirth.toIso8601String().split('T').first,
               'gender': gender,
+              'previousCancerSurgeries': previousCancerSurgeries,
+              'sunscreenUse': sunscreenUse,
+              'personalHistoryMelanoma': personalHistoryMelanoma,
+              'familyHistoryMelanoma': familyHistoryMelanoma,
               'tanningBedExposure': tanningBedExposure,
               'previousSkinSurgeries': previousSkinSurgeries,
               'previousSunburns': previousSunburns,
@@ -396,6 +447,10 @@ class DBService extends GetxService {
     required String name,
     required DateTime dateOfBirth,
     required String gender,
+    required bool previousCancerSurgeries,
+    required bool sunscreenUse,
+    required bool personalHistoryMelanoma,
+    required bool familyHistoryMelanoma,
     required bool tanningBedExposure,
     required bool previousSkinSurgeries,
     required bool previousSunburns,
@@ -414,6 +469,10 @@ class DBService extends GetxService {
               'name': name,
               'dateOfBirth': dateOfBirth.toIso8601String().split('T').first,
               'gender': gender,
+              'previousCancerSurgeries': previousCancerSurgeries,
+              'sunscreenUse': sunscreenUse,
+              'personalHistoryMelanoma': personalHistoryMelanoma,
+              'familyHistoryMelanoma': familyHistoryMelanoma,
               'tanningBedExposure': tanningBedExposure,
               'previousSkinSurgeries': previousSkinSurgeries,
               'previousSunburns': previousSunburns,
