@@ -225,10 +225,7 @@ class PatientDetailsController extends GetxController {
     await Get.toNamed(
       '/doctor/patient-pdf-export/lesions',
       preventDuplicates: false,
-      arguments: <String, dynamic>{
-        'patient': patient,
-        'lesions': lesions,
-      },
+      arguments: <String, dynamic>{'patient': patient, 'lesions': lesions},
     );
   }
 }
