@@ -4,7 +4,7 @@ enum Gender { male, female, divers, undefined }
 
 enum HumanBodySide { front, back }
 
-enum DiagnosisProcessState { idle, drafting }
+enum DiagnosisProcessState { idle, cutout }
 
 enum CutoutType { algorithmic, ml }
 
