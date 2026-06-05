@@ -47,7 +47,31 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: AppTheme.spaceMedium),
+                    const SizedBox(width: AppTheme.spaceSmall),
+                    IconButton(
+                      padding: const EdgeInsets.all(AppTheme.spaceSmall),
+                      constraints: BoxConstraints.tight(
+                        const Size(
+                          AppTheme.radiusLarge * 2,
+                          AppTheme.radiusLarge * 2,
+                        ),
+                      ),
+                      onPressed: controller.openPatientInfoDialog,
+                      icon: const Icon(Icons.info),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          AppTheme.highlightColor,
+                        ),
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusLarge,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.spaceSmall),
                     Expanded(
                       child: Obx(() {
                         if (controller.selectedLesion.value != null) {
@@ -79,7 +103,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  'Location: ${controller.selectedLesion.value!.locationName ?? 'Not specified'}',
+                                  'Location: ${controller.selectedLesion.value!.locationName}',
                                   style: Theme.of(context).textTheme.titleSmall,
                                   textAlign: TextAlign.start,
                                 ),
@@ -123,7 +147,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                       }),
                     ),
 
-                    const SizedBox(width: AppTheme.spaceMedium),
+                    const SizedBox(width: AppTheme.spaceSmall),
                     IconButton(
                       padding: const EdgeInsets.all(AppTheme.spaceSmall),
                       constraints: BoxConstraints.tight(
@@ -132,8 +156,8 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                           AppTheme.radiusLarge * 2,
                         ),
                       ),
-                      onPressed: controller.openPatientInfoDialog,
-                      icon: const Icon(Icons.info),
+                      onPressed: controller.openPdfExportLesionSelectionPage,
+                      icon: const Icon(Icons.picture_as_pdf),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
                           AppTheme.highlightColor,

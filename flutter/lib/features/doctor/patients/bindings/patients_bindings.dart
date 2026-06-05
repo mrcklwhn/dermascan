@@ -3,6 +3,7 @@ import 'package:dermascan/features/doctor/patients/controller/edit_lesion_contro
 import 'package:dermascan/features/doctor/patients/controller/edit_patient_controller.dart';
 import 'package:dermascan/features/doctor/patients/controller/patient_details_controller.dart';
 import 'package:dermascan/features/doctor/patients/controller/patients_controller.dart';
+import 'package:dermascan/features/doctor/patients/controller/pdf_export_controller.dart';
 import 'package:get/get.dart';
 
 class PatientsBindings extends Bindings {
@@ -13,5 +14,6 @@ class PatientsBindings extends Bindings {
     Get.lazyPut(() => EditPatientController());
     Get.lazyPut(() => EditLesionController());
     Get.lazyPut(() => PatientDetailsController());
+    Get.lazyPut(() => PdfExportController());
   }
 }

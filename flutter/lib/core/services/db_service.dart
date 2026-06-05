@@ -100,8 +100,8 @@ class DBService extends GetxService {
               'aScore': diagnosis.aScore,
               'bScore': diagnosis.bScore,
               'cScore': diagnosis.cScore,
-              'cutoutType': diagnosis.cutoutType?.name,
-              'prediction': diagnosis.prediction?.index,
+              'cutoutType': diagnosis.cutoutType.name,
+              'prediction': diagnosis.prediction.index,
               'confidence': diagnosis.confidence,
               'notes': diagnosis.notes,
             },
@@ -110,10 +110,8 @@ class DBService extends GetxService {
       if (response.status == 201) {
         if (response.data != null) {
           final Map<String, dynamic> responseMap = response.data;
-          responseMap.addAll(<String, dynamic>{
-            'analyzedImages': <String, Uint8List?>{
-              'original': await downloadFile(filePath: diagnosis.imagePath),
-            },
+          responseMap.addAll(<String, Uint8List?>{
+            'image': await downloadFile(filePath: diagnosis.imagePath),
           });
           return Diagnosis.fromJson(responseMap);
         }
@@ -601,9 +599,7 @@ class DBService extends GetxService {
             final String? imagePath = diagnosisMap['imagePath'] as String?;
 
             if (imagePath != null && imagePath.isNotEmpty) {
-              diagnosisMap['analyzedImages'] = <String, Uint8List?>{
-                'original': await downloadFile(filePath: imagePath),
-              };
+              diagnosisMap['image'] = await downloadFile(filePath: imagePath);
             }
           }
 
