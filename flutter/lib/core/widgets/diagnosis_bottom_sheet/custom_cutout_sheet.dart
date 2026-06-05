@@ -23,15 +23,30 @@ class CutoutController extends GetxController {
   CutoutController({required this.mainController});
 
   Future<void> startDiagnosisPipeline({
-    required Diagnosis diagnosis,
     required CutoutType type,
   }) async {
     try {
       isLoading.value = true;
 
-      diagnosis = await calculateScoresAndDrawOverlay(
-        diagnosis: diagnosis,
+      await calculateScores(
         type: type,
+      );
+
+      final Diagnosis diagnosis = Diagnosis(
+        id: mainController.draftId!,
+          notes: '',
+          date: DateTime.now(),
+          imagePath: mainController.draftImagePath!,
+          lesionId: mainController.lesion.id,
+          doctorId: authService.currentDoctor.value!.id,
+          cutoutType: mainController.draftCutoutType!,
+          aScore: mainController.draftAScore!,
+          bScore: mainController.draftBScore!,
+          cScore: mainController.draftCScore!,
+        prediction: mainController.draftPrediction!,
+          image: mainController.draftImage!,
+          confidence: mainController.draftConfidence!,
+        doctorName: authService.currentDoctor.value!.name
       );
 
       final Diagnosis? uploadedDiagnosis = await uploadDiagnosis(
@@ -39,8 +54,6 @@ class CutoutController extends GetxController {
       );
 
       if (uploadedDiagnosis == null) return;
-
-      mainController.draftDiagnosis = null;
       mainController.processState.value = DiagnosisProcessState.idle;
       mainController.registerChildControllers(diagnosis: diagnosis);
       mainController.lesion.diagnoses.insert(0, diagnosis);
@@ -54,11 +67,10 @@ class CutoutController extends GetxController {
     }
   }
 
-  Future<Diagnosis> calculateScoresAndDrawOverlay({
-    required Diagnosis diagnosis,
+  Future<void> calculateScores({
     required CutoutType type,
   }) async {
-    final Uint8List bytes = diagnosis.analyzedImages!['original']!;
+    final Uint8List bytes = mainController.draftImage!;
     final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
 
     final LesionAnalysis lesion = LesionAnalysis(mat);
@@ -67,22 +79,15 @@ class CutoutController extends GetxController {
       onlyMask: false,
     );
 
-    diagnosis.aScore = lesion.getAsymmetryScore();
-    diagnosis.bScore = lesion.getBorderScore();
-    diagnosis.cScore = lesion.getColorUniformityScore();
-    diagnosis.cutoutType = type;
-
-    diagnosis.analyzedImages?.addAll(<String, Uint8List>{
-      'contour': cv.imencode('.png', lesion.getLesionContourOverlay()).$2,
-      'concavity': cv.imencode('.png', lesion.getConcavityOverlay()).$2,
-    });
+    mainController.draftAScore = lesion.getAsymmetryScore();
+    mainController.draftBScore = lesion.getBorderScore();
+    mainController.draftCScore = lesion.getColorUniformityScore();
+    mainController.draftCutoutType = type;
 
     if (lesion.labelText != null) {
-      diagnosis.confidence = lesion.labelConfidence?.toPrecision(2);
-      diagnosis.prediction = LesionType.values[lesion.labelIdx!];
+      mainController.draftConfidence = lesion.labelConfidence?.toPrecision(2);
+      mainController.draftPrediction = LesionType.values[lesion.labelIdx!];
     }
-
-    return diagnosis;
   }
 
   Future<Diagnosis?> uploadDiagnosis({required Diagnosis diagnosis}) async {
@@ -132,12 +137,10 @@ class CutoutController extends GetxController {
 }
 
 class CustomCutoutSheet extends StatelessWidget {
-  final Diagnosis diagnosis;
   final DiagnosisMainController mainController;
 
   const CustomCutoutSheet({
     super.key,
-    required this.diagnosis,
     required this.mainController,
   });
 
@@ -158,7 +161,6 @@ class CustomCutoutSheet extends StatelessWidget {
                 context: context,
                 image: mainController.cutoutML!,
                 onPressed: () async => controller.startDiagnosisPipeline(
-                  diagnosis: diagnosis,
                   type: CutoutType.ml,
                 ),
               ),
@@ -167,7 +169,6 @@ class CustomCutoutSheet extends StatelessWidget {
                 context: context,
                 image: mainController.cutoutAlgo!,
                 onPressed: () async => controller.startDiagnosisPipeline(
-                  diagnosis: diagnosis,
                   type: CutoutType.algorithmic,
                 ),
               ),

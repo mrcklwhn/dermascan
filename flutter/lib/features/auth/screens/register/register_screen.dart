@@ -109,7 +109,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
               enabledBorder: noBorder,
               focusedBorder: noBorder,
               labelText: 'Date of Birth',
-              prefixIcon: Icon(Icons.calendar_month),
+              prefixIcon: const Icon(Icons.calendar_month),
             ),
           ),
         ),
@@ -123,7 +123,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
               enabledBorder: noBorder,
               focusedBorder: noBorder,
               labelText: 'Gender',
-              prefixIcon: Icon(Icons.wc_outlined),
+              prefixIcon: const Icon(Icons.wc_outlined),
             ),
             items: Gender.values.map((Gender g) {
               return DropdownMenuItem<Gender>(

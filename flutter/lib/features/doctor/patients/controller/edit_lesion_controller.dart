@@ -51,21 +51,10 @@ class EditLesionController extends GetxController {
     final Map<String, dynamic> args = Get.arguments as Map<String, dynamic>;
     lesion = args['lesion'];
     updateLesions = args['updateLesions'];
-
-    if (lesion.locationName != null) {
-      locationNameController.text = lesion.locationName!;
-    }
-
-    if (lesion.testResult != null) {
-      testResultController.text = lesion.testResult!;
-    }
-
-    if (lesion.notes != null) {
-      notesController.text = lesion.notes!;
-    }
-
+    locationNameController.text = lesion.locationName;
+    testResultController.text = lesion.testResult;
+    notesController.text = lesion.notes;
     isSuspicious.value = lesion.isSuspicious.value;
-
     wasRemoved.value = lesion.wasRemoved.value;
   }
 
@@ -207,11 +196,12 @@ class EditLesionController extends GetxController {
       if (successDiagnosis) {
         updateLesions?.call(lesion: lesion, delete: true);
 
+        // Close Edit-Lesion-Page AND diagnosis-bottom-sheet
         final BuildContext? context = Get.context;
         if (context != null && context.mounted) {
           Navigator.of(context).popUntil((Route<dynamic> route) {
             final String? name = route.settings.name;
-            if (name == '/doctor/edit-lesion' ||
+            if (name == '/doctor/edit-lesion' || // Current Page
                 name == 'diagnosis-bottom-sheet') {
               return false;
             }
