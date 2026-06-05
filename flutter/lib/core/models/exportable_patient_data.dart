@@ -5,18 +5,16 @@ import 'package:dermascan/core/models/patient.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
-
 class ExportablePatientData {
   final Patient patient;
+
   // final Map<String, ExportableBodyLesionSelection> lesionSelections;
 
   final RxList<BodyLesion> lesions;
-  Map<String, ExportableBodyLesionData> lesionData = <String, ExportableBodyLesionData>{};
+  Map<String, ExportableBodyLesionData> lesionData =
+      <String, ExportableBodyLesionData>{};
 
-  ExportablePatientData({
-    required this.patient,
-    required this.lesions,
-  }) {
+  ExportablePatientData({required this.patient, required this.lesions}) {
     // Initialize lesionData with empty selections for each selected lesion
     for (final BodyLesion lesion in lesions) {
       lesionData[lesion.id] = ExportableBodyLesionData(lesion: lesion);
@@ -25,11 +23,13 @@ class ExportablePatientData {
 
   // state helpers
   Iterable<ExportableBodyLesionData> get selectedLesions =>
-    lesionData.values.where(
-      (ExportableBodyLesionData selection) => selection.selectedDiagnoses.isNotEmpty,
-    );
+      lesionData.values.where(
+        (ExportableBodyLesionData selection) =>
+            selection.selectedDiagnoses.isNotEmpty,
+      );
 
-  RxBool isLesionSelected(BodyLesion lesion) => lesions.any((BodyLesion item) => item.id == lesion.id).obs;
+  RxBool isLesionSelected(BodyLesion lesion) =>
+      lesions.any((BodyLesion item) => item.id == lesion.id).obs;
 
   RxBool isDiagnosisSelected(BodyLesion lesion, Diagnosis diagnosis) {
     final ExportableBodyLesionData? data = lesionData[lesion.id];
@@ -42,12 +42,19 @@ class ExportablePatientData {
     if (data == null) return false.obs;
     return data.selectedMetrics.contains(metric).obs;
   }
-  
-  RxBool get canExport => lesionData.values.any((ExportableBodyLesionData lesion) => lesion.selectedDiagnoses.isNotEmpty).obs;
+
+  RxBool get canExport => lesionData.values
+      .any(
+        (ExportableBodyLesionData lesion) =>
+            lesion.selectedDiagnoses.isNotEmpty,
+      )
+      .obs;
 
   void ensureExportable() {
     if (!canExport.value) {
-      throw StateError('At least one diagnosis must be selected before exporting the PDF.');
+      throw StateError(
+        'At least one diagnosis must be selected before exporting the PDF.',
+      );
     }
   }
 
@@ -78,11 +85,15 @@ class ExportablePatientData {
   }
 
   void setDiagnosisSelection(ExportableBodyLesionData draftLesionData) {
-    lesionData[draftLesionData.lesion.id] = ExportableBodyLesionData.copyOf(draftLesionData);
+    lesionData[draftLesionData.lesion.id] = ExportableBodyLesionData.copyOf(
+      draftLesionData,
+    );
   }
 
   void toggleAllDiagnosesForLesion(ExportableBodyLesionData draftLesionData) {
-    final bool allSelected = draftLesionData.selectedDiagnoses.length == draftLesionData.lesion.diagnoses.length;
+    final bool allSelected =
+        draftLesionData.selectedDiagnoses.length ==
+        draftLesionData.lesion.diagnoses.length;
 
     if (allSelected) {
       draftLesionData.selectedDiagnoses.clear();
@@ -93,7 +104,10 @@ class ExportablePatientData {
     }
   }
 
-  void toggleMetricSelection(ExportableBodyLesionData lesionData, ExportableDiagnosisMetric metric) {
+  void toggleMetricSelection(
+    ExportableBodyLesionData lesionData,
+    ExportableDiagnosisMetric metric,
+  ) {
     if (lesionData.selectedMetrics.contains(metric)) {
       lesionData.selectedMetrics.remove(metric);
     } else {
@@ -110,18 +124,25 @@ class ExportableBodyLesionData {
   ExportableBodyLesionData({
     required this.lesion,
     List<Diagnosis> selectedDiagnoses = const <Diagnosis>[],
-  })  : selectedDiagnoses = RxList<Diagnosis>.from(selectedDiagnoses),
-        selectedMetrics = RxList<ExportableDiagnosisMetric>.from(ExportableDiagnosisMetric.values);
+  }) : selectedDiagnoses = RxList<Diagnosis>.from(selectedDiagnoses),
+       selectedMetrics = RxList<ExportableDiagnosisMetric>.from(
+         ExportableDiagnosisMetric.values,
+       );
 
   ExportableBodyLesionData.copyOf(ExportableBodyLesionData other)
-      : lesion = other.lesion,
-        selectedDiagnoses = RxList<Diagnosis>.from(other.selectedDiagnoses),
-        selectedMetrics = RxList<ExportableDiagnosisMetric>.from(other.selectedMetrics);
+    : lesion = other.lesion,
+      selectedDiagnoses = RxList<Diagnosis>.from(other.selectedDiagnoses),
+      selectedMetrics = RxList<ExportableDiagnosisMetric>.from(
+        other.selectedMetrics,
+      );
 
-  bool includesMetric(ExportableDiagnosisMetric metric) => selectedMetrics.contains(metric);
+  bool includesMetric(ExportableDiagnosisMetric metric) =>
+      selectedMetrics.contains(metric);
 
   List<ExportableDiagnosisTableRow> buildDiagnosisRows() {
-    return selectedDiagnoses.map(ExportableDiagnosisTableRow.fromDiagnosis).toList();
+    return selectedDiagnoses
+        .map(ExportableDiagnosisTableRow.fromDiagnosis)
+        .toList();
   }
 }
 

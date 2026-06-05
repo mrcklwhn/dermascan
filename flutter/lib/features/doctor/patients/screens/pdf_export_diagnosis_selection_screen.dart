@@ -10,14 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-
 class PdfExportDiagnosisSelectionScreen extends GetView<PdfExportController> {
   final BodyLesion lesion;
 
-  const PdfExportDiagnosisSelectionScreen({
-    super.key,
-    required this.lesion,
-  });
+  const PdfExportDiagnosisSelectionScreen({super.key, required this.lesion});
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +26,17 @@ class PdfExportDiagnosisSelectionScreen extends GetView<PdfExportController> {
               return const SizedBox.shrink();
             }
 
-            final bool allSelected = controller.allDraftDiagnosesSelected(lesion);
+            final bool allSelected = controller.allDraftDiagnosesSelected(
+              lesion,
+            );
 
             return IconButton(
-              tooltip: allSelected ? 'Clear all diagnoses' : 'Select all diagnoses',
+              tooltip: allSelected
+                  ? 'Clear all diagnoses'
+                  : 'Select all diagnoses',
               icon: Icon(allSelected ? Icons.deselect : Icons.select_all),
-              onPressed: () => controller.toggleAllDraftDiagnosesSelection(lesion),
+              onPressed: () =>
+                  controller.toggleAllDraftDiagnosesSelection(lesion),
             );
           }),
         ],
@@ -100,7 +101,8 @@ class PdfExportDiagnosisSelectionScreen extends GetView<PdfExportController> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: ExportableDiagnosisMetric.values.length,
           itemBuilder: (BuildContext context, int index) {
-            final ExportableDiagnosisMetric metric = ExportableDiagnosisMetric.values[index];
+            final ExportableDiagnosisMetric metric =
+                ExportableDiagnosisMetric.values[index];
 
             return SizedBox(
               height: 48,
@@ -132,9 +134,7 @@ class PdfExportDiagnosisSelectionScreen extends GetView<PdfExportController> {
                 leading: AspectRatio(
                   aspectRatio: 1.0,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      AppTheme.radiusSmall,
-                    ),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                     child: Image(
                       image: MemoryImage(imageBytes),
                       fit: BoxFit.cover,
@@ -149,7 +149,9 @@ class PdfExportDiagnosisSelectionScreen extends GetView<PdfExportController> {
                   ),
                 ),
                 title: Text('Diagnosis ${index + 1}'),
-                subtitle: Text('Date: ${DateFormat('dd.MM.yyyy').format(diagnosis.date)}'),
+                subtitle: Text(
+                  'Date: ${DateFormat('dd.MM.yyyy').format(diagnosis.date)}',
+                ),
                 onTap: () {
                   controller.toggleDraftDiagnosisSelection(diagnosis);
                 },
@@ -158,11 +160,16 @@ class PdfExportDiagnosisSelectionScreen extends GetView<PdfExportController> {
                   child: Center(
                     child: Obx(
                       () => Checkbox(
-                        value: controller.isDraftDiagnosisSelected(lesion, diagnosis),
+                        value: controller.isDraftDiagnosisSelected(
+                          lesion,
+                          diagnosis,
+                        ),
                         onChanged: controller.isLoading.value
                             ? null
                             : (bool? value) {
-                                controller.toggleDraftDiagnosisSelection(diagnosis);
+                                controller.toggleDraftDiagnosisSelection(
+                                  diagnosis,
+                                );
                               },
                       ),
                     ),
@@ -171,7 +178,7 @@ class PdfExportDiagnosisSelectionScreen extends GetView<PdfExportController> {
               );
             },
           ),
-        )
+        ),
       ],
     );
   }

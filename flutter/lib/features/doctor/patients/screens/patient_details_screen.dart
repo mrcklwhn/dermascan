@@ -75,13 +75,14 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                     Expanded(
                       child: Obx(() {
                         if (controller.selectedLesion.value != null) {
-
                           final Color displayColor =
-                          controller.selectedLesion.value!.wasRemoved.value
+                              controller.selectedLesion.value!.wasRemoved.value
                               ? Colors.grey.withValues(alpha: 0.3)
-                              : controller.selectedLesion.value!
-                              .isSuspicious
-                              .value
+                              : controller
+                                    .selectedLesion
+                                    .value!
+                                    .isSuspicious
+                                    .value
                               ? Colors.red.withValues(alpha: 0.3)
                               : AppTheme.highlightColor;
 

@@ -217,11 +217,15 @@ class CustomDiagnosisSheet extends StatelessWidget {
                     const SizedBox(height: AppTheme.spaceSmall),
                     Text(
                       'Date: ${DateFormat.yMMMd().format(diagnosis.date)}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     Text(
                       'Doctor: ${diagnosis.doctorName}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -287,18 +291,20 @@ class CustomDiagnosisSheet extends StatelessWidget {
           ),
           Obx(() {
             if (!controller.hasNotesChanged) {
-              return
-                const SizedBox(height: AppTheme.spaceLarge);
+              return const SizedBox(height: AppTheme.spaceLarge);
             }
             return Padding(
-              padding: const EdgeInsets.only(top:AppTheme.spaceLarge, bottom: AppTheme.spaceMedium),
+              padding: const EdgeInsets.only(
+                top: AppTheme.spaceLarge,
+                bottom: AppTheme.spaceMedium,
+              ),
               child: FilledButton.icon(
-                    onPressed: controller.isLoading.value
-                        ? null
-                        : () => controller.submittedNotes(),
-                    icon: const Icon(Icons.save),
-                    label: const Text('Save'),
-                  ),
+                onPressed: controller.isLoading.value
+                    ? null
+                    : () => controller.submittedNotes(),
+                icon: const Icon(Icons.save),
+                label: const Text('Save'),
+              ),
             );
           }),
 

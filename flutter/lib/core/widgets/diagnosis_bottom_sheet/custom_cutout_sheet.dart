@@ -22,31 +22,27 @@ class CutoutController extends GetxController {
 
   CutoutController({required this.mainController});
 
-  Future<void> startDiagnosisPipeline({
-    required CutoutType type,
-  }) async {
+  Future<void> startDiagnosisPipeline({required CutoutType type}) async {
     try {
       isLoading.value = true;
 
-      await calculateScores(
-        type: type,
-      );
+      await calculateScores(type: type);
 
       final Diagnosis diagnosis = Diagnosis(
         id: mainController.draftId!,
-          notes: '',
-          date: DateTime.now(),
-          imagePath: mainController.draftImagePath!,
-          lesionId: mainController.lesion.id,
-          doctorId: authService.currentDoctor.value!.id,
-          cutoutType: mainController.draftCutoutType!,
-          aScore: mainController.draftAScore!,
-          bScore: mainController.draftBScore!,
-          cScore: mainController.draftCScore!,
+        notes: '',
+        date: DateTime.now(),
+        imagePath: mainController.draftImagePath!,
+        lesionId: mainController.lesion.id,
+        doctorId: authService.currentDoctor.value!.id,
+        cutoutType: mainController.draftCutoutType!,
+        aScore: mainController.draftAScore!,
+        bScore: mainController.draftBScore!,
+        cScore: mainController.draftCScore!,
         prediction: mainController.draftPrediction!,
-          image: mainController.draftImage!,
-          confidence: mainController.draftConfidence!,
-        doctorName: authService.currentDoctor.value!.name
+        image: mainController.draftImage!,
+        confidence: mainController.draftConfidence!,
+        doctorName: authService.currentDoctor.value!.name,
       );
 
       final Diagnosis? uploadedDiagnosis = await uploadDiagnosis(
@@ -67,9 +63,7 @@ class CutoutController extends GetxController {
     }
   }
 
-  Future<void> calculateScores({
-    required CutoutType type,
-  }) async {
+  Future<void> calculateScores({required CutoutType type}) async {
     final Uint8List bytes = mainController.draftImage!;
     final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
 
@@ -139,10 +133,7 @@ class CutoutController extends GetxController {
 class CustomCutoutSheet extends StatelessWidget {
   final DiagnosisMainController mainController;
 
-  const CustomCutoutSheet({
-    super.key,
-    required this.mainController,
-  });
+  const CustomCutoutSheet({super.key, required this.mainController});
 
   @override
   Widget build(BuildContext context) {
@@ -160,9 +151,8 @@ class CustomCutoutSheet extends StatelessWidget {
               _buildSelectorButton(
                 context: context,
                 image: mainController.cutoutML!,
-                onPressed: () async => controller.startDiagnosisPipeline(
-                  type: CutoutType.ml,
-                ),
+                onPressed: () async =>
+                    controller.startDiagnosisPipeline(type: CutoutType.ml),
               ),
             if (mainController.cutoutAlgo != null)
               _buildSelectorButton(
