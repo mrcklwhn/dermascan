@@ -12,6 +12,10 @@ class Patient {
   final bool tanningBedExposure;
   final bool previousSkinSurgeries;
   final bool previousSunburns;
+  final bool previousCancerSurgeries;
+  final bool sunscreenUse;
+  final bool personalHistoryMelanoma;
+  final bool familyHistoryMelanoma;
 
   Patient({
     required this.id,
@@ -25,6 +29,10 @@ class Patient {
     required this.tanningBedExposure,
     required this.previousSkinSurgeries,
     required this.previousSunburns,
+    required this.previousCancerSurgeries,
+    required this.sunscreenUse,
+    required this.personalHistoryMelanoma,
+    required this.familyHistoryMelanoma,
   });
 
   factory Patient.fromJson(Map<String, dynamic> json) {
@@ -40,6 +48,10 @@ class Patient {
       tanningBedExposure: json['tanningBedExposure'] as bool,
       previousSkinSurgeries: json['previousSkinSurgeries'] as bool,
       previousSunburns: json['previousSunburns'] as bool,
+      previousCancerSurgeries: json['previousCancerSurgeries'] as bool,
+      sunscreenUse: json['sunscreenUse'] as bool,
+      personalHistoryMelanoma: json['personalHistoryMelanoma'] as bool,
+      familyHistoryMelanoma: json['familyHistoryMelanoma'] as bool,
     );
   }
 
@@ -56,6 +68,10 @@ class Patient {
       'tanningBedExposure': tanningBedExposure,
       'previousSkinSurgeries': previousSkinSurgeries,
       'previousSunburns': previousSunburns,
+      'previousCancerSurgeries': previousCancerSurgeries,
+      'sunscreenUse': sunscreenUse,
+      'personalHistoryMelanoma': personalHistoryMelanoma,
+      'familyHistoryMelanoma': familyHistoryMelanoma,
     };
   }
 }

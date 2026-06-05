@@ -68,13 +68,15 @@ class PracticeProfileController extends GetxController {
     if (isLoading.value || isInitializing.value) return;
 
     if (authService.currentPractice.value == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -97,23 +99,27 @@ class PracticeProfileController extends GetxController {
 
       if (fetchedPractice != null) {
         authService.currentPractice.value = fetchedPractice;
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check_circle,
-            title: 'Updated Name',
-            message:
-                "Your name was successfully changed to '${newName.trim()}'.",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check_circle,
+              title: 'Updated Name',
+              message:
+                  "Your name was successfully changed to '${newName.trim()}'.",
+            ),
+          );
+        }
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Update Name Failed',
-            message:
-                'Your name could not be changed. Please check the data or try again later.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Update Name Failed',
+              message:
+                  'Your name could not be changed. Please check the data or try again later.',
+            ),
+          );
+        }
       }
     } finally {
       updateNameController(name: authService.currentPractice.value!.name);
@@ -152,7 +158,7 @@ class PracticeProfileController extends GetxController {
 
       submitText: 'Logout',
 
-      onSubmit: () async {
+      onSubmit: (_) async {
         await authService.signOut();
       },
     );

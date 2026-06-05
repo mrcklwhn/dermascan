@@ -86,24 +86,29 @@ class PracticeRegisterController extends GetxController {
         emailController.text.trim().isEmpty ||
         passwordController.text.trim().isEmpty ||
         confirmPasswordController.text.trim().isEmpty) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Information Missing',
-          message: 'Please fill in all required fields to create your account.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Information Missing',
+            message:
+                'Please fill in all required fields to create your account.',
+          ),
+        );
+      }
       return;
     }
 
     if (!isValidEmail.value) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Invalid E-Mail',
-          message: 'Your e-mail is not formatted correctly.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Invalid E-Mail',
+            message: 'Your e-mail is not formatted correctly.',
+          ),
+        );
+      }
       return;
     }
 
@@ -113,14 +118,16 @@ class PracticeRegisterController extends GetxController {
         hasDigits.value &&
         hasSpecialCharacters.value &&
         passwordsMatch.value)) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Password Insecure',
-          message:
-              'Your password does not meet the security requirements or the passwords do not match.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Password Insecure',
+            message:
+                'Your password does not meet the security requirements or the passwords do not match.',
+          ),
+        );
+      }
       return;
     }
 
@@ -133,14 +140,16 @@ class PracticeRegisterController extends GetxController {
       );
 
       if (!successful) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Registration Failed',
-            message:
-                'Could not create account. The email might already be in use or the connection failed.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Registration Failed',
+              message:
+                  'Could not create account. The email might already be in use or the connection failed.',
+            ),
+          );
+        }
         return;
       }
 
@@ -149,25 +158,28 @@ class PracticeRegisterController extends GetxController {
       );
 
       if (profileCreated) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check_circle,
-            title: 'Register Successful',
-            message:
-                'Your Registration was successful. Yor account was created and you are now logged in.',
-          ),
-        );
-
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check_circle,
+              title: 'Register Successful',
+              message:
+                  'Your Registration was successful. Yor account was created and you are now logged in.',
+            ),
+          );
+        }
         await authService.evaluateRouteAndNavigate();
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Profile Creation Error',
-            message:
-                "Your account was created, but we couldn't set up the practice profile. Please contact support.",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Profile Creation Error',
+              message:
+                  "Your account was created, but we couldn't set up the practice profile. Please contact support.",
+            ),
+          );
+        }
       }
     } finally {
       registerController.isLoading.value = false;

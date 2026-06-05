@@ -39,6 +39,13 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
       children: <Widget>[
         const CustomIcon(iconData: Icons.person),
         const SizedBox(height: AppTheme.spaceLarge),
+
+        Text(
+          'Personal Information',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+
+        const SizedBox(height: AppTheme.spaceSmall),
         CustomTextField(
           textEditingController: controller.nameController,
           focusNode: controller.nameFocusNode,
@@ -61,6 +68,14 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
           ),
         ),
         const SizedBox(height: AppTheme.spaceMedium),
+
+        Text(
+          'Practice Details',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+
+        const SizedBox(height: AppTheme.spaceSmall),
+
         Card(
           child: ListTile(
             leading: const Icon(Icons.local_hospital),
@@ -75,6 +90,13 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
           ),
         ),
         const SizedBox(height: AppTheme.spaceMedium),
+
+        Text(
+          'Security & Account',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+
+        const SizedBox(height: AppTheme.spaceSmall),
         Card(
           child: ListTile(
             leading: const Icon(Icons.mail),

@@ -37,7 +37,8 @@ class LesionAnalysis {
   }
 
   Future<void> runLesionAnalysis({
-    bool useNeuralModel = false,
+    required bool useNeuralModel,
+    required bool onlyMask,
   }) async {
     if (useNeuralModel) {
       await _neuralCutout.initializeModel();
@@ -50,16 +51,15 @@ class LesionAnalysis {
       rawLesionMask = OtsusLesionCutout().run(image);
     }
 
-    // TODO: Only run model if not just an overlay is required
+    if (!onlyMask) {
+      final Map<String, dynamic> inferenceResult =
+          await _neuralLesionClassification.run(image);
 
-    // Classification
-    final Map<String, dynamic> inferenceResult = await _neuralLesionClassification.run(image);
+      labelIdx = inferenceResult['label_int'] as int?;
+      labelConfidence = inferenceResult['confidence'] as double?;
+      labelText = inferenceResult['label_text'] as String?;
+    }
 
-    labelIdx = inferenceResult['label_int'] as int?;
-    labelConfidence = inferenceResult['confidence'] as double?;
-    labelText = inferenceResult['label_text'] as String?;
-
-    // Masks for ABC Algos
     if (rawLesionMask.isEmpty) return;
 
     cleanedLesionMask = LesionUtils.cleanLesionMask(rawLesionMask, <int>[
@@ -67,9 +67,7 @@ class LesionAnalysis {
       image.cols,
     ]);
 
-    // Align mask for asymmetry
     _rotatedMask = LesionUtils.alignMaskByDominantAxis(rawLesionMask);
-    // Contour and hulls
     _lesionContourMask = LesionUtils.getLesionContourMask(rawLesionMask);
     _convexHullMask = LesionUtils.getConvexHullMask(rawLesionMask);
     _concavityMask = LesionUtils.getConcavityMask(

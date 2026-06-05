@@ -101,13 +101,15 @@ class InvitationsController extends GetxController {
     final String? doctorId = authService.currentUser.value?.id;
 
     if (doctorId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -118,23 +120,27 @@ class InvitationsController extends GetxController {
         practiceId: practice.id,
       );
       if (success) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check,
-            title: 'Invitation Accepted',
-            message: "You have successfully joined '${practice.name}'.",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check,
+              title: 'Invitation Accepted',
+              message: "You have successfully joined '${practice.name}'.",
+            ),
+          );
+        }
         await authService.evaluateRouteAndNavigate();
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Error Accepting Invitation',
-            message:
-                "The invitation from '${practice.name}' could not be accepted. You may already be assigned to a practice, or the invitation may be invalid.",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Error Accepting Invitation',
+              message:
+                  "The invitation from '${practice.name}' could not be accepted. You may already be assigned to a practice, or the invitation may be invalid.",
+            ),
+          );
+        }
       }
     } finally {
       isLoading.value = false;
@@ -164,7 +170,7 @@ class InvitationsController extends GetxController {
 
       onSubmit: isLoading.value || isInitializing.value
           ? null
-          : () async {
+          : (_) async {
               await acceptPracticeInvitation(
                 practice: selectedInvitation.practice,
               );

@@ -65,14 +65,16 @@ class ChangePasswordController extends GetxController {
 
     if (newPasswordController.text.trim().isEmpty ||
         confirmNewPasswordController.text.trim().isEmpty) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Information Missing',
-          message:
-              'Please fill in all required fields to change your Password.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Information Missing',
+            message:
+                'Please fill in all required fields to change your Password.',
+          ),
+        );
+      }
       return;
     }
 
@@ -82,25 +84,29 @@ class ChangePasswordController extends GetxController {
         hasDigits.value &&
         hasSpecialCharacters.value &&
         passwordsMatch.value)) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Password Insecure',
-          message:
-              'Your password does not meet the security requirements or the passwords do not match.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Password Insecure',
+            message:
+                'Your password does not meet the security requirements or the passwords do not match.',
+          ),
+        );
+      }
       return;
     }
 
     if (authService.currentUser.value == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -112,13 +118,16 @@ class ChangePasswordController extends GetxController {
       );
 
       if (response?.user == null) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Change Failed',
-            message: 'Could not change Password. Maybe the connection failed.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Change Failed',
+              message:
+                  'Could not change Password. Maybe the connection failed.',
+            ),
+          );
+        }
       } else {
         Get.back(result: true);
         await CustomDialogHelper.show(
@@ -135,7 +144,7 @@ class ChangePasswordController extends GetxController {
 
           submitText: 'Logout',
 
-          onSubmit: () async {
+          onSubmit: (_) async {
             await authService.signOut();
           },
         );

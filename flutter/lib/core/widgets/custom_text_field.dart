@@ -20,6 +20,8 @@ class CustomTextField extends StatelessWidget {
   final TextInputType textInputType;
   final List<CheckCriteria>? checkCriteria;
   final Color? backgroundColor;
+  final int? maxLines;
+  final int? minLines;
 
   const CustomTextField({
     super.key,
@@ -31,6 +33,8 @@ class CustomTextField extends StatelessWidget {
     required this.textInputType,
     this.checkCriteria,
     this.backgroundColor,
+    this.maxLines = 1,
+    this.minLines,
   });
 
   @override
@@ -41,6 +45,11 @@ class CustomTextField extends StatelessWidget {
     );
 
     final bool isPasswordField = textInputType == TextInputType.visiblePassword;
+
+    final OutlineInputBorder noBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      borderSide: BorderSide.none,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,10 +63,16 @@ class CustomTextField extends StatelessWidget {
             controller: textEditingController,
             focusNode: focusNode,
             keyboardType: textInputType,
+            maxLines: maxLines,
+            minLines: minLines,
             onSubmitted: onSubmitted,
             onTapOutside: (_) => focusNode.unfocus(),
             decoration: InputDecoration(
+              filled: true,
               fillColor: backgroundColor,
+              border: noBorder,
+              enabledBorder: noBorder,
+              focusedBorder: noBorder,
               labelText: labelText,
               prefixIcon: Icon(prefixIcon),
               suffixIcon: isPasswordField
