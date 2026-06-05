@@ -7,93 +7,94 @@ import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 
 class NeuralLesionClassification {
   RGBModel? rgbModel;
-//  GaborModel? gaborModel;
-//  GLCMModel? glcmModel;
+
+  //  GaborModel? gaborModel;
+  //  GLCMModel? glcmModel;
 
   NeuralLesionClassification() {
     rgbModel = RGBModel();
   }
 
-//  List<double> _extractProbs(Map<String, dynamic> inferenceResult) {
-//    final double confidence = inferenceResult['confidence'] as double;
-//    final int labelIdx = inferenceResult['label_int'] as int;
-//    final List<double> probs = labelIdx == 0
-//        ? <double>[confidence, 1 - confidence]
-//        : <double>[1 - confidence, confidence];
-//    return probs;
-//  }
+  //  List<double> _extractProbs(Map<String, dynamic> inferenceResult) {
+  //    final double confidence = inferenceResult['confidence'] as double;
+  //    final int labelIdx = inferenceResult['label_int'] as int;
+  //    final List<double> probs = labelIdx == 0
+  //        ? <double>[confidence, 1 - confidence]
+  //        : <double>[1 - confidence, confidence];
+  //    return probs;
+  //  }
 
   Future<Map<String, dynamic>> run(cv.Mat image) async {
     return rgbModel!.run(image);
   }
 
-//  Future<Map<String, dynamic>> runRGB(cv.Mat image) async {
-//    return rgbModel!.run(image);
-//  }
-//
-//  Future<Map<String, dynamic>> runGabor(cv.Mat image) async {
-//    return gaborModel!.run(image);
-//  }
-//
-//  Future<Map<String, dynamic>> runGLCM(cv.Mat image) async {
-//    return glcmModel!.run(image);
-//  }
-//
-//  Future<Map<String, dynamic>> runEnsemble(
-//    cv.Mat image, {
-//    double rgbWeight = 0.5,
-//    double gaborWeight = 0.25,
-//    double glcmWeight = 0.25,
-//    bool useSoftVoting = true,
-//  }) async {
-//    final List<Map<String, dynamic>> ensembleOutputs = await Future.wait(
-//      <Future<Map<String, dynamic>>>[
-//        rgbModel!.run(image),
-//        gaborModel!.run(image),
-//        glcmModel!.run(image),
-//      ],
-//    );
-//    final List<double> rgbProbs = _extractProbs(ensembleOutputs[0]);
-//    final List<double> gaborProbs = _extractProbs(ensembleOutputs[1]);
-//    final List<double> glcmProbs = _extractProbs(ensembleOutputs[2]);
-//
-//    if (useSoftVoting) {
-//      final double nevProb =
-//          rgbProbs[0] * rgbWeight +
-//          gaborProbs[0] * gaborWeight +
-//          glcmProbs[0] * glcmWeight;
-//      final double melProb =
-//          rgbProbs[1] * rgbWeight +
-//          gaborProbs[1] * gaborWeight +
-//          glcmProbs[1] * glcmWeight;
-//      final int labelIdx = melProb > nevProb ? 1 : 0;
-//      final double confidence = labelIdx == 0 ? nevProb : melProb;
-//      final String labelText = labelIdx == 0 ? 'nev' : 'mel';
-//      return <String, dynamic>{
-//        'label_int': labelIdx,
-//        'label_text': labelText,
-//        'confidence': confidence,
-//      };
-//    } else {
-//      // Hard voting
-//      final List<int> votes = <int>[
-//        ensembleOutputs[0]['label_int'] as int,
-//        ensembleOutputs[1]['label_int'] as int,
-//        ensembleOutputs[2]['label_int'] as int,
-//      ];
-//      final int nevVotes = votes.where((int v) => v == 0).length;
-//      final int melVotes = votes.where((int v) => v == 1).length;
-//      final int labelIdx = melVotes > nevVotes ? 1 : 0;
-//      final String labelText = labelIdx == 0 ? 'nev' : 'mel';
-//      return <String, dynamic>{
-//        'label_int': labelIdx,
-//        'label_text': labelText,
-//        'confidence': (melVotes > nevVotes)
-//            ? (melVotes / votes.length)
-//            : (nevVotes / votes.length),
-//      };
-//    }
-//  }
+  //  Future<Map<String, dynamic>> runRGB(cv.Mat image) async {
+  //    return rgbModel!.run(image);
+  //  }
+  //
+  //  Future<Map<String, dynamic>> runGabor(cv.Mat image) async {
+  //    return gaborModel!.run(image);
+  //  }
+  //
+  //  Future<Map<String, dynamic>> runGLCM(cv.Mat image) async {
+  //    return glcmModel!.run(image);
+  //  }
+  //
+  //  Future<Map<String, dynamic>> runEnsemble(
+  //    cv.Mat image, {
+  //    double rgbWeight = 0.5,
+  //    double gaborWeight = 0.25,
+  //    double glcmWeight = 0.25,
+  //    bool useSoftVoting = true,
+  //  }) async {
+  //    final List<Map<String, dynamic>> ensembleOutputs = await Future.wait(
+  //      <Future<Map<String, dynamic>>>[
+  //        rgbModel!.run(image),
+  //        gaborModel!.run(image),
+  //        glcmModel!.run(image),
+  //      ],
+  //    );
+  //    final List<double> rgbProbs = _extractProbs(ensembleOutputs[0]);
+  //    final List<double> gaborProbs = _extractProbs(ensembleOutputs[1]);
+  //    final List<double> glcmProbs = _extractProbs(ensembleOutputs[2]);
+  //
+  //    if (useSoftVoting) {
+  //      final double nevProb =
+  //          rgbProbs[0] * rgbWeight +
+  //          gaborProbs[0] * gaborWeight +
+  //          glcmProbs[0] * glcmWeight;
+  //      final double melProb =
+  //          rgbProbs[1] * rgbWeight +
+  //          gaborProbs[1] * gaborWeight +
+  //          glcmProbs[1] * glcmWeight;
+  //      final int labelIdx = melProb > nevProb ? 1 : 0;
+  //      final double confidence = labelIdx == 0 ? nevProb : melProb;
+  //      final String labelText = labelIdx == 0 ? 'nev' : 'mel';
+  //      return <String, dynamic>{
+  //        'label_int': labelIdx,
+  //        'label_text': labelText,
+  //        'confidence': confidence,
+  //      };
+  //    } else {
+  //      // Hard voting
+  //      final List<int> votes = <int>[
+  //        ensembleOutputs[0]['label_int'] as int,
+  //        ensembleOutputs[1]['label_int'] as int,
+  //        ensembleOutputs[2]['label_int'] as int,
+  //      ];
+  //      final int nevVotes = votes.where((int v) => v == 0).length;
+  //      final int melVotes = votes.where((int v) => v == 1).length;
+  //      final int labelIdx = melVotes > nevVotes ? 1 : 0;
+  //      final String labelText = labelIdx == 0 ? 'nev' : 'mel';
+  //      return <String, dynamic>{
+  //        'label_int': labelIdx,
+  //        'label_text': labelText,
+  //        'confidence': (melVotes > nevVotes)
+  //            ? (melVotes / votes.length)
+  //            : (nevVotes / votes.length),
+  //      };
+  //    }
+  //  }
 }
 
 abstract class NeuralModel {
@@ -181,11 +182,10 @@ abstract class NeuralModel {
     if (outputTensor.length == 1) {
       // Handle 1-node output
       final double logit = outputTensor[0];
-      
+
       // sigmoid implementation
       final double prob1 = 1 / (1 + math.exp(-logit));
       final double prob0 = 1 - prob1;
-
 
       final int labelIdx = prob1 > classificationThreshold ? 1 : 0;
       final double confidence = labelIdx == 1 ? prob1 : prob0;

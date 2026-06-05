@@ -6,4 +6,7 @@ const String edgeFunctionsURL =
     'https://qkvlxidoomfiuhelwnjm.supabase.co/functions/v1';
 const String supabaseURL = 'https://qkvlxidoomfiuhelwnjm.supabase.co';
 
-final ClassificationModel rgbModel = ClassificationModel(0.5, 'assets/models/rgb_efficientnet_v2_s_a_1node.onnx');
+final ClassificationModel rgbModel = ClassificationModel(
+  0.5,
+  'assets/models/rgb_efficientnet_v2_s_a_1node.onnx',
+);

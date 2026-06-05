@@ -6,7 +6,7 @@ import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
-import 'package:dermascan/core/widgets/custom_bottom_sheets/country_selector_bottom_sheet.dart';
+import 'package:dermascan/core/widgets/country_selector_bottom_sheet.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -32,6 +32,10 @@ class EditPatientController extends GetxController {
   RxBool tanningBedExposure = false.obs;
   RxBool previousSkinSurgeries = false.obs;
   RxBool previousSunburns = false.obs;
+  RxBool sunscreenUse = false.obs;
+  RxBool previousCancerSurgeries = false.obs;
+  RxBool personalHistoryMelanoma = false.obs;
+  RxBool familyHistoryMelanoma = false.obs;
 
   String? currentCountry;
   String? birthCountry;
@@ -73,6 +77,11 @@ class EditPatientController extends GetxController {
     previousSunburns.value = patient.previousSunburns;
     previousSkinSurgeries.value = patient.previousSkinSurgeries;
     tanningBedExposure.value = patient.tanningBedExposure;
+    previousCancerSurgeries.value = patient.previousCancerSurgeries;
+    sunscreenUse.value = patient.sunscreenUse;
+    personalHistoryMelanoma.value = patient.personalHistoryMelanoma;
+    familyHistoryMelanoma.value = patient.familyHistoryMelanoma;
+
     birthCountry = patient.birthCountry;
     birthCountryTextController.text =
         allCountries
@@ -135,27 +144,31 @@ class EditPatientController extends GetxController {
         dateOfBirth == null ||
         birthCountry == null ||
         currentCountry == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Missing Information',
-          message:
-              'Please fill in all required fields to update a patient profile.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Missing Information',
+            message:
+                'Please fill in all required fields to update a patient profile.',
+          ),
+        );
+      }
       return;
     }
 
     final String? doctorId = authService.currentUser.value?.id;
 
     if (doctorId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -166,14 +179,16 @@ class EditPatientController extends GetxController {
           .checkDoctorHasPractice();
 
       if (practiceOfDoctor == null) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'No Practice Assigned',
-            message:
-                'You must be assigned to a practice to update patient profiles.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'No Practice Assigned',
+              message:
+                  'You must be assigned to a practice to update patient profiles.',
+            ),
+          );
+        }
         return;
       }
 
@@ -188,28 +203,37 @@ class EditPatientController extends GetxController {
         tanningBedExposure: tanningBedExposure.value,
         previousSkinSurgeries: previousSkinSurgeries.value,
         previousSunburns: previousSunburns.value,
+        previousCancerSurgeries: previousSkinSurgeries.value
+            ? previousCancerSurgeries.value
+            : false,
+        sunscreenUse: sunscreenUse.value,
+        personalHistoryMelanoma: personalHistoryMelanoma.value,
+        familyHistoryMelanoma: familyHistoryMelanoma.value,
       );
 
       if (updatedPatient != null) {
         editPatient?.call(patient: updatedPatient);
         Get.back(closeOverlays: true);
-
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check_circle,
-            title: 'Patient Updated',
-            message: 'The profile was successfully updated.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check_circle,
+              title: 'Patient Updated',
+              message: 'The profile was successfully updated.',
+            ),
+          );
+        }
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Patient Creation Failed',
-            message:
-                'The profile could not be updated. Please check the data or try again later.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Patient Update Failed',
+              message:
+                  'The profile could not be updated. Please check the data or try again later.',
+            ),
+          );
+        }
       }
     } finally {
       isLoading.value = false;

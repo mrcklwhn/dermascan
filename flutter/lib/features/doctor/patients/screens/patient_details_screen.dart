@@ -24,24 +24,49 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    const SizedBox(width: AppTheme.radiusLarge * 2),
+                    IconButton(
+                      padding: const EdgeInsets.all(AppTheme.spaceSmall),
+                      constraints: BoxConstraints.tight(
+                        const Size(
+                          AppTheme.radiusLarge * 2,
+                          AppTheme.radiusLarge * 2,
+                        ),
+                      ),
+                      onPressed: controller.resetModelPosition,
+                      icon: const Icon(Icons.gps_fixed),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          AppTheme.highlightColor,
+                        ),
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusLarge,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: AppTheme.spaceMedium),
                     Expanded(
                       child: Obx(() {
                         if (controller.selectedLesion.value != null) {
+
+                          final Color displayColor =
+                          controller.selectedLesion.value!.wasRemoved.value
+                              ? Colors.grey.withValues(alpha: 0.3)
+                              : controller.selectedLesion.value!
+                              .isSuspicious
+                              .value
+                              ? Colors.red.withValues(alpha: 0.3)
+                              : AppTheme.highlightColor;
+
                           return Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(
                                 AppTheme.radiusLarge,
                               ),
-                              color:
-                                  controller
-                                      .selectedLesion
-                                      .value!
-                                      .isSuspicious
-                                      .value
-                                  ? Colors.red.withValues(alpha: 0.3)
-                                  : AppTheme.highlightColor,
+                              color: displayColor,
                             ),
                             constraints: BoxConstraints.tight(
                               const Size(

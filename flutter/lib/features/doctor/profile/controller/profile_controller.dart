@@ -82,13 +82,15 @@ class DoctorProfileController extends GetxController {
     if (isLoading.value || isInitializing.value) return;
 
     if (authService.currentDoctor.value == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -111,23 +113,27 @@ class DoctorProfileController extends GetxController {
 
       if (fetchedDoctor != null) {
         authService.currentDoctor.value = fetchedDoctor;
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check_circle,
-            title: 'Updated Name',
-            message:
-                "Your name was successfully changed to '${newName.trim()}'.",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check_circle,
+              title: 'Updated Name',
+              message:
+                  "Your name was successfully changed to '${newName.trim()}'.",
+            ),
+          );
+        }
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Update Name Failed',
-            message:
-                'Your name could not be changed. Please check the data or try again later.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Update Name Failed',
+              message:
+                  'Your name could not be changed. Please check the data or try again later.',
+            ),
+          );
+        }
       }
     } finally {
       updateNameController(name: authService.currentDoctor.value!.name);
@@ -143,13 +149,15 @@ class DoctorProfileController extends GetxController {
     final String? doctorId = authService.currentUser.value?.id;
 
     if (doctorId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -160,24 +168,28 @@ class DoctorProfileController extends GetxController {
         doctorId: authService.currentDoctor.value!.id,
       );
       if (success) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check,
-            title: 'Practice Left',
-            message:
-                'You are no longer a member of this practice and your access has been revoked.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check,
+              title: 'Practice Left',
+              message:
+                  'You are no longer a member of this practice and your access has been revoked.',
+            ),
+          );
+        }
         await authService.evaluateRouteAndNavigate();
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Error Leaving Practice',
-            message:
-                'The practice could not be left. You may have already been removed.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Error Leaving Practice',
+              message:
+                  'The practice could not be left. You may have already been removed.',
+            ),
+          );
+        }
       }
     } finally {
       isLoading.value = false;
@@ -203,7 +215,7 @@ class DoctorProfileController extends GetxController {
 
       onSubmit: isLoading.value || isInitializing.value
           ? null
-          : () async {
+          : (_) async {
               await leaveCurrentPractice();
             },
     );
@@ -240,7 +252,7 @@ class DoctorProfileController extends GetxController {
 
       submitText: 'Logout',
 
-      onSubmit: () async {
+      onSubmit: (_) async {
         await authService.signOut();
       },
     );

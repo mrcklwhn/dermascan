@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 
 class Diagnosis {
   final String? id;
-  final String? notes;
   final DateTime date;
   final String imagePath;
   final String lesionId;
@@ -16,6 +15,7 @@ class Diagnosis {
   double? bScore;
   double? cScore;
 
+  String notes;
   double? confidence;
   LesionType? prediction;
 
@@ -23,7 +23,7 @@ class Diagnosis {
 
   Diagnosis({
     this.id,
-    this.notes,
+    required this.notes,
     required this.date,
     required this.imagePath,
     required this.lesionId,
@@ -41,7 +41,7 @@ class Diagnosis {
   factory Diagnosis.fromJson(Map<String, dynamic> json) {
     return Diagnosis(
       id: json['id'] as String,
-      notes: json['notes'] as String?,
+      notes: json['notes'] as String,
       date: DateTime.parse(json['date'] as String).toLocal(),
       imagePath: json['imagePath'] as String,
       lesionId: json['lesionId'] as String,
