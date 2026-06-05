@@ -1,0 +1,33 @@
+# ==============================================================================
+# ASSET SPECIFICATIONS FOR APP ICON & SPLASH SCREEN (LIGHT MODE ONLY)
+# ==============================================================================
+# To ensure assets are not cropped by iOS or Android 12+, use these exact specs:
+#
+# 1. assets/app_icon_full.png (iOS & Legacy Android Launcher Icon)
+#    - Total Size: 1024 x 1024 px
+#    - Safe Zone:  Keep main logo centered within 820 x 820 px (80%)
+#    - Transparency: NO (Must have a solid background color, e.g., #FFFFFF)
+#
+# 2. assets/app_icon_foreground.png (Android 12+ Adaptive Icon & Splash Icon)
+#    - Total Size: 1152 x 1152 px
+#    - Safe Zone:  Keep main logo centered within a 768 px diameter circle
+#    - Transparency: YES (Transparent background, logo only)
+# ==============================================================================
+
+# RUN: dart run flutter_native_splash:create --path=flutter_native_splash.yaml
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: "assets/splash_icon_foreground.png"
+
+  android_12:
+    image: "assets/splash_icon_foreground.png"
+    color: "#FFFFFF"
+    icon_background_color: "#FFFFFF"
+
+  android: true
+  ios: true
+  web: false
+
+  android_gravity: center
+  ios_content_mode: center
