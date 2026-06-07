@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 from sklearn.metrics import f1_score
 from tqdm.auto import tqdm
+import sys
 
 from pipeline.dataclasses.pipeline_config import TrainerConfig, OptimizerConfig, SchedulerConfig
 from pipeline.dataclasses.pipeline_runtime import EvalResult, TrainingHistory
@@ -76,11 +77,12 @@ class Trainer:
 
                 val_f1_macro.append(epoch_val_f1)
 
-                #tqdm.write(
-                #    f"Epoch {epoch + 1}/{epochs} - "
-                #    f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
-                #    f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}, Val F1 Macro: {epoch_val_f1:.4f}"
-                #)
+                 epoch_bar.set_postfix({
+                    "val_f1": f"{epoch_val_f1:.3f}",
+                    "best_f1": f"{best_f1_macro:.3f}",
+                    "best_ep": best_epoch,
+                    "lr": f"{self.optimizer.param_groups[0]['lr']:.1e}"
+                })
                 
                 MLFlowLogger.log_epoch(epoch_train_loss,
                                        epoch_train_acc,
@@ -135,7 +137,7 @@ class Trainer:
         running_loss = 0.0
         running_corrects = 0
 
-        for inputs, labels in tqdm(train_loader, desc="Training", leave=False):
+        for inputs, labels in tqdm(train_loader, desc="Training", leave=False, file=sys.stdout):
             inputs = inputs.to(self.device, non_blocking=True)
             labels = labels.to(self.device, non_blocking=True)
 
@@ -179,7 +181,7 @@ class Trainer:
         all_labels = []
 
         with torch.inference_mode():
-            for inputs, labels in val_loader:
+            for inputs, labels in tqdm(val_loader, desc="Validation", leave=False, file=sys.stdout):
                 inputs = inputs.to(self.device, non_blocking=True)
                 labels = labels.to(self.device, non_blocking=True)
 
@@ -192,7 +194,7 @@ class Trainer:
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data).item()
 
-                all_probs.append(preds.cpu().numpy())
+                all_probs.append(probs.cpu().numpy())
                 all_labels.append(labels.cpu().numpy())
                             
                 del inputs, labels, outputs, preds, loss
