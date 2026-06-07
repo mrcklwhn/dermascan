@@ -194,7 +194,7 @@ class Trainer:
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data).item()
 
-                all_probs.append(probs.cpu().numpy())
+                all_probs.append(preds.cpu().numpy())
                 all_labels.append(labels.cpu().numpy())
                             
                 del inputs, labels, outputs, preds, loss
