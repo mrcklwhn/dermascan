@@ -17,6 +17,6 @@ mkdir -p /home/pichkuril97175/dermascan/logs
 module purge
 module load python/anaconda3
 eval "$(conda shell.bash hook)"
-conda activate /nfs/scratch/students/pichkuril97175/dermascan-env
+source /nfs/scratch/students/pichkuril97175/dermascan-env/bin/activate
 
 python /home/pichkuril97175/dermascan/python/kiz_cluster_config/experiment_tracking/train_config.py
