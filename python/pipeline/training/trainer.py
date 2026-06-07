@@ -77,7 +77,7 @@ class Trainer:
 
                 val_f1_macro.append(epoch_val_f1)
 
-                 epoch_bar.set_postfix({
+                epoch_bar.set_postfix({
                     "val_f1": f"{epoch_val_f1:.3f}",
                     "best_f1": f"{best_f1_macro:.3f}",
                     "best_ep": best_epoch,
