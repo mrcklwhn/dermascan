@@ -26,7 +26,7 @@ pipeline_config = PipelineConfig(
     seed=42,
     branches=[
         BranchConfig(
-            branch_id="efficientnet_v2_s",
+            branch_id="efficientnet_v2_s_rgb",
             sampler_weights=None,
             branch_model_config=ModelConfig(
                 model_type=ModelType.EFFICIENTNET_V2_S,
@@ -37,7 +37,7 @@ pipeline_config = PipelineConfig(
             ),
             trainer_config=TrainerConfig(
                 batch_size=16,
-                num_epochs=1,
+                num_epochs=35,
                 learning_rate=0.0003,
                 loss_type=LossType.CROSS_ENTROPY,
                 pos_weight=1.0,
@@ -55,7 +55,67 @@ pipeline_config = PipelineConfig(
                 ]
             ),
         ),
-    ]
+        BranchConfig(
+            branch_id="efficientnet_v2_s_rgb",
+            sampler_weights=None,
+            branch_model_config=ModelConfig(
+                model_type=ModelType.EFFICIENTNET_V2_S,
+                filter_type=FilterType.RGB,
+                num_classes=2,
+                pretrained=True,
+                freeze_weights=False
+            ),
+            trainer_config=TrainerConfig(
+                batch_size=16,
+                num_epochs=35,
+                learning_rate=0.0003,
+                loss_type=LossType.CROSS_ENTROPY,
+                pos_weight=1.0,
+                class_weights=(1.0, 7.0),
+                optimizer=AdamWConfig(weight_decay=0.0001),
+                scheduler=CosineAnnealingLRConfig(t_max=30, eta_min=0.00001),
+            ),
+            dataset_loader=DatasetLoaderType.RGB,
+            augmentation=AugmentationConfig(
+                train=[
+                    AugmentationType.RANDOM_RESIZE_CROP,
+                ],
+                val=[
+                    AugmentationType.RESIZE
+                ]
+            ),
+        ),
+        BranchConfig(
+            branch_id="efficientnet_v2_s_rgb",
+            sampler_weights=(1.0, 7.0),
+            branch_model_config=ModelConfig(
+                model_type=ModelType.EFFICIENTNET_V2_S,
+                filter_type=FilterType.RGB,
+                num_classes=2,
+                pretrained=True,
+                freeze_weights=False
+            ),
+            trainer_config=TrainerConfig(
+                batch_size=16,
+                num_epochs=35,
+                learning_rate=0.0003,
+                loss_type=LossType.CROSS_ENTROPY,
+                pos_weight=1.0,
+                class_weights=None,
+                optimizer=AdamWConfig(weight_decay=0.0001),
+                scheduler=CosineAnnealingLRConfig(t_max=30, eta_min=0.00001),
+            ),
+            dataset_loader=DatasetLoaderType.RGB,
+            augmentation=AugmentationConfig(
+                train=[
+                    AugmentationType.RANDOM_RESIZE_CROP,
+                ],
+                val=[
+                    AugmentationType.RESIZE
+                ]
+            ),
+        ),
+    ],
 )
 
 pipeline_runner = PipelineOrchestrator(
