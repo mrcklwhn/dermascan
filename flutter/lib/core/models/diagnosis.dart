@@ -8,8 +8,6 @@ class Diagnosis {
   final String imagePath;
   final String lesionId;
   final String doctorId;
-  final Uint8List image;
-
   String? doctorName;
   CutoutType cutoutType;
   double aScore;
@@ -18,6 +16,8 @@ class Diagnosis {
   String notes;
   double confidence;
   LesionType prediction;
+
+  final Map<String, Uint8List?>? analyzedImages;
 
   Diagnosis({
     required this.id,
@@ -31,7 +31,7 @@ class Diagnosis {
     required this.aScore,
     required this.bScore,
     required this.cScore,
-    required this.image,
+    required this.analyzedImages,
     required this.prediction,
     required this.confidence,
   });
@@ -50,7 +50,7 @@ class Diagnosis {
       aScore: json['aScore'] as double? ?? 0.0,
       bScore: json['bScore'] as double? ?? 0.0,
       cScore: json['cScore'] as double? ?? 0.0,
-      image: json['image'] as Uint8List,
+      analyzedImages: json['analyzedImages'] as Map<String, Uint8List?>?,
       prediction: LesionType.values[json['prediction'] as int],
       confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
     );

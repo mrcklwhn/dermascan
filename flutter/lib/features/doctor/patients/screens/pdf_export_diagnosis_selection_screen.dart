@@ -128,7 +128,8 @@ class PdfExportDiagnosisSelectionScreen extends GetView<PdfExportController> {
             itemCount: diagnosisList.length,
             itemBuilder: (BuildContext context, int index) {
               final Diagnosis diagnosis = diagnosisList[index];
-              final Uint8List imageBytes = diagnosis.image;
+              final Uint8List imageBytes =
+                  diagnosis.analyzedImages!['original']!;
 
               return ListTile(
                 leading: AspectRatio(
