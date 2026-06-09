@@ -26,7 +26,7 @@ class CutoutController extends GetxController {
     try {
       isLoading.value = true;
 
-      await calculateScores(type: type);
+      await calculateScoresAndDrawOverlay(type: type);
 
       final Diagnosis diagnosis = Diagnosis(
         id: mainController.draftId!,
@@ -40,7 +40,7 @@ class CutoutController extends GetxController {
         bScore: mainController.draftBScore!,
         cScore: mainController.draftCScore!,
         prediction: mainController.draftPrediction!,
-        image: mainController.draftImage!,
+        analyzedImages: mainController.draftAnalyzedImages!,
         confidence: mainController.draftConfidence!,
         doctorName: authService.currentDoctor.value!.name,
       );
@@ -63,8 +63,8 @@ class CutoutController extends GetxController {
     }
   }
 
-  Future<void> calculateScores({required CutoutType type}) async {
-    final Uint8List bytes = mainController.draftImage!;
+  Future<void> calculateScoresAndDrawOverlay({required CutoutType type}) async {
+    final Uint8List bytes = mainController.draftAnalyzedImages!['original']!;
     final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
 
     final LesionAnalysis lesion = LesionAnalysis(mat);
@@ -77,6 +77,11 @@ class CutoutController extends GetxController {
     mainController.draftBScore = lesion.getBorderScore();
     mainController.draftCScore = lesion.getColorUniformityScore();
     mainController.draftCutoutType = type;
+
+    mainController.draftAnalyzedImages?.addAll(<String, Uint8List>{
+      'contour': cv.imencode('.png', lesion.getLesionContourOverlay()).$2,
+      'concavity': cv.imencode('.png', lesion.getConcavityOverlay()).$2,
+    });
 
     if (lesion.labelText != null) {
       mainController.draftConfidence = lesion.labelConfidence?.toPrecision(2);

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/enums.dart';
@@ -9,6 +10,7 @@ import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -185,6 +187,12 @@ class CustomDiagnosisSheet extends StatelessWidget {
     final DiagnosisDetailController controller =
         Get.find<DiagnosisDetailController>(tag: diagnosis.id);
 
+    final double size =
+        (MediaQuery.of(context).size.width -
+            AppTheme.spaceMedium * 2 -
+            AppTheme.spaceSmall * 3) /
+        2;
+
     return Obx(() {
       if (mainController.isLoading.value || controller.isLoading.value) {
         return const Center(child: CircularProgressIndicator.adaptive());
@@ -196,15 +204,17 @@ class CustomDiagnosisSheet extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                child: Image.memory(
-                  diagnosis.image,
-                  height: 100,
-                  width: 100,
-                  fit: BoxFit.cover,
+              if (diagnosis.analyzedImages != null &&
+                  diagnosis.analyzedImages!['original'] != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  child: Image.memory(
+                    diagnosis.analyzedImages!['original']!,
+                    height: 100,
+                    width: 100,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
               const SizedBox(width: AppTheme.spaceMedium),
               Expanded(
                 child: Column(
@@ -307,7 +317,64 @@ class CustomDiagnosisSheet extends StatelessWidget {
               ),
             );
           }),
+          if (diagnosis.analyzedImages != null &&
+              diagnosis.analyzedImages!.entries
+                  .where(
+                    (MapEntry<String, Uint8List?> e) => e.key != 'original',
+                  )
+                  .isNotEmpty) ...<Widget>[
+            const SizedBox(height: AppTheme.spaceMedium),
+            ExpansionTile(
+              collapsedBackgroundColor: AppTheme.scaffoldBg,
+              backgroundColor: AppTheme.scaffoldBg,
+              initiallyExpanded: false,
 
+              title: Text(
+                'Analysis Insights',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: diagnosis.analyzedImages!.entries
+                      .where(
+                        (MapEntry<String, Uint8List?> e) => e.key != 'original',
+                      )
+                      .map((MapEntry<String, Uint8List?> entry) {
+                        return Column(
+                          children: <Widget>[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusMedium,
+                              ),
+                              child: Image(
+                                image: MemoryImage(entry.value!),
+                                height: size,
+                                width: size,
+                                fit: BoxFit.cover,
+                                gaplessPlayback: true,
+                                errorBuilder:
+                                    (
+                                      BuildContext context,
+                                      Object error,
+                                      StackTrace? stackTrace,
+                                    ) => const Icon(Icons.broken_image),
+                              ),
+                            ),
+                            const SizedBox(height: AppTheme.spaceSmall),
+                            Text(
+                              entry.key,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        );
+                      })
+                      .toList(),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: AppTheme.spaceLarge),
           OutlinedButton.icon(
             onPressed: controller.isLoading.value
                 ? null
