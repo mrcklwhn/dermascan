@@ -193,7 +193,8 @@ class PatientInfoBottomSheet extends StatelessWidget {
                       })
                       item = diagnoses[index];
 
-                      final Uint8List bytes = item.diagnosis.image;
+                      final Uint8List bytes =
+                          item.diagnosis.analyzedImages!['original']!;
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
