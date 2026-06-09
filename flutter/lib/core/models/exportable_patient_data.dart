@@ -173,7 +173,7 @@ class ExportableDiagnosisTableRow {
     return ExportableDiagnosisTableRow(
       diagnosisId: diagnosis.id,
       date: diagnosis.date,
-      imageBytes: diagnosis.image,
+      imageBytes: diagnosis.analyzedImages?['original'],
       predictionLabel: diagnosis.prediction.name,
       asymmetryScore: diagnosis.aScore,
       borderScore: diagnosis.bScore,

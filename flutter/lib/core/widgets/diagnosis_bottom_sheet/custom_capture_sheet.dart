@@ -99,7 +99,9 @@ class CaptureController extends GetxController {
 
       mainController.draftId = currentDiagnosisId;
       mainController.draftImagePath = imagePath;
-      mainController.draftImage = bytes;
+      mainController.draftAnalyzedImages = <String, Uint8List?>{
+        'original': bytes,
+      };
 
       await generateCutouts();
     } catch (e) {
@@ -122,7 +124,7 @@ class CaptureController extends GetxController {
     try {
       isLoading.value = true;
 
-      final Uint8List bytes = mainController.draftImage!;
+      final Uint8List bytes = mainController.draftAnalyzedImages!['original']!;
       final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
 
       final LesionAnalysis lesionML = LesionAnalysis(mat);

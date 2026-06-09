@@ -54,7 +54,9 @@ class PdfExportController extends GetxController {
       // Copy latest 3 original images for preview from lesion.diagnoses
       for (final BodyLesion lesion in lesions) {
         final List<Uint8List> previewImages = lesion.diagnoses
-            .map<Uint8List?>((Diagnosis diagnosis) => diagnosis.image)
+            .map<Uint8List?>(
+              (Diagnosis diagnosis) => diagnosis.analyzedImages?['original'],
+            )
             .whereType<Uint8List>()
             .take(3)
             .toList();
