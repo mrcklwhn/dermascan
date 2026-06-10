@@ -342,14 +342,80 @@ class HumanBody3DSelector extends StatelessWidget {
         return Stack(
           children: <Widget>[
             WebViewWidget(controller: controller.webViewController),
+
             Obx(
               () => controller.isModelReady.value
-                  ? const SizedBox.shrink()
+                  ? Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(AppTheme.spaceSmall),
+                        decoration: BoxDecoration(
+                          color: AppTheme.scaffoldBg.withValues(alpha: 0.9),
+                          borderRadius: const BorderRadius.only(
+                            bottomRight: Radius.circular(12),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            const _LegendItem(
+                              color: AppTheme.secondary,
+                              label: 'Normal',
+                            ),
+                            const SizedBox(height: AppTheme.spaceSmall),
+                            _LegendItem(
+                              color: suspiciousColor,
+                              label: 'Suspicious',
+                            ),
+                            const SizedBox(height: AppTheme.spaceSmall),
+                            const _LegendItem(
+                              color: AppTheme.primary,
+                              label: 'Excised',
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
                   : const Center(child: CircularProgressIndicator.adaptive()),
             ),
           ],
         );
       },
+    );
+  }
+}
+
+class _LegendItem extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendItem({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+            boxShadow: const <BoxShadow>[
+              BoxShadow(color: Colors.black26, blurRadius: 4),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+        ),
+      ],
     );
   }
 }
