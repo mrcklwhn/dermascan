@@ -14,6 +14,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
     return Scaffold(
       appBar: AppBar(title: const Text('Patient Profile')),
       body: SafeArea(
+        bottom: false,
         child: Obx(() {
           if (controller.isInitializing.value) {
             return const Center(child: CircularProgressIndicator.adaptive());
@@ -175,7 +176,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                   ],
                 ),
 
-                const SizedBox(height: AppTheme.spaceLarge),
+                const SizedBox(height: AppTheme.spaceMedium),
                 Expanded(
                   child: HumanBody3DSelector(
                     key: controller.bodySelectorKey,
@@ -189,7 +190,6 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                   ),
                 ),
 
-                const SizedBox(height: AppTheme.spaceLarge),
               ],
             ),
           );
