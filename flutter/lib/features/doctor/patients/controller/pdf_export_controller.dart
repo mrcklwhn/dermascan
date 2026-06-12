@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dermascan/app/enums.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
-import 'package:dermascan/core/models/exportable_patient_data.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
-import 'package:dermascan/features/doctor/patients/screens/pdf_export_diagnosis_selection_screen.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -19,19 +17,19 @@ class PdfExportController extends GetxController {
   AuthService authService = Get.find<AuthService>();
   DBService dbService = Get.find<DBService>();
 
+  ScrollController scrollController = ScrollController();
+
   RxBool isLoading = true.obs;
   RxBool isExporting = false.obs;
 
+  RxBool shouldExportMLClassification = true.obs;
+  RxBool shouldExportABCScores = true.obs;
+  RxBool shouldExportNotes = true.obs;
+
   late Patient patient;
-
-  late Rx<ExportablePatientData> exportablePatientData;
-
   late RxList<BodyLesion> lesions;
 
-  ExportableBodyLesionData? _draftLesion;
-
-  Map<String, List<Uint8List>> lesionPreviewImages =
-      <String, List<Uint8List>>{}.obs;
+  RxMap<String, Diagnosis> selectedDiagnoses = <String, Diagnosis>{}.obs;
 
   @override
   void onInit() {
@@ -44,25 +42,6 @@ class PdfExportController extends GetxController {
       final Map<String, dynamic> args = Get.arguments as Map<String, dynamic>;
       patient = args['patient'];
       lesions = (args['lesions'] as List<BodyLesion>).obs;
-
-      // Prepare exportable data structure
-      exportablePatientData = ExportablePatientData(
-        patient: patient,
-        lesions: lesions,
-      ).obs;
-
-      // Copy latest 3 original images for preview from lesion.diagnoses
-      for (final BodyLesion lesion in lesions) {
-        final List<Uint8List> previewImages = lesion.diagnoses
-            .map<Uint8List?>(
-              (Diagnosis diagnosis) => diagnosis.analyzedImages?['original'],
-            )
-            .whereType<Uint8List>()
-            .take(3)
-            .toList();
-
-        lesionPreviewImages[lesion.id] = previewImages;
-      }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error while loading lesions: $e');
@@ -74,17 +53,32 @@ class PdfExportController extends GetxController {
 
   // UI state helpers
 
+  bool isDiagnosisSelected(BodyLesion lesion, Diagnosis diagnosis) {
+    return selectedDiagnoses['${lesion.id}_${diagnosis.id}'] != null;
+  }
+
+  bool? areAllDiagnosesSelected(BodyLesion lesion) {
+    // returns true if all diagnoses are selected, false if none are selected, null if some are selected
+    final int total = getTotalDiagnosesCountPerLesion(lesion);
+    final int selected = getSelectedDiagnosesCount(lesion);
+    
+    if (selected == 0) {
+      return false;
+    } else if (selected == total) {
+      return true;
+    } else {
+      return null;
+    }
+  }
+
   int getTotalDiagnosesCountPerLesion(BodyLesion lesion) {
     return lesion.diagnoses.length;
   }
 
   int getSelectedDiagnosesCount(BodyLesion lesion) {
-    return exportablePatientData
-            .value
-            .lesionData[lesion.id]
-            ?.selectedDiagnoses
-            .length ??
-        0;
+    return selectedDiagnoses.keys
+        .where((String key) => key.startsWith('${lesion.id}_'))
+        .length;
   }
 
   String getExportedRatioText(BodyLesion lesion) {
@@ -93,69 +87,33 @@ class PdfExportController extends GetxController {
     return '$selected / $total';
   }
 
-  bool isMetricSelected(BodyLesion lesion, ExportableDiagnosisMetric metric) {
-    _draftLesion ??= exportablePatientData.value.lesionData[lesion.id];
-    if (_draftLesion == null) return false;
-    return _draftLesion!.selectedMetrics.contains(metric);
-  }
-
-  bool allDraftDiagnosesSelected(BodyLesion lesion) {
-    _draftLesion ??= exportablePatientData.value.lesionData[lesion.id];
-    if (_draftLesion == null) return false;
-    return _draftLesion!.selectedDiagnoses.length == lesion.diagnoses.length;
-  }
-
-  bool isDraftDiagnosisSelected(BodyLesion lesion, Diagnosis diagnosis) {
-    _draftLesion ??= exportablePatientData.value.lesionData[lesion.id];
-    if (_draftLesion == null) return false;
-    return _draftLesion!.selectedDiagnoses.contains(diagnosis);
-  }
-
-  void openLesionDetail(BodyLesion lesion) {
-    // open diagnosis selection screen with the given lesion
-    final ExportableBodyLesionData? committedLesion =
-        exportablePatientData.value.lesionData[lesion.id];
-    _draftLesion = committedLesion == null
-        ? ExportableBodyLesionData(lesion: lesion)
-        : ExportableBodyLesionData.copyOf(committedLesion);
-
-    Get.to(() => PdfExportDiagnosisSelectionScreen(lesion: lesion));
-  }
+  bool isExportable() => selectedDiagnoses.isNotEmpty;
 
   // selection management
 
-  void toggleDraftDiagnosisSelection(Diagnosis diagnosis) {
-    if (_draftLesion?.selectedDiagnoses.contains(diagnosis) == true) {
-      _draftLesion?.selectedDiagnoses.remove(diagnosis);
+  void toggleDiagnosisSelection(BodyLesion lesion, Diagnosis diagnosis) {
+    final String key = '${lesion.id}_${diagnosis.id}';
+    if (selectedDiagnoses.containsKey(key)) {
+      selectedDiagnoses.remove(key);
     } else {
-      _draftLesion?.selectedDiagnoses.add(diagnosis);
+      selectedDiagnoses[key] = diagnosis;
     }
   }
 
-  void toggleAllDraftDiagnosesSelection(BodyLesion lesion) {
-    final ExportableBodyLesionData? draftLesion = _draftLesion;
-    if (draftLesion == null) {
-      return;
+  void toggleAllDiagnosesForLesion(BodyLesion lesion) {
+    final bool allSelected = getSelectedDiagnosesCount(lesion) ==
+        getTotalDiagnosesCountPerLesion(lesion);
+
+    if (allSelected) {
+      selectedDiagnoses.removeWhere((String key, Diagnosis _) => key.startsWith('${lesion.id}_'));
+    } else {
+      for (final Diagnosis diagnosis in lesion.diagnoses) {
+        selectedDiagnoses['${lesion.id}_${diagnosis.id}'] = diagnosis;
+      }
     }
-
-    exportablePatientData.value.toggleAllDiagnosesForLesion(draftLesion);
-    exportablePatientData.refresh();
   }
 
-  void commitDraftDiagnosisSelection() {
-    if (_draftLesion == null) {
-      return;
-    }
-
-    exportablePatientData.value.setDiagnosisSelection(_draftLesion!);
-    exportablePatientData.refresh();
-  }
-
-  void toggleDiagnosisMetricSelection(ExportableDiagnosisMetric metric) {
-    exportablePatientData.value.toggleMetricSelection(_draftLesion!, metric);
-
-    exportablePatientData.refresh();
-  }
+  // PDF generation
 
   Future<Directory> getDownloadsDirectory() async {
     Directory directory;
@@ -186,10 +144,11 @@ class PdfExportController extends GetxController {
   }
 
   pw.Document buildPdf() {
-    final ExportablePatientData data = exportablePatientData.value;
-    data.ensureExportable();
-
     int lesionIndex = 1;
+
+    final List<BodyLesion> selectedLesions = lesions
+      .where((BodyLesion lesion) => getSelectedDiagnosesCount(lesion) > 0)
+      .toList();
 
     final pw.Document pdf = pw.Document();
     pdf.addPage(
@@ -223,10 +182,10 @@ class PdfExportController extends GetxController {
           ),
         ),
         build: (pw.Context context) => <pw.Widget>[
-          _buildPatientSummarySection(data.patient),
+          _buildPatientSummarySection(patient),
           pw.NewPage(),
-          ...data.selectedLesions.expand((ExportableBodyLesionData selection) {
-            return _buildLesionSection(selection, lesionIndex++);
+          ...selectedLesions.expand((BodyLesion lesion) {
+            return _buildLesionSection(lesion, lesionIndex++);
           }),
         ],
       ),
@@ -275,29 +234,12 @@ class PdfExportController extends GetxController {
   }
 
   List<pw.Widget> _buildLesionSection(
-    ExportableBodyLesionData selection,
+    BodyLesion lesion,
     int index,
   ) {
-    final bool includeAsymmetry = selection.includesMetric(
-      ExportableDiagnosisMetric.asymmetry,
-    );
-    final bool includeBorder = selection.includesMetric(
-      ExportableDiagnosisMetric.border,
-    );
-    final bool includeColor = selection.includesMetric(
-      ExportableDiagnosisMetric.color,
-    );
-    final bool includeConfidence = selection.includesMetric(
-      ExportableDiagnosisMetric.confidence,
-    );
-    final bool includeClassification = selection.includesMetric(
-      ExportableDiagnosisMetric.classification,
-    );
-    final bool includeNotes = selection.includesMetric(
-      ExportableDiagnosisMetric.notes,
-    );
-    final List<ExportableDiagnosisTableRow> diagnosisRows = selection
-        .buildDiagnosisRows();
+    final List<Diagnosis> diagnosisRows = lesion.diagnoses
+        .where((Diagnosis diagnosis) => isDiagnosisSelected(lesion, diagnosis))
+        .toList();
 
     return <pw.Widget>[
       pw.Padding(
@@ -306,24 +248,24 @@ class PdfExportController extends GetxController {
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: <pw.Widget>[
             pw.Text(
-              'Lesion #$index: ${selection.lesion.locationName}',
+              'Lesion #$index: ${lesion.locationName}',
               style: pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 4),
             pw.Text(
-              'Suspicious: ${selection.lesion.isSuspicious.value ? 'Yes' : 'No'}',
+              'Suspicious: ${lesion.isSuspicious.value ? 'Yes' : 'No'}',
               style: const pw.TextStyle(fontSize: 11),
             ),
             pw.Text(
-              'Removed: ${selection.lesion.wasRemoved.value ? 'Yes' : 'No'}',
+              'Removed: ${lesion.wasRemoved.value ? 'Yes' : 'No'}',
               style: const pw.TextStyle(fontSize: 11),
             ),
             pw.Text(
-              'Test result: ${selection.lesion.testResult.trim().isNotEmpty ? selection.lesion.testResult : '-'}',
+              'Test result: ${lesion.testResult.trim().isNotEmpty ? lesion.testResult : '-'}',
               style: const pw.TextStyle(fontSize: 11),
             ),
             pw.Text(
-              'Notes: ${selection.lesion.notes.trim().isNotEmpty ? selection.lesion.notes : '-'}',
+              'Notes: ${lesion.notes.trim().isNotEmpty ? lesion.notes : '-'}',
               style: const pw.TextStyle(fontSize: 11),
             ),
             pw.SizedBox(height: 10),
@@ -337,12 +279,6 @@ class PdfExportController extends GetxController {
       ),
       _buildDiagnosisTable(
         diagnosisRows: diagnosisRows,
-        includeAsymmetry: includeAsymmetry,
-        includeBorder: includeBorder,
-        includeColor: includeColor,
-        includeConfidence: includeConfidence,
-        includeClassification: includeClassification,
-        includeNotes: includeNotes,
       ),
       pw.Padding(
         padding: const pw.EdgeInsets.only(top: 10, bottom: 16),
@@ -352,13 +288,7 @@ class PdfExportController extends GetxController {
   }
 
   pw.Widget _buildDiagnosisTable({
-    required List<ExportableDiagnosisTableRow> diagnosisRows,
-    required bool includeAsymmetry,
-    required bool includeBorder,
-    required bool includeColor,
-    required bool includeConfidence,
-    required bool includeClassification,
-    required bool includeNotes,
+    required List<Diagnosis> diagnosisRows,
   }) {
     final List<pw.TableRow> rows = <pw.TableRow>[
       pw.TableRow(
@@ -366,27 +296,27 @@ class PdfExportController extends GetxController {
         children: <pw.Widget>[
           _tableCell('Date', isHeader: true),
           _tableCell('Image', isHeader: true),
-          if (includeAsymmetry) _tableCell('A', isHeader: true),
-          if (includeBorder) _tableCell('B', isHeader: true),
-          if (includeColor) _tableCell('C', isHeader: true),
-          if (includeClassification) _tableCell('Class', isHeader: true),
-          if (includeConfidence) _tableCell('Confidence', isHeader: true),
-          if (includeNotes) _tableCell('Notes', isHeader: true),
+          if (shouldExportABCScores.value) _tableCell('A', isHeader: true),
+          if (shouldExportABCScores.value) _tableCell('B', isHeader: true),
+          if (shouldExportABCScores.value) _tableCell('C', isHeader: true),
+          if (shouldExportMLClassification.value) _tableCell('Class', isHeader: true),
+          if (shouldExportMLClassification.value) _tableCell('Confidence', isHeader: true),
+          if (shouldExportNotes.value) _tableCell('Notes', isHeader: true),
         ],
       ),
       ...diagnosisRows.map(
-        (ExportableDiagnosisTableRow row) => pw.TableRow(
+        (Diagnosis diagnosis) => pw.TableRow(
           children: <pw.Widget>[
-            _tableCell(_formatDate(row.date, includeTime: true)),
-            _imageCell(row.imageBytes),
-            if (includeAsymmetry) _tableCell(_formatScore(row.asymmetryScore)),
-            if (includeBorder) _tableCell(_formatScore(row.borderScore)),
-            if (includeColor) _tableCell(_formatScore(row.colorScore)),
-            if (includeClassification)
-              _tableCell(row.predictionLabel ?? 'Unknown'),
-            if (includeConfidence)
-              _tableCell(_formatConfidence(row.confidence)),
-            if (includeNotes) _tableCell(row.notes),
+            _tableCell(_formatDate(diagnosis.date, includeTime: true)),
+            _imageCell(diagnosis.analyzedImages?['original']),
+            if (shouldExportABCScores.value) _tableCell(_formatScore(diagnosis.aScore)),
+            if (shouldExportABCScores.value) _tableCell(_formatScore(diagnosis.bScore)),
+            if (shouldExportABCScores.value) _tableCell(_formatScore(diagnosis.cScore)),
+            if (shouldExportMLClassification.value)
+              _tableCell(diagnosis.prediction.name),
+            if (shouldExportMLClassification.value)
+              _tableCell(_formatConfidence(diagnosis.confidence)),
+            if (shouldExportNotes.value) _tableCell(diagnosis.notes),
           ],
         ),
       ),
@@ -398,12 +328,12 @@ class PdfExportController extends GetxController {
       columnWidths: <int, pw.TableColumnWidth>{
         0: const pw.FlexColumnWidth(0.10),
         1: const pw.FlexColumnWidth(0.18),
-        if (includeAsymmetry) 2: const pw.FlexColumnWidth(0.05),
-        if (includeBorder) 3: const pw.FlexColumnWidth(0.05),
-        if (includeColor) 4: const pw.FlexColumnWidth(0.05),
-        if (includeClassification) 5: const pw.FlexColumnWidth(0.10),
-        if (includeConfidence) 6: const pw.FlexColumnWidth(0.10),
-        if (includeNotes) 7: const pw.FlexColumnWidth(0.18),
+        if (shouldExportABCScores.value) 2: const pw.FlexColumnWidth(0.05),
+        if (shouldExportABCScores.value) 3: const pw.FlexColumnWidth(0.05),
+        if (shouldExportABCScores.value) 4: const pw.FlexColumnWidth(0.05),
+        if (shouldExportMLClassification.value) 5: const pw.FlexColumnWidth(0.10),
+        if (shouldExportMLClassification.value) 6: const pw.FlexColumnWidth(0.10),
+        if (shouldExportNotes.value) 7: const pw.FlexColumnWidth(0.18),
       },
       children: rows,
     );
