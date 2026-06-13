@@ -6,12 +6,14 @@ import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:share_plus/share_plus.dart';
 
 class PdfExportController extends GetxController {
   AuthService authService = Get.find<AuthService>();
@@ -115,32 +117,38 @@ class PdfExportController extends GetxController {
 
   // PDF generation
 
-  Future<Directory> getDownloadsDirectory() async {
-    Directory directory;
-
-    if (Platform.isIOS) {
-      directory = await getApplicationDocumentsDirectory();
-    } else if (Platform.isAndroid) {
-      directory = Directory('/storage/emulated/0/Download');
-      if (!directory.existsSync()) {
-        directory =
-            await getExternalStorageDirectory() ??
-            await getApplicationDocumentsDirectory();
-      }
-    } else {
-      throw UnsupportedError('Unsupported platform');
-    }
-
-    return directory;
-  }
-
   Future<void> exportPDF() async {
-    isExporting.value = true;
-    final pw.Document pdf = buildPdf();
-    final Directory output = await getDownloadsDirectory();
-    final File file = File('${output.path}/example.pdf');
-    await file.writeAsBytes(await pdf.save());
-    isExporting.value = false;
+    try {
+      isExporting.value = true;
+      
+      final pw.Document pdf = buildPdf();
+      final Directory output = await getApplicationDocumentsDirectory();
+      final File file = File('${output.path}/example.pdf');
+      
+      // Save the PDF file
+      await file.writeAsBytes(await pdf.save());
+      isExporting.value = false;
+
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          title: 'Dermascan Report',
+        ),
+      );
+      
+    } catch (e) {
+      isExporting.value = false;
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Export Failed',
+            message:
+              'An error occurred while exporting the PDF. Please try again.',
+          ),
+        );
+      }
+    }
   }
 
   pw.Document buildPdf() {

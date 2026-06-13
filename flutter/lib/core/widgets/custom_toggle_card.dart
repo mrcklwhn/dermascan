@@ -19,11 +19,7 @@ class ToggleCard extends StatelessWidget {
           title: Text(title),
           subtitle: Text(subtitle),
           value: value.value,
-          onChanged: (bool? val) {
-            if (!value.value) {
-              value.value = val ?? false;
-            }
-          },
+          onChanged: (bool? val) => value.value = val ?? false,
         ),
       ),
     );
