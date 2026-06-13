@@ -65,6 +65,7 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
           child: Card(
             child: ExpansionTile(
               initiallyExpanded: false,
+              controlAffinity: ListTileControlAffinity.leading,
               title: Text(
                 lesion.locationName,
                 style: Theme.of(context).textTheme.titleMedium,
