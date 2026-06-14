@@ -1,7 +1,7 @@
 
 # Datenhaltung und Backend-Architektur
 
-Für das Datenmanagement der **Dermascan**-Applikation wird die Cloud-Plattform **Supabase** eingesetzt. Supabase basiert auf **PostgreSQL**, einer objektrelationalen Datenbank, die ein striktes, stabiles und konsistentes Datenbankschema ermöglicht. Für die aktuelle Prototypen- und Entwicklungsphase reicht die kostenfreie Stufe (*Free Tier*) vollkommen aus, um funktionale Demodaten zu halten und Kernprozesse abzubilden.
+Für das Datenmanagement der **Dermascan**-Applikation wird die Cloud-Plattform **Supabase** eingesetzt. Supabase basiert auf **PostgreSQL**, einer objektrelationalen Datenbank, die ein striktes, stabiles und konsistentes Datenbankschema ermöglicht. Die Verwendung eines externen Datenbankdienstes bietet für die aktuelle Prototypenphase den Vorteil einer einfachen Integration und ortsunabhängiger Nutzung. Insofern reicht die kostenfreie Stufe (*Free Tier*) vollkommen aus, um funktionale Demodaten zu halten und Kernprozesse abzubilden.
 
 ## Datenmodell (Schema)
 
@@ -25,7 +25,7 @@ Die Datenbank ist in sechs Kernbereiche unterteilt. Nachfolgend werden die Tabel
 ### Ausgewählte Datenfelder im Fokus
 
 * **`diagnosis.prediction` & `diagnosis.confidence`:** Halten das Klassifikationsergebnis des Convolutional Neural Networks (CNN) sowie den dazugehörigen Konfidenzwert (Wahrscheinlichkeit für Malignität).
-* **`diagnosis.ascore`, `.bscore`, `.cscore`:** Numerische Werte, die aus [deterministischen Bildverarbeitungsalgorithmen](../ml/abc_algorithms.md) hervorgehen (Asymmetrie, Begrenzung, Farbe gemäß der klinischen ABCDE-Regel).
+* **`diagnosis.ascore`, `.bscore`, `.cscore`:** Numerische Werte, die aus [deterministischen Bildverarbeitungsalgorithmen](../abc_algorithms/README.md) hervorgehen (Asymmetrie, Begrenzung, Farbe gemäß der klinischen ABCDE-Regel).
 * **`lesion.position` & `lesion.locationname`:** Ermöglichen die exakte Verortung der Läsion am Körper zur späteren visuellen Darstellung auf einer interaktiven 3D-Körperkarte.
 * **`auth.users.id`-Verknüpfung:** Die native Supabase-Authentifizierung ist direkt mit den Tabellen `doctor` und `practice` gekoppelt. Ein eingeloggter Account agiert im System entweder in der Rolle einer Praxis oder eines Arztes.
 ---
@@ -61,3 +61,7 @@ Der Zugriff auf diesen Bucket wird durch präzise PostgreSQL-Policies (RLS) auf 
 * **Lese-Berechtigung (SELECT):** Ein Arzt kann Bilder nur dann einsehen oder herunterladen, wenn das Verzeichnis (der erste Ordneraufruf des Pfades) mit der `practiceid` seines eigenen Profils übereinstimmt.
 
 Durch diese Architektur ist mathematisch und datenbankseitig garantiert, dass kein Arzt und keine Praxis jemals – weder absichtlich noch durch Client-Fehler – Einblick in die medizinischen Bilddaten oder Diagnosedaten eines fremden Mandanten erhalten kann.
+
+## Siehe auch:
+- [App Dokumentation](../app/README.md)
+- [ML Dokumentation](../ml/README.md)

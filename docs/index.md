@@ -12,6 +12,10 @@
 Dermascan umfasst die Forschung und Entwicklung einer mobilen App, mit der Bilder von Hautläsionen aufgenommen werden sollen und mithilfe eines ML Models direkt auf dem Endgerät des Anwenders klassifiziert wird. Dabei soll insbesondere die Datensicherheit und der Datenschutz der sensiblen Patientendaten gewährleistet werden, indem die Verarbeitung ausschließlich auf dem Endgerät erfolgt und alle Ergebnisse verschlüsselt gespeichert werden.
 
 ## Allgemeine Projektinformationen
+
+Die implementierten Features und die Architektur des Projekts wurde in enger Zusammenarbeit mit einem realen Stakeholder, einer Dermatologin, entwickelt. 
+Dabei wurden folgende Kernpunkte iterativ erarbeitet:
+
 - Zielgruppe: ausschließlich Ärzte
 - App Framework: Flutter 
 - Datenhaltung: Supabase
@@ -24,19 +28,25 @@ Dermascan umfasst die Forschung und Entwicklung einer mobilen App, mit der Bilde
 ### App
 
 Die App-Entwicklung erfolgt mit dem Framework Flutter, um eine plattformübergreifende Entwicklung zu ermöglichen.
-In der [App Dokumentation](./app/README.md) finden sich detaillierte Informationen zur Zusammenarbeit mit einem realen Stakeholder, der App-Architektur und den implementierten Features.
-
-
-### ML Backend
-
-Verschiedene neuronale Modelle wurden evaluiert, um einen Kompromiss zwischen Genauigkeit und Effizienz zu finden.
-Dabei wird neben dem Finetuning von vortrainierten Modellen auch eine eigene Modellarchitektur entwickelt, die speziell auf die Anforderungen der Hautläsionserkennung zugeschnitten ist.
-
-Nähere Informationen zur Modellentwicklung finden sich in der [ML Dokumentation](./ml/README.md).
+In der [App Dokumentation](./app/README.md) finden sich detaillierte Informationen zur App-Architektur und den implementierten Funktionen.
 
 
 ### Datenbank
 
-Zur Datenhaltung wird die Cloud-Plattform Supabase eingesetzt, die auf PostgreSQL basiert. Sie ermöglicht ein stabiles und konsistentes Datenbankschema, das den organisatorischen Ablauf einer Arztpraxis sowie den dermatologischen Diagnoseprozess nativ abbildet. Die Entscheidung für einen externen Dienstleister ist auch damit zu begründen, dass wir selbst keine dauerhaft verfügbare Datenbank aufsetzen und einen ortsunabhängigen Zugriff ermöglichen müssen, wodurch der Fokus auf der Entwicklung bleibt.
+Zur Datenhaltung für die App wird die Cloud-Plattform Supabase eingesetzt. Sie ermöglicht ein stabiles und konsistentes Datenbankschema, das den organisatorischen Ablauf einer Arztpraxis sowie den dermatologischen Diagnoseprozess nativ abbildet. 
 
 Details zum Datenbankdesign und Sicherheitsmaßnahmen finden sich in der [Datenbank Dokumentation](./db/README.md).
+
+
+### Klassifikator und deterministische Algorithmen
+
+Die Entwicklung eines neuronalen Klassifikators für die Hautläsionserkennung gliedert sich in die Erkundung verschiedener neuronalen Modelle und die Implementierung von deterministischen Bildverarbeitungsalgorithmen, die auf der klinischen ABCDE-Regel basieren.
+
+Für die Klassifikation der Hautläsionen wird ein Convolutional Neural Network (CNN) entwickelt, das auf einem umfangreichen Datensatz von Hautläsionen trainiert wird.
+Nähere Informationen zur Modellforschung finden sich in der [ML Dokumentation](./ml/README.md).
+
+Im Gespräch mit der Dermatologin wurde deutlich, dass neben der reinen Klassifikation auch die Berechnung von klinisch relevanten Bildmerkmalen (Asymmetrie, Begrenzung, Farbe) von großer Bedeutung ist. Daher werden zusätzlich deterministische Algorithmen implementiert, um diese Merkmale zu extrahieren und in die Diagnose einzubeziehen. Details zu diesen Algorithmen sind in der [zugehörigen Dokumentation](./abc_algorithms/README.md) beschrieben.
+
+## Fazit
+
+_hier könnte ihre Werbung stehen_

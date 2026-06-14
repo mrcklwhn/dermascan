@@ -1,10 +1,10 @@
-# 1. Übersicht
+# 1. App-Entwicklung
 
 ## 1.1 Zielsetzung und Kontext
 
 Die vorliegende Dokumentation beschreibt die Konzeption und Implementierung einer mobilen Flutter-Anwendung zur dermatologischen Hautläsionsverwaltung. Das Projekt entstand in enger Zusammenarbeit mit einer Dermatologin. Ziel war es, die realen Anforderungen, klinischen Arbeitsabläufe und Dokumentationspflichten einer dermatologischen Praxis präzise zu erfassen und in eine benutzerzentrierte Softwarelösung zu überführen.
 
-Die Anwendung unterstützt Dermatologen gezielt bei der langfristigen Dokumentation, der strukturierten Verlaufskontrolle sowie der Diagnose von Hautläsionen. Ein Kernaspekt ist die nahtlose Integration eines Machine-Learning-basierten Klassifikators zur automatisierten Hautkrebsanalyse. Durch die lokale Ausführung des Modells entfällt die Notwendigkeit für teure Zusatzhardware. Die App führt Patientenverwaltung, Bilddokumentation, KI-gestützte Analyse und automatisierte Berichterstellung (PDF) in einem System zusammen.
+Die Anwendung unterstützt Dermatologen gezielt bei der langfristigen Dokumentation, der strukturierten Verlaufskontrolle sowie der Diagnose von Hautläsionen. Ein Kernaspekt ist die nahtlose Integration eines Machine-Learning-basierten [Klassifikators](../ml/README.md) zur automatisierten Hautkrebsanalyse. Durch die lokale Ausführung des Modells entfällt die Notwendigkeit für teure Zusatzhardware. Die App führt Patientenverwaltung, Bilddokumentation, KI-gestützte Analyse und automatisierte Berichterstellung (PDF) in einem System zusammen.
 
 ## 1.2 Konten- und Rollenmodell
 
@@ -109,8 +109,8 @@ Da eine Läsion über Jahre hinweg unbegrenzt viele Diagnosen und Bildaufnahmen 
 
 Für jede neu erfasste Diagnose wird das Bildmaterial lokal analysiert. Das System kombiniert dabei die klassische dermatologische Bewertungsmetrik mit modernen Deep-Learning-Verfahren:
 
-1. **Klassisches ABC-Scoring:** Automatische Berechnung und visuelle Aufbereitung der Kriterien *Asymmetrie* (A), *Begrenzung* (B) und *Color/Farbe* (C).
-2. **Neuronale Klassifikation:** Berechnung der statistischen Wahrscheinlichkeiten für das Vorliegen eines *Melanoms* im Vergleich zu einem gutartigen *melanozytären Nävus* (Leberfleck).
+1. **(Klassisches ABC-Scoring:)[../abc_algorithms/README.md]** Automatische Berechnung und visuelle Aufbereitung der Kriterien *Asymmetrie* (A), *Begrenzung* (B) und *Color/Farbe* (C).
+2. **(Neuronale Klassifikation:)[../ml/README.md]** Berechnung der statistischen Wahrscheinlichkeiten für das Vorliegen eines *Melanoms* im Vergleich zu einem gutartigen *melanozytären Nävus* (Leberfleck).
 
 Ergänzend dokumentiert der Arzt das Untersuchungsdatum, den behandelnden Kollegen sowie freie klinische Anmerkungen. Die Ergebnisse werden für den Arzt übersichtlich aufbereitet und dienen als objektive, reproduzierbare Zweitmeinung (*Decision Support System*).
 
@@ -200,6 +200,11 @@ Die Ausführung des KI-Klassifikators erfolgt vollständig gerätelokal (On-Devi
 
 Hierzu ist das trainierte Machine-Learning-Modell als Datei in den assets der Anwendung hinterlegt. Für die Ausführung wird das onnxruntime-Package genutzt, welches eine native C++ Laufzeitumgebung via Dart-FFI anspricht.
 
-Sobald ein Bild aufgenommen und der Cutout bestätigt wurde, wird die Bildmatrix in ein Float32-Tensor-Format transformiert und an das ONNX-Modell übergeben. Die native Laufzeitumgebung berechnet Klassifizierung unter Verwendung der Geräte-Hardware.
+Sobald ein Bild aufgenommen und der Cutout bestätigt wurde, wird die Bildmatrix in ein Float32-Tensor-Format transformiert und an das ONNX-Modell übergeben. Die native Laufzeitumgebung berechnet Klassifizierung ggf. unter Verwendung einer gerätespezifischen Hardwarebeschleunigung.
 
 Die gesamte Berechnung wird in einer Wrapper-Klasse namens `LesionAnalysis` gekapselt. Diese Klasse bündelt die gesamte logische Analyseeinheit, um eine saubere Datenübergabe zu gewährleisten. Das Ergebnis dieses Objekts wird über das reaktive GetX-System unmittelbar in der UI zur Anzeige gebracht, sodass der Dermatologe die Auswertung sofort einsehen kann. Parallel dazu werden die Ergbnisse der Analyse mittels des `DatabaseService` persistent in der Datenbank gespeichert.
+
+## Siehe auch:
+- [Datenbank Dokumentation](../db/README.md)
+- [ML Dokumentation](../ml/README.md)
+- [ABC-Algorithmus Dokumentation](../abc_algorithms/README.md)
