@@ -8,6 +8,10 @@ Die Pipeline ist ein modulares ML-Trainings-Framework für die binäre Klassifik
 
 ## Architektur
 
+Die Architektur trennt die Pipeline in klar abgegrenzte Verantwortlichkeiten: Datensplitting, Laden und Augmentieren der Daten, Modellaufbau, Training, Evaluation, Visualisierung und Experiment-Tracking. Dadurch können unterschiedliche Modellarchitekturen, Filter-Repräsentationen und Trainingskonfigurationen als unabhängige Branches verglichen werden, ohne den Ablauf der gesamten Pipeline anpassen zu müssen.
+
+Diese Struktur ermöglicht reproduzierbare Experimente, weil Seeds, Konfigurationen, Metriken, Artefakte und Modelle systematisch gespeichert werden. Gleichzeitig bleibt die Pipeline erweiterbar: Neue Filtertypen, Torchvision-Modelle, Optimizer, Scheduler oder Evaluierungslogiken können an den vorgesehenen Stellen ergänzt werden, während der `PipelineOrchestrator` weiterhin den Gesamtprozess koordiniert.
+
 ```
 PipelineOrchestrator
 ├── SplitProvider              → erzeugt Train/Val/Test-Split
@@ -31,13 +35,6 @@ PipelineOrchestrator
 
 Einstiegspunkt der Pipeline. Erzeugt das Ausgabeverzeichnis, setzt Seeds, initialisiert MLflow-Tracking mit einer SQLite-Datenbank (`results/mlflow.db`), erzeugt den Datensplit und führt alle konfigurierten Branches sequentiell aus.
 
-| Methode | Beschreibung |
-|---|---|
-| `__init__(pipeline_config, project_root_path)` | Initialisiert Pipeline, Ausgabepfad, MLflow-Tracking-URI und Seed |
-| `run()` | Startet MLflow-Experiment, erzeugt Split, baut pro Branch DataLoader und führt Branches aus |
-| `_get_pipeline_output_path(...)` | Erstellt Ausgabepfad `results/<pipeline_id>_<timestamp>/` |
-| `_set_seeds(seed)` | Setzt Seed für `random`, `numpy`, `torch`, CUDA und deterministisches cuDNN-Verhalten |
-
 **Ausgabe:** `results/<pipeline_id>_YYYY-MM-DD_HH-MM/`
 
 ---
@@ -45,15 +42,6 @@ Einstiegspunkt der Pipeline. Erzeugt das Ausgabeverzeichnis, setzt Seeds, initia
 ### `BranchRunner`
 
 Führt einen einzelnen Branch aus: Modellaufbau → Training → Threshold-Optimierung → Test-Evaluation → Speichern/Logging.
-
-| Methode | Beschreibung |
-|---|---|
-| `__init__(branch_config, data_loaders, pipeline_run_path, seed)` | Initialisiert Modell, Trainer, Device und Branch-Ausgabepfad |
-| `run()` | Trainiert, ermittelt optimalen Threshold auf dem Val-Set, testet, speichert Ergebnisse und loggt in MLflow |
-| `_save_training_history(history)` | Speichert `training_history.json` |
-| `_save_metrics(metrics)` | Speichert `metrics.json` |
-| `_save_branch_config()` | Speichert `branch_config.json` für Auditing/Reproduzierbarkeit |
-| `_get_device()` | Nutzt CUDA, wenn verfügbar, sonst CPU |
 
 **Ablauf pro Branch:**
 1. Branch-Konfiguration speichern und Parameter in MLflow loggen
@@ -158,7 +146,9 @@ Im `ratio`-Modus werden über den `DatasetManager` nur melanoma-relevante Sample
 
 ### `DataLoaderFactory` und `AugmentationBuilder`
 
-Erstellt PyTorch `DataLoader`-Instanzen für Train-, Val- und Test-Split.
+Die `DataLoaderFactory` ist die zentrale Erzeugungsstelle für PyTorch-`DataLoader`. Sie übersetzt die Pipeline-Konfiguration in konkrete Loader für Train-, Val- und Test-Daten und sorgt dafür, dass Batch-Größe, Worker-Konfiguration, Sampler, Transformationspipeline und Dataset-Typ zusammenpassen. Dadurch muss der restliche Trainingscode nicht wissen, ob ein Branch direkt RGB-Bilder oder vorberechnete Feature-Maps wie Gabor-, GLCM- oder LBP-Dateien verarbeitet.
+
+Der `AugmentationBuilder` erstellt die passenden Albumentations-Pipelines für den jeweiligen Branch. Die Zielgröße orientiert sich am gewählten Modell, weil verschiedene Architekturen unterschiedliche Eingabegrößen erwarten. Train-, Val- und Test-Transformationen werden getrennt behandelt, sodass Augmentierungen nur dort eingesetzt werden, wo sie sinnvoll sind, während Evaluationen deterministisch bleiben.
 
 | Loader-Typ | Beschreibung |
 |---|---|
@@ -182,7 +172,7 @@ Erstellt PyTorch `DataLoader`-Instanzen für Train-, Val- und Test-Split.
 - `ToTensorV2()` wird immer am Ende der Transform-Pipeline angehängt
 - Wenn eine `augmentation`-Config gesetzt ist, erhält das Test-Set nur Normalisierung und Tensor-Konvertierung
 
-**WeightedRandomSampler:** Wenn `sampler_weights` in der `BranchConfig` gesetzt ist, wird für den Train-Loader ein `WeightedRandomSampler` verwendet (`replacement=True`, `num_samples=len(train_df)`). Andernfalls wird der Train-Loader mit `shuffle=True` gebaut.
+**WeightedRandomSampler:** Der `WeightedRandomSampler` ist ein PyTorch-Sampler, der Trainingsbeispiele nicht gleichverteilt, sondern anhand definierter Gewichte zieht. Das ist bei unausgeglichenen Klassen wichtig, weil Melanom-Samples im HAM10000-Datensatz deutlich seltener vorkommen können als Nicht-Melanom-Samples. Wenn `sampler_weights` in der `BranchConfig` gesetzt ist, erhält jede Klasse ein Gewicht, zum Beispiel ein höheres Gewicht für die positive Melanom-Klasse. Der Train-Loader verwendet dann `replacement=True` und `num_samples=len(train_df)`, sodass eine Epoche weiterhin die gleiche Anzahl an Samples enthält, seltene Klassen aber häufiger gezogen werden. Ohne `sampler_weights` wird der Train-Loader klassisch mit `shuffle=True` gebaut.
 
 **Seed-Support:** Der `seed`-Parameter steuert den `torch.Generator`, Albumentations und eine Worker-Initialisierung (`base_seed + worker_id`).
 
@@ -190,12 +180,9 @@ Erstellt PyTorch `DataLoader`-Instanzen für Train-, Val- und Test-Split.
 
 ### `MetricsCalculator`
 
-Berechnet finale Evaluierungsmetriken aus `EvalResult` und bestimmt einen Threshold für die binäre Klassifikation.
+Der `MetricsCalculator` bündelt die finale Bewertung eines Branches. Er nimmt die tatsächlichen Labels, die vorhergesagten Labels und die vorhergesagten Wahrscheinlichkeiten entgegen und berechnet daraus die zentralen Klassifikationsmetriken. Damit bleibt die Auswertung unabhängig vom konkreten Modell oder Loss-Typ, solange am Ende Wahrscheinlichkeiten für die positive Klasse vorliegen.
 
-| Methode | Beschreibung |
-|---|---|
-| `get_eval_metrics(eval_results)` | Berechnet Metriken aus True Labels, Pred Labels und Wahrscheinlichkeiten |
-| `get_threshold(y_true, y_prob, min_specificity=0.7)` | Sucht den Threshold mit höchster Sensitivity bei mindestens `min_specificity` |
+Ein wichtiger Teil ist die Threshold-Suche. Bei binärer Klassifikation entscheidet der Threshold, ab welcher vorhergesagten Wahrscheinlichkeit ein Sample als Melanom klassifiziert wird. Der Standardwert `0.5` ist nicht immer optimal, insbesondere bei medizinischen Klassifikationsproblemen mit unausgeglichenen Klassen und unterschiedlich hohen Fehlerkosten. Deshalb sucht die Pipeline auf dem Validierungsset einen Threshold, der eine Mindest-Specificity einhält und dabei die Sensitivity maximiert.
 
 **Threshold-Suche:**
 - Prüft Thresholds von `0.10` bis `0.90` in `0.05`-Schritten
@@ -222,27 +209,15 @@ Berechnet finale Evaluierungsmetriken aus `EvalResult` und bestimmt einen Thresh
 
 Speichert Visualisierungen zu Training und Evaluation.
 
-| Methode | Ausgabe |
-|---|---|
-| `plot_training_history(...)` | `training_history.png` |
-| `plot_confusion_matrix(...)` | `confusion_matrix.png` mit roher und normalisierter Matrix |
-| `plot_precision_recall_curve(...)` | `precision_recall_curve.png` |
-| `plot_roc_curve(...)` | `roc_curve.png` |
-| `plot_confidence_distribution(...)` | `confidence_distribution.png` |
+Die erzeugten Grafiken umfassen Trainingsverläufe, Confusion Matrix, Precision-Recall-Kurve, ROC-Kurve und die Verteilung der Modellkonfidenzen. Sie werden im Branch-Ausgabeverzeichnis gespeichert und zusätzlich als Artefakte im jeweiligen MLflow-Run abgelegt.
 
 ---
 
 ### `MLFlowLogger`
 
-Kapselt alle MLflow-Logging-Operationen. Wird von `PipelineOrchestrator`, `BranchRunner` und `Trainer` genutzt.
+MLflow ist ein Tool zum Nachverfolgen und Vergleichen von Machine-Learning-Experimenten. Es speichert Parameter, Metriken, Artefakte und Modelle pro Run, sodass spätere Experimente nachvollzogen und miteinander verglichen werden können. In dieser Pipeline wird MLflow mit einer lokalen SQLite-Datenbank unter `results/mlflow.db` verwendet.
 
-| Methode | Beschreibung |
-|---|---|
-| `log_branch_params(branch_config)` | Loggt Modell-, Loss-, Trainer- und Dataset-Parameter; setzt Tags |
-| `log_branch_results(branch_run_path, metrics_result)` | Loggt finale Metriken und Artefakte |
-| `log_epoch(..., best_epoch, best_f1)` | Loggt Metriken pro Epoch inkl. aktuellem Beststand |
-| `log_model(model, name, sample_input, step)` | Loggt das PyTorch-Modell über `mlflow.pytorch` |
-| `log_param(key, value)` | Loggt einzelne Parameter, z.B. `optimal_threshold` |
+Der `MLFlowLogger` kapselt alle MLflow-Logging-Operationen und wird von `PipelineOrchestrator`, `BranchRunner` und `Trainer` genutzt. Er loggt Branch-Parameter, Trainingsmetriken pro Epoche, finale Evaluierungsmetriken, Plots, Konfigurationsdateien, den optimalen Threshold und das trainierte PyTorch-Modell. Dadurch bleibt das eigentliche Training frei von wiederholtem Tracking-Code.
 
 > MLflow-Runs sind verschachtelt: Der Pipeline-Run ist der Eltern-Run, jeder Branch-Run ein Kind-Run.
 
@@ -342,19 +317,6 @@ Die Pipeline wird über ein `PipelineConfig`-Objekt gesteuert oder aus JSON gela
 
 **`augmentation` (train/val):**
 `random_horizontal_flip`, `random_vertical_flip`, `random_rotation`, `color_jitter`, `random_erasing`, `random_resize_crop`, `resize`, `center_crop`
-
----
-
-## Datenklassen (Runtime)
-
-| Klasse | Felder |
-|---|---|
-| `TrainValTestSplit` | `train_df`, `val_df`, `test_df` |
-| `TrainValTestDataLoaders` | `train_loader`, `val_loader`, `test_loader` |
-| `TrainingHistory` | `train_loss`, `val_loss`, `train_accuracy`, `val_accuracy`, `val_f1_macro`, `best_epoch` |
-| `EvalResult` | `y_true`, `y_pred`, `y_prob` |
-| `MetricsResult` | `f1_macro`, `f1_weighted`, `accuracy`, `precision`, `sensitivity`, `specificity`, `auc`, `mcc` |
-| `BranchResult` | `branch_id`, `training_history`, `metrics_result` |
 
 ---
 
