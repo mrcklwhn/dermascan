@@ -57,7 +57,7 @@ class MLFlowLogger:
         """
         mlflow.log_metrics(metrics_result.model_dump())
 
-        mlflow.log_artifact(str(branch_run_path / "confusion_matrix.png"))
+        mlflow.log_artifact(str(branch_run_path / "test_confusion_matrix_optimal_threshold.png"))
         mlflow.log_artifact(str(branch_run_path / "training_history.png"))
         mlflow.log_artifact(str(branch_run_path / "precision_recall_curve.png"))
         mlflow.log_artifact(str(branch_run_path / "roc_curve.png"))

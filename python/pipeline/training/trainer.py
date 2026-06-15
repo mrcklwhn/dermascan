@@ -70,7 +70,7 @@ class Trainer:
         with TemporaryDirectory() as temp_dir:
             temp_best_model_path = Path(temp_dir) / "best_model.pt"
 
-            epoch_bar = tqdm(range(epochs), desc="Epochs", leave=True)
+            epoch_bar = tqdm(range(epochs), desc="Epochs", leave=True, file=sys.stdout)
             for epoch in epoch_bar:
                 epoch_train_loss, epoch_train_acc = self._train_epoch(train_loader)
                 epoch_val_loss, epoch_val_acc, epoch_val_f1 = self._validate_epoch(val_loader)
