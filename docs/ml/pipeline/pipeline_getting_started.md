@@ -30,7 +30,7 @@ Nach jedem Lauf speichert die Pipeline Modell, Konfiguration, Metriken, Plots un
 1. Python-Umgebung vorbereiten.
 2. Abhängigkeiten aus `python/requirements.txt` installieren.
 3. Sicherstellen, dass der Datensatz vorhanden ist.
-4. In `pipeline_config.json` die Pfade an die eigene Umgebung anpassen, vor allem `data_path` und bei Custom-Splits die CSV-Pfade.
+4. Pfade an die eigene Umgebung anpassen, vor allem `data_path` und bei Custom-Splits die CSV-Pfade.
 5. Prüfen, ob die gewählten Filterdaten vorhanden sind, wenn `dataset_loader="filter"` genutzt wird.
 
 ## Minimaler Start im Notebook
@@ -85,10 +85,3 @@ Pro Branch werden unter anderem gespeichert:
 - `confusion_matrix.png`, `precision_recall_curve.png`, `roc_curve.png`: Evaluierungsplots
 
 Zusätzlich werden Parameter, Metriken, Artefakte und Modelle in MLflow geloggt. Die lokale Tracking-Datenbank liegt unter `results/mlflow.db`.
-
-## Kurz gesagt
-
-1. Config anpassen.
-2. Notebook `python/pipeline/pipeline_test.ipynb` öffnen.
-3. Pipeline starten.
-4. Ergebnisse im `results/`-Ordner und in MLflow vergleichen.

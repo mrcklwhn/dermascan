@@ -57,7 +57,9 @@ Führt einen einzelnen Branch aus: Modellaufbau → Training → Threshold-Optim
 - `training_history.json`
 - `metrics.json`
 - `training_history.png`
-- `confusion_matrix.png`
+- `val_confusion_matrix_threshold_0_5.png`
+- `val_confusion_matrix_optimal_threshold.png`
+- `test_confusion_matrix_optimal_threshold.png`
 - `precision_recall_curve.png`
 - `roc_curve.png`
 - `confidence_distribution.png`
@@ -341,25 +343,4 @@ results/
 ```
 
 Zusätzlich werden Branch-Konfigurationen, Metriken, Plots, der optimale Threshold und das geloggte PyTorch-Modell im jeweiligen MLflow-Run gespeichert.
-
 ---
-
-## Verwendung (Notebook)
-
-```python
-from pathlib import Path
-
-from pipeline.dataclasses.pipeline_config import PipelineConfig
-from pipeline.pipeline_orchestrator import PipelineOrchestrator
-
-# Konfiguration laden
-raw_json = Path("../../docs/ml/pipeline/pipeline_config.json").read_text()
-config = PipelineConfig.model_validate_json(raw_json)
-config = config.model_copy(update={"data_path": Path("../../data")})
-
-# Pipeline starten
-orchestrator = PipelineOrchestrator(config, project_root_path=Path("../.."))
-results = orchestrator.run()
-```
-
-Siehe auch: `pipeline_test.ipynb` und `run_experiments.ipynb`.
