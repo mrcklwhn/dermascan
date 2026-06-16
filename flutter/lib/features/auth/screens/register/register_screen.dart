@@ -82,6 +82,11 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
   final DoctorRegisterController doctorRegisterController =
       Get.find<DoctorRegisterController>();
 
+  final OutlineInputBorder noBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+    borderSide: BorderSide.none,
+  );
+
   return <Widget>[
     CustomTextField(
       textEditingController: doctorRegisterController.nameController,
@@ -99,10 +104,12 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
             controller: doctorRegisterController.birthdayController,
             readOnly: true,
             onTap: () => doctorRegisterController.selectDate(context),
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              border: noBorder,
+              enabledBorder: noBorder,
+              focusedBorder: noBorder,
               labelText: 'Date of Birth',
-              prefixIcon: Icon(Icons.calendar_month),
+              prefixIcon: const Icon(Icons.calendar_month),
             ),
           ),
         ),
@@ -111,10 +118,12 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
           child: DropdownButtonFormField<Gender>(
             isExpanded: true,
             initialValue: doctorRegisterController.selectedGender,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              border: noBorder,
+              enabledBorder: noBorder,
+              focusedBorder: noBorder,
               labelText: 'Gender',
-              prefixIcon: Icon(Icons.wc_outlined),
+              prefixIcon: const Icon(Icons.wc_outlined),
             ),
             items: Gender.values.map((Gender g) {
               return DropdownMenuItem<Gender>(

@@ -1,6 +1,5 @@
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/doctor.dart';
-import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/practice/doctors/controller/doctor_details_controller.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: const Text('Doctor Details')),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -27,7 +26,6 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
   }
 
   Widget _buildProfile(BuildContext context) {
-    final Practice? practice = controller.authService.currentPractice.value;
     final Doctor doctor = controller.doctor;
 
     return ListView(
@@ -36,6 +34,13 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
       children: <Widget>[
         const CustomIcon(iconData: Icons.person),
         const SizedBox(height: AppTheme.spaceLarge),
+
+        Text(
+          'Personal Information',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+
+        const SizedBox(height: AppTheme.spaceSmall),
         Card(
           child: ListTile(
             leading: const Icon(Icons.person),
@@ -52,6 +57,10 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
           ),
         ),
         const SizedBox(height: AppTheme.spaceMedium),
+
+        Text('Contact Details', style: Theme.of(context).textTheme.titleMedium),
+
+        const SizedBox(height: AppTheme.spaceSmall),
         Card(
           child: ListTile(
             leading: const Icon(Icons.mail),
@@ -59,16 +68,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
             subtitle: Text(doctor.email),
           ),
         ),
-        const SizedBox(height: AppTheme.spaceLarge),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.local_hospital),
-            title: const Text('Current Practice'),
-            subtitle: practice == null
-                ? const Text('None')
-                : Text('Name: ${practice.name}\nE-Mail: ${practice.email}'),
-          ),
-        ),
+
         const SizedBox(height: AppTheme.spaceLarge),
         Obx(() {
           if (controller.isAssignedToCurrentPractice.value) {

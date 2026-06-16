@@ -8,8 +8,11 @@ class BodyLesion {
   final String patientId;
   final RxList<Diagnosis> diagnoses;
 
+  RxBool wasRemoved;
   RxBool isSuspicious;
-  String? locationName;
+  String locationName;
+  String testResult;
+  String notes;
 
   BodyLesion({
     required this.id,
@@ -18,13 +21,16 @@ class BodyLesion {
     required this.isSuspicious,
     required this.position,
     required this.normal,
-    this.locationName,
+    required this.locationName,
+    required this.testResult,
+    required this.wasRemoved,
+    required this.notes,
   });
 
   factory BodyLesion.fromJson(Map<String, dynamic> json) {
     return BodyLesion(
       id: json['id'] as String,
-      locationName: json['locationName'] as String?,
+      locationName: json['locationName'] as String,
       position: json['position'] as String,
       normal: json['normal'] as String,
       patientId: json['patientId'] as String,
@@ -35,6 +41,9 @@ class BodyLesion {
           .toList()
           .obs,
       isSuspicious: (json['suspicious'] as bool).obs,
+      wasRemoved: (json['wasRemoved'] as bool).obs,
+      testResult: json['testResult'] as String,
+      notes: json['notes'] as String,
     );
   }
 
@@ -46,6 +55,9 @@ class BodyLesion {
       'normal': normal,
       'patientId': patientId,
       'suspicious': isSuspicious,
+      'notes': notes,
+      'testResult': testResult,
+      'wasRemoved': wasRemoved,
       'diagnoses': diagnoses.map((Diagnosis d) => d.toJson()).toList(),
     };
   }

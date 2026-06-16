@@ -4,7 +4,7 @@ import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
-import 'package:dermascan/core/widgets/custom_bottom_sheets/country_selector_bottom_sheet.dart';
+import 'package:dermascan/core/widgets/country_selector_bottom_sheet.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,6 +30,10 @@ class AddPatientController extends GetxController {
   RxBool tanningBedExposure = false.obs;
   RxBool previousSkinSurgeries = false.obs;
   RxBool previousSunburns = false.obs;
+  RxBool sunscreenUse = false.obs;
+  RxBool previousCancerSurgeries = false.obs;
+  RxBool personalHistoryMelanoma = false.obs;
+  RxBool familyHistoryMelanoma = false.obs;
 
   String? currentCountry;
   String? birthCountry;
@@ -96,27 +100,31 @@ class AddPatientController extends GetxController {
         dateOfBirth == null ||
         birthCountry == null ||
         currentCountry == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Missing Information',
-          message:
-              'Please fill in all required fields to create a patient profile.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Missing Information',
+            message:
+                'Please fill in all required fields to create a patient profile.',
+          ),
+        );
+      }
       return;
     }
 
     final String? doctorId = authService.currentUser.value?.id;
 
     if (doctorId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -127,14 +135,16 @@ class AddPatientController extends GetxController {
           .checkDoctorHasPractice();
 
       if (practiceOfDoctor == null) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'No Practice Assigned',
-            message:
-                'You must be assigned to a practice to create new patient profiles.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'No Practice Assigned',
+              message:
+                  'You must be assigned to a practice to create new patient profiles.',
+            ),
+          );
+        }
         return;
       }
 
@@ -148,27 +158,37 @@ class AddPatientController extends GetxController {
         tanningBedExposure: tanningBedExposure.value,
         previousSkinSurgeries: previousSkinSurgeries.value,
         previousSunburns: previousSunburns.value,
+        previousCancerSurgeries: previousSkinSurgeries.value
+            ? previousCancerSurgeries.value
+            : false,
+        sunscreenUse: sunscreenUse.value,
+        personalHistoryMelanoma: personalHistoryMelanoma.value,
+        familyHistoryMelanoma: familyHistoryMelanoma.value,
       );
 
       if (createdPatient != null) {
         Get.back(result: createdPatient);
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check_circle,
-            title: 'Patient Created',
-            message:
-                'The profile was successfully created and added to your Practice.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check_circle,
+              title: 'Patient Created',
+              message:
+                  'The profile was successfully created and added to your Practice.',
+            ),
+          );
+        }
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Patient Creation Failed',
-            message:
-                'The profile could not be created. Please check the data or try again later.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Patient Creation Failed',
+              message:
+                  'The profile could not be created. Please check the data or try again later.',
+            ),
+          );
+        }
       }
     } finally {
       isLoading.value = false;

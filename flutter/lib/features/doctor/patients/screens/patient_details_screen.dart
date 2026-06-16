@@ -14,6 +14,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
     return Scaffold(
       appBar: AppBar(title: const Text('Patient Profile')),
       body: SafeArea(
+        bottom: false,
         child: Obx(() {
           if (controller.isInitializing.value) {
             return const Center(child: CircularProgressIndicator.adaptive());
@@ -24,24 +25,74 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    const SizedBox(width: AppTheme.radiusLarge * 2),
-                    const SizedBox(width: AppTheme.spaceMedium),
+                    IconButton(
+                      padding: const EdgeInsets.all(AppTheme.spaceSmall),
+                      constraints: BoxConstraints.tight(
+                        const Size(
+                          AppTheme.radiusLarge * 2,
+                          AppTheme.radiusLarge * 2,
+                        ),
+                      ),
+                      onPressed: controller.resetModelPosition,
+                      icon: const Icon(Icons.gps_fixed),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          AppTheme.highlightColor,
+                        ),
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusLarge,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.spaceSmall),
+                    IconButton(
+                      padding: const EdgeInsets.all(AppTheme.spaceSmall),
+                      constraints: BoxConstraints.tight(
+                        const Size(
+                          AppTheme.radiusLarge * 2,
+                          AppTheme.radiusLarge * 2,
+                        ),
+                      ),
+                      onPressed: controller.openPatientInfoDialog,
+                      icon: const Icon(Icons.info),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          AppTheme.highlightColor,
+                        ),
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusLarge,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.spaceSmall),
                     Expanded(
                       child: Obx(() {
                         if (controller.selectedLesion.value != null) {
+                          final Color displayColor =
+                              controller.selectedLesion.value!.wasRemoved.value
+                              ? Colors.grey.withValues(alpha: 0.3)
+                              : controller
+                                    .selectedLesion
+                                    .value!
+                                    .isSuspicious
+                                    .value
+                              ? Colors.red.withValues(alpha: 0.3)
+                              : AppTheme.highlightColor;
+
                           return Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(
                                 AppTheme.radiusLarge,
                               ),
-                              color:
-                                  controller
-                                      .selectedLesion
-                                      .value!
-                                      .isSuspicious
-                                      .value
-                                  ? Colors.red.withValues(alpha: 0.3)
-                                  : AppTheme.highlightColor,
+                              color: displayColor,
                             ),
                             constraints: BoxConstraints.tight(
                               const Size(
@@ -54,7 +105,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  'Location: ${controller.selectedLesion.value!.locationName ?? 'Not specified'}',
+                                  'Location: ${controller.selectedLesion.value!.locationName}',
                                   style: Theme.of(context).textTheme.titleSmall,
                                   textAlign: TextAlign.start,
                                 ),
@@ -98,7 +149,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                       }),
                     ),
 
-                    const SizedBox(width: AppTheme.spaceMedium),
+                    const SizedBox(width: AppTheme.spaceSmall),
                     IconButton(
                       padding: const EdgeInsets.all(AppTheme.spaceSmall),
                       constraints: BoxConstraints.tight(
@@ -107,8 +158,8 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                           AppTheme.radiusLarge * 2,
                         ),
                       ),
-                      onPressed: controller.openPatientInfoDialog,
-                      icon: const Icon(Icons.info),
+                      onPressed: controller.openPdfExportLesionSelectionPage,
+                      icon: const Icon(Icons.picture_as_pdf),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
                           AppTheme.highlightColor,
@@ -125,7 +176,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                   ],
                 ),
 
-                const SizedBox(height: AppTheme.spaceLarge),
+                const SizedBox(height: AppTheme.spaceMedium),
                 Expanded(
                   child: HumanBody3DSelector(
                     key: controller.bodySelectorKey,
@@ -139,7 +190,6 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                   ),
                 ),
 
-                const SizedBox(height: AppTheme.spaceLarge),
               ],
             ),
           );
