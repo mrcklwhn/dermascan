@@ -27,23 +27,23 @@ class RegisterScreen extends GetView<RegisterController> {
               const CustomIcon(iconData: Icons.app_registration),
               const SizedBox(height: AppTheme.spaceLarge),
               Text(
-                'Join Dermascan!'.tr,
+                'Join Dermascan!',
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppTheme.spaceLarge),
               SegmentedButton<AuthOption>(
                 showSelectedIcon: false,
-                segments: <ButtonSegment<AuthOption>>[
+                segments: const <ButtonSegment<AuthOption>>[
                   ButtonSegment<AuthOption>(
                     value: AuthOption.doctor,
-                    label: Text('Doctor'.tr),
-                    icon: const Icon(Icons.medical_services_outlined),
+                    label: Text('Doctor'),
+                    icon: Icon(Icons.medical_services_outlined),
                   ),
                   ButtonSegment<AuthOption>(
                     value: AuthOption.practice,
-                    label: Text('Practice'.tr),
-                    icon: const Icon(Icons.business_outlined),
+                    label: Text('Practice'),
+                    icon: Icon(Icons.business_outlined),
                   ),
                 ],
                 selected: <AuthOption>{
@@ -67,7 +67,7 @@ class RegisterScreen extends GetView<RegisterController> {
                   onPressed: controller.isLoading.value
                       ? null
                       : controller.navigateBackToLogin,
-                  label: Text('Login'.tr),
+                  label: const Text('Login'),
                 );
               }),
             ],
@@ -92,7 +92,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
       textEditingController: doctorRegisterController.nameController,
       focusNode: doctorRegisterController.nameFocusNode,
       onSubmitted: (_) => doctorRegisterController.submittedName(),
-      labelText: 'Full Name'.tr,
+      labelText: 'Full Name',
       prefixIcon: Icons.person,
       textInputType: TextInputType.name,
     ),
@@ -108,7 +108,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
               border: noBorder,
               enabledBorder: noBorder,
               focusedBorder: noBorder,
-              labelText: 'Date of Birth'.tr,
+              labelText: 'Date of Birth',
               prefixIcon: const Icon(Icons.calendar_month),
             ),
           ),
@@ -122,7 +122,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
               border: noBorder,
               enabledBorder: noBorder,
               focusedBorder: noBorder,
-              labelText: 'Gender'.tr,
+              labelText: 'Gender',
               prefixIcon: const Icon(Icons.wc_outlined),
             ),
             items: Gender.values.map((Gender g) {
@@ -146,12 +146,12 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
       textEditingController: doctorRegisterController.emailController,
       focusNode: doctorRegisterController.emailFocusNode,
       onSubmitted: (_) => doctorRegisterController.submittedEmail(),
-      labelText: 'E-Mail'.tr,
+      labelText: 'E-Mail',
       prefixIcon: Icons.email,
       textInputType: TextInputType.emailAddress,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Correctly formatted'.tr,
+          criteriaName: 'Correctly formatted',
           criteriaState: doctorRegisterController.isValidEmail,
         ),
       ],
@@ -161,28 +161,28 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
       textEditingController: doctorRegisterController.passwordController,
       focusNode: doctorRegisterController.passwordFocusNode,
       onSubmitted: (_) => doctorRegisterController.submittedPassword(),
-      labelText: 'Password'.tr,
+      labelText: 'Password',
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Contains at least 8 characters'.tr,
+          criteriaName: 'Contains at least 8 characters',
           criteriaState: doctorRegisterController.hasMinLength,
         ),
         CheckCriteria(
-          criteriaName: 'Contains an uppercase letter'.tr,
+          criteriaName: 'Contains an uppercase letter',
           criteriaState: doctorRegisterController.hasUppercase,
         ),
         CheckCriteria(
-          criteriaName: 'Contains a lowercase letter'.tr,
+          criteriaName: 'Contains a lowercase letter',
           criteriaState: doctorRegisterController.hasLowercase,
         ),
         CheckCriteria(
-          criteriaName: 'Contains a digit'.tr,
+          criteriaName: 'Contains a digit',
           criteriaState: doctorRegisterController.hasDigits,
         ),
         CheckCriteria(
-          criteriaName: 'Contains special character'.tr,
+          criteriaName: 'Contains special character',
           criteriaState: doctorRegisterController.hasSpecialCharacters,
         ),
       ],
@@ -194,12 +194,12 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
       onSubmitted: doctorRegisterController.registerController.isLoading.value
           ? (_) {}
           : (_) => doctorRegisterController.submitRegisterData(),
-      labelText: 'Confirm Password'.tr,
+      labelText: 'Confirm Password',
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Passwords match'.tr,
+          criteriaName: 'Passwords match',
           criteriaState: doctorRegisterController.passwordsMatch,
         ),
       ],
@@ -210,7 +210,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
       onPressed: doctorRegisterController.registerController.isLoading.value
           ? null
           : doctorRegisterController.submitRegisterData,
-      label: Text('Register'.tr),
+      label: const Text('Register'),
     ),
   ];
 }
@@ -224,7 +224,7 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       textEditingController: practiceRegisterController.nameController,
       focusNode: practiceRegisterController.nameFocusNode,
       onSubmitted: (_) => practiceRegisterController.submittedName(),
-      labelText: 'Name'.tr,
+      labelText: 'Name',
       prefixIcon: Icons.person,
       textInputType: TextInputType.name,
     ),
@@ -233,12 +233,12 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       textEditingController: practiceRegisterController.emailController,
       focusNode: practiceRegisterController.emailFocusNode,
       onSubmitted: (_) => practiceRegisterController.submittedEmail(),
-      labelText: 'E-Mail'.tr,
+      labelText: 'E-Mail',
       prefixIcon: Icons.email,
       textInputType: TextInputType.emailAddress,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Correctly formatted'.tr,
+          criteriaName: 'Correctly formatted',
           criteriaState: practiceRegisterController.isValidEmail,
         ),
       ],
@@ -248,28 +248,28 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       textEditingController: practiceRegisterController.passwordController,
       focusNode: practiceRegisterController.passwordFocusNode,
       onSubmitted: (_) => practiceRegisterController.submittedPassword(),
-      labelText: 'Password'.tr,
+      labelText: 'Password',
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Contains at least 8 characters'.tr,
+          criteriaName: 'Contains at least 8 characters',
           criteriaState: practiceRegisterController.hasMinLength,
         ),
         CheckCriteria(
-          criteriaName: 'Contains an uppercase letter'.tr,
+          criteriaName: 'Contains an uppercase letter',
           criteriaState: practiceRegisterController.hasUppercase,
         ),
         CheckCriteria(
-          criteriaName: 'Contains a lowercase letter'.tr,
+          criteriaName: 'Contains a lowercase letter',
           criteriaState: practiceRegisterController.hasLowercase,
         ),
         CheckCriteria(
-          criteriaName: 'Contains a digit'.tr,
+          criteriaName: 'Contains a digit',
           criteriaState: practiceRegisterController.hasDigits,
         ),
         CheckCriteria(
-          criteriaName: 'Contains special character'.tr,
+          criteriaName: 'Contains special character',
           criteriaState: practiceRegisterController.hasSpecialCharacters,
         ),
       ],
@@ -282,12 +282,12 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       onSubmitted: practiceRegisterController.registerController.isLoading.value
           ? (_) {}
           : (_) => practiceRegisterController.submitRegisterData(),
-      labelText: 'Confirm Password'.tr,
+      labelText: 'Confirm Password',
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Passwords match'.tr,
+          criteriaName: 'Passwords match',
           criteriaState: practiceRegisterController.passwordsMatch,
         ),
       ],
@@ -298,7 +298,7 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       onPressed: practiceRegisterController.registerController.isLoading.value
           ? null
           : practiceRegisterController.submitRegisterData,
-      label: Text('Register'.tr),
+      label: const Text('Register'),
     ),
   ];
 }

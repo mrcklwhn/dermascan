@@ -11,7 +11,7 @@ class EditLesionScreen extends GetView<EditLesionController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Lesion'.tr)),
+      appBar: AppBar(title: const Text('Edit Lesion')),
       body: SafeArea(
         child: ListView(
           controller: controller.scrollController,
@@ -20,23 +20,20 @@ class EditLesionScreen extends GetView<EditLesionController> {
           children: <Widget>[
             const CustomIcon(iconData: Icons.edit_note),
             const SizedBox(height: AppTheme.spaceLarge),
-            Text(
-              'Placement'.tr,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Placement', style: Theme.of(context).textTheme.titleMedium),
 
             const SizedBox(height: AppTheme.spaceSmall),
             CustomTextField(
               textEditingController: controller.locationNameController,
               focusNode: controller.locationNameFocusNode,
               onSubmitted: (_) => controller.submittedLocationName(),
-              labelText: 'Location'.tr,
+              labelText: 'Location',
               prefixIcon: Icons.location_on,
               textInputType: TextInputType.name,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
             Text(
-              'Classification'.tr,
+              'Classification',
               style: Theme.of(context).textTheme.titleMedium,
             ),
 
@@ -44,8 +41,8 @@ class EditLesionScreen extends GetView<EditLesionController> {
             Obx(
               () => Card(
                 child: CheckboxListTile(
-                  title: Text('Suspicious Lesion'.tr),
-                  subtitle: Text('Mark this lesion as suspicious.'.tr),
+                  title: const Text('Suspicious Lesion'),
+                  subtitle: const Text('Mark this lesion as suspicious.'),
                   value: controller.isSuspicious.value,
                   onChanged: (bool? value) {
                     if (!controller.isLoading.value) {
@@ -61,8 +58,8 @@ class EditLesionScreen extends GetView<EditLesionController> {
             Obx(
               () => Card(
                 child: CheckboxListTile(
-                  title: Text('Excised'.tr),
-                  subtitle: Text('Mark this lesion as excised.'.tr),
+                  title: const Text('Excised'),
+                  subtitle: const Text('Mark this lesion as excised.'),
                   value: controller.wasRemoved.value,
                   onChanged: (bool? value) {
                     if (!controller.isLoading.value) {
@@ -80,13 +77,13 @@ class EditLesionScreen extends GetView<EditLesionController> {
               textEditingController: controller.testResultController,
               focusNode: controller.testResultFocusNode,
               onSubmitted: (_) => controller.submittedTestResult(),
-              labelText: 'Test Result'.tr,
+              labelText: 'Test Result',
               prefixIcon: Icons.science,
               textInputType: TextInputType.text,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
             Text(
-              'Additional Info'.tr,
+              'Additional Info',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppTheme.spaceSmall),
@@ -94,7 +91,7 @@ class EditLesionScreen extends GetView<EditLesionController> {
               textEditingController: controller.notesController,
               focusNode: controller.notesFocusNode,
               onSubmitted: (_) => controller.submittedNotes(),
-              labelText: 'Notes'.tr,
+              labelText: 'Notes',
               prefixIcon: Icons.description,
               textInputType: TextInputType.multiline,
               minLines: 1,
@@ -108,7 +105,7 @@ class EditLesionScreen extends GetView<EditLesionController> {
                 onPressed: controller.isLoading.value
                     ? null
                     : controller.updateLesion,
-                label: Text('Update'.tr),
+                label: const Text('Update'),
               ),
             ),
             const SizedBox(height: AppTheme.spaceMedium),
@@ -117,7 +114,7 @@ class EditLesionScreen extends GetView<EditLesionController> {
                   ? null
                   : () => controller.showDeleteLesionDialog(),
               icon: const Icon(Icons.delete),
-              label: Text('Delete'.tr),
+              label: const Text('Delete'),
             ),
           ],
         ),

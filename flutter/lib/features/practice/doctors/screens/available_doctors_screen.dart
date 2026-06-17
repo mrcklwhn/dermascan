@@ -12,7 +12,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Available Doctors'.tr)),
+      appBar: AppBar(title: const Text('Available Doctors')),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -46,8 +46,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'There are currently no doctors available.\nTo fetch new doctors press the button below.'
-                .tr,
+            'There are currently no doctors available.\nTo fetch new doctors press the button below.',
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -58,7 +57,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
               onPressed: controller.isInitializing.value
                   ? null
                   : controller.reloadDoctors,
-              label: Text('Refresh'.tr),
+              label: const Text('Refresh'),
             ),
           ),
         ],

@@ -13,15 +13,14 @@ class DoctorInitController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'logout-dialog',
 
-      title: 'Logout?'.tr,
+      title: 'Logout?',
 
       subtitle:
-          'You are about to log out of your account. Are you sure you want to proceed?'
-              .tr,
+          'You are about to log out of your account. Are you sure you want to proceed?',
 
       isDismissable: true,
 
-      submitText: 'Logout'.tr,
+      submitText: 'Logout',
 
       onSubmit: (_) async {
         await authService.signOut();

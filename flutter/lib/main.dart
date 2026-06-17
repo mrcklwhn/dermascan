@@ -1,7 +1,6 @@
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/constants.dart';
 import 'package:dermascan/app/navigation_routes.dart';
-import 'package:dermascan/app/translation/messages.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
 import 'package:dermascan/core/services/local_asset_server.dart';
@@ -34,12 +33,13 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+
+      supportedLocales: const <Locale>[Locale('en', 'US')],
+
       debugShowCheckedModeBanner: false,
       initialRoute: '/splash',
       getPages: NavigationRoutes.getRoutes,
-      translations: Messages(),
-      locale: Get.deviceLocale,
-      fallbackLocale: const Locale('en', 'US'),
+      // home: const OnnxCutoutPage(),
       theme: AppTheme.light,
       darkTheme: AppTheme.light,
     );

@@ -39,8 +39,8 @@ class DoctorLoginController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: 'Information Missing',
+            message: 'Please fill in all required fields to log in.',
           ),
         );
       }
@@ -59,10 +59,9 @@ class DoctorLoginController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.block,
-              title: 'Access Denied'.tr,
+              title: 'Access Denied',
               message:
-                  'This account is not registered as a doctor. Please use the practice login instead.'
-                      .tr,
+                  'This account is not registered as a doctor. Please use the practice login instead.',
             ),
           );
         }
@@ -79,8 +78,8 @@ class DoctorLoginController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Login Successful'.tr,
-              message: 'You are now logged in.'.tr,
+              title: 'Login Successful',
+              message: 'Your Login was successful. You are now logged in.',
             ),
           );
         }
@@ -90,10 +89,9 @@ class DoctorLoginController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Login Failed'.tr,
+              title: 'Login Failed',
               message:
-                  'Invalid email or password. Please check your credentials and try again.'
-                      .tr,
+                  'Invalid email or password. Please check your credentials and try again.',
             ),
           );
         }
