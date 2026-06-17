@@ -70,7 +70,7 @@ class DoctorDetailsController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -97,8 +97,7 @@ class DoctorDetailsController extends GetxController {
             CustomSnackBar(
               icon: Icons.check,
               title: 'Invitation Sent'.tr,
-              message:
-                  "${'An invitation has been sent to'.tr} '${doctor.name}'!",
+              message: 'An invitation has been sent.'.tr,
             ),
           );
         }
@@ -127,8 +126,7 @@ class DoctorDetailsController extends GetxController {
 
       title: 'Invite Doctor?'.tr,
 
-      subtitle:
-          "'${doctor.name}' ${'will be invited to your practice. This allows him access to all the practice data.'.tr}",
+      subtitle: 'Invited members will gain full access to practice data.'.tr,
 
       isDismissable: true,
 
@@ -155,7 +153,7 @@ class DoctorDetailsController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -193,7 +191,7 @@ class DoctorDetailsController extends GetxController {
               icon: Icons.error,
               title: 'Revoking Invitation Failed'.tr,
               message:
-                  'An error occurred while revoking the invitation. It may have already been revoked.'
+                  'Revocation failed. The invitation may already be revoked.'
                       .tr,
             ),
           );
@@ -244,7 +242,7 @@ class DoctorDetailsController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -267,7 +265,8 @@ class DoctorDetailsController extends GetxController {
               icon: Icons.check,
               title: 'Removed Doctor'.tr,
               message:
-                  "'${doctor.name}' ${'has been successfully removed from your practice!'.tr}",
+                  'The doctor has been successfully removed from your practice!'
+                      .tr,
             ),
           );
         }
@@ -300,8 +299,7 @@ class DoctorDetailsController extends GetxController {
 
       title: 'Remove Doctor?'.tr,
 
-      subtitle:
-          "'${doctor.name}' ${'will from your practice. This removes access to any shared data with it. Do you want to continue?'.tr}",
+      subtitle: 'Remove doctor? They will lose access to all shared data.'.tr,
 
       isDismissable: true,
 

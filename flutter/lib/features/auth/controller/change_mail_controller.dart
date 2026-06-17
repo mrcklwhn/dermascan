@@ -88,7 +88,7 @@ class ChangeEmailController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Different E-Mails'.tr,
-            message: "Your e-mails don't match. Please check and try again.".tr,
+            message: 'E-mails do not match. Please check and try again.'.tr,
           ),
         );
       }
@@ -101,7 +101,7 @@ class ChangeEmailController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -135,7 +135,7 @@ class ChangeEmailController extends GetxController {
           title: 'Almost there!'.tr,
 
           subtitle:
-              'We have sent a confirmation link to your new email address. It is highly recommended to log out now, click the link in your email, and then log back in with your new credentials.'
+              'Confirmation link sent. Please log out, verify your new email, and log back in.'
                   .tr,
 
           isDismissable: true,

@@ -106,7 +106,7 @@ class InvitationsController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -137,7 +137,7 @@ class InvitationsController extends GetxController {
               icon: Icons.error,
               title: 'Error Accepting Invitation'.tr,
               message:
-                  'The invitation could not be accepted. You may already be assigned to a practice, or the invitation may be invalid.'
+                  'Acceptance failed. Invitation invalid or you are already assigned.'
                       .tr,
             ),
           );
@@ -162,7 +162,7 @@ class InvitationsController extends GetxController {
           '${'Accept invitation of'.tr} ${selectedInvitation.practice.name}?',
 
       subtitle:
-          'Accepting this invitation grants you access to the practice data. Please note that your professional data will also be visible to the practice owner.'
+          'Accepting grants access to practice data and shares your professional profile with the owner.'
               .tr,
 
       isDismissable: true,

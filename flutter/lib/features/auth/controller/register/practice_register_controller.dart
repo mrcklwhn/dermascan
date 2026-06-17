@@ -122,9 +122,7 @@ class PracticeRegisterController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Password Insecure'.tr,
-            message:
-                'Your password does not meet the security requirements or the passwords do not match.'
-                    .tr,
+            message: 'Passwords must match and meet security requirements.'.tr,
           ),
         );
       }
@@ -146,7 +144,7 @@ class PracticeRegisterController extends GetxController {
               icon: Icons.error,
               title: 'Registration Failed'.tr,
               message:
-                  'Could not create account. The email might already be in use or the connection failed.'
+                  'Account creation failed. Email may be in use or connection lost.'
                       .tr,
             ),
           );
@@ -177,9 +175,7 @@ class PracticeRegisterController extends GetxController {
             CustomSnackBar(
               icon: Icons.error,
               title: 'Profile Creation Error'.tr,
-              message:
-                  "Your account was created, but we couldn't set up the practice profile. Please contact support."
-                      .tr,
+              message: 'Account created, but practice setup failed.'.tr,
             ),
           );
         }
