@@ -117,31 +117,46 @@ class PatientInfoBottomSheet extends StatelessWidget {
                 const SizedBox(height: AppTheme.spaceMedium),
                 if (patient.previousSunburns ||
                     patient.previousSkinSurgeries ||
-                    patient.tanningBedExposure) ...<Widget>[
+                    patient.tanningBedExposure ||
+                    patient.sunscreenUse ||
+                    patient.previousCancerSurgeries ||
+                    patient.personalHistoryMelanoma ||
+                    patient.familyHistoryMelanoma) ...<Widget>[
                   Text(
                     'Medical History',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: AppTheme.spaceSmall),
 
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: <Widget>[
-                        _buildHistoryChip(
-                          'Sunburn History',
-                          patient.previousSunburns,
-                        ),
-                        _buildHistoryChip(
-                          'Skin Surgery',
-                          patient.previousSkinSurgeries,
-                        ),
-                        _buildHistoryChip(
-                          'Tanning Bed Use',
-                          patient.tanningBedExposure,
-                        ),
-                      ],
-                    ),
+                  Wrap(
+                    spacing: AppTheme.spaceSmall,
+                    children: <Widget>[
+                      _buildHistoryChip(
+                        'Sunburn History',
+                        patient.previousSunburns,
+                      ),
+                      _buildHistoryChip(
+                        'Skin Surgery',
+                        patient.previousSkinSurgeries,
+                      ),
+                      _buildHistoryChip(
+                        'Malignant Skin Surgery',
+                        patient.previousCancerSurgeries,
+                      ),
+                      _buildHistoryChip(
+                        'Tanning Bed Use',
+                        patient.tanningBedExposure,
+                      ),
+                      _buildHistoryChip('Sunscreen Use', patient.sunscreenUse),
+                      _buildHistoryChip(
+                        'Personal Melanoma History',
+                        patient.personalHistoryMelanoma,
+                      ),
+                      _buildHistoryChip(
+                        'Family Melanoma History',
+                        patient.familyHistoryMelanoma,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: AppTheme.spaceMedium),
                 ],
@@ -235,15 +250,11 @@ class PatientInfoBottomSheet extends StatelessWidget {
   }
 
   Widget _buildHistoryChip(String title, bool visible) {
-    if (!visible) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: Chip(
-        label: Text(title),
-        avatar: const Icon(Icons.check, size: 16),
-        backgroundColor: AppTheme.scaffoldBg,
-        side: BorderSide.none,
-      ),
+    if (!visible) return const Center();
+    return Chip(
+      label: Text(title),
+      backgroundColor: AppTheme.scaffoldBg,
+      side: BorderSide.none,
     );
   }
 }

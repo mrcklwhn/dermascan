@@ -65,13 +65,15 @@ class DoctorDetailsController extends GetxController {
     final String? practiceId = authService.currentUser.value?.id;
 
     if (practiceId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -90,22 +92,26 @@ class DoctorDetailsController extends GetxController {
           removeFromList?.call(doctorId: doctor.id);
         }
         invitationSent.value = true;
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check,
-            title: 'Invitation Sent',
-            message: "An invitation has been sent to '${doctor.name}'!",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check,
+              title: 'Invitation Sent',
+              message: "An invitation has been sent to '${doctor.name}'!",
+            ),
+          );
+        }
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Invitation Sent Error',
-            message:
-                "An error occurred while inviting '${doctor.name}' to your practice. They may already have been invited.",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Invitation Sent Error',
+              message:
+                  "An error occurred while inviting '${doctor.name}' to your practice. They may already have been invited.",
+            ),
+          );
+        }
       }
     } finally {
       isLoading.value = false;
@@ -130,7 +136,7 @@ class DoctorDetailsController extends GetxController {
 
       onSubmit: isLoading.value || isInitializing.value || invitationSent.value
           ? null
-          : () async {
+          : (_) async {
               await inviteDoctorToCurrentPractice();
             },
     );
@@ -144,13 +150,15 @@ class DoctorDetailsController extends GetxController {
     final String? practiceId = authService.currentUser.value?.id;
 
     if (practiceId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -169,23 +177,27 @@ class DoctorDetailsController extends GetxController {
           addToList?.call(doctor: doctor);
         }
         invitationSent.value = false;
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check,
-            title: 'Invitation Revoked',
-            message:
-                "The invitation for '${doctor.name}' has been successfully revoked!",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check,
+              title: 'Invitation Revoked',
+              message:
+                  "The invitation for '${doctor.name}' has been successfully revoked!",
+            ),
+          );
+        }
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Revoking Invitation Failed',
-            message:
-                "An error occurred while revoking the invitation for '${doctor.name}'. It may have already been revoked.",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Revoking Invitation Failed',
+              message:
+                  "An error occurred while revoking the invitation for '${doctor.name}'. It may have already been revoked.",
+            ),
+          );
+        }
       }
     } finally {
       isLoading.value = false;
@@ -210,7 +222,7 @@ class DoctorDetailsController extends GetxController {
 
       onSubmit: isLoading.value || isInitializing.value || !invitationSent.value
           ? null
-          : () async {
+          : (_) async {
               await revokeInvitationOfCurrentPractice();
             },
     );
@@ -226,13 +238,15 @@ class DoctorDetailsController extends GetxController {
     final String? practiceId = authService.currentUser.value?.id;
 
     if (practiceId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -246,23 +260,27 @@ class DoctorDetailsController extends GetxController {
       if (success) {
         removeFromList?.call(doctorId: doctor.id);
         isAssignedToCurrentPractice.value = false;
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check,
-            title: 'Removed Doctor',
-            message:
-                "'${doctor.name}' has been successfully removed from your practice!",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check,
+              title: 'Removed Doctor',
+              message:
+                  "'${doctor.name}' has been successfully removed from your practice!",
+            ),
+          );
+        }
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Removing Doctor Failed',
-            message:
-                "An error occurred while removing '${doctor.name}' from your practice. They may have already been removed.",
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Removing Doctor Failed',
+              message:
+                  "An error occurred while removing '${doctor.name}' from your practice. They may have already been removed.",
+            ),
+          );
+        }
       }
     } finally {
       isLoading.value = false;
@@ -295,7 +313,7 @@ class DoctorDetailsController extends GetxController {
               isInitializing.value ||
               !isAssignedToCurrentPractice.value
           ? null
-          : () async {
+          : (_) async {
               await removeDoctorFromCurrentPractice();
             },
     );

@@ -4,9 +4,10 @@ import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
-import 'package:dermascan/core/widgets/custom_bottom_sheets/diagnosis_bottom_sheet.dart';
-import 'package:dermascan/core/widgets/custom_bottom_sheets/patient_info_bottom_sheet.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
+import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
+import 'package:dermascan/core/widgets/human_body_3d_selector.dart';
+import 'package:dermascan/core/widgets/patient_info_bottom_sheet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -63,6 +64,11 @@ class PatientDetailsController extends GetxController {
     lesions.assignAll(fetchedLesions);
   }
 
+  void resetModelPosition() {
+    final HumanBody3DController controller = Get.find<HumanBody3DController>();
+    controller.resetModelPosition();
+  }
+
   Future<void> openDiagnosisDialogFromInfo({
     required String position,
     String? diagnosisId,
@@ -111,17 +117,22 @@ class PatientDetailsController extends GetxController {
         routeName: 'create-lesion-dialog',
         title: 'Create Lesion',
         subtitle:
-            'No lesions have been recorded for this part of the body yet. '
-            'Would you like to record a new one?',
+            'No lesion found in this area. Would you like to record one now?',
         isDismissable: true,
+        hasTextField: true,
+        textFieldLabel: 'Lesion Name',
         submitText: 'Record',
-        onSubmit: () async {
+        onSubmit: (String locationName) async {
           isSubmitting = true;
 
           final BodyLesion? created = await dbService.createLesion(
             patientId: patient.id,
+            locationName: locationName,
             position: lesion.position,
             normal: lesion.normal,
+            testResult: '',
+            notes: '',
+            wasRemoved: false,
           );
 
           if (created != null) {
@@ -207,6 +218,14 @@ class PatientDetailsController extends GetxController {
       ),
       barrierColor: Colors.transparent,
       isScrollControlled: true,
+    );
+  }
+
+  Future<void> openPdfExportLesionSelectionPage() async {
+    await Get.toNamed(
+      '/doctor/patient-pdf-export/lesions',
+      preventDuplicates: false,
+      arguments: <String, dynamic>{'patient': patient, 'lesions': lesions},
     );
   }
 }

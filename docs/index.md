@@ -1,4 +1,4 @@
-# Dermascan Documentation
+# Dermascan Dokumentation
 
 **Team**: 
 - [John Schubert](mailto:schubertjo97184@th-nuernberg.de)
@@ -24,21 +24,19 @@ Dermascan umfasst die Forschung und Entwicklung einer mobilen App, mit der Bilde
 ### App
 
 Die App-Entwicklung erfolgt mit dem Framework Flutter, um eine plattformübergreifende Entwicklung zu ermöglichen.
-Durch die Nutzung von Supabase als Backend-Dienst wird eine einfache Handhabung der Datenhaltung und Authentifizierung gewährleistet, während durch die Inferenz des ML-Modells direkt auf dem Endgerät keine weitere Serverinfrastruktur fordert.
-
-Nähere Informationen zur App-Entwicklung finden sich im [App Dokumentationsordner](./app/README.md).
+In der [App Dokumentation](./app/README.md) finden sich detaillierte Informationen zur Zusammenarbeit mit einem realen Stakeholder, der App-Architektur und den implementierten Features.
 
 
 ### ML Backend
 
-Verschiedene ML Modelle werden evaluiert, um einen Kompromiss zwischen Genauigkeit und Effizienz zu finden.
+Verschiedene neuronale Modelle wurden evaluiert, um einen Kompromiss zwischen Genauigkeit und Effizienz zu finden.
 Dabei wird neben dem Finetuning von vortrainierten Modellen auch eine eigene Modellarchitektur entwickelt, die speziell auf die Anforderungen der Hautläsionserkennung zugeschnitten ist.
 
-Nähere Informationen zur Modellentwicklung finden sich im [ML Dokumentationsordner](./ml/README.md).
+Nähere Informationen zur Modellentwicklung finden sich in der [ML Dokumentation](./ml/README.md).
 
 
 ### Datenbank
 
-Als Datenbank dient eine Online Instanz von Supabase. Der Datenbank-Service stellt eine aufsteigende Alternative zu Firebase von Google dar, insbesondere da sie eine Bibliothek für die App Entwicklung mit Flutter bietet. Die Entscheidung für einen externen Dienstleister ist auch damit zu begründen, dass wir selbst keine dauerhaft verfügbare Datenbank aufsetzen und einen ortsunabhängigen Zugriff ermöglichen müssen, wodurch der Fokus auf der Entwicklung bleibt.
+Zur Datenhaltung wird die Cloud-Plattform Supabase eingesetzt, die auf PostgreSQL basiert. Sie ermöglicht ein stabiles und konsistentes Datenbankschema, das den organisatorischen Ablauf einer Arztpraxis sowie den dermatologischen Diagnoseprozess nativ abbildet. Die Entscheidung für einen externen Dienstleister ist auch damit zu begründen, dass wir selbst keine dauerhaft verfügbare Datenbank aufsetzen und einen ortsunabhängigen Zugriff ermöglichen müssen, wodurch der Fokus auf der Entwicklung bleibt.
 
-Nähere Informationen zur Modellentwicklung finden sich im [Datenbank Dokumentationsordner](./db/README.md).
+Details zum Datenbankdesign und Sicherheitsmaßnahmen finden sich in der [Datenbank Dokumentation](./db/README.md).

@@ -22,7 +22,7 @@ class DoctorInitController extends GetxController {
 
       submitText: 'Logout',
 
-      onSubmit: () async {
+      onSubmit: (_) async {
         await authService.signOut();
       },
     );

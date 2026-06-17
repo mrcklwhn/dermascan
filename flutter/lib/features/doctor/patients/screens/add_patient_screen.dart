@@ -11,6 +11,11 @@ class AddPatientScreen extends GetView<AddPatientController> {
 
   @override
   Widget build(BuildContext context) {
+    final OutlineInputBorder noBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      borderSide: BorderSide.none,
+    );
+
     return Scaffold(
       appBar: AppBar(title: const Text('New Patient')),
       body: SafeArea(
@@ -21,6 +26,11 @@ class AddPatientScreen extends GetView<AddPatientController> {
           children: <Widget>[
             const CustomIcon(iconData: Icons.person_add),
             const SizedBox(height: AppTheme.spaceLarge),
+            Text(
+              'General Information',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppTheme.spaceSmall),
             CustomTextField(
               textEditingController: controller.nameController,
               focusNode: controller.nameFocusNode,
@@ -37,10 +47,12 @@ class AddPatientScreen extends GetView<AddPatientController> {
                     controller: controller.birthdayController,
                     readOnly: true,
                     onTap: () => controller.selectDate(context),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: noBorder,
+                      enabledBorder: noBorder,
+                      focusedBorder: noBorder,
                       labelText: 'Date of Birth',
-                      prefixIcon: Icon(Icons.calendar_month),
+                      prefixIcon: const Icon(Icons.calendar_month),
                     ),
                   ),
                 ),
@@ -49,10 +61,12 @@ class AddPatientScreen extends GetView<AddPatientController> {
                   child: DropdownButtonFormField<Gender>(
                     isExpanded: true,
                     initialValue: controller.selectedGender,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: noBorder,
+                      enabledBorder: noBorder,
+                      focusedBorder: noBorder,
                       labelText: 'Gender',
-                      prefixIcon: Icon(Icons.wc_outlined),
+                      prefixIcon: const Icon(Icons.wc_outlined),
                     ),
                     items: Gender.values.map((Gender g) {
                       return DropdownMenuItem<Gender>(
@@ -70,83 +84,86 @@ class AddPatientScreen extends GetView<AddPatientController> {
                 ),
               ],
             ),
+
+            const SizedBox(height: AppTheme.spaceSmall),
             const SizedBox(height: AppTheme.spaceMedium),
-            Obx(
-              () => Card(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(AppTheme.radiusSmall),
-                  ),
-                ),
-                child: CheckboxListTile(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(AppTheme.radiusSmall),
-                    ),
-                  ),
-                  title: const Text('Sunburn History'),
-                  subtitle: const Text('Has the patient ever had a sunburn?'),
-                  value: controller.previousSunburns.value,
-                  onChanged: (bool? value) {
-                    if (value != null) {
-                      controller.previousSunburns.value = value;
-                    }
-                  },
-                ),
-              ),
+
+            Text(
+              'Sun & Lifestyle',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppTheme.spaceSmall),
+            _buildToggleCard(
+              title: 'Sunscreen Use',
+              subtitle: 'Does the patient regularly use sunscreen?',
+              value: controller.sunscreenUse,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
-            Obx(
-              () => Card(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(AppTheme.radiusSmall),
-                  ),
-                ),
-                child: CheckboxListTile(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(AppTheme.radiusSmall),
-                    ),
-                  ),
-                  title: const Text('Skin Surgery'),
-                  subtitle: const Text('Any previous skin-related surgeries?'),
-                  value: controller.previousSkinSurgeries.value,
-                  onChanged: (bool? value) {
-                    if (value != null) {
-                      controller.previousSkinSurgeries.value = value;
-                    }
-                  },
-                ),
-              ),
+
+            _buildToggleCard(
+              title: 'Sunburn History',
+              subtitle: 'Has the patient ever had a sunburn?',
+              value: controller.previousSunburns,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
-            Obx(
-              () => Card(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(AppTheme.radiusSmall),
-                  ),
-                ),
-                child: CheckboxListTile(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(AppTheme.radiusSmall),
-                    ),
-                  ),
-                  title: const Text('Tanning Bed Use'),
-                  subtitle: const Text('Does the patient use tanning beds?'),
-                  value: controller.tanningBedExposure.value,
-                  onChanged: (bool? value) {
-                    if (value != null) {
-                      controller.tanningBedExposure.value = value;
-                    }
-                  },
-                ),
-              ),
+            _buildToggleCard(
+              title: 'Tanning Bed Use',
+              subtitle: 'Does the patient use tanning beds?',
+              value: controller.tanningBedExposure,
+            ),
+            const SizedBox(height: AppTheme.spaceMedium),
+
+            Text(
+              'Medical History',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppTheme.spaceSmall),
+
+            _buildToggleCard(
+              title: 'Personal History of Melanoma',
+              value: controller.personalHistoryMelanoma,
+              subtitle: 'Previous personal melanoma diagnosis.',
+            ),
+            const SizedBox(height: AppTheme.spaceMedium),
+            _buildToggleCard(
+              title: 'Family History of Melanoma',
+              value: controller.familyHistoryMelanoma,
+              subtitle: 'Melanoma cases in close relatives.',
             ),
 
             const SizedBox(height: AppTheme.spaceMedium),
+            _buildToggleCard(
+              title: 'Skin Surgery',
+              subtitle: 'Any previous skin-related surgeries?',
+              value: controller.previousSkinSurgeries,
+            ),
+
+            Obx(() {
+              if (controller.previousSkinSurgeries.value) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const SizedBox(height: AppTheme.spaceMedium),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.spaceMedium,
+                      ),
+                      child: _buildToggleCard(
+                        title: 'Malignant / Cancerous',
+                        subtitle: 'Was a cancerous lesion removed?',
+                        value: controller.previousCancerSurgeries,
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return const Center();
+              }
+            }),
+
+            const SizedBox(height: AppTheme.spaceMedium),
+            Text('Location', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: AppTheme.spaceSmall),
             Row(
               children: <Widget>[
                 Expanded(
@@ -157,10 +174,12 @@ class AddPatientScreen extends GetView<AddPatientController> {
                       context: context,
                       isBirthCountry: false,
                     ),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: noBorder,
+                      enabledBorder: noBorder,
+                      focusedBorder: noBorder,
                       labelText: 'Country',
-                      prefixIcon: Icon(Icons.public),
+                      prefixIcon: const Icon(Icons.public),
                     ),
                   ),
                 ),
@@ -173,26 +192,48 @@ class AddPatientScreen extends GetView<AddPatientController> {
                       context: context,
                       isBirthCountry: true,
                     ),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: noBorder,
+                      enabledBorder: noBorder,
+                      focusedBorder: noBorder,
                       labelText: 'Birth Country',
-                      prefixIcon: Icon(Icons.public),
+                      prefixIcon: const Icon(Icons.public),
                     ),
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: AppTheme.spaceLarge),
+
             Obx(
               () => FilledButton.icon(
                 icon: const Icon(Icons.app_registration),
                 onPressed: controller.isLoading.value
                     ? null
                     : controller.submitPatientData,
-                label: const Text('Register'),
+                label: const Text('Update'),
               ),
             ),
+            const SizedBox(height: AppTheme.spaceLarge),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToggleCard({
+    required String title,
+    required String subtitle,
+    required RxBool value,
+  }) {
+    return Obx(
+      () => Card(
+        child: CheckboxListTile(
+          title: Text(title),
+          subtitle: Text(subtitle),
+          value: value.value,
+          onChanged: (bool? val) => value.value = val ?? false,
         ),
       ),
     );

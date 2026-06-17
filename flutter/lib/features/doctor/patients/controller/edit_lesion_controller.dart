@@ -15,12 +15,15 @@ class EditLesionController extends GetxController {
   ScrollController scrollController = ScrollController();
 
   final TextEditingController locationNameController = TextEditingController();
-
+  final TextEditingController testResultController = TextEditingController();
+  final TextEditingController notesController = TextEditingController();
+  final FocusNode notesFocusNode = FocusNode();
   final FocusNode locationNameFocusNode = FocusNode();
+  final FocusNode testResultFocusNode = FocusNode();
 
   RxBool isLoading = false.obs;
-
   RxBool isSuspicious = false.obs;
+  RxBool wasRemoved = false.obs;
 
   late BodyLesion lesion;
   late final void Function({required BodyLesion lesion, required bool delete})?
@@ -30,6 +33,11 @@ class EditLesionController extends GetxController {
   void onClose() {
     scrollController.dispose();
     locationNameController.dispose();
+    testResultController.dispose();
+    locationNameFocusNode.dispose();
+    testResultFocusNode.dispose();
+    notesController.dispose();
+    notesFocusNode.dispose();
     super.onClose();
   }
 
@@ -43,42 +51,53 @@ class EditLesionController extends GetxController {
     final Map<String, dynamic> args = Get.arguments as Map<String, dynamic>;
     lesion = args['lesion'];
     updateLesions = args['updateLesions'];
-
-    if (lesion.locationName != null) {
-      locationNameController.text = lesion.locationName!;
-    }
-
+    locationNameController.text = lesion.locationName;
+    testResultController.text = lesion.testResult;
+    notesController.text = lesion.notes;
     isSuspicious.value = lesion.isSuspicious.value;
+    wasRemoved.value = lesion.wasRemoved.value;
   }
 
   void submittedLocationName() {
     locationNameFocusNode.unfocus();
   }
 
+  void submittedTestResult() {
+    testResultFocusNode.unfocus();
+  }
+
+  void submittedNotes() {
+    notesFocusNode.unfocus();
+  }
+
   Future<void> updateLesion() async {
     if (isLoading.value) return;
 
     if (locationNameController.text.trim().isEmpty) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Missing Information',
-          message: 'Please fill in all required fields to update a lesion.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Missing Information',
+            message: 'Please fill in all required fields to update a lesion.',
+          ),
+        );
+      }
       return;
     }
 
     final String? doctorId = authService.currentUser.value?.id;
 
     if (doctorId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -89,32 +108,39 @@ class EditLesionController extends GetxController {
         lesionId: lesion.id,
         locationName: locationNameController.text.trim(),
         suspicious: isSuspicious.value,
+        wasRemoved: wasRemoved.value,
+        testResult: testResultController.text.trim(),
+        notes: notesController.text.trim(),
       );
 
       if (successful) {
         lesion.locationName = locationNameController.text.trim();
         lesion.isSuspicious.value = isSuspicious.value;
+        lesion.wasRemoved.value = wasRemoved.value;
+        lesion.testResult = testResultController.text.trim();
+        lesion.notes = notesController.text.trim();
 
         updateLesions?.call(lesion: lesion, delete: false);
         Get.back();
-
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check,
-            title: 'Updated Lesion',
-            message: isSuspicious.value
-                ? 'The Lesion has been marked as suspicious.'
-                : 'The Lesion has been marked as not suspicious.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check,
+              title: 'Updated Lesion',
+              message: 'The Lesion has been successfully updated.',
+            ),
+          );
+        }
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Error Updating Lesion',
-            message: 'The Lesion could not be updated.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Error Updating Lesion',
+              message: 'The Lesion could not be updated.',
+            ),
+          );
+        }
       }
     } finally {
       isLoading.value = false;
@@ -126,20 +152,15 @@ class EditLesionController extends GetxController {
 
     await CustomDialogHelper.show(
       routeName: 'delete-lesion-dialog',
-
       title: 'Delete Lesion?',
-
       subtitle:
           'You are about to delete this lesion. '
           'All associated diagnoses must be deleted first.',
-
       isDismissable: true,
-
       submitText: 'Delete',
-
       onSubmit: isLoading.value
           ? null
-          : () async {
+          : (_) async {
               await deleteLesion(lesion: lesion);
             },
     );
@@ -153,13 +174,15 @@ class EditLesionController extends GetxController {
     final String? doctorId = authService.currentUser.value?.id;
 
     if (doctorId == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -182,27 +205,29 @@ class EditLesionController extends GetxController {
                 name == 'diagnosis-bottom-sheet') {
               return false;
             }
-
             return true;
           });
         }
-
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check,
-            title: 'Lesion Deleted',
-            message: 'The Lesion has been deleted.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check,
+              title: 'Lesion Deleted',
+              message: 'The Lesion has been deleted.',
+            ),
+          );
+        }
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Error Deleting Lesion',
-            message:
-                'The lesion could not be deleted. There may be diagnoses linked to it.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Error Deleting Lesion',
+              message:
+                  'The lesion could not be deleted. There may be diagnoses linked to it.',
+            ),
+          );
+        }
       }
     } finally {
       isLoading.value = false;

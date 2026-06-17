@@ -35,13 +35,15 @@ class DoctorLoginController extends GetxController {
 
     if (emailController.text.trim().isEmpty ||
         passwordController.text.trim().isEmpty) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Information Missing',
-          message: 'Please fill in all required fields to log in.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Information Missing',
+            message: 'Please fill in all required fields to log in.',
+          ),
+        );
+      }
       return;
     }
 
@@ -53,14 +55,16 @@ class DoctorLoginController extends GetxController {
       );
 
       if (!isDoctor) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.block,
-            title: 'Access Denied',
-            message:
-                'This account is not registered as a doctor. Please use the practice login instead.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.block,
+              title: 'Access Denied',
+              message:
+                  'This account is not registered as a doctor. Please use the practice login instead.',
+            ),
+          );
+        }
         return;
       }
 
@@ -70,23 +74,27 @@ class DoctorLoginController extends GetxController {
       );
 
       if (success) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.check_circle,
-            title: 'Login Successful',
-            message: 'Your Login was successful. You are now logged in.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check_circle,
+              title: 'Login Successful',
+              message: 'Your Login was successful. You are now logged in.',
+            ),
+          );
+        }
         await authService.evaluateRouteAndNavigate();
       } else {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Login Failed',
-            message:
-                'Invalid email or password. Please check your credentials and try again.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Login Failed',
+              message:
+                  'Invalid email or password. Please check your credentials and try again.',
+            ),
+          );
+        }
       }
     } finally {
       loginController.isLoading.value = false;

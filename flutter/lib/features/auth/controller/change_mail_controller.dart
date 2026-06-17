@@ -57,46 +57,55 @@ class ChangeEmailController extends GetxController {
 
     if (newEmailController.text.trim().isEmpty ||
         confirmNewEmailController.text.trim().isEmpty) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Information Missing',
-          message: 'Please fill in all required fields to change your E-Mail.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Information Missing',
+            message:
+                'Please fill in all required fields to change your E-Mail.',
+          ),
+        );
+      }
       return;
     }
 
     if (!isValidEmail.value) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Invalid E-Mail',
-          message: 'Your e-mail is not formatted correctly.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Invalid E-Mail',
+            message: 'Your e-mail is not formatted correctly.',
+          ),
+        );
+      }
       return;
     }
 
     if (!emailsMatch.value) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Different E-Mails',
-          message: "Your e-mails don't match. Please check and try again.",
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Different E-Mails',
+            message: "Your e-mails don't match. Please check and try again.",
+          ),
+        );
+      }
       return;
     }
 
     if (authService.currentUser.value == null) {
-      Get.showSnackbar(
-        CustomSnackBar(
-          icon: Icons.error,
-          title: 'Authentication Error',
-          message: 'You are not signed in correctly. Please log in again.',
-        ),
-      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
+          ),
+        );
+      }
       return;
     }
 
@@ -108,14 +117,16 @@ class ChangeEmailController extends GetxController {
       );
 
       if (response?.user == null) {
-        Get.showSnackbar(
-          CustomSnackBar(
-            icon: Icons.error,
-            title: 'Change Failed',
-            message:
-                'Could not change E-Mail. The email might already be in use or the connection failed.',
-          ),
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Change Failed',
+              message:
+                  'Could not change E-Mail. The email might already be in use or the connection failed.',
+            ),
+          );
+        }
       } else {
         Get.back(result: true);
         await CustomDialogHelper.show(
@@ -132,7 +143,7 @@ class ChangeEmailController extends GetxController {
 
           submitText: 'Logout',
 
-          onSubmit: () async {
+          onSubmit: (_) async {
             await authService.signOut();
           },
         );
