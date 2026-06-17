@@ -2,6 +2,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/enums.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
+import 'package:dermascan/core/widgets/custom_toggle_card.dart';
 import 'package:dermascan/features/doctor/patients/controller/edit_patient_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -93,20 +94,20 @@ class EditPatientScreen extends GetView<EditPatientController> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppTheme.spaceSmall),
-            _buildToggleCard(
+            ToggleCard(
               title: 'Sunscreen Use'.tr,
               subtitle: 'Does the patient regularly use sunscreen?'.tr,
               value: controller.sunscreenUse,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
 
-            _buildToggleCard(
+            ToggleCard(
               title: 'Sunburn History'.tr,
               subtitle: 'Has the patient ever had a sunburn?'.tr,
               value: controller.previousSunburns,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
-            _buildToggleCard(
+            ToggleCard(
               title: 'Tanning Bed Use'.tr,
               subtitle: 'Does the patient use tanning beds?'.tr,
               value: controller.tanningBedExposure,
@@ -119,20 +120,20 @@ class EditPatientScreen extends GetView<EditPatientController> {
             ),
             const SizedBox(height: AppTheme.spaceSmall),
 
-            _buildToggleCard(
+            ToggleCard(
               title: 'Personal History of Melanoma'.tr,
               value: controller.personalHistoryMelanoma,
               subtitle: 'Previous personal melanoma diagnosis.'.tr,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
-            _buildToggleCard(
+            ToggleCard(
               title: 'Family History of Melanoma'.tr,
               value: controller.familyHistoryMelanoma,
               subtitle: 'Melanoma cases in close relatives.'.tr,
             ),
 
             const SizedBox(height: AppTheme.spaceMedium),
-            _buildToggleCard(
+            ToggleCard(
               title: 'Skin Surgery'.tr,
               subtitle: 'Any previous skin-related surgeries?'.tr,
               value: controller.previousSkinSurgeries,
@@ -148,7 +149,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppTheme.spaceMedium,
                       ),
-                      child: _buildToggleCard(
+                      child: ToggleCard(
                         title: 'Malignant / Cancerous'.tr,
                         subtitle: 'Was a cancerous lesion removed?'.tr,
                         value: controller.previousCancerSurgeries,
@@ -217,27 +218,6 @@ class EditPatientScreen extends GetView<EditPatientController> {
             ),
             const SizedBox(height: AppTheme.spaceLarge),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildToggleCard({
-    required String title,
-    required String subtitle,
-    required RxBool value,
-  }) {
-    return Obx(
-      () => Card(
-        child: CheckboxListTile(
-          title: Text(title),
-          subtitle: Text(subtitle),
-          value: value.value,
-          onChanged: (bool? val) {
-            if (!controller.isLoading.value) {
-              value.value = val ?? false;
-            }
-          },
         ),
       ),
     );
