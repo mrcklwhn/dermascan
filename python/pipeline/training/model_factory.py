@@ -1,45 +1,20 @@
-from torchvision import models
-from torchvision.models import (
-    ResNet18_Weights, ResNet50_Weights, ResNet101_Weights, 
-    EfficientNet_B0_Weights, EfficientNet_B3_Weights, EfficientNet_B5_Weights, 
-    MobileNet_V3_Small_Weights, MobileNet_V3_Large_Weights)
 import torch
 import torch.nn as nn
 
 from pipeline.training.model_archs import _modelArchRegistry
 
 from pipeline.dataclasses.pipeline_config import ModelConfig
-from pipeline.dataclasses.enums import ModelType, FilterType
+from pipeline.dataclasses.enums import FilterType
 
 class ModelFactory:
     """
     Factory class to build models based on ModelConfig. 
     It supports:
-    - Building specified model architectures (e.g. ResNet18, ResNet50, ResNet101).
+    - Building registered Torchvision model architectures.
     - Modifying input layer to accommodate different number of channels based on filter type.
     - Modifying output layer to match the number of classes.
     - Optionally freezing weights for transfer learning.
     """
-    # _models: dict[ModelType, callable] = {
-    #     # ──────────────────────────────────────────
-    #     # ResNet
-    #     # ──────────────────────────────────────────
-    #     ModelType.RESNET_18: (models.resnet18, ResNet18_Weights),
-    #     ModelType.RESNET_50: (models.resnet50, ResNet50_Weights),
-    #     ModelType.RESNET_101: (models.resnet101, ResNet101_Weights),
-    #     # ──────────────────────────────────────────
-    #     # EfficientNet
-    #     # ──────────────────────────────────────────
-    #     ModelType.EFFICIENTNET_B0: (models.efficientnet_b0, EfficientNet_B0_Weights),
-    #     ModelType.EFFICIENTNET_B3: (models.efficientnet_b3, EfficientNet_B3_Weights),
-    #     ModelType.EFFICIENTNET_B5: (models.efficientnet_b5, EfficientNet_B5_Weights),
-    #     # ──────────────────────────────────────────
-    #     # MobileNet
-    #     # ──────────────────────────────────────────
-    #     ModelType.MOBILENET_V3_SMALL: (models.mobilenet_v3_small, MobileNet_V3_Small_Weights),
-    #     ModelType.MOBILENET_V3_LARGE: (models.mobilenet_v3_large, MobileNet_V3_Large_Weights),
-    # }
-
     @classmethod
     def build(cls, model_config: ModelConfig, seed: int | None = None) -> nn.Module:
         """
@@ -47,6 +22,7 @@ class ModelFactory:
 
         Args:
             model_config (ModelConfig): Configuration for the model to be built.
+            seed (int | None): The seed for reproducibility when modifying the input layer. Defaults to None.
         Returns:
             nn.Module: The constructed model ready for training.
         """
@@ -84,6 +60,7 @@ class ModelFactory:
 
         Args:
             model (nn.Module): The model whose input layer is to be modified.
+            model_arch (_ModelArchConfig): The architecture configuration for the model, containing layer accessors.
             num_input_channels (int): The number of input channels for the new input layer.
             seed (int | None): The seed for reproducibility.
         Returns:
@@ -121,6 +98,7 @@ class ModelFactory:
 
         Args:
             model (nn.Module): The model whose output layer is to be modified.
+            model_arch (_ModelArchConfig): The architecture configuration for the model, containing layer accessors.
             num_classes (int): The number of classes for the new output layer.
         Returns:
             nn.Module: The model with the modified output layer.
