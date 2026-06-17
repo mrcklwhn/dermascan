@@ -73,7 +73,7 @@ class PracticeProfileController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -104,8 +104,7 @@ class PracticeProfileController extends GetxController {
             CustomSnackBar(
               icon: Icons.check_circle,
               title: 'Updated Name'.tr,
-              message:
-                  "${'Your name was successfully changed to'.tr} '${newName.trim()}'.",
+              message: 'Your name was successfully changed.'.tr,
             ),
           );
         }
@@ -116,7 +115,7 @@ class PracticeProfileController extends GetxController {
               icon: Icons.error,
               title: 'Update Name Failed'.tr,
               message:
-                  'Your name could not be changed. Please check the data or try again later.'
+                  'Name update failed. Please verify your data and try again.'
                       .tr,
             ),
           );
@@ -152,9 +151,7 @@ class PracticeProfileController extends GetxController {
 
       title: 'Logout?'.tr,
 
-      subtitle:
-          'You are about to log out of your account. Are you sure you want to proceed?'
-              .tr,
+      subtitle: 'Are you sure you want to log out?'.tr,
 
       isDismissable: true,
 

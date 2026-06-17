@@ -27,7 +27,7 @@ class DoctorInitScreen extends GetView<DoctorInitController> {
               ),
               const SizedBox(height: AppTheme.spaceMedium),
               Text(
-                'You are currently not a member of any practice.\nPlease check your inbox for invitations to join a team.'
+                'Not assigned to a practice.\nCheck your inbox for team invitations.'
                     .tr,
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,

@@ -90,9 +90,7 @@ class CaptureController extends GetxController {
             CustomSnackBar(
               icon: Icons.error,
               title: 'Upload Failed'.tr,
-              message:
-                  'Could not upload your Image. Please check your connection and try again.'
-                      .tr,
+              message: 'Image upload failed. Please check your connection.'.tr,
             ),
           );
         }

@@ -88,9 +88,7 @@ class ChangePasswordController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Password Insecure'.tr,
-            message:
-                'Your password does not meet the security requirements or the passwords do not match.'
-                    .tr,
+            message: 'Passwords must match and meet security requirements.'.tr,
           ),
         );
       }
@@ -103,7 +101,7 @@ class ChangePasswordController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -136,7 +134,7 @@ class ChangePasswordController extends GetxController {
           title: 'Password Changed'.tr,
 
           subtitle:
-              "It's highly recommended to log out now, click the link in your email, and then log back in with your new credentials."
+              'Please log out, verify your email via the link, and log back in.'
                   .tr,
 
           isDismissable: true,

@@ -15,9 +15,7 @@ class DoctorInitController extends GetxController {
 
       title: 'Logout?'.tr,
 
-      subtitle:
-          'You are about to log out of your account. Are you sure you want to proceed?'
-              .tr,
+      subtitle: 'Are you sure you want to log out?'.tr,
 
       isDismissable: true,
 

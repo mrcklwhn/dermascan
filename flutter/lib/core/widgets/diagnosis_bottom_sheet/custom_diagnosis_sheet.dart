@@ -76,7 +76,7 @@ class DiagnosisDetailController extends GetxController {
             CustomSnackBar(
               icon: Icons.check,
               title: 'Notes Updated'.tr,
-              message: 'The diagnosis notes have been successfully saved.'.tr,
+              message: 'Diagnosis notes saved successfully.'.tr,
             ),
           );
         }
@@ -86,7 +86,7 @@ class DiagnosisDetailController extends GetxController {
             CustomSnackBar(
               icon: Icons.error,
               title: 'Error Saving Notes'.tr,
-              message: 'The updates could not be saved. Please try again.'.tr,
+              message: 'Could not save updates. Please try again.'.tr,
             ),
           );
         }
@@ -107,7 +107,7 @@ class DiagnosisDetailController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -160,7 +160,7 @@ class DiagnosisDetailController extends GetxController {
       routeName: 'delete-diagnosis-dialog',
       title: 'Delete Diagnosis?'.tr,
       subtitle:
-          'You are about to delete this diagnosis. This will delete all information including the images. Do you want to continue?'
+          'Delete this diagnosis? All associated data and images will be permanently removed.'
               .tr,
       isDismissable: !isLoading.value,
       submitText: 'Delete'.tr,

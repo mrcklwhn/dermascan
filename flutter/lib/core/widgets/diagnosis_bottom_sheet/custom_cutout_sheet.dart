@@ -125,8 +125,7 @@ class CutoutController extends GetxController {
             icon: Icons.error,
             title: 'Diagnosis Failed'.tr,
             message:
-                'Could not create Diagnosis, you may be not assigned to a practice.'
-                    .tr,
+                'Diagnosis creation failed. Practice assignment required.'.tr,
           ),
         );
       }

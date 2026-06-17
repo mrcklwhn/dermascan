@@ -60,9 +60,7 @@ class PracticeLoginController extends GetxController {
             CustomSnackBar(
               icon: Icons.block,
               title: 'Access Denied'.tr,
-              message:
-                  'This account is not registered as a practice. Please use the doctor login instead.'
-                      .tr,
+              message: 'Not a practice account. Please use doctor login.'.tr,
             ),
           );
         }
@@ -91,9 +89,7 @@ class PracticeLoginController extends GetxController {
             CustomSnackBar(
               icon: Icons.error,
               title: 'Login Failed'.tr,
-              message:
-                  'Invalid email or password. Please check your credentials and try again.'
-                      .tr,
+              message: 'Invalid email or password. Please try again.'.tr,
             ),
           );
         }

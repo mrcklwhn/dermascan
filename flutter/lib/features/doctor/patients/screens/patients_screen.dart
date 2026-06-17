@@ -59,8 +59,7 @@ class PatientsScreen extends GetView<PatientsController> {
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Your practice currently has no patients.\nTo add new patients press the button below.'
-                .tr,
+            'No patients found.\nPress below to add a patient.'.tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
