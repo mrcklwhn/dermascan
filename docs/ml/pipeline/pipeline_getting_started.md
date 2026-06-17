@@ -9,8 +9,11 @@ Die Pipeline trainiert und bewertet Modelle zur binären Klassifikation von Haut
 Damit lassen sich zum Beispiel folgende Fragen vergleichen:
 
 - Welches Torchvision-Modell funktioniert besser, z.B. ResNet oder EfficientNet?
+
 - Sind RGB-Bilder oder vorberechnete Filterdaten wie Gabor, GLCM oder LBP besser geeignet?
+
 - Wie wirken sich Transfer Learning, eingefrorene Gewichte, Augmentierungen oder Sampling auf die Ergebnisse aus?
+
 - Welcher Threshold ist für die Melanom-Erkennung auf dem Validierungsset sinnvoll?
 
 Nach jedem Lauf speichert die Pipeline Modell, Konfiguration, Metriken, Plots und MLflow-Trackingdaten im `results/`-Ordner.
@@ -28,9 +31,13 @@ Nach jedem Lauf speichert die Pipeline Modell, Konfiguration, Metriken, Plots un
 ## Vor dem Start
 
 1. Python-Umgebung vorbereiten.
+
 2. Abhängigkeiten aus `python/requirements.txt` installieren.
+
 3. Sicherstellen, dass der Datensatz vorhanden ist.
+
 4. Pfade an die eigene Umgebung anpassen, vor allem `data_path` und bei Custom-Splits die CSV-Pfade.
+
 5. Prüfen, ob die gewählten Filterdaten vorhanden sind, wenn `dataset_loader="filter"` genutzt wird.
 
 ## Minimaler Start im Notebook
@@ -58,13 +65,21 @@ results = orchestrator.run()
 Die wichtigsten Stellen sind:
 
 - `pipeline_id`: Name des Laufs, erscheint im Ergebnisordner.
+
 - `data_path`: Pfad zum Datensatz.
+
 - `split_config`: Entweder automatischer Split über Ratios oder feste CSV-Dateien für Train, Val und Test.
+
 - `branches`: Liste der Trainingsvarianten.
+
 - `branch_model_config.model_type`: Modellarchitektur, z.B. `resnet18` oder `efficientnet_v2_s`.
+
 - `branch_model_config.filter_type`: Eingabetyp und Kanalzahl, z.B. `["rgb", 3]`.
+
 - `trainer_config`: Batch-Größe, Epochen, Learning Rate, Loss, Optimizer und Scheduler.
+
 - `dataset_loader`: `rgb` für Bilddateien oder `filter` für vorberechnete Feature-Maps.
+
 - `augmentation`: Augmentierungen für Training und Validierung.
 
 ## Ergebnis nach dem Lauf
@@ -78,10 +93,15 @@ results/<pipeline_id>_<timestamp>/
 Pro Branch werden unter anderem gespeichert:
 
 - `model.pt`: bestes Modell
+
 - `branch_config.json`: verwendete Branch-Konfiguration
+
 - `training_history.json`: Trainingsverlauf
+
 - `metrics.json`: finale Testmetriken
+
 - `training_history.png`: Loss- und Metrikverlauf
+
 - `confusion_matrix.png`, `precision_recall_curve.png`, `roc_curve.png`: Evaluierungsplots
 
 Zusätzlich werden Parameter, Metriken, Artefakte und Modelle in MLflow geloggt. Die lokale Tracking-Datenbank liegt unter `results/mlflow.db`.

@@ -44,24 +44,41 @@ Einstiegspunkt der Pipeline. Erzeugt das Ausgabeverzeichnis, setzt Seeds, initia
 Führt einen einzelnen Branch aus: Modellaufbau → Training → Threshold-Optimierung → Test-Evaluation → Speichern/Logging.
 
 **Ablauf pro Branch:**
+
 1. Branch-Konfiguration speichern und Parameter in MLflow loggen
+
 2. Modell trainieren und bestes Modell nach Val-F1-Macro speichern
+
 3. Bestes Modell auf dem Val-Set mit Threshold `0.5` auswerten
+
 4. Optimalen Threshold über `MetricsCalculator.get_threshold(...)` bestimmen
+
 5. Test-Set mit optimalem Threshold auswerten
+
 6. Metriken, Plots, Artefakte und Modell in MLflow loggen
 
 **Ausgabe pro Branch:** `<pipeline_run_path>/<branch_id>_<filter_name>/`
+
 - `model.pt` - bestes Modell nach Val-F1-Macro
+
 - `branch_config.json`
+
 - `training_history.json`
+
 - `metrics.json`
+
 - `training_history.png`
+
 - `val_confusion_matrix_threshold_0_5.png`
+
 - `val_confusion_matrix_optimal_threshold.png`
+
 - `test_confusion_matrix_optimal_threshold.png`
+
 - `precision_recall_curve.png`
+
 - `roc_curve.png`
+
 - `confidence_distribution.png`
 
 ---
@@ -82,12 +99,19 @@ Baut ein Torchvision-Modell anhand einer `ModelConfig`. Die Architektur-spezifis
 | MobileNet V3 Large | `mobilenet_v3_large` | 224 |
 
 **Transfer Learning:**
+
 - `pretrained=true` lädt die Default-Gewichte der jeweiligen Torchvision-Architektur
+
 - `freeze_weights=true` friert alle bestehenden Parameter ein; neu gesetzte Output-Layer bleiben trainierbar
+
 - `filter_type != RGB` ersetzt den ersten Conv-Layer durch einen Layer mit passender Kanalanzahl
+
 - Der neue Input-Layer wird per Kaiming-Normal initialisiert; optional reproduzierbar über `seed`
+
 - Der Output-Layer wird auf `num_classes` angepasst
+
 - Bei Inception wird zusätzlich `AuxLogits.fc` angepasst, falls vorhanden
+
 - Bei SqueezeNet wird der finale ReLU-Layer im Classifier deaktiviert (`Identity`), damit Logits nutzbar bleiben
 
 ---
@@ -97,10 +121,15 @@ Baut ein Torchvision-Modell anhand einer `ModelConfig`. Die Architektur-spezifis
 Trainiert, validiert und testet ein PyTorch-Modell.
 
 **Training:**
+
 - Unterstützt `BCEWithLogitsLoss` und `CrossEntropyLoss`
+
 - Speichert das beste Modell basierend auf dem Val-F1-Macro-Score
+
 - Speichert zusätzlich `best_epoch` in `TrainingHistory`
+
 - Loggt pro Epoch Loss, Accuracy, F1, Learning Rate, `best_epoch` und besten Val-F1 in MLflow
+
 - `ReduceLROnPlateau` steppt mit `val_loss`; andere Scheduler steppern ohne Metrik
 
 **Loss-Funktionen:**
@@ -111,9 +140,13 @@ Trainiert, validiert und testet ein PyTorch-Modell.
 | CrossEntropyLoss | `cross_entropy` | Multi-Node Binary Classification; nutzt optional `class_weights` |
 
 **Output-/Prediction-Handling:**
+
 - Bei `bce_with_logits` werden Outputs auf eine Logit-Spalte reduziert und per Sigmoid in Wahrscheinlichkeiten umgerechnet
+
 - Bei `cross_entropy` werden Softmax-Wahrscheinlichkeiten der positiven Klasse (`[:, 1]`) genutzt
+
 - Spezielle Output-Typen wie `InceptionOutputs` werden über `.logits` aufgelöst
+
 - `test(..., threshold=...)` erzeugt Preds über den übergebenen Threshold
 
 **Unterstützte Optimizer:**
@@ -187,9 +220,13 @@ Der `MetricsCalculator` bündelt die finale Bewertung eines Branches. Er nimmt d
 Ein wichtiger Teil ist die Threshold-Suche. Bei binärer Klassifikation entscheidet der Threshold, ab welcher vorhergesagten Wahrscheinlichkeit ein Sample als Melanom klassifiziert wird. Der Standardwert `0.5` ist nicht immer optimal, insbesondere bei medizinischen Klassifikationsproblemen mit unausgeglichenen Klassen und unterschiedlich hohen Fehlerkosten. Deshalb sucht die Pipeline auf dem Validierungsset einen Threshold, der eine Mindest-Specificity einhält und dabei die Sensitivity maximiert.
 
 **Threshold-Suche:**
+
 - Prüft Thresholds von `0.10` bis `0.90` in `0.05`-Schritten
+
 - Ignoriert Thresholds, deren Specificity unter `min_specificity` liegt
+
 - Wählt unter den verbleibenden Thresholds den mit der höchsten Sensitivity
+
 - Fallback ist `0.5`
 
 **Metriken:**
