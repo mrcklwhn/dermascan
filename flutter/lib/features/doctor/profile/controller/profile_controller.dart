@@ -86,8 +86,8 @@ class DoctorProfileController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error',
-            message: 'You are not signed in correctly. Please log in again.',
+            title: 'Authentication Error'.tr,
+            message: 'You are not signed in correctly. Please log in again.'.tr,
           ),
         );
       }
@@ -117,9 +117,9 @@ class DoctorProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Updated Name',
+              title: 'Updated Name'.tr,
               message:
-                  "Your name was successfully changed to '${newName.trim()}'.",
+                  "${'Your name was successfully changed to'.tr} '${newName.trim()}'.",
             ),
           );
         }
@@ -128,9 +128,10 @@ class DoctorProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Update Name Failed',
+              title: 'Update Name Failed'.tr,
               message:
-                  'Your name could not be changed. Please check the data or try again later.',
+                  'Your name could not be changed. Please check the data or try again later.'
+                      .tr,
             ),
           );
         }
@@ -153,8 +154,8 @@ class DoctorProfileController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error',
-            message: 'You are not signed in correctly. Please log in again.',
+            title: 'Authentication Error'.tr,
+            message: 'You are not signed in correctly. Please log in again.'.tr,
           ),
         );
       }
@@ -172,9 +173,10 @@ class DoctorProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Practice Left',
+              title: 'Practice Left'.tr,
               message:
-                  'You are no longer a member of this practice and your access has been revoked.',
+                  'You are no longer a member of this practice and your access has been revoked.'
+                      .tr,
             ),
           );
         }
@@ -184,9 +186,10 @@ class DoctorProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Leaving Practice',
+              title: 'Error Leaving Practice'.tr,
               message:
-                  'The practice could not be left. You may have already been removed.',
+                  'The practice could not be left. You may have already been removed.'
+                      .tr,
             ),
           );
         }
@@ -202,16 +205,15 @@ class DoctorProfileController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'leave-practice-dialog',
 
-      title: 'Leave Practice?',
+      title: 'Leave Practice?'.tr,
 
       subtitle:
-          'You are about to leave this practice. '
-          'You will no longer have access to any shared data with it. '
-          'Do you want to continue?',
+          'You are about to leave this practice. You will no longer have access to any shared data with it. Do you want to continue?'
+              .tr,
 
       isDismissable: true,
 
-      submitText: 'Leave',
+      submitText: 'Leave'.tr,
 
       onSubmit: isLoading.value || isInitializing.value
           ? null
@@ -243,14 +245,15 @@ class DoctorProfileController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'logout-dialog',
 
-      title: 'Logout?',
+      title: 'Logout?'.tr,
 
       subtitle:
-          'You are about to log out of your account. Are you sure you want to proceed?',
+          'You are about to log out of your account. Are you sure you want to proceed?'
+              .tr,
 
       isDismissable: true,
 
-      submitText: 'Logout',
+      submitText: 'Logout'.tr,
 
       onSubmit: (_) async {
         await authService.signOut();

@@ -39,6 +39,7 @@ class SplitProvider:
         Args:
             data_path (Path): The path to the dataset.
             train_val_test_split_ratio (TrainValTestSplitRatio): The ratios for train/validation/test splits.
+            seed (int | None): The seed for reproducibility.
         Returns:
             TrainValTestSplit: An object containing the train, validation, and test splits as pandas DataFrames.
         """

@@ -19,6 +19,8 @@ class BranchRunner:
     - Training the model and saving training history
     - Evaluating the model on the test set and calculating metrics
     - Saving metrics results and generating plots
+    - Logging all relevant information to MLflow for experiment tracking
+    The BranchRunner is designed to be modular and reusable for different branches with varying configurations.
     """
     def __init__(self,
                  branch_config: BranchConfig,
@@ -61,22 +63,72 @@ class BranchRunner:
 
             self._save_branch_config()
             MLFlowLogger.log_branch_params(self.branch_config)
-            
+
+            # -----------------------
+            # TRAIN
+            # -----------------------
             training_history = self.trainer.train(self.data.train_loader, self.data.val_loader)
             self._save_training_history(training_history)
             Plotter.plot_training_history(training_history, self.branch_run_path)
-            
-            eval_results, self.model = self.trainer.test(self.data.test_loader)
 
             metrics_calculator = MetricsCalculator()
-            metrics_result = metrics_calculator.calculate(eval_results)
 
+            # -----------------------
+            # THRESHOLD OPTIMIZATION
+            # -----------------------
+            # VAL ON 0.5
+            val_result_05, _ = self.trainer.test(
+                self.data.val_loader, 
+                threshold=0.5
+            )
+
+            # THRESHOLD OPTIMIZATION ON VAL
+            optimal_threshold = metrics_calculator.get_threshold(
+                val_result_05.y_true.numpy(),
+                val_result_05.y_prob.numpy()
+            )
+            print(f"Optimal threshold found on validation set: {optimal_threshold}")
+            MLFlowLogger.log_param("optimal_threshold", float(optimal_threshold))
+
+            # VAL ON OPTIMAL THRESHOLD
+            val_result_opt, _ = self.trainer.test(
+                self.data.val_loader, 
+                threshold=float(optimal_threshold)
+            )
+            Plotter.plot_confusion_matrix(
+                val_result_opt,
+                self.branch_run_path,
+                "val_confusion_matrix_optimal_threshold.png"
+            )
+
+            # TEST ON 0.5 THRESHOLD
+            test_results_05, _ = self.trainer.test(
+                self.data.test_loader, 
+                threshold=0.5
+            )
+            Plotter.plot_confusion_matrix(
+                test_results_05,
+                self.branch_run_path,
+                "test_confusion_matrix_threshold_0_5.png"
+            )
+
+            # TEST ON OPTIMAL THRESHOLD
+            test_results, self.model = self.trainer.test(
+                self.data.test_loader,
+                threshold=float(optimal_threshold)
+            )
+            Plotter.plot_confusion_matrix(
+                test_results,
+                self.branch_run_path,
+                "test_confusion_matrix_optimal_threshold.png"
+            )
+            Plotter.plot_precision_recall_curve(test_results, self.branch_run_path)
+            Plotter.plot_roc_curve(test_results, self.branch_run_path)
+            Plotter.plot_confidence_distribution(test_results, self.branch_run_path)
+
+            metrics_result = metrics_calculator.get_eval_metrics(test_results)
             self._save_metrics(metrics_result)
 
-            Plotter.plot_confusion_matrix(eval_results, self.branch_run_path)
-            Plotter.plot_precision_recall_curve(eval_results, self.branch_run_path)
-            Plotter.plot_roc_curve(eval_results, self.branch_run_path)
-            Plotter.plot_confidence_distribution(eval_results, self.branch_run_path)
             MLFlowLogger.log_branch_results(self.branch_run_path, metrics_result)
             sample_input, _ = next(iter(self.data.test_loader))
             MLFlowLogger.log_model(self.model, self.branch_config.branch_id, sample_input[:1].cpu(), step=training_history.best_epoch)

@@ -12,42 +12,32 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Patient Profile')),
+      appBar: AppBar(title: Text('Patient Profile'.tr)),
       body: SafeArea(
+        bottom: false,
         child: Obx(() {
           if (controller.isInitializing.value) {
             return const Center(child: CircularProgressIndicator.adaptive());
           }
-          return Padding(
-            padding: AppTheme.scaffoldPadding,
-            child: Column(
-              children: <Widget>[
-                Row(
+          return Stack(
+            children: <Widget>[
+              Positioned.fill(
+                child: HumanBody3DSelector(
+                  key: controller.bodySelectorKey,
+                  gender: controller.patient.gender,
+                  lesions: controller.lesions,
+                  onPointAdded: (BodyLesion lesion) {
+                    controller.openDiagnosisDialog(lesion: lesion);
+                  },
+                  selectedPosition: controller.selectedPosition,
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                child: Row(
                   children: <Widget>[
-                    IconButton(
-                      padding: const EdgeInsets.all(AppTheme.spaceSmall),
-                      constraints: BoxConstraints.tight(
-                        const Size(
-                          AppTheme.radiusLarge * 2,
-                          AppTheme.radiusLarge * 2,
-                        ),
-                      ),
-                      onPressed: controller.resetModelPosition,
-                      icon: const Icon(Icons.gps_fixed),
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(
-                          AppTheme.highlightColor,
-                        ),
-                        shape: WidgetStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusLarge,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.spaceSmall),
+                    const SizedBox(width: AppTheme.spaceMedium),
                     IconButton(
                       padding: const EdgeInsets.all(AppTheme.spaceSmall),
                       constraints: BoxConstraints.tight(
@@ -104,7 +94,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  'Location: ${controller.selectedLesion.value!.locationName}',
+                                  '${'Location'.tr}: ${controller.selectedLesion.value!.locationName}',
                                   style: Theme.of(context).textTheme.titleSmall,
                                   textAlign: TextAlign.start,
                                 ),
@@ -114,7 +104,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                                     .diagnoses
                                     .isNotEmpty)
                                   Text(
-                                    'Last Diagnosis: ${DateFormat('dd.MM.yyyy').format(controller.selectedLesion.value!.diagnoses.first.date)}',
+                                    '${'Last Diagnosis'.tr}: ${DateFormat('dd.MM.yyyy').format(controller.selectedLesion.value!.diagnoses.first.date)}',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall,
@@ -139,7 +129,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                             ),
                             child: Center(
                               child: Text(
-                                'No Lesion selected',
+                                'No Lesion selected'.tr,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ),
@@ -172,26 +162,12 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                         ),
                       ),
                     ),
+
+                    const SizedBox(width: AppTheme.spaceMedium),
                   ],
                 ),
-
-                const SizedBox(height: AppTheme.spaceLarge),
-                Expanded(
-                  child: HumanBody3DSelector(
-                    key: controller.bodySelectorKey,
-                    gender: controller.patient.gender,
-                    lesions: controller.lesions,
-                    onPointAdded: (BodyLesion lesion) {
-                      controller.openDiagnosisDialog(lesion: lesion);
-                    },
-                    selectedPosition: controller.selectedPosition,
-                    suspiciousColor: Colors.red,
-                  ),
-                ),
-
-                const SizedBox(height: AppTheme.spaceLarge),
-              ],
-            ),
+              ),
+            ],
           );
         }),
       ),

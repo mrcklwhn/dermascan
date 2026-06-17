@@ -6,6 +6,7 @@ from pipeline.training.model_archs import _modelArchRegistry
 from pipeline.dataclasses.enums import AugmentationType, FilterType, ModelType
 
 class AugmentationBuilder:
+    """Builds model-size-aware Albumentations transforms for RGB and filtered feature inputs."""
 
     @staticmethod
     def build(filter_type: FilterType, model_type: ModelType, augmentation_types: list[AugmentationType], seed: int | None = None) -> A.Compose:
@@ -14,6 +15,7 @@ class AugmentationBuilder:
 
         Args:
             filter_type (FilterType): The type of filter to apply (only relevant for certain augmentations).
+            model_type (ModelType): The model architecture, used to determine the target image size.
             augmentation_types (list[AugmentationType]): A list of augmentation types to apply.
             seed (int | None): The seed for reproducibility.
         Returns:
