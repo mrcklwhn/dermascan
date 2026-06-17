@@ -37,12 +37,12 @@ class CaptureController extends GetxController {
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         uiSettings: <PlatformUiSettings>[
           AndroidUiSettings(
-            toolbarTitle: 'Crop Lesion',
+            toolbarTitle: 'Crop Lesion'.tr,
             initAspectRatio: CropAspectRatioPreset.square,
             hideBottomControls: true,
           ),
           IOSUiSettings(
-            title: 'Crop Lesion',
+            title: 'Crop Lesion'.tr,
             aspectRatioLockEnabled: true,
             resetAspectRatioEnabled: false,
             aspectRatioPickerButtonHidden: true,
@@ -63,9 +63,10 @@ class CaptureController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'No Practice Assigned',
+              title: 'No Practice Assigned'.tr,
               message:
-                  'You must be assigned to a practice to create a diagnosis.',
+                  'You must be assigned to a practice to execute this operation.'
+                      .tr,
             ),
           );
         }
@@ -88,9 +89,10 @@ class CaptureController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Upload Failed',
+              title: 'Upload Failed'.tr,
               message:
-                  'Could not upload your Image. Please check your connection and try again.',
+                  'Could not upload your Image. Please check your connection and try again.'
+                      .tr,
             ),
           );
         }
@@ -109,8 +111,8 @@ class CaptureController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Image Error',
-            message: 'Could not select image. Please try again later.',
+            title: 'Image Error'.tr,
+            message: 'Could not select image. Please try again later.'.tr,
           ),
         );
       }
@@ -173,13 +175,13 @@ class CustomCaptureSheet extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.camera_enhance,
-              label: 'Capture',
+              label: 'Capture'.tr,
               onPressed: () => controller.selectImage(ImageSource.camera),
             ),
             _buildActionButton(
               context: context,
               icon: Icons.photo_library,
-              label: 'Select',
+              label: 'Select'.tr,
               onPressed: () => controller.selectImage(ImageSource.gallery),
             ),
           ],

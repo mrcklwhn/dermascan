@@ -90,9 +90,8 @@ class PracticeRegisterController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Information Missing',
-            message:
-                'Please fill in all required fields to create your account.',
+            title: 'Missing Information'.tr,
+            message: 'Please fill in all required fields.'.tr,
           ),
         );
       }
@@ -104,8 +103,8 @@ class PracticeRegisterController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Invalid E-Mail',
-            message: 'Your e-mail is not formatted correctly.',
+            title: 'Invalid E-Mail'.tr,
+            message: 'Your e-mail is not formatted correctly.'.tr,
           ),
         );
       }
@@ -122,9 +121,10 @@ class PracticeRegisterController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Password Insecure',
+            title: 'Password Insecure'.tr,
             message:
-                'Your password does not meet the security requirements or the passwords do not match.',
+                'Your password does not meet the security requirements or the passwords do not match.'
+                    .tr,
           ),
         );
       }
@@ -144,9 +144,10 @@ class PracticeRegisterController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Registration Failed',
+              title: 'Registration Failed'.tr,
               message:
-                  'Could not create account. The email might already be in use or the connection failed.',
+                  'Could not create account. The email might already be in use or the connection failed.'
+                      .tr,
             ),
           );
         }
@@ -162,9 +163,10 @@ class PracticeRegisterController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Register Successful',
+              title: 'Register Successful'.tr,
               message:
-                  'Your Registration was successful. Yor account was created and you are now logged in.',
+                  'Your Registration was successful. Yor account was created and you are now logged in.'
+                      .tr,
             ),
           );
         }
@@ -174,9 +176,10 @@ class PracticeRegisterController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Profile Creation Error',
+              title: 'Profile Creation Error'.tr,
               message:
-                  "Your account was created, but we couldn't set up the practice profile. Please contact support.",
+                  "Your account was created, but we couldn't set up the practice profile. Please contact support."
+                      .tr,
             ),
           );
         }

@@ -78,8 +78,8 @@ class EditLesionController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information',
-            message: 'Please fill in all required fields to update a lesion.',
+            title: 'Missing Information'.tr,
+            message: 'Please fill in all required fields.'.tr,
           ),
         );
       }
@@ -93,8 +93,8 @@ class EditLesionController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error',
-            message: 'You are not signed in correctly. Please log in again.',
+            title: 'Authentication Error'.tr,
+            message: 'You are not signed in correctly. Please log in again.'.tr,
           ),
         );
       }
@@ -126,8 +126,8 @@ class EditLesionController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Updated Lesion',
-              message: 'The Lesion has been successfully updated.',
+              title: 'Updated Lesion'.tr,
+              message: 'The Lesion has been successfully updated.'.tr,
             ),
           );
         }
@@ -136,8 +136,8 @@ class EditLesionController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Updating Lesion',
-              message: 'The Lesion could not be updated.',
+              title: 'Error Updating Lesion'.tr,
+              message: 'The Lesion could not be updated.'.tr,
             ),
           );
         }
@@ -152,12 +152,12 @@ class EditLesionController extends GetxController {
 
     await CustomDialogHelper.show(
       routeName: 'delete-lesion-dialog',
-      title: 'Delete Lesion?',
+      title: 'Delete Lesion?'.tr,
       subtitle:
-          'You are about to delete this lesion. '
-          'All associated diagnoses must be deleted first.',
+          'You are about to delete this lesion. All associated diagnoses must be deleted first.'
+              .tr,
       isDismissable: true,
-      submitText: 'Delete',
+      submitText: 'Delete'.tr,
       onSubmit: isLoading.value
           ? null
           : (_) async {
@@ -178,8 +178,8 @@ class EditLesionController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error',
-            message: 'You are not signed in correctly. Please log in again.',
+            title: 'Authentication Error'.tr,
+            message: 'You are not signed in correctly. Please log in again.'.tr,
           ),
         );
       }
@@ -212,8 +212,8 @@ class EditLesionController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Lesion Deleted',
-              message: 'The Lesion has been deleted.',
+              title: 'Lesion Deleted'.tr,
+              message: 'The Lesion has been deleted.'.tr,
             ),
           );
         }
@@ -222,9 +222,10 @@ class EditLesionController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Deleting Lesion',
+              title: 'Error Deleting Lesion'.tr,
               message:
-                  'The lesion could not be deleted. There may be diagnoses linked to it.',
+                  'The lesion could not be deleted. There may be diagnoses linked to it.'
+                      .tr,
             ),
           );
         }

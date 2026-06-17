@@ -69,8 +69,8 @@ class DoctorDetailsController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error',
-            message: 'You are not signed in correctly. Please log in again.',
+            title: 'Authentication Error'.tr,
+            message: 'You are not signed in correctly. Please log in again.'.tr,
           ),
         );
       }
@@ -96,8 +96,9 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Invitation Sent',
-              message: "An invitation has been sent to '${doctor.name}'!",
+              title: 'Invitation Sent'.tr,
+              message:
+                  "${'An invitation has been sent to'.tr} '${doctor.name}'!",
             ),
           );
         }
@@ -106,9 +107,9 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Invitation Sent Error',
+              title: 'Invitation Sent Error'.tr,
               message:
-                  "An error occurred while inviting '${doctor.name}' to your practice. They may already have been invited.",
+                  'An error occurred. They may already have been invited.'.tr,
             ),
           );
         }
@@ -124,15 +125,14 @@ class DoctorDetailsController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'invite-doctor-dialog',
 
-      title: 'Invite Doctor?',
+      title: 'Invite Doctor?'.tr,
 
       subtitle:
-          "You are about to invite '${doctor.name}' to your practice. "
-          'This allows access to all the practice data.',
+          "'${doctor.name}' ${'will be invited to your practice. This allows him access to all the practice data.'.tr}",
 
       isDismissable: true,
 
-      submitText: 'Invite',
+      submitText: 'Invite'.tr,
 
       onSubmit: isLoading.value || isInitializing.value || invitationSent.value
           ? null
@@ -154,8 +154,8 @@ class DoctorDetailsController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error',
-            message: 'You are not signed in correctly. Please log in again.',
+            title: 'Authentication Error'.tr,
+            message: 'You are not signed in correctly. Please log in again.'.tr,
           ),
         );
       }
@@ -181,9 +181,8 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Invitation Revoked',
-              message:
-                  "The invitation for '${doctor.name}' has been successfully revoked!",
+              title: 'Invitation Revoked'.tr,
+              message: 'The invitation has been successfully revoked!'.tr,
             ),
           );
         }
@@ -192,9 +191,10 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Revoking Invitation Failed',
+              title: 'Revoking Invitation Failed'.tr,
               message:
-                  "An error occurred while revoking the invitation for '${doctor.name}'. It may have already been revoked.",
+                  'An error occurred while revoking the invitation. It may have already been revoked.'
+                      .tr,
             ),
           );
         }
@@ -212,13 +212,14 @@ class DoctorDetailsController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'revoke-invitation-dialog',
 
-      title: 'Revoke Invitation?',
+      title: 'Revoke Invitation?'.tr,
 
-      subtitle: "You are about to revoke your invitation for '${doctor.name}'.",
+      subtitle:
+          "${'You are about to revoke your invitation to'.tr} '${doctor.name}'.",
 
       isDismissable: true,
 
-      submitText: 'Revoke',
+      submitText: 'Revoke'.tr,
 
       onSubmit: isLoading.value || isInitializing.value || !invitationSent.value
           ? null
@@ -242,8 +243,8 @@ class DoctorDetailsController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error',
-            message: 'You are not signed in correctly. Please log in again.',
+            title: 'Authentication Error'.tr,
+            message: 'You are not signed in correctly. Please log in again.'.tr,
           ),
         );
       }
@@ -264,9 +265,9 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Removed Doctor',
+              title: 'Removed Doctor'.tr,
               message:
-                  "'${doctor.name}' has been successfully removed from your practice!",
+                  "'${doctor.name}' ${'has been successfully removed from your practice!'.tr}",
             ),
           );
         }
@@ -275,9 +276,9 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Removing Doctor Failed',
+              title: 'Removing Doctor Failed'.tr,
               message:
-                  "An error occurred while removing '${doctor.name}' from your practice. They may have already been removed.",
+                  'An error occurred. They may have already been removed.'.tr,
             ),
           );
         }
@@ -297,16 +298,14 @@ class DoctorDetailsController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'remove-doctor-dialog',
 
-      title: 'Remove Doctor?',
+      title: 'Remove Doctor?'.tr,
 
       subtitle:
-          "You are about to remove '${doctor.name}' from your practice. "
-          'This removes access to any shared data with it. '
-          'Do you want to continue?',
+          "'${doctor.name}' ${'will from your practice. This removes access to any shared data with it. Do you want to continue?'.tr}",
 
       isDismissable: true,
 
-      submitText: 'Remove',
+      submitText: 'Remove'.tr,
 
       onSubmit:
           isLoading.value ||

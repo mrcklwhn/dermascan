@@ -22,6 +22,8 @@ nav:
   - Machine Learning: ./ml/README.md
   - ABC Algorithmen: ./ml/abc_algorithms.md
   - Multibranch Architektur: ./ml/multibranch_architecture.md
+  - Pipeline Quickstart: ./ml/pipeline/pipeline_getting_started.md
+  - Pipeline: ./ml/pipeline/pipeline_documentation.md
   - Modell Export: ./ml/onnx_export.md
   - Läsionsmasken: ./ml/lesion_cutout.md
 

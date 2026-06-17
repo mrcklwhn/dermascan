@@ -2,10 +2,12 @@ from pathlib import Path
 import shutil
 from tempfile import TemporaryDirectory
 import torch
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import numpy as np
 from sklearn.metrics import f1_score
 from tqdm.auto import tqdm
+import sys
 
 from pipeline.dataclasses.pipeline_config import TrainerConfig, OptimizerConfig, SchedulerConfig
 from pipeline.dataclasses.pipeline_runtime import EvalResult, TrainingHistory
@@ -20,18 +22,23 @@ class Trainer:
     It handles:
     - Training the model for a specified number of epochs.
     - Validating the model on a validation dataset.
-    - Saving the best model based on validation accuracy.
+    - Saving the best model based on validation F1 macro score.
     - Testing the model on a test dataset and returning evaluation results.
     - Building the optimizer and scheduler based on the provided configurations.
+    - Building the loss criterion, optionally applying class weights.
+    - Preparing model outputs and labels for loss calculation, handling special output types like InceptionOutputs.
     """
 
     def __init__(self, model: torch.nn.Module, trainer_config: TrainerConfig, device: torch.device, save_path: Path):
+        """Initializes the Trainer with the given model, training configuration, device, and save path."""
         self.model = model
         self.trainer_config = trainer_config
         self.loss_type = trainer_config.loss_type
 
         self.device = device
         self.model = self.model.to(self.device)
+        # only Linux
+        # self.model = torch.compile(self.model)
 
         self.criterion = self._build_criterion(trainer_config.class_weights, trainer_config.pos_weight)
         self.optimizer = self._build_optimizer(trainer_config.optimizer)
@@ -41,7 +48,7 @@ class Trainer:
     def train(self, train_loader: DataLoader, val_loader: DataLoader) -> TrainingHistory:
         """
         Trains the model for a specified number of epochs, validating after each epoch.
-        Saves the best model based on validation accuracy.
+        Saves the best model based on validation F1 macro score.
 
         Args:
             train_loader (DataLoader): DataLoader for the training dataset.
@@ -63,18 +70,19 @@ class Trainer:
         with TemporaryDirectory() as temp_dir:
             temp_best_model_path = Path(temp_dir) / "best_model.pt"
 
-            epoch_bar = tqdm(range(epochs), desc="Epochs", leave=True)
+            epoch_bar = tqdm(range(epochs), desc="Epochs", leave=True, file=sys.stdout)
             for epoch in epoch_bar:
                 epoch_train_loss, epoch_train_acc = self._train_epoch(train_loader)
                 epoch_val_loss, epoch_val_acc, epoch_val_f1 = self._validate_epoch(val_loader)
 
                 val_f1_macro.append(epoch_val_f1)
 
-                #tqdm.write(
-                #    f"Epoch {epoch + 1}/{epochs} - "
-                #    f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.4f} - "
-                #    f"Val Loss: {epoch_val_loss:.4f}, Val Acc: {epoch_val_acc:.4f}, Val F1 Macro: {epoch_val_f1:.4f}"
-                #)
+                epoch_bar.set_postfix({
+                    "val_f1": f"{epoch_val_f1:.3f}",
+                    "best_f1": f"{best_f1_macro:.3f}",
+                    "best_ep": best_epoch,
+                    "lr": f"{self.optimizer.param_groups[0]['lr']:.1e}"
+                })
                 
                 MLFlowLogger.log_epoch(epoch_train_loss,
                                        epoch_train_acc,
@@ -129,16 +137,18 @@ class Trainer:
         running_loss = 0.0
         running_corrects = 0
 
-        for inputs, labels in tqdm(train_loader, desc="Training", leave=False):
+        for inputs, labels in tqdm(train_loader, desc="Training", leave=False, file=sys.stdout):
             inputs = inputs.to(self.device, non_blocking=True)
             labels = labels.to(self.device, non_blocking=True)
 
             self.optimizer.zero_grad()
 
             outputs = self.model(inputs)
-            loss_inputs, loss_labels, preds = self._prepare_outputs_labels_preds(outputs, labels)
+            loss_inputs, loss_labels, probs = self._prepare_outputs_labels_preds(outputs, labels)
+            preds = (probs >= 0.5).long()
             loss = self.criterion(loss_inputs, loss_labels)
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
             self.optimizer.step()
 
             running_loss += loss.item() * inputs.size(0)
@@ -167,22 +177,24 @@ class Trainer:
         running_loss = 0.0
         running_corrects = 0
 
-        all_preds = []
+        all_probs = []
         all_labels = []
 
         with torch.inference_mode():
-            for inputs, labels in val_loader:
+            for inputs, labels in tqdm(val_loader, desc="Validation", leave=False, file=sys.stdout):
                 inputs = inputs.to(self.device, non_blocking=True)
                 labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
-                loss_inputs, loss_labels, preds = self._prepare_outputs_labels_preds(outputs, labels)
+                loss_inputs, loss_labels, probs = self._prepare_outputs_labels_preds(outputs, labels)
                 loss = self.criterion(loss_inputs, loss_labels)
+
+                preds = (probs >= 0.5).long()
 
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data).item()
 
-                all_preds.append(preds.cpu().numpy())
+                all_probs.append(preds.cpu().numpy())
                 all_labels.append(labels.cpu().numpy())
                             
                 del inputs, labels, outputs, preds, loss
@@ -190,20 +202,22 @@ class Trainer:
         n = len(val_loader.dataset)
         epoch_loss = running_loss / n
         epoch_acc = running_corrects / n
-        f1 = f1_score(np.concatenate(all_labels), np.concatenate(all_preds), average="macro", zero_division=0)
+        f1 = f1_score(np.concatenate(all_labels), np.concatenate(all_probs), average="macro", zero_division=0)
 
         torch.cuda.empty_cache()
 
         return epoch_loss, epoch_acc, f1
 
-    def test(self, test_loader: DataLoader) -> tuple[EvalResult, torch.nn.Module]:
+    def test(self, test_loader: DataLoader, threshold: float = 0.5) -> tuple[EvalResult, torch.nn.Module]:
         """
         Tests the model on the test dataset.
 
         Args:
             test_loader (DataLoader): DataLoader for the test dataset.
+            threshold (float): Threshold for converting predicted probabilities to binary predictions. Defaults to 0.5.
         Returns:
             EvalResult: Evaluation results containing true labels, predicted labels, and predicted probabilities.
+            torch.nn.Module: The model with the best weights loaded.
         """
         self.model.load_state_dict(torch.load(self.model_save_path, weights_only=True, map_location=self.device))
         self.model.eval()
@@ -218,12 +232,10 @@ class Trainer:
                 labels = labels.to(self.device, non_blocking=True)
 
                 outputs = self.model(inputs)
-                if self.loss_type == LossType.BCE_WITH_LOGITS:
-                    probs = torch.sigmoid(outputs.squeeze(-1))
-                    preds = (probs >= 0.5).long()
-                else:
-                    probs = torch.softmax(outputs, dim=1)
-                    _, preds = torch.max(probs, dim=1)
+
+                _, _, probs = self._prepare_outputs_labels_preds(outputs, labels)
+
+                preds = (probs >= threshold).long()
 
                 all_preds.append(preds.cpu())
                 all_labels.append(labels.cpu())
@@ -303,11 +315,11 @@ class Trainer:
 
     def _build_criterion(self, weights=None, pos_weight: float = 1.0) -> torch.nn.Module:
         """
-        Builds the loss function criterion, optionally applying class weights.
+        Builds the loss criterion based on the configured loss type.
 
         Args:
-            weights (list or torch.Tensor): Class weights for the loss function.
-            pos_weight (float): Positive class weight for BCE loss.
+            weights (list or torch.Tensor): Class weights for CrossEntropyLoss.
+            pos_weight (float): Positive class weight for BCEWithLogitsLoss.
         Returns:
             torch.nn.Module: Loss criterion with or without class weights.
         """
@@ -327,8 +339,13 @@ class Trainer:
         labels: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
-        Prepare outputs and labels for the configured loss.
-        Handles special output types like InceptionOutputs by extracting logits.
+        Prepares model outputs and labels for loss calculation, handling special output types like InceptionOutputs.
+
+        Args:
+            outputs (torch.Tensor): The raw outputs from the model's forward pass.
+            labels (torch.Tensor): The true labels corresponding to the inputs.
+        Returns:
+            tuple[torch.Tensor, torch.Tensor, torch.Tensor]: Prepared loss inputs, loss labels, and predicted probabilities.
         """
         # Extract logits from special output types (e.g., InceptionOutputs)
         if hasattr(outputs, 'logits'):
@@ -337,8 +354,11 @@ class Trainer:
         if self.loss_type == LossType.BCE_WITH_LOGITS:
             loss_inputs = outputs.squeeze(-1)
             loss_labels = labels.float()
-            preds = (torch.sigmoid(loss_inputs) >= 0.5).long()
-            return loss_inputs, loss_labels, preds
+            probs = torch.sigmoid(loss_inputs)
+            return loss_inputs, loss_labels, probs
 
-        _, preds = torch.max(outputs, 1)
-        return outputs, labels.long(), preds
+        loss_inputs = outputs
+        loss_labels = labels.long()
+
+        probs = F.softmax(outputs, dim=1)[:, 1]
+        return loss_inputs, loss_labels, probs

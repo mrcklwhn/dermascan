@@ -13,16 +13,16 @@ class DoctorHomeScreen extends GetView<DoctorHomeController> {
           onDestinationSelected: (int index) =>
               controller.currentScreenIndex.value = index,
           selectedIndex: controller.currentScreenIndex.value,
-          destinations: const <NavigationDestination>[
+          destinations: <NavigationDestination>[
             NavigationDestination(
-              icon: Icon(Icons.group_outlined),
-              selectedIcon: Icon(Icons.group),
-              label: 'Patients',
+              icon: const Icon(Icons.group_outlined),
+              selectedIcon: const Icon(Icons.group),
+              label: 'Patients'.tr,
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Profile',
+              icon: const Icon(Icons.person_outline),
+              selectedIcon: const Icon(Icons.person),
+              label: 'Profile'.tr,
             ),
           ],
         ),
