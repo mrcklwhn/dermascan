@@ -148,8 +148,9 @@ class EditPatientController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: 'Missing Information',
+            message:
+                'Please fill in all required fields to update a patient profile.',
           ),
         );
       }
@@ -163,8 +164,8 @@ class EditPatientController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
           ),
         );
       }
@@ -182,10 +183,9 @@ class EditPatientController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'No Practice Assigned'.tr,
+              title: 'No Practice Assigned',
               message:
-                  'You must be assigned to a practice to execute this operation.'
-                      .tr,
+                  'You must be assigned to a practice to update patient profiles.',
             ),
           );
         }
@@ -218,8 +218,8 @@ class EditPatientController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Patient Updated'.tr,
-              message: 'The profile was successfully updated.'.tr,
+              title: 'Patient Updated',
+              message: 'The profile was successfully updated.',
             ),
           );
         }
@@ -228,10 +228,9 @@ class EditPatientController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Patient Update Failed'.tr,
+              title: 'Patient Update Failed',
               message:
-                  'The profile could not be updated. Please check the data or try again later.'
-                      .tr,
+                  'The profile could not be updated. Please check the data or try again later.',
             ),
           );
         }

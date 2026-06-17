@@ -13,7 +13,7 @@ class PatientsScreen extends GetView<PatientsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Patients'.tr),
+        title: const Text('Patients'),
         actions: <Widget>[
           Obx(
             () => IconButton(
@@ -21,7 +21,7 @@ class PatientsScreen extends GetView<PatientsController> {
                   ? null
                   : controller.openAddNewPatientScreen,
               icon: const Icon(Icons.person_add),
-              tooltip: 'Add Patient'.tr,
+              tooltip: 'Add Patient',
             ),
           ),
         ],
@@ -53,14 +53,13 @@ class PatientsScreen extends GetView<PatientsController> {
           const CustomIcon(iconData: Icons.person_add),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No Patients available'.tr,
+            'No Patients available',
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Your practice currently has no patients.\nTo add new patients press the button below.'
-                .tr,
+            'Your practice currently has no patients.\nTo add new patients press the button below.',
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -70,7 +69,7 @@ class PatientsScreen extends GetView<PatientsController> {
             onPressed: controller.isInitializing.value
                 ? null
                 : controller.openAddNewPatientScreen,
-            label: Text('Add Patient'.tr),
+            label: const Text('Add Patient'),
           ),
         ],
       ),
@@ -83,7 +82,7 @@ class PatientsScreen extends GetView<PatientsController> {
       child: Column(
         children: <Widget>[
           SearchBar(
-            hintText: 'Search ...'.tr,
+            hintText: 'Search ...',
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             trailing: <Widget>[
@@ -115,7 +114,7 @@ class PatientsScreen extends GetView<PatientsController> {
                           leading: const Icon(Icons.person),
                           trailing: const Icon(Icons.arrow_forward),
                           subtitle: Text(
-                            '${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}',
+                            'Born on ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}',
                           ),
                           onTap: controller.isInitializing.value
                               ? null

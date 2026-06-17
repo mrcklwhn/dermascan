@@ -16,16 +16,16 @@ class PracticeHomeScreen extends StatelessWidget {
           onDestinationSelected: (int index) =>
               practiceHomeController.currentScreenIndex.value = index,
           selectedIndex: practiceHomeController.currentScreenIndex.value,
-          destinations: <NavigationDestination>[
+          destinations: const <NavigationDestination>[
             NavigationDestination(
-              icon: const Icon(Icons.group_outlined),
-              selectedIcon: const Icon(Icons.group),
-              label: 'Doctors'.tr,
+              icon: Icon(Icons.group_outlined),
+              selectedIcon: Icon(Icons.group),
+              label: 'Doctors',
             ),
             NavigationDestination(
-              icon: const Icon(Icons.local_hospital_outlined),
-              selectedIcon: const Icon(Icons.local_hospital),
-              label: 'Profile'.tr,
+              icon: Icon(Icons.local_hospital_outlined),
+              selectedIcon: Icon(Icons.local_hospital),
+              label: 'Profile',
             ),
           ],
         ),

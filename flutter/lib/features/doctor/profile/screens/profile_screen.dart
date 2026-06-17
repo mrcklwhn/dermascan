@@ -41,7 +41,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
         const SizedBox(height: AppTheme.spaceLarge),
 
         Text(
-          'Personal Information'.tr,
+          'Personal Information',
           style: Theme.of(context).textTheme.titleMedium,
         ),
 
@@ -53,7 +53,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
               controller.isInitializing.value || controller.isLoading.value
               ? (_) {}
               : (String value) => controller.submitName(newName: value),
-          labelText: 'Name'.tr,
+          labelText: 'Name',
           prefixIcon: Icons.person,
           textInputType: TextInputType.name,
         ),
@@ -61,16 +61,16 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.calendar_month),
-            title: Text('Date of Birth'.tr),
+            title: const Text('Date of Birth'),
             subtitle: doctor == null
-                ? Text('Not available'.tr)
+                ? const Text('None')
                 : Text(DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)),
           ),
         ),
         const SizedBox(height: AppTheme.spaceMedium),
 
         Text(
-          'Practice Details'.tr,
+          'Practice Details',
           style: Theme.of(context).textTheme.titleMedium,
         ),
 
@@ -79,12 +79,10 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.local_hospital),
-            title: Text('Current Practice'.tr),
+            title: const Text('Current Practice'),
             subtitle: practice == null
-                ? Text('Not available'.tr)
-                : Text(
-                    '${'Name'.tr}: ${practice.name}\n${'E-Mail'.tr}: ${practice.email}',
-                  ),
+                ? const Text('None')
+                : Text('Name: ${practice.name}\nE-Mail: ${practice.email}'),
             trailing: const Icon(Icons.logout),
             onTap: controller.isInitializing.value || controller.isLoading.value
                 ? null
@@ -94,7 +92,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
         const SizedBox(height: AppTheme.spaceMedium),
 
         Text(
-          'Security & Account'.tr,
+          'Security & Account',
           style: Theme.of(context).textTheme.titleMedium,
         ),
 
@@ -102,7 +100,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.mail),
-            title: Text('Change E-Mail'.tr),
+            title: const Text('Change E-Mail'),
             subtitle: Text(_buildEmailText(user)),
             trailing: const Icon(Icons.arrow_forward),
             onTap: controller.isInitializing.value || controller.isLoading.value
@@ -114,7 +112,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.password),
-            title: Text('Change Password'.tr),
+            title: const Text('Change Password'),
             trailing: const Icon(Icons.arrow_forward),
             onTap: controller.isInitializing.value || controller.isLoading.value
                 ? null
@@ -128,22 +126,24 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
               ? null
               : controller.showLogoutDialog,
           icon: const Icon(Icons.logout),
-          label: Text('Logout'.tr),
+          label: const Text('Logout'),
         ),
       ],
     );
   }
 
   String _buildEmailText(User? user) {
-    if (user == null) return 'Not available';
+    if (user == null) return 'None';
 
     final String? email = user.email;
     final String? newEmail = user.newEmail;
 
     if (newEmail == null || newEmail == email) {
-      return '${'Currently'.tr}: $email';
+      return 'Currently: $email';
     }
 
-    return '${'Currently'.tr}: $email\n${'Pending'.tr}: $newEmail\n${'Please verify email and login again'.tr}';
+    return 'Currently: $email\n'
+        'Pending: $newEmail\n'
+        'Please verify email and login again.';
   }
 }

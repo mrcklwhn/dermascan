@@ -12,6 +12,7 @@ class HumanBody3DController extends GetxController {
   final void Function(BodyLesion lesion) onPointAdded;
   final RxList<BodyLesion> lesions;
   final RxnString selectedPosition;
+  final Color suspiciousColor;
   final void Function()? onModelLoaded;
   final Gender gender;
 
@@ -29,6 +30,7 @@ class HumanBody3DController extends GetxController {
     required this.lesions,
     required this.selectedPosition,
     required this.gender,
+    this.suspiciousColor = Colors.red,
     this.onModelLoaded,
   });
 
@@ -83,7 +85,7 @@ class HumanBody3DController extends GetxController {
         if (!viewer) return;
         
         viewer.cameraOrbit = 'unset';
-        viewer.cameraTarget = '0m 0.3m 0m'; 
+        viewer.cameraTarget = 'unset';
         viewer.fieldOfView = 'unset';
         
       })();
@@ -176,7 +178,7 @@ class HumanBody3DController extends GetxController {
     final Color displayColor = wasRemoved
         ? Colors.grey
         : (isSuspicious
-              ? Colors.red
+              ? suspiciousColor
               : (isSelected ? AppTheme.primary : AppTheme.secondary));
 
     final String colorHex =
@@ -286,7 +288,6 @@ class HumanBody3DController extends GetxController {
     }, { passive: false });
 
     viewer.addEventListener('load', () => {
-      viewer.cameraTarget = '0m 0.3m 0m';
       window.FlutterChannel.postMessage(JSON.stringify({ type: 'MODEL_LOADED' }));
     });
 
@@ -312,6 +313,7 @@ class HumanBody3DSelector extends StatelessWidget {
   final void Function(BodyLesion lesion) onPointAdded;
   final RxList<BodyLesion> lesions;
   final RxnString selectedPosition;
+  final Color suspiciousColor;
   final void Function()? onModelLoaded;
   final Gender gender;
 
@@ -320,6 +322,7 @@ class HumanBody3DSelector extends StatelessWidget {
     required this.onPointAdded,
     required this.lesions,
     required this.selectedPosition,
+    this.suspiciousColor = Colors.red,
     this.onModelLoaded,
     required this.gender,
   });
@@ -331,92 +334,51 @@ class HumanBody3DSelector extends StatelessWidget {
         onPointAdded: onPointAdded,
         lesions: lesions,
         selectedPosition: selectedPosition,
+        suspiciousColor: suspiciousColor,
         onModelLoaded: onModelLoaded,
         gender: gender,
       ),
       builder: (HumanBody3DController controller) {
         return Stack(
           children: <Widget>[
-            Positioned.fill(
-              child: WebViewWidget(controller: controller.webViewController),
-            ),
-
-            Obx(
-              () => controller.isModelReady.value
-                  ? const Center()
-                  : const Center(child: CircularProgressIndicator.adaptive()),
-            ),
+            WebViewWidget(controller: controller.webViewController),
 
             Obx(
               () => controller.isModelReady.value
                   ? Positioned(
-                      top: AppTheme.spaceMedium + AppTheme.radiusLarge * 2,
-                      left: AppTheme.spaceMedium,
+                      top: 0,
+                      left: 0,
                       child: Container(
                         padding: const EdgeInsets.all(AppTheme.spaceSmall),
                         decoration: BoxDecoration(
-                          color: AppTheme.highlightColor,
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusMedium,
+                          color: AppTheme.scaffoldBg.withValues(alpha: 0.9),
+                          borderRadius: const BorderRadius.only(
+                            bottomRight: Radius.circular(12),
                           ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            _LegendItem(
-                              color: Colors.red,
-                              label: 'Suspicious'.tr,
-                            ),
-
-                            const SizedBox(height: AppTheme.spaceSmall),
-                            _LegendItem(
-                              color: Colors.grey,
-                              label: 'Excised'.tr,
-                            ),
-
-                            const SizedBox(height: AppTheme.spaceSmall),
-                            _LegendItem(
+                            const _LegendItem(
                               color: AppTheme.secondary,
-                              label: 'Normal'.tr,
+                              label: 'Normal',
+                            ),
+                            const SizedBox(height: AppTheme.spaceSmall),
+                            _LegendItem(
+                              color: suspiciousColor,
+                              label: 'Suspicious',
+                            ),
+                            const SizedBox(height: AppTheme.spaceSmall),
+                            const _LegendItem(
+                              color: AppTheme.primary,
+                              label: 'Excised',
                             ),
                           ],
                         ),
                       ),
                     )
-                  : const Center(),
-            ),
-
-            Obx(
-              () => controller.isModelReady.value
-                  ? Positioned(
-                      top: AppTheme.spaceMedium + AppTheme.radiusLarge * 2,
-                      right: AppTheme.spaceMedium,
-                      child: IconButton(
-                        padding: const EdgeInsets.all(AppTheme.spaceSmall),
-                        constraints: BoxConstraints.tight(
-                          const Size(
-                            AppTheme.radiusLarge * 2,
-                            AppTheme.radiusLarge * 2,
-                          ),
-                        ),
-                        onPressed: controller.resetModelPosition,
-                        icon: const Icon(Icons.gps_fixed),
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all(
-                            AppTheme.highlightColor,
-                          ),
-                          shape: WidgetStateProperty.all(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.radiusLarge,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : const Center(),
+                  : const Center(child: CircularProgressIndicator.adaptive()),
             ),
           ],
         );

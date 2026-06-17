@@ -61,8 +61,9 @@ class ChangeEmailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: 'Information Missing',
+            message:
+                'Please fill in all required fields to change your E-Mail.',
           ),
         );
       }
@@ -74,8 +75,8 @@ class ChangeEmailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Invalid E-Mail'.tr,
-            message: 'Your e-mail is not formatted correctly.'.tr,
+            title: 'Invalid E-Mail',
+            message: 'Your e-mail is not formatted correctly.',
           ),
         );
       }
@@ -87,8 +88,8 @@ class ChangeEmailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Different E-Mails'.tr,
-            message: "Your e-mails don't match. Please check and try again.".tr,
+            title: 'Different E-Mails',
+            message: "Your e-mails don't match. Please check and try again.",
           ),
         );
       }
@@ -100,8 +101,8 @@ class ChangeEmailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
           ),
         );
       }
@@ -120,10 +121,9 @@ class ChangeEmailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Change Failed'.tr,
+              title: 'Change Failed',
               message:
-                  'Could not change E-Mail. The email might already be in use or the connection failed.'
-                      .tr,
+                  'Could not change E-Mail. The email might already be in use or the connection failed.',
             ),
           );
         }
@@ -132,11 +132,12 @@ class ChangeEmailController extends GetxController {
         await CustomDialogHelper.show(
           routeName: 'confirm-email-dialog',
 
-          title: 'Almost there!'.tr,
+          title: 'Almost there!',
 
           subtitle:
-              'We have sent a confirmation link to your new email address. It is highly recommended to log out now, click the link in your email, and then log back in with your new credentials.'
-                  .tr,
+              'We have sent a confirmation link to your new email address. '
+              'It is highly recommended to log out now, click the link in your email, '
+              'and then log back in with your new credentials.',
 
           isDismissable: true,
 

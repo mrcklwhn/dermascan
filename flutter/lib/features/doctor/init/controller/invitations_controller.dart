@@ -105,8 +105,8 @@ class InvitationsController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
           ),
         );
       }
@@ -124,8 +124,8 @@ class InvitationsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Invitation Accepted'.tr,
-              message: "${'You have successfully joined the practice'.tr}.",
+              title: 'Invitation Accepted',
+              message: "You have successfully joined '${practice.name}'.",
             ),
           );
         }
@@ -135,10 +135,9 @@ class InvitationsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Accepting Invitation'.tr,
+              title: 'Error Accepting Invitation',
               message:
-                  'The invitation could not be accepted. You may already be assigned to a practice, or the invitation may be invalid.'
-                      .tr,
+                  "The invitation from '${practice.name}' could not be accepted. You may already be assigned to a practice, or the invitation may be invalid.",
             ),
           );
         }
@@ -158,16 +157,16 @@ class InvitationsController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'accept-practice-invitation-dialog',
 
-      title:
-          '${'Accept invitation of'.tr} ${selectedInvitation.practice.name}?',
+      title: 'Invitation of ${selectedInvitation.practice.name}?',
 
       subtitle:
-          'Accepting this invitation grants you access to the practice data. Please note that your professional data will also be visible to the practice owner.'
-              .tr,
+          'Accepting this invitation grants you access to the practice data. '
+          'Please note that your professional data will also be visible '
+          'to the practice owner.',
 
       isDismissable: true,
 
-      submitText: 'Accept'.tr,
+      submitText: 'Accept',
 
       onSubmit: isLoading.value || isInitializing.value
           ? null

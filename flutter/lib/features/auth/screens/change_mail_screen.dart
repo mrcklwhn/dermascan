@@ -12,7 +12,7 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Change E-Mail'.tr)),
+      appBar: AppBar(title: const Text('Change E-Mail')),
       body: ListView(
         controller: controller.scrollController,
         scrollDirection: Axis.vertical,
@@ -24,12 +24,12 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
             textEditingController: controller.newEmailController,
             focusNode: controller.newEmailFocusNode,
             onSubmitted: (_) => controller.submitNewPassword(),
-            labelText: 'New E-Mail'.tr,
+            labelText: 'New E-Mail',
             prefixIcon: Icons.mail,
             textInputType: TextInputType.emailAddress,
             checkCriteria: <CheckCriteria>[
               CheckCriteria(
-                criteriaName: 'Correctly formatted'.tr,
+                criteriaName: 'Correctly formatted',
                 criteriaState: controller.isValidEmail,
               ),
             ],
@@ -41,12 +41,12 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
             onSubmitted: controller.isLoading.value
                 ? (_) {}
                 : (_) => controller.submitChangedEmail(),
-            labelText: 'Confirm new E-Mail'.tr,
+            labelText: 'Confirm new E-Mail',
             prefixIcon: Icons.mail,
             textInputType: TextInputType.emailAddress,
             checkCriteria: <CheckCriteria>[
               CheckCriteria(
-                criteriaName: 'E-Mails match'.tr,
+                criteriaName: 'E-Mails match',
                 criteriaState: controller.emailsMatch,
               ),
             ],
@@ -57,7 +57,7 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
               onPressed: controller.isLoading.value
                   ? null
                   : controller.submitChangedEmail,
-              child: Text('Submit'.tr),
+              child: const Text('Submit'),
             ),
           ),
         ],

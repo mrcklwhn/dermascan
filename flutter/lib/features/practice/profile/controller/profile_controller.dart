@@ -72,8 +72,8 @@ class PracticeProfileController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
           ),
         );
       }
@@ -103,9 +103,9 @@ class PracticeProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Updated Name'.tr,
+              title: 'Updated Name',
               message:
-                  "${'Your name was successfully changed to'.tr} '${newName.trim()}'.",
+                  "Your name was successfully changed to '${newName.trim()}'.",
             ),
           );
         }
@@ -114,10 +114,9 @@ class PracticeProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Update Name Failed'.tr,
+              title: 'Update Name Failed',
               message:
-                  'Your name could not be changed. Please check the data or try again later.'
-                      .tr,
+                  'Your name could not be changed. Please check the data or try again later.',
             ),
           );
         }
@@ -150,15 +149,14 @@ class PracticeProfileController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'logout-dialog',
 
-      title: 'Logout?'.tr,
+      title: 'Logout?',
 
       subtitle:
-          'You are about to log out of your account. Are you sure you want to proceed?'
-              .tr,
+          'You are about to log out of your account. Are you sure you want to proceed?',
 
       isDismissable: true,
 
-      submitText: 'Logout'.tr,
+      submitText: 'Logout',
 
       onSubmit: (_) async {
         await authService.signOut();

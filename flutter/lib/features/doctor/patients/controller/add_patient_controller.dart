@@ -104,8 +104,9 @@ class AddPatientController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: 'Missing Information',
+            message:
+                'Please fill in all required fields to create a patient profile.',
           ),
         );
       }
@@ -119,8 +120,8 @@ class AddPatientController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
           ),
         );
       }
@@ -138,10 +139,9 @@ class AddPatientController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'No Practice Assigned'.tr,
+              title: 'No Practice Assigned',
               message:
-                  'You must be assigned to a practice to execute this operation.'
-                      .tr,
+                  'You must be assigned to a practice to create new patient profiles.',
             ),
           );
         }
@@ -172,10 +172,9 @@ class AddPatientController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Patient Created'.tr,
+              title: 'Patient Created',
               message:
-                  'The profile was successfully created and added to your Practice.'
-                      .tr,
+                  'The profile was successfully created and added to your Practice.',
             ),
           );
         }
@@ -184,10 +183,9 @@ class AddPatientController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Patient Creation Failed'.tr,
+              title: 'Patient Creation Failed',
               message:
-                  'The profile could not be created. Please check the data or try again later.'
-                      .tr,
+                  'The profile could not be created. Please check the data or try again later.',
             ),
           );
         }

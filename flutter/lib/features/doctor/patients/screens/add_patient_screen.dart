@@ -17,7 +17,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text('New Patient'.tr)),
+      appBar: AppBar(title: const Text('New Patient')),
       body: SafeArea(
         child: ListView(
           controller: controller.scrollController,
@@ -27,7 +27,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
             const CustomIcon(iconData: Icons.person_add),
             const SizedBox(height: AppTheme.spaceLarge),
             Text(
-              'General Information'.tr,
+              'General Information',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppTheme.spaceSmall),
@@ -35,7 +35,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
               textEditingController: controller.nameController,
               focusNode: controller.nameFocusNode,
               onSubmitted: (_) => controller.submittedName(),
-              labelText: 'Full Name'.tr,
+              labelText: 'Full Name',
               prefixIcon: Icons.person,
               textInputType: TextInputType.name,
             ),
@@ -51,7 +51,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                       border: noBorder,
                       enabledBorder: noBorder,
                       focusedBorder: noBorder,
-                      labelText: 'Date of Birth'.tr,
+                      labelText: 'Date of Birth',
                       prefixIcon: const Icon(Icons.calendar_month),
                     ),
                   ),
@@ -65,7 +65,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                       border: noBorder,
                       enabledBorder: noBorder,
                       focusedBorder: noBorder,
-                      labelText: 'Gender'.tr,
+                      labelText: 'Gender',
                       prefixIcon: const Icon(Icons.wc_outlined),
                     ),
                     items: Gender.values.map((Gender g) {
@@ -89,52 +89,52 @@ class AddPatientScreen extends GetView<AddPatientController> {
             const SizedBox(height: AppTheme.spaceMedium),
 
             Text(
-              'Sun & Lifestyle'.tr,
+              'Sun & Lifestyle',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppTheme.spaceSmall),
             _buildToggleCard(
-              title: 'Sunscreen Use'.tr,
-              subtitle: 'Does the patient regularly use sunscreen?'.tr,
+              title: 'Sunscreen Use',
+              subtitle: 'Does the patient regularly use sunscreen?',
               value: controller.sunscreenUse,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
 
             _buildToggleCard(
-              title: 'Sunburn History'.tr,
-              subtitle: 'Has the patient ever had a sunburn?'.tr,
+              title: 'Sunburn History',
+              subtitle: 'Has the patient ever had a sunburn?',
               value: controller.previousSunburns,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
             _buildToggleCard(
-              title: 'Tanning Bed Use'.tr,
-              subtitle: 'Does the patient use tanning beds?'.tr,
+              title: 'Tanning Bed Use',
+              subtitle: 'Does the patient use tanning beds?',
               value: controller.tanningBedExposure,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
 
             Text(
-              'Medical History'.tr,
+              'Medical History',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppTheme.spaceSmall),
 
             _buildToggleCard(
-              title: 'Personal History of Melanoma'.tr,
+              title: 'Personal History of Melanoma',
               value: controller.personalHistoryMelanoma,
-              subtitle: 'Previous personal melanoma diagnosis.'.tr,
+              subtitle: 'Previous personal melanoma diagnosis.',
             ),
             const SizedBox(height: AppTheme.spaceMedium),
             _buildToggleCard(
-              title: 'Family History of Melanoma'.tr,
+              title: 'Family History of Melanoma',
               value: controller.familyHistoryMelanoma,
-              subtitle: 'Melanoma cases in close relatives.'.tr,
+              subtitle: 'Melanoma cases in close relatives.',
             ),
 
             const SizedBox(height: AppTheme.spaceMedium),
             _buildToggleCard(
-              title: 'Skin Surgery'.tr,
-              subtitle: 'Any previous skin-related surgeries?'.tr,
+              title: 'Skin Surgery',
+              subtitle: 'Any previous skin-related surgeries?',
               value: controller.previousSkinSurgeries,
             ),
 
@@ -149,8 +149,8 @@ class AddPatientScreen extends GetView<AddPatientController> {
                         horizontal: AppTheme.spaceMedium,
                       ),
                       child: _buildToggleCard(
-                        title: 'Malignant / Cancerous'.tr,
-                        subtitle: 'Was a cancerous lesion removed?'.tr,
+                        title: 'Malignant / Cancerous',
+                        subtitle: 'Was a cancerous lesion removed?',
                         value: controller.previousCancerSurgeries,
                       ),
                     ),
@@ -162,7 +162,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
             }),
 
             const SizedBox(height: AppTheme.spaceMedium),
-            Text('Location'.tr, style: Theme.of(context).textTheme.titleMedium),
+            Text('Location', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: AppTheme.spaceSmall),
             Row(
               children: <Widget>[
@@ -178,7 +178,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                       border: noBorder,
                       enabledBorder: noBorder,
                       focusedBorder: noBorder,
-                      labelText: 'Country'.tr,
+                      labelText: 'Country',
                       prefixIcon: const Icon(Icons.public),
                     ),
                   ),
@@ -196,7 +196,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                       border: noBorder,
                       enabledBorder: noBorder,
                       focusedBorder: noBorder,
-                      labelText: 'Birth Country'.tr,
+                      labelText: 'Birth Country',
                       prefixIcon: const Icon(Icons.public),
                     ),
                   ),

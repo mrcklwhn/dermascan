@@ -12,7 +12,7 @@ class InvitedDoctorsScreen extends GetView<InvitedDoctorsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Invited Doctors'.tr)),
+      appBar: AppBar(title: const Text('Invited Doctors')),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -40,14 +40,13 @@ class InvitedDoctorsScreen extends GetView<InvitedDoctorsController> {
           const CustomIcon(iconData: Icons.person_add),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No Pending Invitations'.tr,
+            'No Pending Invitations',
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            "There are currently no pending invitations.\nDoctors you have invited who haven't accepted yet will appear here."
-                .tr,
+            "There are currently no pending invitations.\nDoctors you have invited who haven't accepted yet will appear here.",
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -58,7 +57,7 @@ class InvitedDoctorsScreen extends GetView<InvitedDoctorsController> {
               onPressed: controller.isInitializing.value
                   ? null
                   : controller.reloadDoctors,
-              label: Text('Refresh'.tr),
+              label: const Text('Refresh'),
             ),
           ),
         ],
@@ -72,7 +71,7 @@ class InvitedDoctorsScreen extends GetView<InvitedDoctorsController> {
       child: Column(
         children: <Widget>[
           SearchBar(
-            hintText: 'Search ...'.tr,
+            hintText: 'Search ...',
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             trailing: <Widget>[
@@ -102,7 +101,7 @@ class InvitedDoctorsScreen extends GetView<InvitedDoctorsController> {
                           leading: const Icon(Icons.person),
                           trailing: const Icon(Icons.arrow_forward),
                           subtitle: Text(
-                            '${'E-Mail'.tr}: ${doctor.email}\n${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
+                            'E-Mail: ${doctor.email}\nBorn on ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
                           ),
                           onTap: controller.isInitializing.value
                               ? null

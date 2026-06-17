@@ -12,7 +12,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Profile'.tr)),
+      appBar: AppBar(title: const Text('Profile')),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -36,7 +36,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
         const SizedBox(height: AppTheme.spaceLarge),
 
         Text(
-          'Practice Information'.tr,
+          'Practice Information',
           style: Theme.of(context).textTheme.titleMedium,
         ),
 
@@ -48,14 +48,14 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
               controller.isInitializing.value || controller.isLoading.value
               ? (_) {}
               : (String value) => controller.submitName(newName: value),
-          labelText: 'Name'.tr,
+          labelText: 'Name',
           prefixIcon: Icons.local_hospital,
           textInputType: TextInputType.name,
         ),
         const SizedBox(height: AppTheme.spaceMedium),
 
         Text(
-          'Security & Account'.tr,
+          'Security & Account',
           style: Theme.of(context).textTheme.titleMedium,
         ),
 
@@ -63,7 +63,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.mail),
-            title: Text('Change E-Mail'.tr),
+            title: const Text('Change E-Mail'),
             subtitle: Text(_buildEmailText(user)),
             trailing: const Icon(Icons.arrow_forward),
             onTap: controller.isInitializing.value || controller.isLoading.value
@@ -75,7 +75,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.password),
-            title: Text('Change Password'.tr),
+            title: const Text('Change Password'),
             trailing: const Icon(Icons.arrow_forward),
             onTap: controller.isInitializing.value || controller.isLoading.value
                 ? null
@@ -89,22 +89,24 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
               ? null
               : controller.showLogoutDialog,
           icon: const Icon(Icons.logout),
-          label: Text('Logout'.tr),
+          label: const Text('Logout'),
         ),
       ],
     );
   }
 
   String _buildEmailText(User? user) {
-    if (user == null) return 'Not available';
+    if (user == null) return 'None';
 
     final String? email = user.email;
     final String? newEmail = user.newEmail;
 
     if (newEmail == null || newEmail == email) {
-      return '${'Currently'.tr}: $email';
+      return 'Currently: $email';
     }
 
-    return '${'Currently'.tr}: $email\n${'Pending'.tr}: $newEmail\n${'Please verify email and login again'.tr}';
+    return 'Currently: $email\n'
+        'Pending: $newEmail\n'
+        'Please verify email and login again.';
   }
 }

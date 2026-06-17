@@ -75,8 +75,8 @@ class DiagnosisDetailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Notes Updated'.tr,
-              message: 'The diagnosis notes have been successfully saved.'.tr,
+              title: 'Notes Updated',
+              message: 'The diagnosis notes have been successfully saved.',
             ),
           );
         }
@@ -85,8 +85,8 @@ class DiagnosisDetailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Saving Notes'.tr,
-              message: 'The updates could not be saved. Please try again.'.tr,
+              title: 'Error Saving Notes',
+              message: 'The updates could not be saved. Please try again.',
             ),
           );
         }
@@ -106,8 +106,8 @@ class DiagnosisDetailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
           ),
         );
       }
@@ -128,8 +128,8 @@ class DiagnosisDetailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Diagnosis Deleted'.tr,
-              message: 'The Diagnosis and its image have been deleted.'.tr,
+              title: 'Diagnosis Deleted',
+              message: 'The Diagnosis and its image have been deleted.',
             ),
           );
         }
@@ -142,8 +142,8 @@ class DiagnosisDetailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Deleting Diagnosis'.tr,
-              message: 'The Diagnosis could not be deleted.'.tr,
+              title: 'Error Deleting Diagnosis',
+              message: 'The Diagnosis could not be deleted.',
             ),
           );
         }
@@ -158,12 +158,11 @@ class DiagnosisDetailController extends GetxController {
 
     await CustomDialogHelper.show(
       routeName: 'delete-diagnosis-dialog',
-      title: 'Delete Diagnosis?'.tr,
+      title: 'Delete Diagnosis?',
       subtitle:
-          'You are about to delete this diagnosis. This will delete all information including the images. Do you want to continue?'
-              .tr,
+          'You are about to delete this diagnosis. This will delete all information including the images. Do you want to continue?',
       isDismissable: !isLoading.value,
-      submitText: 'Delete'.tr,
+      submitText: 'Delete',
       onSubmit: isLoading.value
           ? null
           : (_) async {
@@ -222,18 +221,18 @@ class CustomDiagnosisSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      '${'Diagnosis'.tr} ${mainController.lesion.diagnoses.length - mainController.currentPage.value + 1}',
+                      'Diagnosis ${(mainController.lesion.diagnoses.length - mainController.currentPage.value) + 1}',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: AppTheme.spaceSmall),
                     Text(
-                      '${'Date'.tr}: ${DateFormat.yMMMd().format(diagnosis.date)}',
+                      'Date: ${DateFormat.yMMMd().format(diagnosis.date)}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     Text(
-                      '${'Doctor'.tr}: ${diagnosis.doctorName!}',
+                      'Doctor: ${diagnosis.doctorName}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
@@ -244,13 +243,13 @@ class CustomDiagnosisSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppTheme.spaceLarge),
-          Text('Prediction'.tr, style: Theme.of(context).textTheme.titleMedium),
+          Text('Prediction', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppTheme.spaceSmall),
           _buildScoreIndicator(
             context,
             title: diagnosis.prediction.name.capitalizeFirst,
-            textLeft: 'Uncertain'.tr,
-            textRight: 'Confident'.tr,
+            textLeft: 'Uncertain',
+            textRight: 'Confident',
             score: diagnosis.confidence,
             color: diagnosis.prediction == LesionType.nevi
                 ? Colors.green
@@ -258,37 +257,34 @@ class CustomDiagnosisSheet extends StatelessWidget {
           ),
 
           const SizedBox(height: AppTheme.spaceMedium),
-          Text(
-            'ABC - Scores'.tr,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('ABC - Scores', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppTheme.spaceSmall),
           _buildScoreIndicator(
             context,
-            title: 'Asymmetry'.tr,
+            title: 'Asymmetry',
             score: diagnosis.aScore,
-            textLeft: 'Symmetric'.tr,
-            textRight: 'Asymmetric'.tr,
+            textLeft: 'Symmetric',
+            textRight: 'Asymmetric',
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           _buildScoreIndicator(
             context,
-            title: 'Border'.tr,
+            title: 'Border',
             score: diagnosis.bScore,
-            textLeft: 'Circular'.tr,
-            textRight: 'Irregular'.tr,
+            textLeft: 'Circular',
+            textRight: 'Irregular',
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           _buildScoreIndicator(
             context,
-            title: 'Color Uniformity'.tr,
+            title: 'Color Uniformity',
             score: diagnosis.cScore,
-            textLeft: 'Uniform'.tr,
-            textRight: 'Variegated'.tr,
+            textLeft: 'Uniform',
+            textRight: 'Variegated',
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Additional Info'.tr,
+            'Additional Info',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
@@ -297,7 +293,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
             focusNode: controller.notesFocusNode,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             onSubmitted: (_) => controller.submittedNotes(),
-            labelText: 'Notes'.tr,
+            labelText: 'Notes',
             prefixIcon: Icons.description,
             textInputType: TextInputType.multiline,
             minLines: 1,
@@ -317,7 +313,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
                     ? null
                     : () => controller.submittedNotes(),
                 icon: const Icon(Icons.save),
-                label: Text('Save'.tr),
+                label: const Text('Save'),
               ),
             );
           }),
@@ -334,7 +330,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
               initiallyExpanded: false,
 
               title: Text(
-                'Analysis Insights'.tr,
+                'Analysis Insights',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               children: <Widget>[
@@ -384,7 +380,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
                 ? null
                 : () => controller.showDeleteDiagnosisDialog(),
             icon: const Icon(Icons.delete),
-            label: Text('Delete'.tr),
+            label: const Text('Delete'),
           ),
         ],
       );

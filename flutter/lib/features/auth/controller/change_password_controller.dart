@@ -69,8 +69,9 @@ class ChangePasswordController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: 'Information Missing',
+            message:
+                'Please fill in all required fields to change your Password.',
           ),
         );
       }
@@ -87,10 +88,9 @@ class ChangePasswordController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Password Insecure'.tr,
+            title: 'Password Insecure',
             message:
-                'Your password does not meet the security requirements or the passwords do not match.'
-                    .tr,
+                'Your password does not meet the security requirements or the passwords do not match.',
           ),
         );
       }
@@ -102,8 +102,8 @@ class ChangePasswordController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            title: 'Authentication Error',
+            message: 'You are not signed in correctly. Please log in again.',
           ),
         );
       }
@@ -122,9 +122,9 @@ class ChangePasswordController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Change Failed'.tr,
+              title: 'Change Failed',
               message:
-                  'Could not change Password. Maybe the connection failed.'.tr,
+                  'Could not change Password. Maybe the connection failed.',
             ),
           );
         }
@@ -133,15 +133,16 @@ class ChangePasswordController extends GetxController {
         await CustomDialogHelper.show(
           routeName: 'password-changed-dialog',
 
-          title: 'Password Changed'.tr,
+          title: 'Password Changed',
 
           subtitle:
-              "It's highly recommended to log out now, click the link in your email, and then log back in with your new credentials."
-                  .tr,
+              "It's highly recommended to log out now, "
+              'click the link in your email, and then log back in '
+              'with your new credentials.',
 
           isDismissable: true,
 
-          submitText: 'Logout'.tr,
+          submitText: 'Logout',
 
           onSubmit: (_) async {
             await authService.signOut();

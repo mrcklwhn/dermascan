@@ -12,7 +12,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Doctor Details'.tr)),
+      appBar: AppBar(title: const Text('Doctor Details')),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -36,7 +36,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
         const SizedBox(height: AppTheme.spaceLarge),
 
         Text(
-          'Personal Information'.tr,
+          'Personal Information',
           style: Theme.of(context).textTheme.titleMedium,
         ),
 
@@ -44,7 +44,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.person),
-            title: Text('Name'.tr),
+            title: const Text('Name'),
             subtitle: Text(doctor.name),
           ),
         ),
@@ -52,22 +52,19 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.calendar_month),
-            title: Text('Date of Birth'.tr),
+            title: const Text('Date of Birth'),
             subtitle: Text(DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)),
           ),
         ),
         const SizedBox(height: AppTheme.spaceMedium),
 
-        Text(
-          'Contact Details'.tr,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Contact Details', style: Theme.of(context).textTheme.titleMedium),
 
         const SizedBox(height: AppTheme.spaceSmall),
         Card(
           child: ListTile(
             leading: const Icon(Icons.mail),
-            title: Text('E-Mail'.tr),
+            title: const Text('E-Mail'),
             subtitle: Text(doctor.email),
           ),
         ),
@@ -83,7 +80,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
                   ? null
                   : controller.showRemoveDialog,
               icon: const Icon(Icons.person_remove),
-              label: Text('Remove Doctor'.tr),
+              label: const Text('Remove Doctor'),
             );
           } else if (controller.invitationSent.value) {
             return OutlinedButton.icon(
@@ -94,7 +91,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
                   ? null
                   : controller.showRevokeDialog,
               icon: const Icon(Icons.clear),
-              label: Text('Revoke Invitation'.tr),
+              label: const Text('Revoke Invitation'),
             );
           } else {
             return OutlinedButton.icon(
@@ -105,7 +102,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
                   ? null
                   : controller.showInviteDialog,
               icon: const Icon(Icons.outgoing_mail),
-              label: Text('Invite Doctor'.tr),
+              label: const Text('Invite Doctor'),
             );
           }
         }),
