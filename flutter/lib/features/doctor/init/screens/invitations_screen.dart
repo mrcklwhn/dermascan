@@ -46,8 +46,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'There are currently no open invitations.\nTo fetch new invitations press the button below.'
-                .tr,
+            'No open invitations.\nPress refresh to check again.'.tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),

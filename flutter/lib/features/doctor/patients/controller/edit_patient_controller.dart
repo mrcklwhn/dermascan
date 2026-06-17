@@ -164,7 +164,7 @@ class EditPatientController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -219,7 +219,7 @@ class EditPatientController extends GetxController {
             CustomSnackBar(
               icon: Icons.check_circle,
               title: 'Patient Updated'.tr,
-              message: 'The profile was successfully updated.'.tr,
+              message: 'Profile successfully updated.'.tr,
             ),
           );
         }
@@ -229,9 +229,7 @@ class EditPatientController extends GetxController {
             CustomSnackBar(
               icon: Icons.error,
               title: 'Patient Update Failed'.tr,
-              message:
-                  'The profile could not be updated. Please check the data or try again later.'
-                      .tr,
+              message: 'Profile update failed. Please check your data.'.tr,
             ),
           );
         }

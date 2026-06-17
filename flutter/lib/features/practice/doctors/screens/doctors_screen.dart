@@ -68,8 +68,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Your practice currently has no other doctors.\nTo invite doctors press the button below.'
-                .tr,
+            'No other doctors in practice.\nPress below to invite.'.tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
