@@ -46,8 +46,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'There are currently no doctors available.\nTo fetch new doctors press the button below.'
-                .tr,
+            'No doctors available.\nPress refresh to check again.'.tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),

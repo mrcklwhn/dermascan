@@ -1,35 +1,22 @@
 const Map<String, String> roRO = <String, String>{
-  // --- HAUPT-STRINGS ---
-  'Crop Lesion': 'Decupare leziune',
-  'No Practice Assigned': 'Niciun cabinet atribuit',
+  'Crop Lesion': 'Decupați leziunea',
+  'No Practice Assigned': 'Niciun cabinet alocat',
   'Upload Failed': 'Încărcare eșuată',
-  'Could not upload your Image. Please check your connection and try again.':
-      'Imaginea nu a putut fi încărcată. Vă rugăm să verificați conexiunea și să încercați din nou.',
   'Image Error': 'Eroare imagine',
   'Could not select image. Please try again later.':
-      'Imaginea nu a putut fi selectată. Vă rugăm să încercați mai târziu.',
-  'Capture': 'Captură',
-  'Select': 'Selectare',
-  'Diagnosis Failed': 'Diagnostic eșuat',
-  'Could not create Diagnosis, you may be not assigned to a practice.':
-      'Diagnosticul nu a putut fi creat, este posibil să nu fiți atribuit unui cabinet.',
-  'Notes Updated': 'Notițe actualizate',
-  'The diagnosis notes have been successfully saved.':
-      'Notițele diagnosticului au fost salvate cu succes.',
-  'Error Saving Notes': 'Eroare la salvarea notițelor',
-  'The updates could not be saved. Please try again.':
-      'Actualizările nu au putut fi salvate. Vă rugăm să încercați din nou.',
+      'Nu s-a putut selecta imaginea. Vă rugăm să încercați mai târziu.',
+  'Capture': 'Fotografiază',
+  'Select': 'Selectează',
+  'Diagnosis Failed': 'Diagnosticare eșuată',
+  'Notes Updated': 'Note actualizate',
+  'Error Saving Notes': 'Eroare la salvarea notelor',
   'Authentication Error': 'Eroare de autentificare',
-  'You are not signed in correctly. Please log in again.':
-      'Nu sunteți conectat corect. Vă rugăm să vă conectați din nou.',
   'Diagnosis Deleted': 'Diagnostic șters',
   'The Diagnosis and its image have been deleted.':
       'Diagnosticul și imaginea sa au fost șterse.',
   'Error Deleting Diagnosis': 'Eroare la ștergerea diagnosticului',
   'The Diagnosis could not be deleted.': 'Diagnosticul nu a putut fi șters.',
   'Delete Diagnosis?': 'Ștergeți diagnosticul?',
-  'You are about to delete this diagnosis. This will delete all information including the images. Do you want to continue?':
-      'Sunteți pe cale să ștergeți acest diagnostic. Aceasta va șterge toate informațiile, inclusiv imaginile. Doriți să continuați?',
   'Delete': 'Șterge',
   'Prediction': 'Predicție',
   'Uncertain': 'Incert',
@@ -43,76 +30,52 @@ const Map<String, String> roRO = <String, String>{
   'Irregular': 'Neregulat',
   'Color Uniformity': 'Uniformitatea culorii',
   'Uniform': 'Uniform',
-  'Variegated': 'Pestriț',
+  'Variegated': 'Neuniform',
   'Additional Info': 'Informații suplimentare',
-  'Notes': 'Notițe',
+  'Notes': 'Note',
   'Save': 'Salvează',
-  'Analysis Insights': 'Analiză și detalii',
+  'Analysis Insights': 'Informații analiză',
   'Lesion Excised': 'Leziune excizată',
-  'This lesion has been excised.\nAll diagnoses are still accessible.':
-      'Această leziune a fost excizată.\nToate diagnosticele sunt încă accesibile.',
-  'Search ...': 'Căutare ...',
-  'Input': 'Intrare',
+  'Search ...': 'Caută ...',
+  'Input': 'Introducere',
   'Dismiss': 'Închide',
   'Suspicious': 'Suspect',
   'Excised': 'Excizat',
   'Normal': 'Normal',
   'Medical History': 'Istoric medical',
-  'Sunburn History': 'Istoric de arsuri solare',
-  'Skin Surgery': 'Intervenții chirurgicale pe piele',
-  'Malignant Skin Surgery': 'Intervenții pentru afecțiuni maligne',
+  'Sunburn History': 'Istoric arsuri solare',
+  'Skin Surgery': 'Intervenție chirurgicală de piele',
+  'Malignant Skin Surgery': 'Operație tumoră malignă de piele',
   'Tanning Bed Use': 'Utilizare solar',
-  'Sunscreen Use': 'Utilizare cremă de protecție',
+  'Sunscreen Use': 'Utilizare protecție solară',
   'Personal Melanoma History': 'Istoric personal de melanom',
   'Family Melanoma History': 'Istoric familial de melanom',
   'Timeline (Latest Diagnoses)': 'Cronologie (Ultimele diagnostice)',
   'No Diagnosis available!': 'Niciun diagnostic disponibil!',
-  'Access Denied': 'Acces interzis',
-  'This account is not registered as a doctor. Please use the practice login instead.':
-      'Acest cont nu este înregistrat ca medic. Vă rugăm să utilizați autentificarea pentru cabinet.',
+  'Access Denied': 'Acces refuzat',
   'Login Successful': 'Autentificare reușită',
-  'You are now logged in.': 'Acum sunteți conectat.',
+  'You are now logged in.': 'V-ați autentificat cu succes.',
   'Login Failed': 'Autentificare eșuată',
-  'Invalid email or password. Please check your credentials and try again.':
-      'E-mail sau parolă invalidă. Vă rugăm să verificați datele și să încercați din nou.',
-  'This account is not registered as a practice. Please use the doctor login instead.':
-      'Acest cont nu este înregistrat ca un cabinet. Vă rugăm să utilizați autentificarea pentru medici.',
-  'Your Login was successful. You are now logged in.':
-      'Autentificarea a fost cu succes. Acum sunteți conectat.',
   'Invalid E-Mail': 'E-mail invalid',
   'Your e-mail is not formatted correctly.':
       'Adresa de e-mail nu este formatată corect.',
   'Password Insecure': 'Parolă nesigură',
-  'Your password does not meet the security requirements or the passwords do not match.':
-      'Parola nu îndeplinește cerințele de securitate sau parolele nu se potrivesc.',
   'Registration Failed': 'Înregistrare eșuată',
-  'Could not create account. The email might already be in use or the connection failed.':
-      'Contul nu a putut fi creat. E-mailul ar putea fi deja în uz sau conexiunea a eșuat.',
   'Register Successful': 'Înregistrare reușită',
-  'Your Registration was successful. Yor account was created and you are now logged in.':
-      'Înregistrarea a fost cu succes. Contul a fost creat și acum sunteți conectat.',
   'Profile Creation Error': 'Eroare la crearea profilului',
-  "Your account was created, but we couldn't set up the practice profile. Please contact support.":
-      'Contul dvs. a fost creat, dar nu am putut configura profilul cabinetului. Vă rugăm să contactați asistența.',
-  'Different E-Mails': 'E-mailuri diferite',
-  "Your e-mails don't match. Please check and try again.":
-      'E-mailurile nu se potrivesc. Vă rugăm să verificați și să încercați din nou.',
+  'Different E-Mails': 'E-mailurile nu se potrivesc',
   'Change Failed': 'Modificare eșuată',
   'Could not change E-Mail. The email might already be in use or the connection failed.':
-      'E-mailul nu a putut fi schimbat. E-mailul ar putea fi deja în uz sau conexiunea a eșuat.',
+      'E-mailul nu a putut fi modificat. Este posibil să fie deja utilizat sau conexiunea a eșuat.',
   'Almost there!': 'Aproape gata!',
-  'We have sent a confirmation link to your new email address. It is highly recommended to log out now, click the link in your email, and then log back in with your new credentials.':
-      'Am trimis un link de confirmare la noua dvs. adresă de e-mail. Este recomandat să vă deconectați acum, să faceți clic pe linkul din e-mail și apoi să vă reconectați cu noile date.',
   'Could not change Password. Maybe the connection failed.':
-      'Parola nu a putut fi schimbată. Poate conexiunea a eșuat.',
-  'Password Changed': 'Parolă schimbată',
-  "It's highly recommended to log out now, click the link in your email, and then log back in with your new credentials.":
-      'Este recomandat să vă deconectați acum, să faceți clic pe linkul din e-mail și apoi să vă reconectați cu noile date.',
+      'Parola nu a putut fi modificată. Este posibil ca conexiunea să fi eșuat.',
+  'Password Changed': 'Parolă modificată',
   'Logout': 'Deconectare',
   'Welcome Back!': 'Bine ați revenit!',
   'Doctor': 'Medic',
   'Practice': 'Cabinet',
-  'Create Account': 'Creare cont',
+  'Create Account': 'Creează cont',
   'Doctor E-Mail': 'E-mail medic',
   'Practice E-Mail': 'E-mail cabinet',
   'Join Dermascan!': 'Alăturați-vă Dermascan!',
@@ -121,7 +84,7 @@ const Map<String, String> roRO = <String, String>{
   'Gender': 'Gen',
   'Correctly formatted': 'Formatat corect',
   'Contains at least 8 characters': 'Conține cel puțin 8 caractere',
-  'Contains an uppercase letter': 'Conține o majusculă',
+  'Contains an uppercase letter': 'Conține o literă mare',
   'Contains a lowercase letter': 'Conține o literă mică',
   'Contains a digit': 'Conține o cifră',
   'Contains special character': 'Conține un caracter special',
@@ -132,186 +95,219 @@ const Map<String, String> roRO = <String, String>{
   'Patients': 'Pacienți',
   'Profile': 'Profil',
   'Logout?': 'Deconectare?',
-  'You are about to log out of your account. Are you sure you want to proceed?':
-      'Sunteți pe cale să vă deconectați de la cont. Sunteți sigur că doriți să continuați?',
   'Invitation Accepted': 'Invitație acceptată',
   'Error Accepting Invitation': 'Eroare la acceptarea invitației',
-  'The invitation could not be accepted. You may already be assigned to a practice, or the invitation may be invalid.':
-      'Invitația nu a putut fi acceptată. S-ar putea să fiți deja atribuit unui cabinet, sau invitația poate fi invalidă.',
-  'Accepting this invitation grants you access to the practice data. Please note that your professional data will also be visible to the practice owner.':
-      'Acceptarea acestei invitații vă acordă acces la datele cabinetului. Vă rugăm să rețineți că datele dvs. profesionale vor fi vizibile și pentru proprietarul cabinetului.',
   'Accept': 'Acceptă',
-  'You are currently not a member of any practice.\nPlease check your inbox for invitations to join a team.':
-      'În prezent, nu sunteți membru al niciunui cabinet.\nVă rugăm să verificați căsuța de e-mail pentru invitații.',
   'Check Invitations': 'Verifică invitațiile',
   'Pending Invitations': 'Invitații în așteptare',
   'No Pending Invitations': 'Nicio invitație în așteptare',
-  'There are currently no open invitations.\nTo fetch new invitations press the button below.':
-      'Nu există invitații deschise în prezent.\nPentru a prelua invitații noi, apăsați butonul de mai jos.',
-  'Refresh': 'Reîmprospătare',
+  'Refresh': 'Reîmprospătează',
   'Updated Name': 'Nume actualizat',
   'Update Name Failed': 'Actualizarea numelui a eșuat',
-  'Your name could not be changed. Please check the data or try again later.':
-      'Numele nu a putut fi schimbat. Vă rugăm să verificați datele sau să încercați mai târziu.',
-  'Practice Left': 'Părăsire cabinet',
-  'You are no longer a member of this practice and your access has been revoked.':
-      'Nu mai sunteți membru al acestui cabinet și accesul v-a fost revocat.',
+  'Practice Left': 'Cabinet părăsit',
   'Error Leaving Practice': 'Eroare la părăsirea cabinetului',
-  'The practice could not be left. You may have already been removed.':
-      'Cabinetul nu a putut fi părăsit. S-ar putea să fiți deja eliminat.',
   'Leave Practice?': 'Părăsiți cabinetul?',
-  'You are about to leave this practice. You will no longer have access to any shared data with it. Do you want to continue?':
-      'Sunteți pe cale să părăsiți acest cabinet. Nu veți mai avea acces la nicio dată partajată. Doriți să continuați?',
   'Leave': 'Părăsește',
   'Personal Information': 'Informații personale',
-  'Not available': 'Indisponibil',
+  'Not available': 'Nu este disponibil',
   'Practice Details': 'Detalii cabinet',
-  'Current Practice': 'Cabinet curent',
-  'Security & Account': 'Securitate și Cont',
+  'Current Practice': 'Cabinetul curent',
+  'Security & Account': 'Securitate și cont',
   'Please verify email and login again.':
-      'Vă rugăm să verificați e-mailul și să vă conectați din nou.',
+      'Vă rugăm să vă verificați e-mailul și să vă autentificați din nou.',
   'Invitation Sent': 'Invitație trimisă',
   'Invitation Sent Error': 'Eroare la trimiterea invitației',
   'An error occurred. They may already have been invited.':
-      'A apărut o eroare. S-ar putea să fi fost deja invitați.',
-  'Invite Doctor?': 'Invitați medic?',
+      'A apărut o eroare. Este posibil ca această persoană să fi fost deja invitată.',
+  'Invite Doctor?': 'Invitați medicul?',
   'Invite': 'Invită',
   'Invitation Revoked': 'Invitație revocată',
   'The invitation has been successfully revoked!':
       'Invitația a fost revocată cu succes!',
   'Revoking Invitation Failed': 'Revocarea invitației a eșuat',
-  'An error occurred while revoking the invitation. It may have already been revoked.':
-      'A apărut o eroare la revocarea invitației. S-ar putea să fi fost deja revocată.',
   'Revoke Invitation?': 'Revocați invitația?',
-  'You are about to revoke your invitation to':
-      'Sunteți pe cale să revocați invitația pentru',
+  'You are about to revoke your invitation.':
+      'Sunteți pe cale să vă revocați invitația.',
   'Revoke': 'Revocă',
   'Removed Doctor': 'Medic eliminat',
   'Removing Doctor Failed': 'Eliminarea medicului a eșuat',
   'An error occurred. They may have already been removed.':
-      'A apărut o eroare. S-ar putea să fi fost deja eliminați.',
+      'A apărut o eroare. Este posibil să fi fost deja eliminat.',
   'Remove Doctor?': 'Eliminați medicul?',
   'Remove': 'Elimină',
   'Available Doctors': 'Medici disponibili',
-  'There are currently no doctors available.\nTo fetch new doctors press the button below.':
-      'Nu există medici disponibili în prezent.\nPentru a prelua medici noi, apăsați butonul de mai jos.',
   'Doctor Details': 'Detalii medic',
   'Contact Details': 'Detalii de contact',
-  'Remove Doctor': 'Elimină medic',
+  'Remove Doctor': 'Elimină medicul',
   'Revoke Invitation': 'Revocă invitația',
-  'Invite Doctor': 'Invită medic',
+  'Invite Doctor': 'Invită medicul',
   'Doctors': 'Medici',
   'Invited Doctors': 'Medici invitați',
   'Invite Doctors': 'Invită medici',
-  'No Doctors Assigned': 'Niciun medic atribuit',
-  'Your practice currently has no other doctors.\nTo invite doctors press the button below.':
-      'Cabinetul dvs. nu are în prezent alți medici.\nPentru a invita medici, apăsați butonul de mai jos.',
-  "There are currently no pending invitations.\nDoctors you have invited who haven't accepted yet will appear here.":
-      'În prezent, nu există invitații în așteptare.\nMedicii pe care i-ați invitat și nu au acceptat încă vor apărea aici.',
-  'Practice Information': 'Informații despre cabinet',
+  'No Doctors Assigned': 'Niciun medic alocat',
+  'Practice Information': 'Informații cabinet',
   'Patient Created': 'Pacient creat',
-  'The profile was successfully created and added to your Practice.':
-      'Profilul a fost creat cu succes și adăugat la cabinetul dvs.',
   'Patient Creation Failed': 'Crearea pacientului a eșuat',
-  'The profile could not be created. Please check the data or try again later.':
-      'Profilul nu a putut fi creat. Vă rugăm să verificați datele sau să încercați mai târziu.',
   'Updated Lesion': 'Leziune actualizată',
   'The Lesion has been successfully updated.':
       'Leziunea a fost actualizată cu succes.',
   'Error Updating Lesion': 'Eroare la actualizarea leziunii',
   'The Lesion could not be updated.': 'Leziunea nu a putut fi actualizată.',
   'Delete Lesion?': 'Ștergeți leziunea?',
-  'You are about to delete this lesion. All associated diagnoses must be deleted first.':
-      'Sunteți pe cale să ștergeți această leziune. Toate diagnosticele asociate trebuie șterse mai întâi.',
   'Lesion Deleted': 'Leziune ștearsă',
   'The Lesion has been deleted.': 'Leziunea a fost ștearsă.',
   'Error Deleting Lesion': 'Eroare la ștergerea leziunii',
-  'The lesion could not be deleted. There may be diagnoses linked to it.':
-      'Leziunea nu a putut fi ștearsă. S-ar putea să existe diagnostice legate de ea.',
   'Patient Updated': 'Pacient actualizat',
-  'The profile was successfully updated.':
-      'Profilul a fost actualizat cu succes.',
   'Patient Update Failed': 'Actualizarea pacientului a eșuat',
-  'The profile could not be updated. Please check the data or try again later.':
-      'Profilul nu a putut fi actualizat. Vă rugăm să verificați datele sau să încercați mai târziu.',
   'Create Lesion': 'Creează leziune',
-  'No lesion found in this area. Would you like to record one now?':
-      'Nu a fost găsită nicio leziune în această zonă. Doriți să înregistrați una acum?',
   'Lesion Name': 'Numele leziunii',
   'Record': 'Înregistrează',
   'New Patient': 'Pacient nou',
   'General Information': 'Informații generale',
-  'Sun & Lifestyle': 'Soare și Stil de viață',
+  'Sun & Lifestyle': 'Soare și stil de viață',
   'Does the patient regularly use sunscreen?':
       'Pacientul folosește regulat cremă de protecție solară?',
   'Has the patient ever had a sunburn?':
-      'Pacientul a avut vreodată arsuri solare?',
-  'Does the patient use tanning beds?': 'Pacientul utilizează solare?',
+      'A avut vreodată pacientul arsuri solare?',
+  'Does the patient use tanning beds?': 'Pacientul folosește solarul?',
   'Personal History of Melanoma': 'Istoric personal de melanom',
-  'Previous personal melanoma diagnosis.': 'Diagnostic anterior de melanom.',
+  'Previous personal melanoma diagnosis.':
+      'Diagnostic anterior de melanom personal.',
   'Family History of Melanoma': 'Istoric familial de melanom',
   'Melanoma cases in close relatives.': 'Cazuri de melanom la rude apropiate.',
   'Any previous skin-related surgeries?':
-      'Există intervenții chirurgicale anterioare pe piele?',
-  'Malignant / Cancerous': 'Malign / Cancerigen',
-  'Was a cancerous lesion removed?': 'A fost eliminată o leziune canceroasă?',
-  'Location': 'Locație',
+      'Are intervenții chirurgicale anterioare la nivelul pielii?',
+  'Malignant / Cancerous': 'Malign / Canceros',
+  'Was a cancerous lesion removed?': 'A fost îndepărtată o leziune canceroasă?',
+  'Location': 'Localizare',
   'Country': 'Țară',
   'Birth Country': 'Țara de naștere',
   'Update': 'Actualizează',
-  'Edit Lesion': 'Editează leziune',
-  'Placement': 'Plasament',
+  'Edit Lesion': 'Editează leziunea',
+  'Placement': 'Localizare',
   'Classification': 'Clasificare',
   'Suspicious Lesion': 'Leziune suspectă',
   'Mark this lesion as suspicious.':
-      'Marcați această leziune ca fiind suspectă.',
-  'Mark this lesion as excised.': 'Marcați această leziune ca fiind excizată.',
+      'Marchează această leziune ca fiind suspectă.',
+  'Mark this lesion as excised.':
+      'Marchează această leziune ca fiind excizată.',
   'Test Result': 'Rezultatul testului',
-  'Edit Patient': 'Editează pacient',
+  'Edit Patient': 'Editează pacientul',
   'Patient Profile': 'Profil pacient',
   'No Lesion selected': 'Nicio leziune selectată',
   'Add Patient': 'Adaugă pacient',
   'No Patients available': 'Niciun pacient disponibil',
-  'Your practice currently has no patients.\nTo add new patients press the button below.':
-      'Cabinetul dvs. nu are în prezent pacienți.\nPentru a adăuga pacienți noi, apăsați butonul de mai jos.',
-
   'Diagnosis': 'Diagnostic',
   'Date': 'Dată',
-  'Birthday': 'Data nașterii',
+  'Birthday': 'Zi de naștere',
   'Currently': 'În prezent',
   'Pending': 'În așteptare',
-  'Invited on': 'Invitat pe',
+  'Invited on': 'Invitat la data de',
   'You have successfully joined the practice':
-      'Te-ai alăturat cu succes cabinetului',
+      'V-ați alăturat cu succes cabinetului',
   'Accept invitation of': 'Acceptă invitația de la',
-  'Your name was successfully changed to':
-      'Numele a fost schimbat cu succes în',
-  'An invitation has been sent to': 'O invitație a fost trimisă către',
-  'will be invited to your practice. This allows him access to all the practice data.':
-      'va fi invitat la cabinetul dvs. Aceasta îi permite accesul la toate datele cabinetului.',
-  'has been successfully removed from your practice!':
-      'a fost eliminat cu succes din cabinetul dvs!',
-  'will from your practice. This removes access to any shared data with it. Do you want to continue?':
-      'va fi eliminat din cabinetul dvs. Acest lucru elimină accesul la orice date partajate. Doriți să continuați?',
+  'Your name was successfully changed.':
+      'Numele dumneavoastră a fost modificat cu succes.',
+  'An invitation has been sent.': 'O invitație a fost trimisă.',
+  'The doctor has been successfully removed from your practice!':
+      'Medicul a fost eliminat cu succes din cabinetul dumneavoastră!',
   'Last Diagnosis': 'Ultimul diagnostic',
-
   'Missing Information': 'Informații lipsă',
   'Please fill in all required fields.':
       'Vă rugăm să completați toate câmpurile obligatorii.',
-
   'You must be assigned to a practice to execute this operation.':
-      'Trebuie să fiți atribuit unui cabinet pentru a efectua această acțiune.',
-
+      'Trebuie să fiți alocat unui cabinet pentru a executa această operațiune.',
   'E-Mail': 'E-mail',
   'New E-Mail': 'E-mail nou',
-  'Confirm new E-Mail': 'Confirmați noul e-mail',
-  'Change E-Mail': 'Schimbă E-mail',
+  'Confirm new E-Mail': 'Confirmă noul e-mail',
+  'Change E-Mail': 'Schimbă e-mailul',
   'Password': 'Parolă',
   'New Password': 'Parolă nouă',
-  'Confirm Password': 'Confirmare parolă',
-  'Confirm new Password': 'Confirmați noua parolă',
-  'Change Password': 'Schimbare parolă',
+  'Confirm Password': 'Confirmă parola',
+  'Confirm new Password': 'Confirmă noua parolă',
+  'Change Password': 'Schimbă parola',
   'Name': 'Nume',
+  'Login': 'Autentificare',
 
-  'Login': 'Conectare',
+  'Image upload failed. Please check your connection.':
+      'Încărcarea imaginii a eșuat. Vă rugăm să vă verificați conexiunea.',
+  'Diagnosis creation failed. Practice assignment required.':
+      'Crearea diagnosticului a eșuat. Este necesară alocarea unui cabinet.',
+  'Diagnosis notes saved successfully.':
+      'Notele diagnosticului au fost salvate cu succes.',
+  'Could not save updates. Please try again.':
+      'Nu s-au putut salva actualizările. Vă rugăm să încercați din nou.',
+  'Authentication error. Please log in again.':
+      'Eroare de autentificare. Vă rugăm să vă autentificați din nou.',
+  'Delete this diagnosis? All associated data and images will be permanently removed.':
+      'Ștergeți acest diagnostic? Toate datele și imaginile asociate vor fi eliminate definitiv.',
+  'Lesion excised.\nDiagnoses remain accessible.':
+      'Leziune excizată.\nDiagnosticele rămân accesibile.',
+  'Not a doctor account. Please use practice login.':
+      'Acesta nu este un cont de medic. Vă rugăm să folosiți autentificarea pentru cabinet.',
+  'Invalid email or password. Please try again.':
+      'E-mail sau parolă invalidă. Vă rugăm să încercați din nou.',
+  'Not a practice account. Please use doctor login.':
+      'Acesta nu este un cont de cabinet. Vă rugăm să folosiți autentificarea pentru medic.',
+  'Your Login was successful. You are now logged in.':
+      'Autentificarea a reușit. Acum sunteți conectat.',
+  'Passwords must match and meet security requirements.':
+      'Parolele trebuie să coincidă și să îndeplinească cerințele de securitate.',
+  'Account creation failed. Email may be in use or connection lost.':
+      'Crearea contului a eșuat. Este posibil ca e-mailul să fie deja folosit sau conexiunea să fi fost pierdută.',
+  'Registration successful. You are now logged in.':
+      'Înregistrare reușită. Acum sunteți conectat.',
+  'Account created, but practice setup failed.':
+      'Contul a fost creat, dar configurarea cabinetului a eșuat.',
+  'E-mails do not match. Please check and try again.':
+      'E-mailurile nu se potrivesc. Vă rugăm să verificați și să încercați din nou.',
+  'Confirmation link sent. Please log out, verify your new email, and log back in.':
+      'Linkul de confirmare a fost trimis. Vă rugăm să vă deconectați, să vă verificați noul e-mail și să vă autentificați din nou.',
+  'Please log out, verify your email via the link, and log back in.':
+      'Vă rugăm să vă deconectați, să vă verificați e-mailul prin intermediul linkului și să vă autentificați din nou.',
+  'Are you sure you want to log out?':
+      'Sunteți sigur că doriți să vă deconectați?',
+  'Acceptance failed. Invitation invalid or you are already assigned.':
+      'Acceptarea a eșuat. Invitația este invalidă sau sunteți deja alocat.',
+  'Accepting grants access to practice data and shares your professional profile with the owner.':
+      'Acceptarea oferă acces la datele cabinetului și partajează profilul dumneavoastră profesional cu proprietarul.',
+  'Not assigned to a practice.\nCheck your inbox for team invitations.':
+      'Nu sunteți alocat unui cabinet.\nVerificați căsuța poștală pentru invitații de echipă.',
+  'No open invitations.\nPress refresh to check again.':
+      'Nu există invitații deschise.\nApăsați reîmprospătare pentru a verifica din nou.',
+  'Name update failed. Please verify your data and try again.':
+      'Actualizarea numelui a eșuat. Vă rugăm să vă verificați datele și să încercați din nou.',
+  'You have left the practice and your access is revoked.':
+      'Ați părăsit cabinetul, iar accesul dumneavoastră a fost revocat.',
+  'Could not leave practice. You may have already been removed.':
+      'Nu s-a putut părăsi cabinetul. Este posibil să fi fost deja eliminat.',
+  'Leave practice? You will lose access to all shared data.':
+      'Părăsiți cabinetul? Veți pierde accesul la toate datele partajate.',
+  'Revocation failed. The invitation may already be revoked.':
+      'Revocarea a eșuat. Este posibil ca invitația să fie deja revocată.',
+  'No doctors available.\nPress refresh to check again.':
+      'Niciun medic disponibil.\nApăsați reîmprospătare pentru a verifica din nou.',
+  'No other doctors in practice.\nPress below to invite.':
+      'Nu mai există alți medici în cabinet.\nApăsați mai jos pentru a invita.',
+  'No pending invitations.\nUnaccepted invites will appear here.':
+      'Nicio invitație în așteptare.\nInvitațiile neacceptate vor apărea aici.',
+  'Profile successfully created and added to practice.':
+      'Profilul a fost creat cu succes și adăugat la cabinet.',
+  'Profile creation failed. Please check your data.':
+      'Crearea profilului a eșuat. Vă rugăm să vă verificați datele.',
+  'Delete lesion? Associated diagnoses must be removed first.':
+      'Ștergeți leziunea? Diagnosticele asociate trebuie eliminate mai întâi.',
+  'Deletion failed. Ensure no diagnoses are linked.':
+      'Ștergerea a eșuat. Asigurați-vă că nu există diagnostice asociate.',
+  'Profile successfully updated.': 'Profil actualizat cu succes.',
+  'Profile update failed. Please check your data.':
+      'Actualizarea profilului a eșuat. Vă rugăm să vă verificați datele.',
+  'No lesion found here. Record one now?':
+      'Nu s-a găsit nicio leziune aici. Înregistrați una acum?',
+  'No patients found.\nPress below to add a patient.':
+      'Nu s-au găsit pacienți.\nApăsați mai jos pentru a adăuga un pacient.',
+  'Invited members will gain full access to practice data.':
+      'Membrii invitați vor primi acces complet la datele cabinetului.',
+  'Remove doctor? They will lose access to all shared data.':
+      'Eliminați medicul? Acesta va pierde accesul la toate datele partajate.',
 };

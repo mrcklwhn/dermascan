@@ -46,8 +46,7 @@ class InvitedDoctorsScreen extends GetView<InvitedDoctorsController> {
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            "There are currently no pending invitations.\nDoctors you have invited who haven't accepted yet will appear here."
-                .tr,
+            'No pending invitations.\nUnaccepted invites will appear here.'.tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),

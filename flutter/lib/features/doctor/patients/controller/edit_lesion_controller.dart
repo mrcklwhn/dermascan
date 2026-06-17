@@ -94,7 +94,7 @@ class EditLesionController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -153,9 +153,7 @@ class EditLesionController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'delete-lesion-dialog',
       title: 'Delete Lesion?'.tr,
-      subtitle:
-          'You are about to delete this lesion. All associated diagnoses must be deleted first.'
-              .tr,
+      subtitle: 'Delete lesion? Associated diagnoses must be removed first.'.tr,
       isDismissable: true,
       submitText: 'Delete'.tr,
       onSubmit: isLoading.value
@@ -179,7 +177,7 @@ class EditLesionController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -223,9 +221,7 @@ class EditLesionController extends GetxController {
             CustomSnackBar(
               icon: Icons.error,
               title: 'Error Deleting Lesion'.tr,
-              message:
-                  'The lesion could not be deleted. There may be diagnoses linked to it.'
-                      .tr,
+              message: 'Deletion failed. Ensure no diagnoses are linked.'.tr,
             ),
           );
         }

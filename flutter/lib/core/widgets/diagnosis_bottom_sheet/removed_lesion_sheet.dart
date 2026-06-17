@@ -35,8 +35,7 @@ class RemovedLesionSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           Text(
-            'This lesion has been excised.\nAll diagnoses are still accessible.'
-                .tr,
+            'Lesion excised.\nDiagnoses remain accessible.'.tr,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
