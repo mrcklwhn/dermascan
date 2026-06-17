@@ -12,7 +12,7 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Change E-Mail')),
+      appBar: AppBar(title: Text('Change Password'.tr)),
       body: ListView(
         controller: controller.scrollController,
         scrollDirection: Axis.vertical,
@@ -24,28 +24,28 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
             textEditingController: controller.newPasswordController,
             focusNode: controller.newPasswordFocusNode,
             onSubmitted: (_) => controller.submitNewPassword(),
-            labelText: 'New Password',
+            labelText: 'New Password'.tr,
             prefixIcon: Icons.password,
             textInputType: TextInputType.visiblePassword,
             checkCriteria: <CheckCriteria>[
               CheckCriteria(
-                criteriaName: 'Contains at least 8 characters',
+                criteriaName: 'Contains at least 8 characters'.tr,
                 criteriaState: controller.hasMinLength,
               ),
               CheckCriteria(
-                criteriaName: 'Contains an uppercase letter',
+                criteriaName: 'Contains an uppercase letter'.tr,
                 criteriaState: controller.hasUppercase,
               ),
               CheckCriteria(
-                criteriaName: 'Contains a lowercase letter',
+                criteriaName: 'Contains a lowercase letter'.tr,
                 criteriaState: controller.hasLowercase,
               ),
               CheckCriteria(
-                criteriaName: 'Contains a digit',
+                criteriaName: 'Contains a digit'.tr,
                 criteriaState: controller.hasDigits,
               ),
               CheckCriteria(
-                criteriaName: 'Contains special character',
+                criteriaName: 'Contains special character'.tr,
                 criteriaState: controller.hasSpecialCharacters,
               ),
             ],
@@ -57,12 +57,12 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
             onSubmitted: controller.isLoading.value
                 ? (_) {}
                 : (_) => controller.submitChangedPassword(),
-            labelText: 'Confirm new Password',
+            labelText: 'Confirm new Password'.tr,
             prefixIcon: Icons.password,
             textInputType: TextInputType.visiblePassword,
             checkCriteria: <CheckCriteria>[
               CheckCriteria(
-                criteriaName: 'Passwords match',
+                criteriaName: 'Passwords match'.tr,
                 criteriaState: controller.passwordsMatch,
               ),
             ],
@@ -73,7 +73,7 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
               onPressed: controller.isLoading.value
                   ? null
                   : controller.submitChangedPassword,
-              child: const Text('Submit'),
+              child: Text('Submit'.tr),
             ),
           ),
         ],

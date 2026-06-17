@@ -102,9 +102,10 @@ class CutoutController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'No Practice Assigned',
+              title: 'No Practice Assigned'.tr,
               message:
-                  'You must be assigned to a practice to create new patient profiles.',
+                  'You must be assigned to a practice to execute this operation.'
+                      .tr,
             ),
           );
         }
@@ -122,9 +123,10 @@ class CutoutController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Diagnosis Failed',
+            title: 'Diagnosis Failed'.tr,
             message:
-                'Could not create Diagnosis, you may be not assigned to a practice.',
+                'Could not create Diagnosis, you may be not assigned to a practice.'
+                    .tr,
           ),
         );
       }

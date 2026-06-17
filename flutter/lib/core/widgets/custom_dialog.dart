@@ -35,8 +35,8 @@ class CustomDialogHelper {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Missing Information',
-              message: 'Please fill in all required fields.',
+              title: 'Missing Information'.tr,
+              message: 'Please fill in all required fields.'.tr,
             ),
           );
         }
@@ -101,7 +101,7 @@ class CustomDialogHelper {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => hide(routeName: routeName),
-                          child: const Text('Dismiss'),
+                          child: Text('Dismiss'.tr),
                         ),
                       ),
                       const SizedBox(width: AppTheme.spaceMedium),

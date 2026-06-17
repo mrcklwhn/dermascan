@@ -24,6 +24,8 @@ nav:
   - Machine Learning: ./ml/README.md
   - Multibranch Architektur: ./ml/multibranch_architecture.md
   - Trainingspipeline: ./ml/pipeline/README.md
+  - Pipeline Quickstart: ./ml/pipeline/pipeline_getting_started.md
+  - Pipeline: ./ml/pipeline/pipeline_documentation.md
   - Modell Export: ./ml/onnx_export.md
   - Auditierung: ./ml/auditing.md
   - ABC Algorithmen: ./abc_algorithms/README.md

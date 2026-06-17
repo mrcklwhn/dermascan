@@ -15,7 +15,7 @@ class Plotter:
     - Plot confusion matrix for evaluation results.
     """
     @staticmethod
-    def plot_training_history(training_history: TrainingHistory, plot_path: Path) -> None:
+    def plot_training_history(training_history: TrainingHistory, plot_path: Path, fname: str = "training_history.png") -> None:
         """
         Plots the training and validation loss and accuracy on a graph over epochs.
 
@@ -48,12 +48,12 @@ class Plotter:
         ax_acc.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
         fig.tight_layout()
-        plot_path = Path(plot_path) / "training_history.png"
+        plot_path = Path(plot_path) / fname
         plt.savefig(plot_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
 
     @staticmethod
-    def plot_confusion_matrix(eval_result: EvalResult, plot_path: Path, class_names: list[str] = ["nv", "mel"]) -> None:
+    def plot_confusion_matrix(eval_result: EvalResult, plot_path: Path, fname: str = "confusion_matrix.png", class_names: list[str] = ["nv", "mel"]) -> None:
         """
         Plots the raw and normalized confusion matrix for the evaluation results.
 
@@ -91,12 +91,12 @@ class Plotter:
         ax_norm.set_ylabel("True Label")
 
         fig.tight_layout()
-        plot_path = Path(plot_path) / "confusion_matrix.png"
+        plot_path = Path(plot_path) / fname
         plt.savefig(plot_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
 
     @staticmethod
-    def plot_precision_recall_curve(eval_result: EvalResult, plot_path: Path, class_names: list[str] = ["nv", "mel"]) -> None:
+    def plot_precision_recall_curve(eval_result: EvalResult, plot_path: Path, fname: str = "precision_recall_curve.png", class_names: list[str] = ["nv", "mel"]) -> None:
         """
         Plots the precision-recall curve for binary classification.
 
@@ -135,12 +135,12 @@ class Plotter:
         ax.grid(True, alpha=0.3)
         
         fig.tight_layout()
-        plot_path = Path(plot_path) / "precision_recall_curve.png"
+        plot_path = Path(plot_path) / fname
         plt.savefig(plot_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
 
     @staticmethod
-    def plot_roc_curve(eval_result: EvalResult, plot_path: Path, class_names: list[str] = ["nv", "mel"]) -> None:
+    def plot_roc_curve(eval_result: EvalResult, plot_path: Path, fname: str = "roc_curve.png", class_names: list[str] = ["nv", "mel"]) -> None:
         """
         Plots the ROC curve for binary classification.
 
@@ -180,12 +180,12 @@ class Plotter:
         ax.grid(True, alpha=0.3)
         
         fig.tight_layout()
-        plot_path = Path(plot_path) / "roc_curve.png"
+        plot_path = Path(plot_path) / fname
         plt.savefig(plot_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
 
     @staticmethod
-    def plot_confidence_distribution(eval_result: EvalResult, plot_path: Path, class_names: list[str] = ["nv", "mel"]) -> None:
+    def plot_confidence_distribution(eval_result: EvalResult, plot_path: Path, fname: str = "confidence_distribution.png", class_names: list[str] = ["nv", "mel"]) -> None:
         """
         Plots the distribution of confidence scores for correct and incorrect predictions.
 
@@ -221,6 +221,6 @@ class Plotter:
         ax.grid(True, alpha=0.3, axis="y")
         
         fig.tight_layout()
-        plot_path = Path(plot_path) / "confidence_distribution.png"
+        plot_path = Path(plot_path) / fname
         plt.savefig(plot_path, dpi=150, bbox_inches="tight")
         plt.close(fig)

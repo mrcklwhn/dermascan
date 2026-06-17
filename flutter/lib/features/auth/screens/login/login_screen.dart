@@ -26,23 +26,23 @@ class LoginScreen extends GetView<LoginController> {
               const CustomIcon(iconData: Icons.login),
               const SizedBox(height: AppTheme.spaceLarge),
               Text(
-                'Welcome Back!',
+                'Welcome Back!'.tr,
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppTheme.spaceLarge),
               SegmentedButton<AuthOption>(
                 showSelectedIcon: false,
-                segments: const <ButtonSegment<AuthOption>>[
+                segments: <ButtonSegment<AuthOption>>[
                   ButtonSegment<AuthOption>(
                     value: AuthOption.doctor,
-                    label: Text('Doctor'),
-                    icon: Icon(Icons.medical_services_outlined),
+                    label: Text('Doctor'.tr),
+                    icon: const Icon(Icons.medical_services_outlined),
                   ),
                   ButtonSegment<AuthOption>(
                     value: AuthOption.practice,
-                    label: Text('Practice'),
-                    icon: Icon(Icons.business_outlined),
+                    label: Text('Practice'.tr),
+                    icon: const Icon(Icons.business_outlined),
                   ),
                 ],
                 selected: <AuthOption>{
@@ -72,7 +72,7 @@ class LoginScreen extends GetView<LoginController> {
               onPressed: controller.isLoading.value
                   ? null
                   : controller.navigateToRegister,
-              label: const Text('Create Account'),
+              label: Text('Create Account'.tr),
             ),
           );
         }),
@@ -90,7 +90,7 @@ List<Widget> buildDoctorLoginFormFields() {
       textEditingController: doctorLoginController.emailController,
       focusNode: doctorLoginController.emailFocusNode,
       onSubmitted: (_) => doctorLoginController.submittedEmail(),
-      labelText: 'Doctor E-Mail',
+      labelText: 'Doctor E-Mail'.tr,
       prefixIcon: Icons.email,
       textInputType: TextInputType.emailAddress,
     ),
@@ -101,7 +101,7 @@ List<Widget> buildDoctorLoginFormFields() {
       onSubmitted: doctorLoginController.loginController.isLoading.value
           ? (_) {}
           : (_) => doctorLoginController.submitLoginData(),
-      labelText: 'Password',
+      labelText: 'Password'.tr,
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
     ),
@@ -111,7 +111,7 @@ List<Widget> buildDoctorLoginFormFields() {
       onPressed: doctorLoginController.loginController.isLoading.value
           ? null
           : doctorLoginController.submitLoginData,
-      label: const Text('Login'),
+      label: Text('Login'.tr),
     ),
   ];
 }
@@ -125,7 +125,7 @@ List<Widget> buildPracticeLoginFormFields() {
       textEditingController: practiceLoginController.emailController,
       focusNode: practiceLoginController.emailFocusNode,
       onSubmitted: (_) => practiceLoginController.submittedEmail(),
-      labelText: 'Practice E-Mail',
+      labelText: 'Practice E-Mail'.tr,
       textInputType: TextInputType.emailAddress,
       prefixIcon: Icons.email,
     ),
@@ -136,7 +136,7 @@ List<Widget> buildPracticeLoginFormFields() {
       onSubmitted: practiceLoginController.loginController.isLoading.value
           ? (_) {}
           : (_) => practiceLoginController.submitLoginData(),
-      labelText: 'Password',
+      labelText: 'Password'.tr,
       textInputType: TextInputType.visiblePassword,
       prefixIcon: Icons.password,
     ),
@@ -147,7 +147,7 @@ List<Widget> buildPracticeLoginFormFields() {
         onPressed: practiceLoginController.loginController.isLoading.value
             ? null
             : practiceLoginController.submitLoginData,
-        label: const Text('Login'),
+        label: Text('Login'.tr),
       ),
     ),
   ];
