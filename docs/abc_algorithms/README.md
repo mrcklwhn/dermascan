@@ -125,6 +125,6 @@ Die [OpenCV-Bibliothek](https://en.wikipedia.org/wiki/OpenCV) wurde bereits in d
 Ein Vergleich der Inferenz auf beiden Plattformen (Python vs. Flutter) zeigt, dass die Berechnung der ABC-Kriterien auf mobilen Geräten ohne signifikante Verzögerung möglich ist. Dabei sind die (Zwischen)Ergebnisse der ABC-Algorithmen identisch.
 
 
-## Siehe auch:
+## Siehe auch
 - [Läsionssegmentierung](./lesion_cutout.md)
 - [ML Dokumentation](../ml/README.md)

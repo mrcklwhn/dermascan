@@ -357,7 +357,7 @@ Die Pipeline wird über ein `PipelineConfig`-Objekt gesteuert oder aus JSON gela
 **`augmentation` (train/val):**
 `random_horizontal_flip`, `random_vertical_flip`, `random_rotation`, `color_jitter`, `random_erasing`, `random_resize_crop`, `resize`, `center_crop`
 
----
+
 
 ## Ausgabestruktur
 
@@ -380,4 +380,4 @@ results/
 ```
 
 Zusätzlich werden Branch-Konfigurationen, Metriken, Plots, der optimale Threshold und das geloggte PyTorch-Modell im jeweiligen MLflow-Run gespeichert.
----
+

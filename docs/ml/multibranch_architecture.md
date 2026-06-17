@@ -20,7 +20,6 @@ Für einen Struktur-Branch sind diese Filter interessant, weil sie komplementär
 Für die Filterung wurde zunächst die Scikit-Image (Skimage) Bibliothek eingesetzt, da diese ebenfalls in der Literatur häufig verwendet wird. Die gefilterten Bilder werden als separate Datensätze im `.npy`-Format gespeichert, um sie effizient in den jeweiligen Branches zu verwenden und nicht bei jedem Trainingslauf neu berechnen zu müssen. Dadurch bläht sich die Datenmenge erheblich auf - von anfangs knapp 7 GB müssen nun mehr als 600 GB an gefilterten Bildern gehalten werden. 
 
 
-
 ## Auditing von Trainingsergebnissen
 
 Die Trainingspipeline speichert alle relevanten Informationen zu einem Trainingslauf, um die Rückverfolgung und Reproduzierbarkeit der Ergebnisse zu gewährleisten. Dazu gehören die Modellgewichte, der Trainingsverlauf, die finalen Metriken und die Konfiguration des Branches.
@@ -30,3 +29,4 @@ Weitere Informationen zum Auditing-Prozess und der Rückverfolgung von Modellen 
 ## Siehe auch
 - [Auditierung](auditing.md)
 - [Trainingspipeline](./pipeline/README.md)
+- [Trainingsergebnisse](./training_results.md)

@@ -25,7 +25,7 @@ Das Berechtigungskonzept folgt strengen Mustern zur Wahrung der ärztlichen Schw
 * Ärzte verschiedener Praxen sind vollständig voneinander isoliert; ein organisationsübergreifender Datenzugriff ist technisch ausgeschlossen.
 * Ärzte können eine Praxis jederzeit eigenständig verlassen, während der Praxis-Account die Berechtigung besitzt, Ärzte hinzuzufügen oder zu entfernen.
 
-## Siehe auch:
+## Siehe auch
 - [App-Features](./features.md)
 - [App-Architektur](./architecture.md)
 - [Datenbank Dokumentation](../db/README.md)

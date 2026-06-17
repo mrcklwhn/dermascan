@@ -19,6 +19,7 @@ Alle Daten können bei Folgeuntersuchungen aktualisiert werden. In der zentralen
 +-----------------------------------------------------------------------+
 
 ```
+![](../images/patient_profile.gif)
 
 ## Das digitale Patientenprofil & Interaktive 3D-Körperkarte
 
@@ -34,8 +35,8 @@ Das Patientenprofil ist die zentrale Arbeitsumgebung für den Mediziner. Um eine
 +-----------------------------------------------------------------------+
 | [SCREENSHOT: Interaktives 3D-Körpermodell mit gesetzten Läsionspins]  |
 +-----------------------------------------------------------------------+
-
 ```
+![](../images/3dmodel.gif)
 
 ### Schnellübersicht und Navigation
 
@@ -48,8 +49,8 @@ Zusätzlich zur visuellen Karte bietet das Profil eine effiziente Informationsar
 +-----------------------------------------------------------------------+
 | [SCREENSHOT: Patientenprofil mit Schnellübersicht und Timeline]       |
 +-----------------------------------------------------------------------+
-
 ```
+![](../images/timeline.gif)
 
 ## Läsionsverwaltung und Befundung
 
@@ -70,9 +71,9 @@ Der Arzt kann das klinische Bild entweder direkt über die Kamera des Mobilgerä
 
 Jede Läsion besitzt einen dynamischen Status, der den klinischen Verlauf widerspiegelt:
 
-* *Verdächtig* (unter Beobachtung)
-* *Entfernt* (operativ exzidiert)
-* *Histologisch bestätigt* (nach Laborbefund als Melanom klassifiziert)
+* **Verdächtig** (unter Beobachtung)
+* **Entfernt** (operativ exzidiert)
+* **Histologisch bestätigt** (nach Laborbefund als Melanom klassifiziert)
 
 Da eine Läsion über Jahre hinweg unbegrenzt viele Diagnosen und Bildaufnahmen enthalten kann, wird die morphologische Veränderung lückenlos nachvollziehbar.
 
@@ -80,8 +81,8 @@ Da eine Läsion über Jahre hinweg unbegrenzt viele Diagnosen und Bildaufnahmen 
 
 Für jede neu erfasste Diagnose wird das Bildmaterial lokal analysiert. Das System kombiniert dabei die klassische dermatologische Bewertungsmetrik mit modernen Deep-Learning-Verfahren:
 
-1. **(Klassisches ABC-Scoring:)[../abc_algorithms/README.md]** Automatische Berechnung und visuelle Aufbereitung der Kriterien *Asymmetrie* (A), *Begrenzung* (B) und *Color/Farbe* (C).
-2. **(Neuronale Klassifikation:)[../ml/README.md]** Berechnung der statistischen Wahrscheinlichkeiten für das Vorliegen eines *Melanoms* im Vergleich zu einem gutartigen *melanozytären Nävus* (Leberfleck).
+1. **[Klassisches ABC-Scoring](../abc_algorithms/README.md)** Automatische Berechnung und visuelle Aufbereitung der Kriterien *Asymmetrie* (A), *Begrenzung* (B) und *Color/Farbe* (C).
+2. **[Neuronale Klassifikation](../ml/README.md)** Berechnung der statistischen Wahrscheinlichkeiten für das Vorliegen eines *Melanoms* im Vergleich zu einem gutartigen *melanozytären Nävus* (Leberfleck).
 
 Ergänzend dokumentiert der Arzt das Untersuchungsdatum, den behandelnden Kollegen sowie freie klinische Anmerkungen. Die Ergebnisse werden für den Arzt übersichtlich aufbereitet und dienen als objektive, reproduzierbare Zweitmeinung (*Decision Support System*).
 
@@ -89,8 +90,8 @@ Ergänzend dokumentiert der Arzt das Untersuchungsdatum, den behandelnden Kolleg
 +-----------------------------------------------------------------------+
 | [SCREENSHOT: Diagnoseansicht mit ABC-Scores und KI-Wahrscheinlichkeiten]|
 +-----------------------------------------------------------------------+
-
 ```
+![](../images/diagnosis.gif)
 
 ## Automatisierte PDF-Berichterstellung
 
@@ -100,10 +101,11 @@ Für die Archivierung in der primären Praxis-EDV oder für die Weitergabe an de
 +-----------------------------------------------------------------------+
 | [SCREENSHOT: Export-Dialog und Ansicht des generierten PDF-Berichts]   |
 +-----------------------------------------------------------------------+
-
 ```
 
-## Siehe auch:
+![](../images/pdf_export.gif)
+
+## Siehe auch
 - [App-Architektur](./architecture.md)
 - [Datenbank Dokumentation](../db/README.md)
 - [App-Entwicklung](./README.md)

@@ -54,15 +54,16 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
   }
 
   Widget _buildLesionList(BuildContext context) {
-    final Iterable<Widget> lesionTiles = controller.lesions.map(
-      (BodyLesion lesion) {
-        if (lesion.diagnoses.isEmpty) {
-          return const SizedBox.shrink();
-        }
+    final Iterable<Widget> lesionTiles = controller.lesions.map((
+      BodyLesion lesion,
+    ) {
+      if (lesion.diagnoses.isEmpty) {
+        return const SizedBox.shrink();
+      }
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppTheme.spaceSmall),
-          child: Card(
+      return Column(
+        children: [
+          Card(
             child: ExpansionTile(
               initiallyExpanded: false,
               controlAffinity: ListTileControlAffinity.leading,
@@ -80,74 +81,72 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
                       },
               ),
               children: <Widget>[
-                  ...List<Widget>.generate(
-                    lesion.diagnoses.length,
-                    (int index) {
-                      final Diagnosis diagnosis = lesion.diagnoses[index];
-                      final Uint8List? imageBytes =
-                          diagnosis.analyzedImages?['original'];
+                ...List<Widget>.generate(lesion.diagnoses.length, (int index) {
+                  final Diagnosis diagnosis = lesion.diagnoses[index];
+                  final Uint8List? imageBytes =
+                      diagnosis.analyzedImages?['original'];
 
-                      return Obx(
-                        () => ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppTheme.spaceSmall,
-                            vertical: 4.0,
+                  return Obx(
+                    () => ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.spaceSmall,
+                        vertical: 4.0,
+                      ),
+                      leading: AspectRatio(
+                        aspectRatio: 1.0,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSmall,
                           ),
-                          leading: AspectRatio(
-                            aspectRatio: 1.0,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.radiusSmall,
-                              ),
-                              child: imageBytes == null || imageBytes.isEmpty
-                                  ? const ColoredBox(
-                                      color: Colors.black12,
-                                      child: Icon(Icons.image_not_supported),
-                                    )
-                                  : Image(
-                                      image: MemoryImage(imageBytes),
-                                      fit: BoxFit.cover,
-                                      gaplessPlayback: true,
-                                      errorBuilder:
-                                          (
-                                            BuildContext context,
-                                            Object error,
-                                            StackTrace? stackTrace,
-                                          ) => const Icon(Icons.broken_image),
-                                    ),
-                            ),
-                          ),
-                          title: Text('Diagnosis ${index + 1}'),
-                          subtitle: Text(
-                            'Date: ${DateFormat('dd.MM.yyyy').format(diagnosis.date)}',
-                          ),
-                          onTap: () {
-                            controller.toggleDiagnosisSelection(lesion, diagnosis);
-                          },
-                          trailing: Checkbox(
-                            value: controller.isDiagnosisSelected(
-                              lesion,
-                              diagnosis,
-                            ),
-                            onChanged: controller.isLoading.value
-                                ? null
-                                : (bool? value) {
-                                    controller.toggleDiagnosisSelection(
-                                      lesion,
-                                      diagnosis,
-                                    );
-                                  },
-                          ),
+                          child: imageBytes == null || imageBytes.isEmpty
+                              ? const ColoredBox(
+                                  color: Colors.black12,
+                                  child: Icon(Icons.image_not_supported),
+                                )
+                              : Image(
+                                  image: MemoryImage(imageBytes),
+                                  fit: BoxFit.cover,
+                                  gaplessPlayback: true,
+                                  errorBuilder:
+                                      (
+                                        BuildContext context,
+                                        Object error,
+                                        StackTrace? stackTrace,
+                                      ) => const Icon(Icons.broken_image),
+                                ),
                         ),
-                      );
-                    },
-                  )
-                ],
-              )
-          )
-        );
-      },
-    );
+                      ),
+                      title: Text('Diagnosis ${index + 1}'),
+                      subtitle: Text(
+                        'Date: ${DateFormat('dd.MM.yyyy').format(diagnosis.date)}',
+                      ),
+                      onTap: () {
+                        controller.toggleDiagnosisSelection(lesion, diagnosis);
+                      },
+                      trailing: Checkbox(
+                        value: controller.isDiagnosisSelected(
+                          lesion,
+                          diagnosis,
+                        ),
+                        onChanged: controller.isLoading.value
+                            ? null
+                            : (bool? value) {
+                                controller.toggleDiagnosisSelection(
+                                  lesion,
+                                  diagnosis,
+                                );
+                              },
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppTheme.spaceSmall),
+        ],
+      );
+    });
 
     return ListView(
       controller: controller.scrollController,
@@ -180,28 +179,19 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
           value: controller.shouldExportNotes,
         ),
         const SizedBox(height: AppTheme.spaceMedium),
-        Text(
-          'Lesions',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Lesions', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: AppTheme.spaceSmall),
         ...lesionTiles,
         const SizedBox(height: AppTheme.spaceLarge),
         FilledButton.icon(
-          icon: controller.isExporting.value
-              ? const SizedBox(
-                  width: 16.0,
-                  height: 16.0,
-                  child: CircularProgressIndicator(strokeWidth: 2.0),
-                )
-              : const Icon(Icons.picture_as_pdf),
+          icon: const Icon(Icons.picture_as_pdf),
           onPressed:
               (controller.isExporting.value ||
                   controller.isExportable() == false)
               ? null
               : controller.exportPDF,
           label: const Text('Export'),
-        )
+        ),
       ],
     );
   }

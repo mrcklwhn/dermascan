@@ -62,6 +62,6 @@ Der Zugriff auf diesen Bucket wird durch präzise PostgreSQL-Policies (RLS) auf 
 
 Durch diese Architektur ist mathematisch und datenbankseitig garantiert, dass kein Arzt und keine Praxis jemals – weder absichtlich noch durch Client-Fehler – Einblick in die medizinischen Bilddaten oder Diagnosedaten eines fremden Mandanten erhalten kann.
 
-## Siehe auch:
+## Siehe auch
 - [App Dokumentation](../app/README.md)
 - [ML Dokumentation](../ml/README.md)
