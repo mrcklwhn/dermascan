@@ -77,14 +77,12 @@ class BranchRunner:
             # THRESHOLD OPTIMIZATION
             # -----------------------
             # VAL ON 0.5
-            val_result_05, _ = self.trainer.test(self.data.val_loader, threshold=0.5)
-            Plotter.plot_confusion_matrix(
-                val_result_05,
-                self.branch_run_path,
-                "val_confusion_matrix_threshold_0_5.png"
+            val_result_05, _ = self.trainer.test(
+                self.data.val_loader, 
+                threshold=0.5
             )
 
-            # OPTIMIZATION ON VAL
+            # THRESHOLD OPTIMIZATION ON VAL
             optimal_threshold = metrics_calculator.get_threshold(
                 val_result_05.y_true.numpy(),
                 val_result_05.y_prob.numpy()
@@ -93,11 +91,25 @@ class BranchRunner:
             MLFlowLogger.log_param("optimal_threshold", float(optimal_threshold))
 
             # VAL ON OPTIMAL THRESHOLD
-            val_result_opt, _ = self.trainer.test(self.data.val_loader, threshold=float(optimal_threshold))
+            val_result_opt, _ = self.trainer.test(
+                self.data.val_loader, 
+                threshold=float(optimal_threshold)
+            )
             Plotter.plot_confusion_matrix(
                 val_result_opt,
                 self.branch_run_path,
                 "val_confusion_matrix_optimal_threshold.png"
+            )
+
+            # TEST ON 0.5 THRESHOLD
+            test_results_05, _ = self.trainer.test(
+                self.data.test_loader, 
+                threshold=0.5
+            )
+            Plotter.plot_confusion_matrix(
+                test_results_05,
+                self.branch_run_path,
+                "test_confusion_matrix_threshold_0_5.png"
             )
 
             # TEST ON OPTIMAL THRESHOLD
@@ -105,7 +117,6 @@ class BranchRunner:
                 self.data.test_loader,
                 threshold=float(optimal_threshold)
             )
-
             Plotter.plot_confusion_matrix(
                 test_results,
                 self.branch_run_path,
