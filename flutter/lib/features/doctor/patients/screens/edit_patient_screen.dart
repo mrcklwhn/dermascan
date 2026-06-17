@@ -17,7 +17,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Patient')),
+      appBar: AppBar(title: Text('Edit Patient'.tr)),
       body: SafeArea(
         child: ListView(
           controller: controller.scrollController,
@@ -27,7 +27,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
             const CustomIcon(iconData: Icons.person_add),
             const SizedBox(height: AppTheme.spaceLarge),
             Text(
-              'General Information',
+              'General Information'.tr,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppTheme.spaceSmall),
@@ -35,7 +35,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
               textEditingController: controller.nameController,
               focusNode: controller.nameFocusNode,
               onSubmitted: (_) => controller.submittedName(),
-              labelText: 'Full Name',
+              labelText: 'Full Name'.tr,
               prefixIcon: Icons.person,
               textInputType: TextInputType.name,
             ),
@@ -51,7 +51,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                       border: noBorder,
                       enabledBorder: noBorder,
                       focusedBorder: noBorder,
-                      labelText: 'Date of Birth',
+                      labelText: 'Date of Birth'.tr,
                       prefixIcon: const Icon(Icons.calendar_month),
                     ),
                   ),
@@ -65,7 +65,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                       border: noBorder,
                       enabledBorder: noBorder,
                       focusedBorder: noBorder,
-                      labelText: 'Gender',
+                      labelText: 'Gender'.tr,
                       prefixIcon: const Icon(Icons.wc_outlined),
                     ),
                     items: Gender.values.map((Gender g) {
@@ -89,52 +89,52 @@ class EditPatientScreen extends GetView<EditPatientController> {
             const SizedBox(height: AppTheme.spaceMedium),
 
             Text(
-              'Sun & Lifestyle',
+              'Sun & Lifestyle'.tr,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppTheme.spaceSmall),
             _buildToggleCard(
-              title: 'Sunscreen Use',
-              subtitle: 'Does the patient regularly use sunscreen?',
+              title: 'Sunscreen Use'.tr,
+              subtitle: 'Does the patient regularly use sunscreen?'.tr,
               value: controller.sunscreenUse,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
 
             _buildToggleCard(
-              title: 'Sunburn History',
-              subtitle: 'Has the patient ever had a sunburn?',
+              title: 'Sunburn History'.tr,
+              subtitle: 'Has the patient ever had a sunburn?'.tr,
               value: controller.previousSunburns,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
             _buildToggleCard(
-              title: 'Tanning Bed Use',
-              subtitle: 'Does the patient use tanning beds?',
+              title: 'Tanning Bed Use'.tr,
+              subtitle: 'Does the patient use tanning beds?'.tr,
               value: controller.tanningBedExposure,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
 
             Text(
-              'Medical History',
+              'Medical History'.tr,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppTheme.spaceSmall),
 
             _buildToggleCard(
-              title: 'Personal History of Melanoma',
+              title: 'Personal History of Melanoma'.tr,
               value: controller.personalHistoryMelanoma,
-              subtitle: 'Previous personal melanoma diagnosis.',
+              subtitle: 'Previous personal melanoma diagnosis.'.tr,
             ),
             const SizedBox(height: AppTheme.spaceMedium),
             _buildToggleCard(
-              title: 'Family History of Melanoma',
+              title: 'Family History of Melanoma'.tr,
               value: controller.familyHistoryMelanoma,
-              subtitle: 'Melanoma cases in close relatives.',
+              subtitle: 'Melanoma cases in close relatives.'.tr,
             ),
 
             const SizedBox(height: AppTheme.spaceMedium),
             _buildToggleCard(
-              title: 'Skin Surgery',
-              subtitle: 'Any previous skin-related surgeries?',
+              title: 'Skin Surgery'.tr,
+              subtitle: 'Any previous skin-related surgeries?'.tr,
               value: controller.previousSkinSurgeries,
             ),
 
@@ -149,8 +149,8 @@ class EditPatientScreen extends GetView<EditPatientController> {
                         horizontal: AppTheme.spaceMedium,
                       ),
                       child: _buildToggleCard(
-                        title: 'Malignant / Cancerous',
-                        subtitle: 'Was a cancerous lesion removed?',
+                        title: 'Malignant / Cancerous'.tr,
+                        subtitle: 'Was a cancerous lesion removed?'.tr,
                         value: controller.previousCancerSurgeries,
                       ),
                     ),
@@ -162,7 +162,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
             }),
 
             const SizedBox(height: AppTheme.spaceMedium),
-            Text('Location', style: Theme.of(context).textTheme.titleMedium),
+            Text('Location'.tr, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: AppTheme.spaceSmall),
             Row(
               children: <Widget>[
@@ -178,7 +178,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                       border: noBorder,
                       enabledBorder: noBorder,
                       focusedBorder: noBorder,
-                      labelText: 'Country',
+                      labelText: 'Country'.tr,
                       prefixIcon: const Icon(Icons.public),
                     ),
                   ),
@@ -196,7 +196,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                       border: noBorder,
                       enabledBorder: noBorder,
                       focusedBorder: noBorder,
-                      labelText: 'Birth Country',
+                      labelText: 'Birth Country'.tr,
                       prefixIcon: const Icon(Icons.public),
                     ),
                   ),
@@ -212,7 +212,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                 onPressed: controller.isLoading.value
                     ? null
                     : controller.submitPatientData,
-                label: const Text('Update'),
+                label: Text('Update'.tr),
               ),
             ),
             const SizedBox(height: AppTheme.spaceLarge),
