@@ -15,7 +15,7 @@ class PatientInfoBottomSheetController extends GetxController {
 
   PatientInfoBottomSheetController({required this.lesions});
 
-  List<({Diagnosis diagnosis, String? locationName, String position})>
+  List<({Diagnosis diagnosis, String locationName, String position})>
   get latestDiagnoses {
     return lesions
         .expand(
@@ -30,13 +30,13 @@ class PatientInfoBottomSheetController extends GetxController {
         .toList()
       ..sort(
         (
-          ({Diagnosis diagnosis, String? locationName, String position}) a,
-          ({Diagnosis diagnosis, String? locationName, String position}) b,
+          ({Diagnosis diagnosis, String locationName, String position}) a,
+          ({Diagnosis diagnosis, String locationName, String position}) b,
         ) => b.diagnosis.date.compareTo(a.diagnosis.date),
       );
   }
 
-  List<({Diagnosis diagnosis, String? locationName, String position})>
+  List<({Diagnosis diagnosis, String locationName, String position})>
   get top5Diagnoses => latestDiagnoses.take(5).toList();
 
   @override
@@ -103,9 +103,9 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     leading: const Icon(Icons.person),
                     trailing: const Icon(Icons.arrow_forward),
                     subtitle: Text(
-                      'Birthday: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}\n'
-                      'Country: ${allCountries.firstWhereOrNull((Country c) => c.isoCode == patient.birthCountry)?.name ?? ''}\n'
-                      'Gender: ${patient.gender.name.capitalizeFirst}',
+                      '${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}\n'
+                      '${'Country'.tr}: ${allCountries.firstWhereOrNull((Country c) => c.isoCode == patient.birthCountry)?.name ?? 'Not available'.tr}\n'
+                      '${'Gender'.tr}: ${patient.gender.name.capitalizeFirst}',
                     ),
                     onTap: () {
                       Get.back();
@@ -123,7 +123,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     patient.personalHistoryMelanoma ||
                     patient.familyHistoryMelanoma) ...<Widget>[
                   Text(
-                    'Medical History',
+                    'Medical History'.tr,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: AppTheme.spaceSmall),
@@ -132,28 +132,31 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     spacing: AppTheme.spaceSmall,
                     children: <Widget>[
                       _buildHistoryChip(
-                        'Sunburn History',
+                        'Sunburn History'.tr,
                         patient.previousSunburns,
                       ),
                       _buildHistoryChip(
-                        'Skin Surgery',
+                        'Skin Surgery'.tr,
                         patient.previousSkinSurgeries,
                       ),
                       _buildHistoryChip(
-                        'Malignant Skin Surgery',
+                        'Malignant Skin Surgery'.tr,
                         patient.previousCancerSurgeries,
                       ),
                       _buildHistoryChip(
-                        'Tanning Bed Use',
+                        'Tanning Bed Use'.tr,
                         patient.tanningBedExposure,
                       ),
-                      _buildHistoryChip('Sunscreen Use', patient.sunscreenUse),
                       _buildHistoryChip(
-                        'Personal Melanoma History',
+                        'Sunscreen Use'.tr,
+                        patient.sunscreenUse,
+                      ),
+                      _buildHistoryChip(
+                        'Personal Melanoma History'.tr,
                         patient.personalHistoryMelanoma,
                       ),
                       _buildHistoryChip(
-                        'Family Melanoma History',
+                        'Family Melanoma History'.tr,
                         patient.familyHistoryMelanoma,
                       ),
                     ],
@@ -161,7 +164,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                   const SizedBox(height: AppTheme.spaceMedium),
                 ],
                 Text(
-                  'Timeline (Latest Diagnoses)',
+                  'Timeline (Latest Diagnoses)'.tr,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppTheme.spaceSmall),
@@ -170,15 +173,15 @@ class PatientInfoBottomSheet extends StatelessWidget {
                   final List<
                     ({
                       Diagnosis diagnosis,
-                      String? locationName,
+                      String locationName,
                       String position,
                     })
                   >
                   diagnoses = controller.top5Diagnoses;
                   if (diagnoses.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(AppTheme.spaceMedium),
-                      child: Center(child: Text('No Diagnosis available!')),
+                    return Padding(
+                      padding: const EdgeInsets.all(AppTheme.spaceMedium),
+                      child: Center(child: Text('No Diagnosis available!'.tr)),
                     );
                   }
                   return ListView.builder(
@@ -188,7 +191,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     itemBuilder: (BuildContext context, int index) {
                       final ({
                         Diagnosis diagnosis,
-                        String? locationName,
+                        String locationName,
                         String position,
                       })
                       item = diagnoses[index];
@@ -201,7 +204,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                           Card(
                             color: AppTheme.scaffoldBg,
                             child: ListTile(
-                              title: const Text('Diagnosis'),
+                              title: Text('Diagnosis'.tr),
                               leading: AspectRatio(
                                 aspectRatio: 1.0,
                                 child: ClipRRect(
@@ -222,8 +225,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                'Location: ${item.locationName ?? 'Not specified'}\n'
-                                'Date: ${DateFormat('dd.MM.yyyy').format(item.diagnosis.date)}',
+                                '${'Location'.tr}: ${item.locationName}\n${'Date'.tr}: ${DateFormat('dd.MM.yyyy').format(item.diagnosis.date)}',
                               ),
                               onTap: () {
                                 Get.back();

@@ -12,7 +12,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pending Invitations')),
+      appBar: AppBar(title: Text('Pending Invitations'.tr)),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -40,13 +40,14 @@ class InvitationsScreen extends GetView<InvitationsController> {
           const CustomIcon(iconData: Icons.mark_email_read),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No Pending Invitations',
+            'No Pending Invitations'.tr,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'There are currently no open invitations.\nTo fetch new invitations press the button below.',
+            'There are currently no open invitations.\nTo fetch new invitations press the button below.'
+                .tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -57,7 +58,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
               onPressed: controller.isLoading.value
                   ? null
                   : controller.reloadInvitations,
-              label: const Text('Refresh'),
+              label: Text('Refresh'.tr),
             ),
           ),
         ],
@@ -71,7 +72,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
       child: Column(
         children: <Widget>[
           SearchBar(
-            hintText: 'Search ...',
+            hintText: 'Search ...'.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             trailing: <Widget>[
@@ -103,7 +104,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
                         leading: const Icon(Icons.local_hospital),
                         trailing: const Icon(Icons.arrow_forward),
                         subtitle: Text(
-                          'Invited on ${DateFormat.yMMMd().format(invitation.createdAt)} at ${DateFormat.Hm().format(invitation.createdAt)}',
+                          '${'Invited on'.tr} ${DateFormat.yMMMd().format(invitation.createdAt)}${' at '.tr}${DateFormat.Hm().format(invitation.createdAt)}',
                         ),
                         onTap: () =>
                             controller.isLoading.value ||
