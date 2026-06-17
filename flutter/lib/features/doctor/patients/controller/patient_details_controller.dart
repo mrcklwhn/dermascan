@@ -6,7 +6,6 @@ import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
-import 'package:dermascan/core/widgets/human_body_3d_selector.dart';
 import 'package:dermascan/core/widgets/patient_info_bottom_sheet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -64,11 +63,6 @@ class PatientDetailsController extends GetxController {
     lesions.assignAll(fetchedLesions);
   }
 
-  void resetModelPosition() {
-    final HumanBody3DController controller = Get.find<HumanBody3DController>();
-    controller.resetModelPosition();
-  }
-
   Future<void> openDiagnosisDialogFromInfo({
     required String position,
     String? diagnosisId,
@@ -115,13 +109,14 @@ class PatientDetailsController extends GetxController {
 
       await CustomDialogHelper.show<bool>(
         routeName: 'create-lesion-dialog',
-        title: 'Create Lesion',
+        title: 'Create Lesion'.tr,
         subtitle:
-            'No lesion found in this area. Would you like to record one now?',
+            'No lesion found in this area. Would you like to record one now?'
+                .tr,
         isDismissable: true,
         hasTextField: true,
-        textFieldLabel: 'Lesion Name',
-        submitText: 'Record',
+        textFieldLabel: 'Lesion Name'.tr,
+        submitText: 'Record'.tr,
         onSubmit: (String locationName) async {
           isSubmitting = true;
 
