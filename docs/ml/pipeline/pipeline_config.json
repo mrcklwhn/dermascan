@@ -11,12 +11,12 @@
     {
       "branch_id": "first_test_branch",
       "branch_model_config": {
-        "model": "resnet18",
+        "model_type": "resnet18",
         "filter_type": [
           "rgb",
           3
         ],
-        "num_classes": 2,
+        "num_classes": 1,
         "pretrained": true,
         "freeze_weights": true
       },
@@ -24,10 +24,9 @@
         "batch_size": 32,
         "num_epochs": 2,
         "learning_rate": 0.001,
-        "criterion_weights": [
-          0.87,
-          0.13
-        ],
+        "loss_type": "bce_with_logits",
+        "pos_weight": 6.7,
+        "class_weights": null,
         "optimizer": {
           "optimizer_type": "adam",
           "weight_decay": 0.0001,
