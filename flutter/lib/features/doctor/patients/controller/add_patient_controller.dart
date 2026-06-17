@@ -120,7 +120,7 @@ class AddPatientController extends GetxController {
           CustomSnackBar(
             icon: Icons.error,
             title: 'Authentication Error'.tr,
-            message: 'You are not signed in correctly. Please log in again.'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
           ),
         );
       }
@@ -173,9 +173,7 @@ class AddPatientController extends GetxController {
             CustomSnackBar(
               icon: Icons.check_circle,
               title: 'Patient Created'.tr,
-              message:
-                  'The profile was successfully created and added to your Practice.'
-                      .tr,
+              message: 'Profile successfully created and added to practice.'.tr,
             ),
           );
         }
@@ -185,9 +183,7 @@ class AddPatientController extends GetxController {
             CustomSnackBar(
               icon: Icons.error,
               title: 'Patient Creation Failed'.tr,
-              message:
-                  'The profile could not be created. Please check the data or try again later.'
-                      .tr,
+              message: 'Profile creation failed. Please check your data.'.tr,
             ),
           );
         }
