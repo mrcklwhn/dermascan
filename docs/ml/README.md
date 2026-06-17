@@ -75,15 +75,25 @@ In den folgenden Zwischenergebnissen werden die Resultate verschiedener Tests zu
 Durch das Ungleichgewicht des zugrundeliegenden Datensatzes müssen verschiedene Metriken zur Interpretation der Performance genutzt werden. Häufig dient die Area Under the Curve (AUC) als primäre Metrik, da sie eine gute Balance zwischen Sensitivität und Spezifität bietet, insbesondere bei ungleichgewichtigen Datensätzen. Dennoch sollten auch andere Metriken wie F1-Score, Genauigkeit und Sensitivität berücksichtigt werden, um ein umfassenderes Bild der Modellperformance zu erhalten. 
 
 Die Metriken soll hier noch einmal kurz erklärt werden:
+
 - **Sensitivity** (True Positive Rate): Anteil der korrekt als Melanom klassifizierten tatsächlichen Melanome. Bei medizinischen Anwendungen besonders wichtig, da falsch negative Ergebnisse (übersehene Melanome) gefährlicher sind, als falsch positive (fälschlicherweise als Melanom klassifizierte Leberflecken).
+
 - **Specificity** (True Negative Rate): Anteil der korrekt als Leberfleck klassifizierten Leberflecken. Hohe Spezifität bedeutet wenige falsch positive Ergebnisse, ist aber irreführend, wenn eine Klasse stark überrepräsentiert ist.
+
 - **Accuracy**: Anteil der korrekt klassifizierten Bilder an der Gesamtzahl. Irreführend bei ungleichgewichtigen Datensätzen, da ein Modell, das immer die Mehrheitsklasse vorhersagt, eine hohe Accuracy erzielen kann, ohne tatsächlich gut zu klassifizieren.
+
 - **ROC AUC**: Maß für die Trennfähigkeit des Modells über alle Schwellenwerte, basierend auf True Positive Rate vs. False Positive Rate. Werte nahe 1.0 sind ideal, 0.5 bedeutet Zufallsleistung. Kompromiss aus Sensitivität und Spezifität, aber kann durch ungleichgewichtige Klassen zu optimistisch sein.
+
 - **F1 Macro**: Durchschnittlicher F1-Score über alle Klassen, wobei jede Klasse gleich gewichtet wird. Schlechte Performance auf der Minderheitenklasse (Melanom) führt zu einem niedrigen Macro F1 Score, auch wenn die Mehrheitsklasse (Leberfleck) gut klassifiziert wird.
+
 - **F1 Binary**: Harmonisches Mittel aus Precision und Recall für die positive Klasse (Melanom). Bei ungleichgewichtigen Datensätzen oft niedriger als AUC, da es die schlechte Performance auf der Minderheitenklasse stärker bestraft.
+
 - **TN**: Anzahl der True Negatives (korrekt als Leberfleck klassifizierte Bilder)
+
 - **FP**: Anzahl der False Positives (fälschlicherweise als Melanom klassifizierte Leberflecken)
+
 - **FN**: Anzahl der False Negatives (fälschlicherweise als Leberfleck klassifizierte Melanome)
+
 - **TP**: Anzahl der True Positives (korrekt als Melanom klassifizierte Bilder)
 
 ### Zwischenergebnisse vom einfachen Training 25.02.2026

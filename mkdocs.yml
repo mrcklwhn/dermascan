@@ -17,7 +17,9 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Flutter App: ./app/README.md
+  - App-Entwicklung: ./app/README.md
+  - App-Features: ./app/features.md
+  - App-Architektur: ./app/architecture.md
   - Datenbank: ./db/README.md
   - Machine Learning: ./ml/README.md
   - Multibranch Architektur: ./ml/multibranch_architecture.md

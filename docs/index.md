@@ -50,3 +50,12 @@ Im Gespräch mit der Dermatologin wurde deutlich, dass neben der reinen Klassifi
 ## Fazit
 
 _hier könnte ihre Werbung stehen_
+
+
+## TODO
+
+- links für Bibliotheken und Frameworks ergänzen
+- Bilder aus der App-Dokumentation einfügen
+- Bilder aus der powerpoint einfügen für ML
+- Nummerierung in mkdocs überprüfen
+- Trainingsergebnisse in separate Dokumentation auslagern
