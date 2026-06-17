@@ -26,7 +26,7 @@ class RemovedLesionSheet extends StatelessWidget {
 
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Lesion Excised',
+            'Lesion Excised'.tr,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSurface,
@@ -35,7 +35,8 @@ class RemovedLesionSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           Text(
-            'This lesion has been excised.\nAll diagnoses are still accessible.',
+            'This lesion has been excised.\nAll diagnoses are still accessible.'
+                .tr,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),

@@ -13,7 +13,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Doctors'),
+        title: Text('Doctors'.tr),
         actions: <Widget>[
           Obx(
             () => IconButton(
@@ -21,7 +21,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
                   ? null
                   : controller.showPendingInvitations,
               icon: const Icon(Icons.pending_actions),
-              tooltip: 'Invited Doctors',
+              tooltip: 'Invited Doctors'.tr,
             ),
           ),
           Obx(
@@ -30,7 +30,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
                   ? null
                   : controller.showAvailableDoctors,
               icon: const Icon(Icons.person_add),
-              tooltip: 'Invite Doctors',
+              tooltip: 'Invite Doctors'.tr,
             ),
           ),
         ],
@@ -62,13 +62,14 @@ class DoctorsScreen extends GetView<DoctorsController> {
           const CustomIcon(iconData: Icons.person_add),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No Doctors Assigned',
+            'No Doctors Assigned'.tr,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Your practice currently has no other doctors.\nTo invite doctors press the button below.',
+            'Your practice currently has no other doctors.\nTo invite doctors press the button below.'
+                .tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -78,7 +79,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
             onPressed: controller.isInitializing.value
                 ? null
                 : controller.showAvailableDoctors,
-            label: const Text('Invite Doctors'),
+            label: Text('Invite Doctors'.tr),
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Obx(
@@ -87,7 +88,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
               onPressed: controller.isInitializing.value
                   ? null
                   : controller.reloadDoctors,
-              label: const Text('Refresh'),
+              label: Text('Refresh'.tr),
             ),
           ),
         ],
@@ -101,7 +102,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
       child: Column(
         children: <Widget>[
           SearchBar(
-            hintText: 'Search ...',
+            hintText: 'Search ...'.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             trailing: <Widget>[
@@ -132,7 +133,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
                           leading: const Icon(Icons.person),
                           trailing: const Icon(Icons.arrow_forward),
                           subtitle: Text(
-                            'E-Mail: ${doctor.email}\nBorn on ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
+                            '${'E-Mail'.tr}: ${doctor.email}\n${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
                           ),
                           onTap: controller.isInitializing.value
                               ? null

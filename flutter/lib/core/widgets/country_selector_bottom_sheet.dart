@@ -87,7 +87,7 @@ class CountrySelectorBottomSheet extends StatelessWidget {
             ),
           ),
           SearchBar(
-            hintText: 'Search ...',
+            hintText: 'Search ...'.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             backgroundColor: WidgetStateProperty.all(AppTheme.scaffoldBg),

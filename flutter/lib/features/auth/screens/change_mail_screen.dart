@@ -12,7 +12,7 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Change E-Mail')),
+      appBar: AppBar(title: Text('Change E-Mail'.tr)),
       body: ListView(
         controller: controller.scrollController,
         scrollDirection: Axis.vertical,
@@ -24,12 +24,12 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
             textEditingController: controller.newEmailController,
             focusNode: controller.newEmailFocusNode,
             onSubmitted: (_) => controller.submitNewPassword(),
-            labelText: 'New E-Mail',
+            labelText: 'New E-Mail'.tr,
             prefixIcon: Icons.mail,
             textInputType: TextInputType.emailAddress,
             checkCriteria: <CheckCriteria>[
               CheckCriteria(
-                criteriaName: 'Correctly formatted',
+                criteriaName: 'Correctly formatted'.tr,
                 criteriaState: controller.isValidEmail,
               ),
             ],
@@ -41,12 +41,12 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
             onSubmitted: controller.isLoading.value
                 ? (_) {}
                 : (_) => controller.submitChangedEmail(),
-            labelText: 'Confirm new E-Mail',
+            labelText: 'Confirm new E-Mail'.tr,
             prefixIcon: Icons.mail,
             textInputType: TextInputType.emailAddress,
             checkCriteria: <CheckCriteria>[
               CheckCriteria(
-                criteriaName: 'E-Mails match',
+                criteriaName: 'E-Mails match'.tr,
                 criteriaState: controller.emailsMatch,
               ),
             ],
@@ -57,7 +57,7 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
               onPressed: controller.isLoading.value
                   ? null
                   : controller.submitChangedEmail,
-              child: const Text('Submit'),
+              child: Text('Submit'.tr),
             ),
           ),
         ],
