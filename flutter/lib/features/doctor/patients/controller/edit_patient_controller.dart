@@ -72,7 +72,9 @@ class EditPatientController extends GetxController {
 
     nameController.text = patient.name;
     dateOfBirth = patient.dateOfBirth;
-    birthdayController.text = DateFormat.yMMMd().format(patient.dateOfBirth);
+    birthdayController.text = DateFormat(
+      'dd.MM.yyyy',
+    ).format(patient.dateOfBirth);
     selectedGender = patient.gender;
     previousSunburns.value = patient.previousSunburns;
     previousSkinSurgeries.value = patient.previousSkinSurgeries;
@@ -108,7 +110,7 @@ class EditPatientController extends GetxController {
 
     if (picked != null && picked != dateOfBirth) {
       dateOfBirth = picked;
-      birthdayController.text = DateFormat.yMMMd().format(picked);
+      birthdayController.text = DateFormat('dd.MM.yyyy').format(picked);
     }
   }
 

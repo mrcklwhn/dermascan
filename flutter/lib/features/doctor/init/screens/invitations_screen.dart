@@ -103,7 +103,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
                         leading: const Icon(Icons.local_hospital),
                         trailing: const Icon(Icons.arrow_forward),
                         subtitle: Text(
-                          '${'Invited on'.tr} ${DateFormat.yMMMd().format(invitation.createdAt)}${' at '.tr}${DateFormat.Hm().format(invitation.createdAt)}',
+                          '${'Invited on'.tr} ${DateFormat('dd.MM.yyyy').format(invitation.createdAt)}',
                         ),
                         onTap: () =>
                             controller.isLoading.value ||

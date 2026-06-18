@@ -125,7 +125,7 @@ class InvitationsController extends GetxController {
             CustomSnackBar(
               icon: Icons.check,
               title: 'Invitation Accepted'.tr,
-              message: "${'You have successfully joined the practice'.tr}.",
+              message: 'You have successfully joined the practice.'.tr,
             ),
           );
         }
@@ -159,7 +159,7 @@ class InvitationsController extends GetxController {
       routeName: 'accept-practice-invitation-dialog',
 
       title:
-          '${'Accept invitation of'.tr} ${selectedInvitation.practice.name}?',
+          'Accept invitation?'.tr,
 
       subtitle:
           'Accepting grants access to practice data and shares your professional profile with the owner.'
