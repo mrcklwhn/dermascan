@@ -13,13 +13,7 @@ Das Anlegen eines neuen Patienten bildet den Startpunkt der Dokumentation. Die z
 
 Alle Daten können bei Folgeuntersuchungen aktualisiert werden. In der zentralen Patientenübersicht werden diese Risikofaktoren kompakt zusammengefasst, um dem Arzt sofort den Kontext des Patienten zu vermitteln.
 
-```
-+-----------------------------------------------------------------------+
-| [SCREENSHOT: Patienteninformationen / Detailansicht bzw. Bottom Sheet]|
-+-----------------------------------------------------------------------+
-
-```
-![](../images/patient_profile.gif)
+![](../images/patient_screen.gif)
 
 ## Das digitale Patientenprofil & Interaktive 3D-Körperkarte
 
@@ -31,12 +25,7 @@ Das Patientenprofil ist die zentrale Arbeitsumgebung für den Mediziner. Um eine
 * **Kameraperspektiven:** Ein Quick-Reset erlaubt das sofortige Zurücksetzen auf die Standardansicht.
 * **Präzise Läsionsplatzierung:** Durch Tippen auf das Modell können beliebig viele Läsionen exakt an der realen anatomischen Position markiert werden.
 
-```
-+-----------------------------------------------------------------------+
-| [SCREENSHOT: Interaktives 3D-Körpermodell mit gesetzten Läsionspins]  |
-+-----------------------------------------------------------------------+
-```
-![](../images/3dmodel.gif)
+![](../images/3dmap.gif)
 
 ### Schnellübersicht und Navigation
 
@@ -45,11 +34,6 @@ Zusätzlich zur visuellen Karte bietet das Profil eine effiziente Informationsar
 * **Diagnose-Timeline:** Ein Direktzugriff auf die letzten fünf dokumentierten Diagnosen. Ein Tippen auf einen Eintrag fokussiert sofort die dazugehörige Läsion auf dem 3D-Modell.
 * **Kontext-Info:** Schnelleinsicht der Patienten-Risikofaktoren über ein Info-Symbol, ohne den aktuellen Untersuchungsbildschirm verlassen zu müssen.
 
-```
-+-----------------------------------------------------------------------+
-| [SCREENSHOT: Patientenprofil mit Schnellübersicht und Timeline]       |
-+-----------------------------------------------------------------------+
-```
 ![](../images/timeline.gif)
 
 ## Läsionsverwaltung und Befundung
@@ -60,12 +44,7 @@ Wird ein neuer Punkt auf der 3D-Karte gesetzt, öffnet sich der Workflow zur Lä
 
 Der Arzt kann das klinische Bild entweder direkt über die Kamera des Mobilgeräts aufnehmen oder aus der Galerie importieren. Um Störfaktoren (wie gesunde Hautareale oder Haare) zu minimieren und das neuronale Netzwerk auf den relevanten Bereich zu fokussieren, wird im nächsten Schritt ein optimierter Bildausschnitt – der sogenannte Läsions-Cutout – durch den Dermatologen ausgewählt.
 
-```
-+-----------------------------------------------------------------------+
-| [SCREENSHOT: Workflow zur Auswahl und Bestätigung des Läsions-Cutouts]|
-+-----------------------------------------------------------------------+
-
-```
+![](../images/workflow.gif)
 
 ### Medizinische Statusverfolgung
 
@@ -86,24 +65,13 @@ Für jede neu erfasste Diagnose wird das Bildmaterial lokal analysiert. Das Syst
 
 Ergänzend dokumentiert der Arzt das Untersuchungsdatum, den behandelnden Kollegen sowie freie klinische Anmerkungen. Die Ergebnisse werden für den Arzt übersichtlich aufbereitet und dienen als objektive, reproduzierbare Zweitmeinung (*Decision Support System*).
 
-```
-+-----------------------------------------------------------------------+
-| [SCREENSHOT: Diagnoseansicht mit ABC-Scores und KI-Wahrscheinlichkeiten]|
-+-----------------------------------------------------------------------+
-```
 ![](../images/diagnosis.gif)
 
 ## Automatisierte PDF-Berichterstellung
 
 Für die Archivierung in der primären Praxis-EDV oder für die Weitergabe an den Patienten wurde ein Export-Modul implementiert. Der Arzt kann über eine Checkbox-Auswahl dediziert steuern, welche Läsionen und welche spezifischen Untersuchungszeitpunkte in den Bericht einfließen sollen. Das generierte PDF-Dokument enthält strukturiert alle Stammdaten, Anamnesefaktoren, die bildlichen Dokumentationen, die berechneten KI-Metriken sowie die ärztlichen Kommentare.
 
-```
-+-----------------------------------------------------------------------+
-| [SCREENSHOT: Export-Dialog und Ansicht des generierten PDF-Berichts]   |
-+-----------------------------------------------------------------------+
-```
-
-![](../images/pdf_export.gif)
+![](../images/export.gif)
 
 ## Siehe auch
 - [App-Architektur](./architecture.md)
