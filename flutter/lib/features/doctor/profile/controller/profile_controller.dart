@@ -118,7 +118,7 @@ class DoctorProfileController extends GetxController {
             CustomSnackBar(
               icon: Icons.check_circle,
               title: 'Updated Name'.tr,
-              message: 'Your name was successfully changed'.tr,
+              message: 'Your name was successfully changed.'.tr,
             ),
           );
         }

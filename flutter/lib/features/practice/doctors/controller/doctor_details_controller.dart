@@ -212,8 +212,7 @@ class DoctorDetailsController extends GetxController {
 
       title: 'Revoke Invitation?'.tr,
 
-      subtitle:
-          "${'You are about to revoke your invitation to'.tr} '${doctor.name}'.",
+      subtitle: 'You are about to revoke your invitation.'.tr,
 
       isDismissable: true,
 

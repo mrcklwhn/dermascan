@@ -40,7 +40,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
           const CustomIcon(iconData: Icons.person_add),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No Doctors Available',
+            'No Doctors Available'.tr,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
@@ -71,7 +71,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
       child: Column(
         children: <Widget>[
           SearchBar(
-            hintText: 'Search ...',
+            hintText: 'Search ...'.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             trailing: <Widget>[
@@ -101,7 +101,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
                           leading: const Icon(Icons.person),
                           trailing: const Icon(Icons.arrow_forward),
                           subtitle: Text(
-                            'E-Mail: ${doctor.email}\nBorn on ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
+                            '${'E-Mail'.tr}: ${doctor.email}\n${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
                           ),
                           onTap: controller.isInitializing.value
                               ? null

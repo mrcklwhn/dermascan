@@ -73,7 +73,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                       return DropdownMenuItem<Gender>(
                         value: g,
                         child: Text(
-                          g.name[0].toUpperCase() + g.name.substring(1),
+                          _genderTranslationKey(g).tr,
                           overflow: TextOverflow.ellipsis,
                         ),
                       );
@@ -221,5 +221,18 @@ class EditPatientScreen extends GetView<EditPatientController> {
         ),
       ),
     );
+  }
+
+  String _genderTranslationKey(Gender gender) {
+    switch (gender) {
+      case Gender.male:
+        return 'Male';
+      case Gender.female:
+        return 'Female';
+      case Gender.divers:
+        return 'Divers';
+      case Gender.undefined:
+        return 'Undefined';
+    }
   }
 }

@@ -5,8 +5,8 @@ const Map<String, String> deDE = <String, String>{
   'Image Error': 'Bildfehler',
   'Could not select image. Please try again later.':
       'Bild konnte nicht ausgewählt werden. Bitte versuchen Sie es später noch einmal.',
-  'Capture': 'Aufnehmen',
-  'Select': 'Auswählen',
+  'Camera': 'Kamera',
+  'Gallery': 'Galerie',
   'Diagnosis Failed': 'Diagnose fehlgeschlagen',
   'Notes Updated': 'Notizen aktualisiert',
   'Error Saving Notes': 'Fehler beim Speichern der Notizen',
@@ -42,6 +42,7 @@ const Map<String, String> deDE = <String, String>{
   'Dismiss': 'Schließen',
   'Suspicious': 'Auffällig',
   'Excised': 'Entfernt',
+  'Excised Lesion': 'Entfernte Läsion',
   'Normal': 'Normal',
   'Medical History': 'Medizinische Vorgeschichte',
   'Sunburn History': 'Sonnenbrand-Historie',
@@ -62,7 +63,7 @@ const Map<String, String> deDE = <String, String>{
       'Ihre E-Mail-Adresse ist nicht korrekt formatiert.',
   'Password Insecure': 'Passwort unsicher',
   'Registration Failed': 'Registrierung fehlgeschlagen',
-  'Register Successful': 'Registrierung erfolgreich',
+  'Registration Successful': 'Registrierung erfolgreich',
   'Profile Creation Error': 'Fehler bei der Profilerstellung',
   'Different E-Mails': 'E-Mails stimmen nicht überein',
   'Change Failed': 'Änderung fehlgeschlagen',
@@ -83,6 +84,10 @@ const Map<String, String> deDE = <String, String>{
   'Full Name': 'Vollständiger Name',
   'Date of Birth': 'Geburtsdatum',
   'Gender': 'Geschlecht',
+  'Male': 'Männlich',
+  'Female': 'Weiblich',
+  'Divers': 'Divers',
+  'Undefined': 'Unbestimmt',
   'Correctly formatted': 'Korrekt formatiert',
   'Contains at least 8 characters': 'Enthält mindestens 8 Zeichen',
   'Contains an uppercase letter': 'Enthält einen Großbuchstaben',
@@ -163,7 +168,6 @@ const Map<String, String> deDE = <String, String>{
   'Patient Update Failed': 'Patientenaktualisierung fehlgeschlagen',
   'Create Lesion': 'Läsion erstellen',
   'Lesion Name': 'Name der Läsion',
-  'Record': 'Erfassen',
   'New Patient': 'Neuer Patient',
   'General Information': 'Allgemeine Informationen',
   'Sun & Lifestyle': 'Sonne & Lebensstil',
@@ -184,11 +188,12 @@ const Map<String, String> deDE = <String, String>{
   'Country': 'Land',
   'Birth Country': 'Geburtsland',
   'Update': 'Aktualisieren',
+  'Create': 'Erstellen',
   'Edit Lesion': 'Läsion bearbeiten',
   'Placement': 'Lokalisation',
   'Classification': 'Klassifikation',
-  'Suspicious Lesion': 'Verdächtige Läsion',
-  'Mark this lesion as suspicious.': 'Diese Läsion als verdächtig markieren.',
+  'Suspicious Lesion': 'Auffällige Läsion',
+  'Mark this lesion as suspicious.': 'Diese Läsion als auffällig markieren.',
   'Mark this lesion as excised.': 'Diese Läsion als entfernt markieren.',
   'Test Result': 'Testergebnis',
   'Edit Patient': 'Patient bearbeiten',
@@ -202,9 +207,9 @@ const Map<String, String> deDE = <String, String>{
   'Currently': 'Aktuell',
   'Pending': 'Ausstehend',
   'Invited on': 'Eingeladen am',
-  'You have successfully joined the practice':
-      'Sie sind der Praxis erfolgreich beigetreten',
-  'Accept invitation of': 'Einladung annehmen von',
+  'You have successfully joined the practice.':
+      'Sie sind der Praxis erfolgreich beigetreten.',
+  'Accept invitation?': 'Einladung annehmen?',
   'Your name was successfully changed.': 'Ihr Name wurde erfolgreich geändert.',
   'An invitation has been sent.': 'Eine Einladung wurde gesendet.',
   'The doctor has been successfully removed from your practice!':
@@ -261,8 +266,7 @@ const Map<String, String> deDE = <String, String>{
       'E-Mail-Adressen stimmen nicht überein. Bitte überprüfen und erneut versuchen.',
   'Confirmation link sent. Please log out, verify your new email, and log back in.':
       'Bestätigungslink gesendet. Bitte melden Sie sich ab, verifizieren Sie Ihre neue E-Mail-Adresse und melden Sie sich wieder an.',
-  'Please log out, verify your email via the link, and log back in.':
-      'Bitte melden Sie sich ab, verifizieren Sie Ihre E-Mail über den Link und melden Sie sich wieder an.',
+  'Password changed successfully.': 'Passwort erfolgreich geändert.',
   'Are you sure you want to log out?':
       'Sind Sie sicher, dass Sie sich abmelden möchten?',
   'Acceptance failed. Invitation invalid or you are already assigned.':
@@ -285,6 +289,19 @@ const Map<String, String> deDE = <String, String>{
       'Widerruf fehlgeschlagen. Die Einladung wurde möglicherweise bereits widerrufen.',
   'No doctors available.\nPress refresh to check again.':
       'Keine Ärzte verfügbar.\nDrücken Sie Aktualisieren, um erneut zu prüfen.',
+  'No Doctors Available': 'Keine Ärzte verfügbar',
+  'PDF Export': 'PDF-Export',
+  'No lesions found for this patient.':
+      'Keine Läsionen für diesen Patienten gefunden.',
+  'Export Properties': 'Export-Eigenschaften',
+  'AI Classification': 'KI-Klassifikation',
+  'Export AI-based classification results for each lesion':
+      'KI-basierte Klassifikationsergebnisse für jede Läsion exportieren',
+  'ABC Scores': 'ABC-Scores',
+  'Export ABC scores for each lesion': 'ABC-Scores für jede Läsion exportieren',
+  'Export notes for each lesion': 'Notizen für jede Läsion exportieren',
+  'Lesions': 'Läsionen',
+  'Export': 'Exportieren',
   'No other doctors in practice.\nPress below to invite.':
       'Keine anderen Ärzte in der Praxis.\nDrücken Sie unten, um jemanden einzuladen.',
   'No pending invitations.\nUnaccepted invites will appear here.':
@@ -300,12 +317,17 @@ const Map<String, String> deDE = <String, String>{
   'Profile successfully updated.': 'Profil erfolgreich aktualisiert.',
   'Profile update failed. Please check your data.':
       'Profilaktualisierung fehlgeschlagen. Bitte überprüfen Sie Ihre Daten.',
-  'No lesion found here. Record one now?':
-      'Hier wurde keine Läsion gefunden. Jetzt eine aufzeichnen?',
+  'No lesion found here. Create one now?':
+      'Hier wurde keine Läsion gefunden. Jetzt eine erstellen?',
   'No patients found.\nPress below to add a patient.':
       'Keine Patienten gefunden.\nDrücken Sie unten, um einen Patienten hinzuzufügen.',
   'Invited members will gain full access to practice data.':
       'Eingeladene Mitglieder erhalten vollen Zugriff auf die Praxisdaten.',
   'Remove doctor? They will lose access to all shared data.':
       'Arzt entfernen? Die Person verliert den Zugriff auf alle freigegebenen Daten.',
+  'No lesions': 'Keine Läsionen',
+  'The selected patient currently has no lesion.\n Add new lesions on the previous screen.':
+      'Der ausgewählte Patient hat derzeit keine Läsion.\n Fügen Sie auf dem vorherigen Bildschirm neue Läsionen hinzu.',
+  'Your account was created and you are now logged in.':
+      'Ihr Konto wurde erstellt und Sie sind jetzt eingeloggt.',
 };

@@ -105,6 +105,6 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
       return '${'Currently'.tr}: $email';
     }
 
-    return '${'Currently'.tr}: $email\n${'Pending'.tr}: $newEmail\n${'Please verify email and login again'.tr}';
+    return '${'Currently'.tr}: $email\n${'Pending'.tr}: $newEmail\n${'Please verify email and login again.'.tr}';
   }
 }

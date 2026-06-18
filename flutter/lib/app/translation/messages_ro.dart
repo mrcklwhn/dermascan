@@ -5,8 +5,8 @@ const Map<String, String> roRO = <String, String>{
   'Image Error': 'Eroare imagine',
   'Could not select image. Please try again later.':
       'Nu s-a putut selecta imaginea. Vă rugăm să încercați mai târziu.',
-  'Capture': 'Fotografiază',
-  'Select': 'Selectează',
+  'Camera': 'Cameră',
+  'Gallery': 'Galerie',
   'Diagnosis Failed': 'Diagnosticare eșuată',
   'Notes Updated': 'Note actualizate',
   'Error Saving Notes': 'Eroare la salvarea notelor',
@@ -40,6 +40,7 @@ const Map<String, String> roRO = <String, String>{
   'Input': 'Introducere',
   'Dismiss': 'Închide',
   'Suspicious': 'Suspect',
+  'Excised Lesion': 'Excizat leziune',
   'Excised': 'Excizat',
   'Normal': 'Normal',
   'Medical History': 'Istoric medical',
@@ -61,7 +62,7 @@ const Map<String, String> roRO = <String, String>{
       'Adresa de e-mail nu este formatată corect.',
   'Password Insecure': 'Parolă nesigură',
   'Registration Failed': 'Înregistrare eșuată',
-  'Register Successful': 'Înregistrare reușită',
+  'Registration Successful': 'Înregistrare reușită',
   'Profile Creation Error': 'Eroare la crearea profilului',
   'Different E-Mails': 'E-mailurile nu se potrivesc',
   'Change Failed': 'Modificare eșuată',
@@ -82,6 +83,10 @@ const Map<String, String> roRO = <String, String>{
   'Full Name': 'Nume complet',
   'Date of Birth': 'Data nașterii',
   'Gender': 'Gen',
+  'Male': 'Masculin',
+  'Female': 'Feminin',
+  'Divers': 'Divers',
+  'Undefined': 'Nedefinit',
   'Correctly formatted': 'Formatat corect',
   'Contains at least 8 characters': 'Conține cel puțin 8 caractere',
   'Contains an uppercase letter': 'Conține o literă mare',
@@ -161,7 +166,6 @@ const Map<String, String> roRO = <String, String>{
   'Patient Update Failed': 'Actualizarea pacientului a eșuat',
   'Create Lesion': 'Creează leziune',
   'Lesion Name': 'Numele leziunii',
-  'Record': 'Înregistrează',
   'New Patient': 'Pacient nou',
   'General Information': 'Informații generale',
   'Sun & Lifestyle': 'Soare și stil de viață',
@@ -183,6 +187,7 @@ const Map<String, String> roRO = <String, String>{
   'Country': 'Țară',
   'Birth Country': 'Țara de naștere',
   'Update': 'Actualizează',
+  'Create': 'Creează',
   'Edit Lesion': 'Editează leziunea',
   'Placement': 'Localizare',
   'Classification': 'Clasificare',
@@ -203,9 +208,9 @@ const Map<String, String> roRO = <String, String>{
   'Currently': 'În prezent',
   'Pending': 'În așteptare',
   'Invited on': 'Invitat la data de',
-  'You have successfully joined the practice':
-      'V-ați alăturat cu succes cabinetului',
-  'Accept invitation of': 'Acceptă invitația de la',
+  'You have successfully joined the practice.':
+      'V-ați alăturat cu succes cabinetului.',
+  'Accept invitation?': 'Acceptă invitația?',
   'Your name was successfully changed.':
       'Numele dumneavoastră a fost modificat cu succes.',
   'An invitation has been sent.': 'O invitație a fost trimisă.',
@@ -263,8 +268,7 @@ const Map<String, String> roRO = <String, String>{
       'E-mailurile nu se potrivesc. Vă rugăm să verificați și să încercați din nou.',
   'Confirmation link sent. Please log out, verify your new email, and log back in.':
       'Linkul de confirmare a fost trimis. Vă rugăm să vă deconectați, să vă verificați noul e-mail și să vă autentificați din nou.',
-  'Please log out, verify your email via the link, and log back in.':
-      'Vă rugăm să vă deconectați, să vă verificați e-mailul prin intermediul linkului și să vă autentificați din nou.',
+  'Password changed successfully.': 'Parola a fost schimbată cu succes.',
   'Are you sure you want to log out?':
       'Sunteți sigur că doriți să vă deconectați?',
   'Acceptance failed. Invitation invalid or you are already assigned.':
@@ -287,6 +291,20 @@ const Map<String, String> roRO = <String, String>{
       'Revocarea a eșuat. Este posibil ca invitația să fie deja revocată.',
   'No doctors available.\nPress refresh to check again.':
       'Niciun medic disponibil.\nApăsați reîmprospătare pentru a verifica din nou.',
+  'No Doctors Available': 'Niciun medic disponibil',
+  'PDF Export': 'Export PDF',
+  'No lesions found for this patient.':
+      'Nu au fost găsite leziuni pentru acest pacient.',
+  'Export Properties': 'Proprietăți export',
+  'AI Classification': 'Clasificare AI',
+  'Export AI-based classification results for each lesion':
+      'Exportă rezultatele clasificării bazate pe AI pentru fiecare leziune',
+  'ABC Scores': 'Scoruri ABC',
+  'Export ABC scores for each lesion':
+      'Exportă scorurile ABC pentru fiecare leziune',
+  'Export notes for each lesion': 'Exportă notele pentru fiecare leziune',
+  'Lesions': 'Leziuni',
+  'Export': 'Exportă',
   'No other doctors in practice.\nPress below to invite.':
       'Nu mai există alți medici în cabinet.\nApăsați mai jos pentru a invita.',
   'No pending invitations.\nUnaccepted invites will appear here.':
@@ -302,12 +320,17 @@ const Map<String, String> roRO = <String, String>{
   'Profile successfully updated.': 'Profil actualizat cu succes.',
   'Profile update failed. Please check your data.':
       'Actualizarea profilului a eșuat. Vă rugăm să vă verificați datele.',
-  'No lesion found here. Record one now?':
-      'Nu s-a găsit nicio leziune aici. Înregistrați una acum?',
+  'No lesion found here. Create one now?':
+      'Nu s-a găsit nicio leziune aici. Creați una acum?',
   'No patients found.\nPress below to add a patient.':
       'Nu s-au găsit pacienți.\nApăsați mai jos pentru a adăuga un pacient.',
   'Invited members will gain full access to practice data.':
       'Membrii invitați vor primi acces complet la datele cabinetului.',
   'Remove doctor? They will lose access to all shared data.':
       'Eliminați medicul? Acesta va pierde accesul la toate datele partajate.',
+  'No lesions': 'Nicio leziune',
+  'The selected patient currently has no lesion.\n Add new lesions on the previous screen.':
+      'Pacientul selectat nu are nicio leziune în prezent.\n Adăugați noi leziuni pe ecranul anterior.',
+  'Your account was created and you are now logged in.':
+      'Contul dumneavoastră a fost creat și acum sunteți conectat.',
 };
