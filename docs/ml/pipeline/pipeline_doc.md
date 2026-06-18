@@ -1,69 +1,49 @@
 # Trainingspipeline
 
-Die Trainingspipeline wurde entwickelt, um die verschiedenen Modellansätze des Projekts systematisch trainieren, bewerten und miteinander vergleichen zu können. Im Verlauf der Modellentwicklung entstand schnell die Schwierigkeit, dass nicht nur ein einzelnes Modell betrachtet wurde, sondern viele Varianten: verschiedene Eingabedaten, unterschiedliche Bildfilter (Gabor, LBP, GLCM), Transfer Learning, Maßnahmen gegen das Klassenungleichgewicht, unterschiedliche Bewertungsmetriken und später unterschiedliche CNN-Architekturen. Ohne eine gemeinsame Pipeline wären diese Experimente nur schwer vergleichbar und sehr umständlich konfigurierbar gewesen, da << Erkläre wieso sinnvoll >>.
+Die Trainingspipeline entstand nach der Entscheidung für eine Multibranch-Architektur. Diese Architektur untersucht mehrere Sichtweisen auf dieselbe Hautläsion: Ein Branch kann mit RGB-Bildern arbeiten, andere Branches mit gefilterten Repräsentationen wie Gabor, LBP oder GLCM. Dadurch entstand die Notwendigkeit, viele Experimente mit unterschiedlichen Eingaben, Modellen und Hyperparametern vergleichbar durchführen zu können.
 
-Die Pipeline erfüllt deshalb vor allem die Rolle eines einheitlichen Experimentrahmens. Sie nimmt eine Trainingsidee entgegen, bereitet die Daten passend vor, trainiert das Modell, bewertet das Ergebnis und speichert alle Informationen, die später für den Vergleich und die Rückverfolgung benötigt werden. Damit bildet sie die Verbindung zwischen der konzeptionellen Modellentwicklung, den im Auditing beschriebenen Anforderungen an Reproduzierbarkeit und den späteren Trainingsergebnissen.
+Ohne eine gemeinsame Pipeline wären die Ergebnisse der Branches nur eingeschränkt vergleichbar. Unterschiede im Datensplit, in der Normalisierung, Augmentierung, Klassengewichtung oder Threshold-Wahl können die Metriken stark beeinflussen. Die Pipeline stellt deshalb einen einheitlichen Experimentrahmen bereit: Sie lädt eine Konfiguration, erzeugt Train-/Val-/Test-Splits, baut Datenloader und Modell, trainiert den Branch, bewertet ihn und speichert alle relevanten Artefakte. Dadurch können aus vielen Trainingsläufen gezielt die besten Modelle ausgewählt werden, die später über Ensemble Voting kombiniert werden.
 
-## Einordnung in die Modellarchitektur
+## Konfiguration
 
-<< Hier Teil über JSON-Config -> wieso nutzen wir BaseModels von Pydantic?? >>
+Die Pipeline wird über JSON-nahe Pydantic-`BaseModel`-Klassen konfiguriert. Das ist sinnvoll, weil ein Trainingslauf viele verschachtelte Entscheidungen enthält: Modelltyp, Filtertyp, Loss-Funktion, Optimizer, Scheduler, Batchgröße, Augmentierungen, Sampler und Seed. Pydantic validiert diese Werte früh, wandelt sie in typisierte Python-Objekte um und verhindert so viele Fehler, die sonst erst während des Trainings auffallen würden.
 
-Ausgangspunkt für die Pipeline ist der HAM10000-Datensatz, der für das Projekt auf die binäre Klassifikation zwischen Melanom und Nicht-Melanom reduziert wurde. Aus diesen Daten entstehen zunächst feste Trainings-, Validierungs- und Testbereiche. Diese Trennung ist wichtig, weil das Modell nicht auf denselben Bildern bewertet werden darf, auf denen es zuvor gelernt hat.
+Die Konfigurationen sind außerdem gut serialisierbar. Dadurch kann die verwendete Branch-Konfiguration zusammen mit Modell, Metriken und Trainingsverlauf gespeichert werden. Für Auditing und Reproduzierbarkeit ist das zentral, weil ein später genutztes Modell nur dann nachvollziehbar ist, wenn seine exakten Trainingsparameter erhalten bleiben.
 
-Anschließend können mehrere Trainingspfade parallel gedacht und nacheinander ausgeführt werden. Ein solcher Pfad entspricht einem Branch der Multibranch-Idee. Ein Branch kann zum Beispiel mit den originalen RGB-Bildern arbeiten, während ein anderer Branch gefilterte Bilddaten wie Gabor-, LBP- oder GLCM-Repräsentationen nutzt. Dadurch lässt sich untersuchen, ob bestimmte visuelle Informationen für die Klassifikation hilfreicher sind als andere.
+## Datenladen und Augmentierung
 
-Innerhalb eines Trainingspfads werden die Daten nach wunsch augmentiert und an ein CNN übergeben. Die Augmentierung erzeugt leicht veränderte Versionen der Trainingsbilder, zum Beispiel durch Spiegelung, Zuschnitt oder Rotation. Wieso nutzen wir Albumentations als Lib? Wieso eingnene sich manche Augemntierungen nur für RGB Bilder? Dadurch sieht das Modell während des Trainings mehr Variation und soll robuster gegenüber unterschiedlichen Aufnahmesituationen werden. Die Validierungs- und Testdaten werden dagegen nur an den Input-Size der jeweiligen Modellarchitektur skaliert und nicht zufällig verändert, damit die Bewertung stabil und nachvollziehbar bleibt.
+Die Pipeline nutzt PyTorch-`DataLoader`, weil Training in Batches, paralleles Laden, Shuffling und optional gewichtetes Sampling damit direkt unterstützt werden. Die `DataLoaderFactory` kapselt dabei, ob ein Branch RGB-Bilder oder vorberechnete `.npy`-Feature-Maps lädt. Der Trainer erhält am Ende immer Tensor-Batches und muss die konkrete Datenquelle nicht kennen.
 
-<< Teil über Validierung und wieso nach F1-Metrik geschaut wird.. >>
+Augmentierungen werden mit Albumentations aufgebaut. Die Bibliothek bietet performante und gut kombinierbare Bildoperationen wie Resize, Crop, Rotation, Flip, ColorJitter, CoarseDropout, Normalisierung und `ToTensorV2`. Der `AugmentationBuilder` übersetzt die konfigurierten `AugmentationType`-Werte in eine passende Transformationspipeline und berücksichtigt dabei die Eingabegröße der jeweiligen Modellarchitektur.
 
-Nach dem Training bewertet die Pipeline das Modell auf Testdaten. Dabei wird nicht nur eine einfache Genauigkeit betrachtet, weil der Datensatz stark unausgeglichen ist. Melanome sind deutlich seltener als gutartige Nävi. Ein Modell könnte deshalb eine scheinbar hohe Accuracy erreichen, obwohl es Melanome zu häufig übersieht. Die Pipeline betrachtet daher Metriken wie Sensitivität, Spezifität, F1-Werte und AUC. Besonders relevant ist die Sensitivität, weil falsch negative Melanom-Vorhersagen im medizinischen Kontext kritisch sind.
+Nicht jede Augmentierung ist für jede Repräsentation gleich geeignet. Geometrische Operationen können für RGB- und Filterdaten sinnvoll sein, solange die Läsion fachlich erhalten bleibt. Farbveränderungen wie `ColorJitter` passen dagegen vor allem zu RGB-Bildern, weil Gabor-, LBP- oder GLCM-Kanäle keine echten Farbkanäle darstellen. Validierungs- und Testdaten werden bewusst nur deterministisch resized und normalisiert, damit die Bewertung stabil und reproduzierbar bleibt.
 
-## Zusammenhang mit Transfer Learning
+## Training und Bewertung
 
-<< Transfer Learning am Anfang als Ziel jedoch später festgestellt, dass ohne pretrained Weights viel bessere Ergebnisse rauskommen. Formuliere die anschließende Absätze um >>
+Während des Trainings wird nach jeder Epoche auf dem Validierungsset geprüft, wie gut das Modell generalisiert. Das beste Modell wird anhand des Val-F1-Macro-Scores gespeichert. Diese Metrik ist geeigneter als reine Accuracy, weil der HAM10000-Datensatz in der binären Melanom-Klassifikation unausgeglichen ist. Macro-F1 gewichtet beide Klassen gleich und verhindert, dass ein Modell nur wegen guter Leistung auf der häufigeren Nicht-Melanom-Klasse bevorzugt wird.
 
-Transfer Learning war ein zentraler Grund für den Aufbau der Pipeline. Statt CNNs vollständig von Grund auf zu trainieren, werden vortrainierte Architekturen verwendet, die bereits auf großen Bilddatensätzen gelernt haben, allgemeine visuelle Merkmale zu erkennen. Solche Modelle können beispielsweise Kanten, einfache Formen, Texturen und später komplexere Bildstrukturen erfassen. Diese Fähigkeit wird für die Hautläsionsklassifikation wiederverwendet und an die konkrete Aufgabe angepasst.
+Nach dem Training wird auf dem Validierungsset ein geeigneter Threshold gesucht. Der Standardwert `0.5` ist bei unausgeglichenen Daten und medizinisch unterschiedlichen Fehlerkosten nicht zwingend optimal. Die Pipeline sucht deshalb einen Threshold, der eine Mindest-Spezifität erfüllt und dabei die Sensitivität maximiert. Erst danach wird das Testset mit diesem Threshold ausgewertet, damit das Testset nicht zur Modellentscheidung verwendet wird.
 
-Für das Projekt ist dieser Ansatz besonders sinnvoll, weil der verfügbare medizinische Datensatz vergleichsweise klein und unausgeglichen ist. Ein vollständig neu trainiertes Modell müsste alle relevanten Bildmerkmale allein aus diesen Daten lernen. Ein vortrainiertes Modell bringt dagegen bereits eine visuelle Grundrepräsentation mit. In der Pipeline kann deshalb getestet werden, ob es besser ist, große Teile des Modells eingefroren zu lassen und nur die letzte Entscheidungsschicht anzupassen, oder ob mehr Schichten weitertrainiert werden sollten.
+Neben Accuracy werden Sensitivität, Spezifität, F1-Werte, AUC und MCC betrachtet. Besonders wichtig ist die Sensitivität, weil falsch negative Melanom-Vorhersagen kritisch sind. Gleichzeitig muss die Spezifität beachtet werden, damit nicht zu viele gutartige Läsionen fälschlich als auffällig bewertet werden.
 
-## Unterschiedliche Modellfamilien
+## Transfer Learning und Modellvarianten
 
-Die Pipeline erlaubt außerdem den Vergleich verschiedener Modellfamilien. ResNet diente als naheliegender Einstieg, weil diese Architektur weit verbreitet und gut verstanden ist. Effizientere Modelle wie EfficientNet oder MobileNet sind ebenfalls relevant, weil das finale System perspektivisch auf mobilen Endgeräten laufen soll. Die Pipeline macht diese Varianten vergleichbar, indem sie für jeden Lauf dieselbe Grundstruktur aus Datenaufbereitung, Training, Bewertung und Ergebnisablage verwendet.
+Transfer Learning war anfangs ein naheliegender Ansatz, weil vortrainierte Torchvision-Modelle bereits allgemeine visuelle Merkmale wie Kanten, Formen und Texturen gelernt haben. Die Pipeline unterstützt daher `pretrained=true` sowie das optionale Einfrieren bestehender Gewichte über `freeze_weights=true`.
 
-Bei gefilterten Bilddaten wird Transfer Learning etwas anspruchsvoller. Vortrainierte Modelle erwarten normalerweise RGB-Bilder mit drei Farbkanälen. Filterdaten können jedoch eine andere Kanalzahl und andere Wertebereiche haben. Die Pipeline wurde deshalb so aufgebaut, dass auch solche Eingaben trainiert und bewertet werden können. Fachlich bedeutet das: Die gleiche Modellfamilie kann sowohl auf normalen Bildern als auch auf speziell hervorgehobenen Strukturinformationen untersucht werden.
+Im Projekt zeigte sich jedoch, dass das reine Trainieren der letzten Schicht bei eingefrorenen Gewichten schlechte Ergebnisse liefert. Statt den Backbone vollständig einzufrieren, ist es jedoch sinnvoller, mehr Schichten weiterzutrainieren und das Modell stärker an die Hautläsionsdaten anzupassen. Besonders bei Filterdaten unterscheiden sich Kanalzahl und Bedeutung der Eingaben stark von normalen RGB-Fotos. Ein Gabor- oder GLCM-Branch verarbeitet technische Merkmalsrepräsentationen, nicht natürliche Farbbilder. Diese Flexibilität war wichtig, um unterschiedliche Transfer-Learning-Strategien kontrolliert prüfen zu können.
 
-## Umgang mit unausgeglichenen Daten
+Die `ModelFactory` macht verschiedene Torchvision-Architekturen vergleichbar, etwa ResNet, EfficientNet, MobileNet, Inception und SqueezeNet. Bei Filterdaten wird der erste Conv-Layer an die jeweilige Kanalzahl angepasst, und der Output-Layer wird passend zur binären Klassifikation ersetzt.
 
-<< Erkläre wieso dafür WeightedRandomSampler und jeweils angepasste Bestraffung (Criterion bzw. Pos Weights) sehr gut geeinget sind. Erkläre was sie machen >>
+## Umgang mit Klassenungleichgewicht
 
-Der HAM10000-Datensatz enthält deutlich mehr gutartige Nävi als Melanome. Dieses Ungleichgewicht beeinflusst das Training stark, weil ein Modell sonst dazu neigen kann, die häufigere Klasse zu bevorzugen. Die Pipeline unterstützt deshalb mehrere Maßnahmen, um die seltenere Melanom-Klasse stärker zu berücksichtigen.
+Der Datensatz enthält deutlich weniger Melanome als gutartige Nävi. Die Pipeline kombiniert deshalb mehrere Maßnahmen gegen Klassenungleichgewicht. Der `WeightedRandomSampler` wirkt auf der Datenebene: Melanom-Beispiele können häufiger in Trainingsbatches gezogen werden, obwohl sie im Datensatz seltener sind. Gewichtete Loss-Funktionen wirken auf der Optimierungsebene: `pos_weight` bei `BCEWithLogitsLoss` oder `class_weights` bei `CrossEntropyLoss` erhöhen die Bestrafung für Fehler auf der Minderheitsklasse.
 
-Zum einen können Fehlklassifikationen der Minderheitsklasse im Training stärker gewichtet werden. Zum anderen können Melanom-Beispiele beim Zusammenstellen der Trainingsbatches häufiger berücksichtigt werden. Beide Ansätze verfolgen dasselbe Ziel: Das Modell soll nicht nur die Mehrheitsklasse gut erkennen, sondern auch ausreichend empfindlich für Melanome bleiben.
+Zusätzlich wirkt die Threshold-Optimierung auf der Entscheidungsebene. Das Modell gibt zunächst Wahrscheinlichkeiten aus; erst der Threshold entscheidet zwischen Melanom und Nicht-Melanom. Durch die Wahl eines geeigneten Thresholds kann die Pipeline Sensitivität und Spezifität besser an die medizinische Aufgabenstellung anpassen.
 
-<< Erkläre wieso Thresholds auch einer der guten Vorgehensweisen gegen Klassenungleichgewicht Problem ist >>
+## Auditing und Architektur
 
-Auch die Wahl des Entscheidungsschwellwerts ist dabei wichtig. Ein CNN gibt zunächst eine Wahrscheinlichkeit aus. Erst ein Threshold entscheidet, ab wann diese Wahrscheinlichkeit als Melanom gewertet wird. Ein fester Standardwert ist nicht zwangsläufig für den medizinischen Kontext geeignet. Deshalb sucht die Pipeline auf dem Validierungsset nach einem sinnvollen Threshold, der eine Mindest-Spezifität einhält und gleichzeitig die Sensitivität möglichst hoch hält. So wird die Entscheidung stärker an den Anforderungen der Aufgabe ausgerichtet.
+Die Pipeline speichert pro Branch Modellgewichte, Branch-Konfiguration, Trainingsverlauf, finale Metriken und Plots wie Confusion Matrix, ROC-Kurve, Precision-Recall-Kurve und Konfidenzverteilung. Zusätzlich werden Parameter, Metriken, Artefakte und Modelle über MLflow protokolliert. Dadurch bleibt nachvollziehbar, mit welchen Daten und Einstellungen ein Modell entstanden ist.
 
-## 
+Architektonisch ist die Pipeline modular aufgebaut. Der `PipelineOrchestrator` koordiniert den Gesamtablauf, die `DataLoaderFactory` baut die Loader, der `AugmentationBuilder` erzeugt Transformationen, die `ModelFactory` baut Modelle, der `Trainer` übernimmt Training und Evaluation, der `MetricsCalculator` berechnet Metriken und Thresholds, und `Plotter` sowie `MLFlowLogger` speichern Ergebnisse. Diese Trennung macht neue Branches, Filter, Modelle oder Trainingsstrategien leichter integrierbar und hält die Multibranch-Experimente reproduzierbar vergleichbar.
 
-## Auditing und Ergebnisablage
-
-Ein wesentlicher Zweck der Pipeline ist die Auditierbarkeit der Trainingsläufe. Im Auditing-Kapitel wird beschrieben, warum ein trainiertes Modell später nachvollziehbar sein muss: Es soll erkennbar bleiben, mit welchen Daten, welcher Architektur, welchen Hyperparametern und welchem Trainingsverlauf es entstanden ist. Die Pipeline erzeugt genau diese Nachweise automatisch als Ergebnis eines Trainingslaufs.
-
-Zu einem Pipeline-Ergebnis gehören daher nicht nur die trainierten Modellgewichte. Gespeichert werden auch die verwendete Konfiguration, der Trainingsverlauf, die finalen Bewertungsmetriken und verschiedene Diagramme zur Modellbeurteilung. Dazu zählen zum Beispiel Verlaufsgrafiken für das Training, Konfusionsmatrizen sowie Kurven zur Einordnung der Klassifikationsleistung. Diese Artefakte sind keine losgelösten technischen Nebenprodukte, sondern die praktische Umsetzung des Auditing-Konzepts: Sie machen sichtbar, wie ein Modell entstanden ist und wie es sich auf unabhängigen Daten verhalten hat.
-
-Zusätzlich werden die Experimente über MLflow nachvollziehbar gemacht. MLflow dient hier als Experimentprotokoll, in dem Trainingsläufe mit ihren Parametern, Metriken und Artefakten gesammelt werden. Dadurch können mehrere Modelle nicht nur anhand einzelner Ergebnisdateien, sondern auch in einer gemeinsamen Übersicht verglichen werden. Gerade bei vielen Branches und wiederholten Trainingsläufen ist das wichtig, weil sonst schnell unklar wird, welches Modell zu welchem Experiment gehört.
-
-Die Auditierungsdaten sind außerdem relevant für den späteren Einsatz in der App. Wenn ein Modell exportiert und mobil verwendet wird, muss weiterhin nachvollziehbar bleiben, aus welchem Trainingslauf es stammt. Die Pipeline stellt diese Verbindung her, indem sie jeden Lauf eindeutig dokumentiert. So kann ein in der App verwendetes Modell später wieder mit seinen Trainingsdaten, seinen Metriken und seiner Konfiguration in Beziehung gesetzt werden.
-
-## Bedeutung für die Projektentwicklung
-
-Die Pipeline ist damit weniger als einzelnes Programm zu verstehen, sondern als methodischer Rahmen für die Modellentwicklung. Sie ermöglicht, Hypothesen kontrolliert zu prüfen: etwa ob Gabor-gefilterte Bilder zusätzliche Informationen liefern, ob Transfer Learning gegenüber einfachen CNNs Vorteile bringt oder ob bestimmte Modellarchitekturen besser für eine spätere mobile Nutzung geeignet sind.
-
-Gleichzeitig schafft sie eine gemeinsame Grundlage für die weiteren Kapitel. Die Multibranch-Architektur beschreibt, warum mehrere spezialisierte Sichtweisen auf eine Läsion sinnvoll sein können. Die Auditing-Dokumentation beschreibt, welche Informationen für Rückverfolgbarkeit und Reproduzierbarkeit benötigt werden. Die Trainingsergebnisse zeigen schließlich, welche Resultate mit den untersuchten Ansätzen erreicht wurden. Die Pipeline verbindet diese Teile, indem sie die Experimente einheitlich ausführt und ihre Ergebnisse vergleichbar dokumentiert.
-
-Für eine kurze praktische Anleitung zum Starten der Pipeline ist die separate [Quickstart-Seite](pipeline_getting_started.md) vorgesehen. Diese allgemeine Dokumentation erklärt dagegen vor allem, warum die Pipeline existiert, wie sie fachlich in die Modellentwicklung eingebettet ist und welche Rolle ihre Ausgaben für Bewertung und Auditing spielen.
-
-## Architektur
-
-<< Gehe auf die modulare Architektur und ihre Vorteile ein >>
+Die Pipeline ist damit der methodische Rahmen, um die Multibranch-Idee praktisch zu prüfen: verschiedene Datenrepräsentationen, Modellfamilien und Trainingsentscheidungen können unter kontrollierten Bedingungen verglichen werden. Die besten Branch-Modelle können anschließend als Kandidaten für das Ensemble Voting dienen und für eine spätere Nutzung in der App nachvollziehbar dokumentiert werden.
