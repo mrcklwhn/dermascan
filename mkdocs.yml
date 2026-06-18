@@ -24,6 +24,7 @@ nav:
   - Machine Learning: ./ml/README.md
   - Multibranch Architektur: ./ml/multibranch_architecture.md
   - Pipeline: ./ml/pipeline/README.md
+  - Pipeline Doc: ./ml/pipeline/pipeline_doc.md
   - Modell Export: ./ml/onnx_export.md
   - Auditierung: ./ml/auditing.md
   - Trainingsergebnisse: ./ml/training_results.md
