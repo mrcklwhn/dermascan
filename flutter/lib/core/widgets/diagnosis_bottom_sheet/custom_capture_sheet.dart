@@ -173,13 +173,13 @@ class CustomCaptureSheet extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.camera_enhance,
-              label: 'Capture'.tr,
+              label: 'Camera'.tr,
               onPressed: () => controller.selectImage(ImageSource.camera),
             ),
             _buildActionButton(
               context: context,
               icon: Icons.photo_library,
-              label: 'Select'.tr,
+              label: 'Gallery'.tr,
               onPressed: () => controller.selectImage(ImageSource.gallery),
             ),
           ],

@@ -5,8 +5,8 @@ const Map<String, String> enUS = <String, String>{
   'Image Error': 'Image Error',
   'Could not select image. Please try again later.':
       'Could not select image. Please try again later.',
-  'Capture': 'Capture',
-  'Select': 'Select',
+  'Camera': 'Camera',
+  'Gallery': 'Gallery',
   'Diagnosis Failed': 'Diagnosis Failed',
   'Notes Updated': 'Notes Updated',
   'Error Saving Notes': 'Error Saving Notes',
@@ -40,6 +40,7 @@ const Map<String, String> enUS = <String, String>{
   'Input': 'Input',
   'Dismiss': 'Dismiss',
   'Suspicious': 'Suspicious',
+  'Excised Lesion': 'Excised Lesion',
   'Excised': 'Excised',
   'Normal': 'Normal',
   'Medical History': 'Medical History',
@@ -61,7 +62,7 @@ const Map<String, String> enUS = <String, String>{
       'Your e-mail is not formatted correctly.',
   'Password Insecure': 'Password Insecure',
   'Registration Failed': 'Registration Failed',
-  'Register Successful': 'Register Successful',
+  'Registration Successful': 'Registration Successful',
   'Profile Creation Error': 'Profile Creation Error',
   'Different E-Mails': 'Different E-Mails',
   'Change Failed': 'Change Failed',
@@ -82,6 +83,10 @@ const Map<String, String> enUS = <String, String>{
   'Full Name': 'Full Name',
   'Date of Birth': 'Date of Birth',
   'Gender': 'Gender',
+  'Male': 'Male',
+  'Female': 'Female',
+  'Divers': 'Divers',
+  'Undefined': 'Undefined',
   'Correctly formatted': 'Correctly formatted',
   'Contains at least 8 characters': 'Contains at least 8 characters',
   'Contains an uppercase letter': 'Contains an uppercase letter',
@@ -161,7 +166,6 @@ const Map<String, String> enUS = <String, String>{
   'Patient Update Failed': 'Patient Update Failed',
   'Create Lesion': 'Create Lesion',
   'Lesion Name': 'Lesion Name',
-  'Record': 'Record',
   'New Patient': 'New Patient',
   'General Information': 'General Information',
   'Sun & Lifestyle': 'Sun & Lifestyle',
@@ -182,6 +186,7 @@ const Map<String, String> enUS = <String, String>{
   'Country': 'Country',
   'Birth Country': 'Birth Country',
   'Update': 'Update',
+  'Create': 'Create',
   'Edit Lesion': 'Edit Lesion',
   'Placement': 'Placement',
   'Classification': 'Classification',
@@ -200,9 +205,9 @@ const Map<String, String> enUS = <String, String>{
   'Currently': 'Currently',
   'Pending': 'Pending',
   'Invited on': 'Invited on',
-  'You have successfully joined the practice':
-      'You have successfully joined the practice',
-  'Accept invitation of': 'Accept invitation of',
+  'You have successfully joined the practice.':
+      'You have successfully joined the practice..',
+  'Accept invitation?': 'Accept invitation?',
   'Your name was successfully changed.': 'Your name was successfully changed.',
   'An invitation has been sent.': 'An invitation has been sent.',
   'The doctor has been successfully removed from your practice!':
@@ -257,8 +262,7 @@ const Map<String, String> enUS = <String, String>{
       'E-mails do not match. Please check and try again.',
   'Confirmation link sent. Please log out, verify your new email, and log back in.':
       'Confirmation link sent. Please log out, verify your new email, and log back in.',
-  'Please log out, verify your email via the link, and log back in.':
-      'Please log out, verify your email via the link, and log back in.',
+  'Password changed successfully.': 'Password changed successfully.',
   'Are you sure you want to log out?': 'Are you sure you want to log out?',
   'Acceptance failed. Invitation invalid or you are already assigned.':
       'Acceptance failed. Invitation invalid or you are already assigned.',
@@ -280,6 +284,18 @@ const Map<String, String> enUS = <String, String>{
       'Revocation failed. The invitation may already be revoked.',
   'No doctors available.\nPress refresh to check again.':
       'No doctors available.\nPress refresh to check again.',
+  'No Doctors Available': 'No Doctors Available',
+  'PDF Export': 'PDF Export',
+  'No lesions found for this patient.': 'No lesions found for this patient.',
+  'Export Properties': 'Export Properties',
+  'AI Classification': 'AI Classification',
+  'Export AI-based classification results for each lesion':
+      'Export AI-based classification results for each lesion',
+  'ABC Scores': 'ABC Scores',
+  'Export ABC scores for each lesion': 'Export ABC scores for each lesion',
+  'Export notes for each lesion': 'Export notes for each lesion',
+  'Lesions': 'Lesions',
+  'Export': 'Export',
   'No other doctors in practice.\nPress below to invite.':
       'No other doctors in practice.\nPress below to invite.',
   'No pending invitations.\nUnaccepted invites will appear here.':
@@ -295,12 +311,17 @@ const Map<String, String> enUS = <String, String>{
   'Profile successfully updated.': 'Profile successfully updated.',
   'Profile update failed. Please check your data.':
       'Profile update failed. Please check your data.',
-  'No lesion found here. Record one now?':
-      'No lesion found here. Record one now?',
+  'No lesion found here. Create one now?':
+      'No lesion found here. Create one now?',
   'No patients found.\nPress below to add a patient.':
       'No patients found.\nPress below to add a patient.',
   'Invited members will gain full access to practice data.':
       'Invited members will gain full access to practice data.',
   'Remove doctor? They will lose access to all shared data.':
       'Remove doctor? They will lose access to all shared data.',
+  'No lesions': 'No lesions',
+  'The selected patient currently has no lesion.\n Add new lesions on the previous screen.':
+      'The selected patient currently has no lesion.\n Add new lesions on the previous screen.',
+  'Your account was created and you are now logged in.':
+      'Your account was created and you are now logged in.',
 };

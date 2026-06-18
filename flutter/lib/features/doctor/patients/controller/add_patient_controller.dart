@@ -64,7 +64,7 @@ class AddPatientController extends GetxController {
 
     if (picked != null && picked != dateOfBirth) {
       dateOfBirth = picked;
-      birthdayController.text = DateFormat.yMMMd().format(picked);
+      birthdayController.text = DateFormat('dd.MM.yyyy').format(picked);
     }
   }
 

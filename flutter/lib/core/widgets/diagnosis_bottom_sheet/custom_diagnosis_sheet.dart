@@ -227,7 +227,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
                     ),
                     const SizedBox(height: AppTheme.spaceSmall),
                     Text(
-                      '${'Date'.tr}: ${DateFormat.yMMMd().format(diagnosis.date)}',
+                      '${'Date'.tr}: ${DateFormat('dd.MM.yyyy').format(diagnosis.date)}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
