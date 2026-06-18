@@ -5,11 +5,13 @@ class ToggleCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final RxBool value;
+
   const ToggleCard({
-    super.key, 
-    required this.title, 
-    required this.subtitle, 
-    required this.value});
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -105,7 +105,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     subtitle: Text(
                       '${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}\n'
                       '${'Country'.tr}: ${allCountries.firstWhereOrNull((Country c) => c.isoCode == patient.birthCountry)?.name ?? 'Not available'.tr}\n'
-                      '${'Gender'.tr}: ${patient.gender.name.capitalizeFirst}',
+                      '${'Gender'.tr}: ${patient.gender.name.capitalizeFirst?.tr}',
                     ),
                     onTap: () {
                       Get.back();
@@ -204,7 +204,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                           Card(
                             color: AppTheme.scaffoldBg,
                             child: ListTile(
-                              title: Text('Diagnosis'.tr),
+                              title: Text(item.locationName),
                               leading: AspectRatio(
                                 aspectRatio: 1.0,
                                 child: ClipRRect(
@@ -225,7 +225,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                '${'Location'.tr}: ${item.locationName}\n${'Date'.tr}: ${DateFormat('dd.MM.yyyy').format(item.diagnosis.date)}',
+                                '${'Date'.tr}: ${DateFormat('dd.MM.yyyy').format(item.diagnosis.date)}',
                               ),
                               onTap: () {
                                 Get.back();

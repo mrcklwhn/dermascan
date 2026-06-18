@@ -72,7 +72,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                       return DropdownMenuItem<Gender>(
                         value: g,
                         child: Text(
-                          g.name[0].toUpperCase() + g.name.substring(1),
+                          _genderTranslationKey(g).tr,
                           overflow: TextOverflow.ellipsis,
                         ),
                       );
@@ -212,7 +212,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                 onPressed: controller.isLoading.value
                     ? null
                     : controller.submitPatientData,
-                label: const Text('Update'),
+                label: Text('Create'.tr),
               ),
             ),
             const SizedBox(height: AppTheme.spaceLarge),
@@ -237,5 +237,18 @@ class AddPatientScreen extends GetView<AddPatientController> {
         ),
       ),
     );
+  }
+
+  String _genderTranslationKey(Gender gender) {
+    switch (gender) {
+      case Gender.male:
+        return 'Male';
+      case Gender.female:
+        return 'Female';
+      case Gender.divers:
+        return 'Divers';
+      case Gender.undefined:
+        return 'Undefined';
+    }
   }
 }

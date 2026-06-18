@@ -110,11 +110,11 @@ class PatientDetailsController extends GetxController {
       await CustomDialogHelper.show<bool>(
         routeName: 'create-lesion-dialog',
         title: 'Create Lesion'.tr,
-        subtitle: 'No lesion found here. Record one now?'.tr,
+        subtitle: 'No lesion found here. Create one now?'.tr,
         isDismissable: true,
         hasTextField: true,
         textFieldLabel: 'Lesion Name'.tr,
-        submitText: 'Record'.tr,
+        submitText: 'Create'.tr,
         onSubmit: (String locationName) async {
           isSubmitting = true;
 

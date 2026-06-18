@@ -87,7 +87,7 @@ class DoctorRegisterController extends GetxController {
 
     if (picked != null && picked != dateOfBirth) {
       dateOfBirth = picked;
-      birthdayController.text = DateFormat.yMMMd().format(picked);
+      birthdayController.text = DateFormat('dd.MM.yyyy').format(picked);
     }
   }
 
@@ -189,10 +189,9 @@ class DoctorRegisterController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Register Successful'.tr,
+              title: 'Registration Successful'.tr,
               message:
-                  'Your Registration was successful. Yor account was created and you are now logged in.'
-                      .tr,
+                  'Your account was created and you are now logged in.'.tr,
             ),
           );
         }
