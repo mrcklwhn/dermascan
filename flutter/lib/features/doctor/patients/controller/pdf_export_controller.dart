@@ -63,7 +63,7 @@ class PdfExportController extends GetxController {
     // returns true if all diagnoses are selected, false if none are selected, null if some are selected
     final int total = getTotalDiagnosesCountPerLesion(lesion);
     final int selected = getSelectedDiagnosesCount(lesion);
-    
+
     if (selected == 0) {
       return false;
     } else if (selected == total) {
@@ -103,11 +103,14 @@ class PdfExportController extends GetxController {
   }
 
   void toggleAllDiagnosesForLesion(BodyLesion lesion) {
-    final bool allSelected = getSelectedDiagnosesCount(lesion) ==
+    final bool allSelected =
+        getSelectedDiagnosesCount(lesion) ==
         getTotalDiagnosesCountPerLesion(lesion);
 
     if (allSelected) {
-      selectedDiagnoses.removeWhere((String key, Diagnosis _) => key.startsWith('${lesion.id}_'));
+      selectedDiagnoses.removeWhere(
+        (String key, Diagnosis _) => key.startsWith('${lesion.id}_'),
+      );
     } else {
       for (final Diagnosis diagnosis in lesion.diagnoses) {
         selectedDiagnoses['${lesion.id}_${diagnosis.id}'] = diagnosis;
@@ -120,22 +123,21 @@ class PdfExportController extends GetxController {
   Future<void> exportPDF() async {
     try {
       isExporting.value = true;
-      
+
       final pw.Document pdf = buildPdf();
       final Directory output = await getApplicationDocumentsDirectory();
       final File file = File('${output.path}/example.pdf');
-      
+
       // Save the PDF file
       await file.writeAsBytes(await pdf.save());
       isExporting.value = false;
 
       await SharePlus.instance.share(
         ShareParams(
-          files: [XFile(file.path)],
+          files: <XFile>[XFile(file.path)],
           title: 'Dermascan Report',
         ),
       );
-      
     } catch (e) {
       isExporting.value = false;
       if (!Get.isSnackbarOpen) {
@@ -144,7 +146,7 @@ class PdfExportController extends GetxController {
             icon: Icons.error,
             title: 'Export Failed',
             message:
-              'An error occurred while exporting the PDF. Please try again.',
+                'An error occurred while exporting the PDF. Please try again.',
           ),
         );
       }
@@ -155,8 +157,8 @@ class PdfExportController extends GetxController {
     int lesionIndex = 1;
 
     final List<BodyLesion> selectedLesions = lesions
-      .where((BodyLesion lesion) => getSelectedDiagnosesCount(lesion) > 0)
-      .toList();
+        .where((BodyLesion lesion) => getSelectedDiagnosesCount(lesion) > 0)
+        .toList();
 
     final pw.Document pdf = pw.Document();
     pdf.addPage(
@@ -241,10 +243,7 @@ class PdfExportController extends GetxController {
     );
   }
 
-  List<pw.Widget> _buildLesionSection(
-    BodyLesion lesion,
-    int index,
-  ) {
+  List<pw.Widget> _buildLesionSection(BodyLesion lesion, int index) {
     final List<Diagnosis> diagnosisRows = lesion.diagnoses
         .where((Diagnosis diagnosis) => isDiagnosisSelected(lesion, diagnosis))
         .toList();
@@ -285,9 +284,7 @@ class PdfExportController extends GetxController {
           ],
         ),
       ),
-      _buildDiagnosisTable(
-        diagnosisRows: diagnosisRows,
-      ),
+      _buildDiagnosisTable(diagnosisRows: diagnosisRows),
       pw.Padding(
         padding: const pw.EdgeInsets.only(top: 10, bottom: 16),
         child: pw.Divider(color: PdfColors.grey600, thickness: 1),
@@ -295,9 +292,7 @@ class PdfExportController extends GetxController {
     ];
   }
 
-  pw.Widget _buildDiagnosisTable({
-    required List<Diagnosis> diagnosisRows,
-  }) {
+  pw.Widget _buildDiagnosisTable({required List<Diagnosis> diagnosisRows}) {
     final List<pw.TableRow> rows = <pw.TableRow>[
       pw.TableRow(
         decoration: const pw.BoxDecoration(color: PdfColors.grey300),
@@ -307,8 +302,10 @@ class PdfExportController extends GetxController {
           if (shouldExportABCScores.value) _tableCell('A', isHeader: true),
           if (shouldExportABCScores.value) _tableCell('B', isHeader: true),
           if (shouldExportABCScores.value) _tableCell('C', isHeader: true),
-          if (shouldExportMLClassification.value) _tableCell('Class', isHeader: true),
-          if (shouldExportMLClassification.value) _tableCell('Confidence', isHeader: true),
+          if (shouldExportMLClassification.value)
+            _tableCell('Class', isHeader: true),
+          if (shouldExportMLClassification.value)
+            _tableCell('Confidence', isHeader: true),
           if (shouldExportNotes.value) _tableCell('Notes', isHeader: true),
         ],
       ),
@@ -317,9 +314,12 @@ class PdfExportController extends GetxController {
           children: <pw.Widget>[
             _tableCell(_formatDate(diagnosis.date, includeTime: true)),
             _imageCell(diagnosis.analyzedImages?['original']),
-            if (shouldExportABCScores.value) _tableCell(_formatScore(diagnosis.aScore)),
-            if (shouldExportABCScores.value) _tableCell(_formatScore(diagnosis.bScore)),
-            if (shouldExportABCScores.value) _tableCell(_formatScore(diagnosis.cScore)),
+            if (shouldExportABCScores.value)
+              _tableCell(_formatScore(diagnosis.aScore)),
+            if (shouldExportABCScores.value)
+              _tableCell(_formatScore(diagnosis.bScore)),
+            if (shouldExportABCScores.value)
+              _tableCell(_formatScore(diagnosis.cScore)),
             if (shouldExportMLClassification.value)
               _tableCell(diagnosis.prediction.name),
             if (shouldExportMLClassification.value)
@@ -339,8 +339,10 @@ class PdfExportController extends GetxController {
         if (shouldExportABCScores.value) 2: const pw.FlexColumnWidth(0.05),
         if (shouldExportABCScores.value) 3: const pw.FlexColumnWidth(0.05),
         if (shouldExportABCScores.value) 4: const pw.FlexColumnWidth(0.05),
-        if (shouldExportMLClassification.value) 5: const pw.FlexColumnWidth(0.10),
-        if (shouldExportMLClassification.value) 6: const pw.FlexColumnWidth(0.10),
+        if (shouldExportMLClassification.value)
+          5: const pw.FlexColumnWidth(0.10),
+        if (shouldExportMLClassification.value)
+          6: const pw.FlexColumnWidth(0.10),
         if (shouldExportNotes.value) 7: const pw.FlexColumnWidth(0.18),
       },
       children: rows,

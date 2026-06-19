@@ -61,7 +61,7 @@ class EditLesionScreen extends GetView<EditLesionController> {
             Obx(
               () => Card(
                 child: CheckboxListTile(
-                  title: Text('Excised'.tr),
+                  title: Text('Excised Lesion'.tr),
                   subtitle: Text('Mark this lesion as excised.'.tr),
                   value: controller.wasRemoved.value,
                   onChanged: (bool? value) {

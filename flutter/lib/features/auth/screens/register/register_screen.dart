@@ -129,7 +129,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
               return DropdownMenuItem<Gender>(
                 value: g,
                 child: Text(
-                  g.name[0].toUpperCase() + g.name.substring(1),
+                  _genderTranslationKey(g).tr,
                   overflow: TextOverflow.ellipsis,
                 ),
               );
@@ -301,4 +301,17 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       label: Text('Register'.tr),
     ),
   ];
+}
+
+String _genderTranslationKey(Gender gender) {
+  switch (gender) {
+    case Gender.male:
+      return 'Male';
+    case Gender.female:
+      return 'Female';
+    case Gender.divers:
+      return 'Divers';
+    case Gender.undefined:
+      return 'Undefined';
+  }
 }

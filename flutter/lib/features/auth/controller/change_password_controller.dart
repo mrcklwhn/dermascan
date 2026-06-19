@@ -1,6 +1,5 @@
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
-import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -128,23 +127,16 @@ class ChangePasswordController extends GetxController {
         }
       } else {
         Get.back(result: true);
-        await CustomDialogHelper.show(
-          routeName: 'password-changed-dialog',
-
-          title: 'Password Changed'.tr,
-
-          subtitle:
-              'Please log out, verify your email via the link, and log back in.'
-                  .tr,
-
-          isDismissable: true,
-
-          submitText: 'Logout'.tr,
-
-          onSubmit: (_) async {
-            await authService.signOut();
-          },
-        );
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check,
+              title: 'Password Changed'.tr,
+              message: 'Password changed successfully.'.tr,
+            ),
+          );
+        }
+        await authService.signOut();
       }
     } finally {
       isLoading.value = false;

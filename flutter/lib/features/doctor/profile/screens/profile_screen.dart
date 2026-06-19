@@ -15,7 +15,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: Text('Profile'.tr)),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -135,7 +135,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
   }
 
   String _buildEmailText(User? user) {
-    if (user == null) return 'Not available';
+    if (user == null) return 'Not available'.tr;
 
     final String? email = user.email;
     final String? newEmail = user.newEmail;
@@ -144,6 +144,6 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
       return '${'Currently'.tr}: $email';
     }
 
-    return '${'Currently'.tr}: $email\n${'Pending'.tr}: $newEmail\n${'Please verify email and login again'.tr}';
+    return '${'Currently'.tr}: $email\n${'Pending'.tr}: $newEmail\n${'Please verify email and login again.'.tr}';
   }
 }
