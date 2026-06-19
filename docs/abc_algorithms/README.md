@@ -1,20 +1,18 @@
 # Deterministische Algorithmen zur Merkmalsextraktion aus Bildern
 
 Die reine Verwendung eines neuronalen Klassifikators bringt den Nachteil mit sich, dass die Art und Weise der Klassifizierung eines Bildes für den Menschen nicht nachvollziehbar ist.
-Da dieses Projekt im medizinischen Kontext Verwendung finden soll, ist die Nachvollziehbarkeit von Entscheidungen jedoch eine grundlegende Vorraussetzung.
+Da dieses Projekt im medizinischen Kontext genutzt werden soll, ist die Nachvollziehbarkeit von Entscheidungen eine grundlegende Voraussetzung.
 
 Ein klassischer Arbeitsschritt von Dermatologen bei der Analyse von Hautläsionen ist die Anwendung der sogenannten [ABCDE-Kriterien](https://www.aad.org/public/diseases/skin-cancer/find/at-risk/abcdes), die verschiedene visuelle Merkmale einer Läsion bewerten.
 Diese Kriterien sind ein etabliertes Werkzeug für Dermatologen, um die Merkmale von Hautläsionen zu bewerten. Durch die Implementierung von Algorithmen, die diese Kriterien quantifizieren, können erklärbare Informationen bereitgestellt werden, die Ärzten helfen, fundierte Entscheidungen zu treffen.
 
-Diese Kriterien sind:
+Das folgende Bild stellt die Kriterien im Vergleich zwischen einem gutartigen Leberfleck (links) und einem bösartigen Melanom (rechts) dar:
 
-- **A**: Asymmetry (Asymmetrie)
-- **B**: Border (Grenzziehung)
-- **C**: Color (Farbvarianz)
-- **D**: Diameter (Durchmesser)
-- **E**: Evolution (Veränderung über die Zeit)
+![](../images/abcde_melanoma_eng.jpg)
 
-Da die Kriterien als weit verbreitet und klinisch relevant gelten, sollten sie in unserem Projekt ebenfalls berücksichtigt werden. Allerdings ist die direkte Implementierung von Evolution (D) und Diameter (E) aufgrund der fehlenden zeitlichen Daten und der Skalierungsproblematik nicht trivial, weshalb der Fokus auf die Kriterien A, B und C gelegt wurde.
+Quelle: https://www.aimatmelanoma.org/melanoma-101/understanding-melanoma/moles-and-other-lesions/know-your-abcdes/
+
+Da die Kriterien als weit verbreitet und klinisch relevant gelten, sollten sie in unserem Projekt ebenfalls berücksichtigt werden. Allerdings ist die direkte Implementierung von Diameter (D) und Evolution (E) aufgrund der fehlenden zeitlichen Daten und der Skalierungsproblematik nicht trivial, weshalb der Fokus auf die Kriterien A, B und C gelegt wurde.
 
 
 ## Details zur Implementierung
@@ -42,7 +40,7 @@ Dieser Ansatz basiert auf der vereinfachten Annahme, dass sich die Symmetrie ein
 1. Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding
 2. Zentroid-Berechnung: Bestimmung des geometrischen Schwerpunkts der Läsion, um die Quadranten zu definieren
 3. Quadranten-Aufteilung: Aufteilung der Maske in vier Quadranten basierend auf dem Zentroid
-4. Differenberechnung: Berechnung der absoluten Differenz zwischen diagonal gegenüberliegenden Quadranten
+4. Differenzberechnung: Berechnung der absoluten Differenz zwischen diagonal gegenüberliegenden Quadranten
 5. Normalisierung: Mittelung der zwei Differenzwerte und Normalisierung auf [0, 1], wobei 0 = völlig symmetrisch und 1 = völlig asymmetrisch
 
 
@@ -60,7 +58,7 @@ Dieser Ansatz ist wissenschaftlich präziser, da er die Spiegelsymmetrie entlang
 
 ![Asymmetry Score Verteilung](../images/asymmetry_score_analysis.png)
 
-Wie dem Boxplot zu entnehmen, eignet sich der Ansatz der Hauptachsen-basierten Spiegelsymmetrie deutlich besser zur Differenzierung zwischen Melanomen und Leberflecken, da der Mittelwert der Scores mit 0.27 für Melanome und 0.20 für Leberflecken deutlicher auseiander liegt als bei der quadranten-basierten Punktsymmetrie (0.37 vs. 0.35). Zudem erstreckt sich das 75. Perzentil der Melanom-Scores bis 0.61, was darauf hinweist, dass Melanome tendenziell deutlich asymmetrischer sind als Leberflecken. 
+Wie dem Boxplot zu entnehmen ist, eignet sich der Ansatz der hauptachsenbasierten Spiegelsymmetrie deutlich besser zur Differenzierung zwischen Melanomen und Leberflecken, da der Mittelwert der Scores mit 0.27 für Melanome und 0.20 für Leberflecken klarer getrennt ist als bei der quadrantenbasierten Punktsymmetrie (0.37 vs. 0.35). Zudem erstreckt sich das 75. Perzentil der Melanom-Scores bis 0.61, was darauf hinweist, dass Melanome tendenziell deutlich asymmetrischer sind als Leberflecken.
 
 
 ---
@@ -77,7 +75,7 @@ Die RDV-Methode quantifiziert die Abweichung der Läsionsform von einer idealen 
 2. Zentroid-Berechnung: Bestimmung des geometrischen Schwerpunkts der Läsion
 3. Bestimmung des Umrisses: Aufblähen der Maske durch Dilation und anschließend Subtraktion der ursprünglichen Maske
 4. Radiale Distanzberechnung: Berechnung der euklidischen Distanzen von jedem Punkt auf der Grenzlinie zum Zentroid
-5. Varianzberechnung: Ermittlung des Varainzkoeffizienten (Standardabweichung / Mittelwert) der Radien, um die Unregelmäßigkeit zu quantifizieren
+5. Varianzberechnung: Ermittlung des Varianzkoeffizienten (Standardabweichung / Mittelwert) der Radien, um die Unregelmäßigkeit zu quantifizieren
 6. Normalisierung: Skalierung des RDV-Werts auf [0, 1], wobei 0 = perfekte Kreisform und 1 = maximale Irregularität
 
 #### Ansatz 2: Konkavitäts-Analyse

@@ -1,6 +1,6 @@
-# Eigene Klassifikations Architektur
+# Eigene Klassifikationsarchitektur
 
-Als Teil der Modellentwicklung wurde eine eigene Multibranch CNN Architektur entworfen und implementiert.
+Als Teil der Modellentwicklung wurde eine eigene `Multibranch CNN Architektur` entworfen und implementiert.
 In Anlehnung an den menschlichen Analyseprozess von Hautläsionen, bei dem verschiedene visuelle Merkmale betrachtet werden, verfolgt diese Architektur den Ansatz, mehrere CNNs auf bestimmte Bildaspekte zu spezialisieren. 
 Jeder CNN-Branch soll sich dabei auf unterschiedliche Merkmale der Hautläsion konzentrieren, wie z.B. Farbe, Textur oder Form.
 Schließlich werden die Ausgaben der einzelnen Branches kombiniert, um eine finale Klassifikation zu erstellen.
@@ -28,5 +28,5 @@ Weitere Informationen zum Auditing-Prozess und der Rückverfolgung von Modellen 
 
 ## Siehe auch
 - [Auditierung](auditing.md)
-- [Trainingspipeline](./pipeline/README.md)
+- [Trainingspipeline](./pipeline.md)
 - [Trainingsergebnisse](./training_results.md)

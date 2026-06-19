@@ -1,60 +1,83 @@
-# Algorithmen für Läsionsmasken
+# Algorithmen fuer Laesionsmasken
 
-Das Ausschneiden einer Läsion aus einem Hautbild ist eine wichtiger Vorverarbeitungsschritt für die Anwendung der ABC-Kriterien, da diese sich auf die Analyse der Läsion selbst und nicht auf den Hintergrund konzentrieren. Da jedoch jede Läsion eine individuelle Form, Textur und Farbverteilung aufweist, ist die Segmentierung eine komplexe Aufgabe, die durch klassische Bildverarbeitungsalgorithmen nicht in allen Fällen zuverlässig gelöst werden kann.
+Die Segmentierung einer Hautlaesion ist ein zentraler Vorverarbeitungsschritt fuer die ABC-Algorithmen. Ziel ist es, die relevante Laesion vom Hintergrund zu trennen, damit Form-, Rand- und Farbmerkmale belastbar berechnet werden koennen.
 
-## Ansätze
+Da Laesionen sich in Form, Textur, Beleuchtung und Bildqualitaet stark unterscheiden, ist eine robuste Segmentierung anspruchsvoll. Im Projekt wurden deshalb ein klassischer und ein neuronaler Ansatz untersucht.
 
-**Otsu's Thresholding**: Ein klassischer Ansatz zur Segmentierung von Hautläsionen ist die Verwendung von Schwellenwertverfahren, wie z.B. der [Otsu-Methode](https://en.wikipedia.org/wiki/Otsu%27s_method), um eine binäre Maske zu erstellen. Diese Methode basiert auf der Analyse der Graustufenverteilung eines Bildes und sucht nach einem optimalen Schwellenwert, der die Läsion vom Hintergrund trennt.
+## Segmentierungsansaetze
 
+### Otsu-Thresholding
 
-**U-Net basierte Segmentierung**: Als alternativer Ansatz soll die Segmentierung durch ein neuronales Netz erfolgen, das speziell für die Segmentierung von Hautläsionen trainiert wurde. Die Hoffnung besteht darin, dass solche Modelle lernen können, die komplexen Merkmale einer Läsion zu erkennen und eine binäre Maske zu erstellen, in den Fällen, in denen klassische Algorithmen versagen.
+Otsu-Thresholding ist ein klassisches Schwellenwertverfahren. Es sucht automatisch einen Grauwert, der Vordergrund und Hintergrund moeglichst gut trennt. Das Ergebnis ist eine binaere Maske.
 
-Auf Kaggle wurden von Teilnehmern verschiedene Implementierungen veröffentlicht. Das [vielversprechendste Beispiel](https://www.kaggle.com/code/dota2player/skin-lesion-segmentation-using-unet) setzt auf die Verwendung einer **U-Net** Architektur, welche durch ihre Encoder-Decoder Struktur für die Erstellung einer binären Maske geeignet ist. 
-Das veröffentlichte Modell wurde für unser Ziel der Anwendung auf mobilen Endgeräten übernommen. 
+Vorteile:
 
-## Vorverarbeitung und Nachverarbeitung
+- Einfach umzusetzen
+- Keine Trainingsdaten erforderlich
 
-Die Qualität der binären Läsionsmaske ist entscheidend für die Genauigkeit der ABC-Kriterien. Für beide Ansätze werden mehrere Vor- und Nachverarbeitungsschritte durchgeführt, um optimale Ergebnisse zu erzielen.
+Nachteile:
 
-### Vorverarbeitung
+- Sensibel gegen ungleichmaessige Beleuchtung
+- Kann Haare und Artefakte nicht immer ausreichend trennen
 
-Die Vorverarbeitung ist für beide Ansätze ähnlich hat aber zwei wesentliche Unterschiede. Zum einen muss das Bild für die Anwendung von Otsu's Methode in Graustufen konvertiert werden, während das U-Net-Modell mit RGB-Bildern trainiert wurde und daher die Farbinformationen erhalten bleiben müssen. Zum anderen erwartet das U-Net-Modell eine feste Eingabegröße von 256×256 Pixeln, weshalb hier eine Größenanpassung notwendig ist, während Otsu's Methode auf Bildern beliebiger Größe angewendet werden kann. 
+### U-Net-basierte Segmentierung
 
-#### Vorverarbeitung für Otsu's Thresholding
+Als Alternative wurde ein U-Net-Modell eingesetzt, das fuer die Segmentierung trainiert wurde. Das Modell lernt komplexe Muster und kann in schwierigen Faellen robustere Masken liefern.
 
-1. Graustufen-Konvertierung: Das RGB-Bild wird in ein Graustufenbild umgewandelt, da Otsu's Methode auf der Analyse der Graustufenverteilung basiert.
+Vorteile:
 
+- Potenziell praezisere Segmentierung bei komplexen Bildern
 
-#### Vorverarbeitung für das U-Net-Modell
+Nachteile:
 
-1. Zuschneiden auf feste Eingabegröße des Modell von 256×256 Pixeln. Dabei wird `INTER_NEAREST` als Interpolationsmethode verwendet, um scharfe Kanten zu erhalten.
+- Hoeherer Rechenaufwand
+- Abhaengigkeit von Trainingsdaten und Modellqualitaet
 
-2. Normalisierung der Pixelwerte werden für stabile Gradienten während der Inferenz
+## Vorverarbeitung
 
-Diese Schritte stellen sicher, dass die Eingabedaten konsistent mit der Datengrundlage des trainierten Modells sind und dass die Inferenz zuverlässige Ergebnisse liefert.
+Die Vorverarbeitung unterscheidet sich je nach Ansatz:
 
-### Nachverarbeitung
+### Vorverarbeitung fuer Otsu
 
-Die Nachverarbeitung gliedert sich in zwei Phasen: **1. modellspezifische Schritte zur Umwandlung** der Netzausgabe und **2. allgemeine Bereinigungsschritte**, die unabhängig von der Segmentierungsmethode (neuronales Netz oder Otsu-Thresholding) angewendet werden.
+1. Das RGB-Bild wird in ein Graustufenbild umgewandelt.
+2. Das Graustufenbild wird fuer die Schwellenwertanalyse vorbereitet.
 
-#### Modellspezifische Nachverarbeitung für Otsu's Thresholding
+### Vorverarbeitung fuer U-Net
 
-Der Schwellenwert Ansatz hat Probleme Haare oder andere Artefakte zu entfernen, die nicht zur Läsion gehören. Resultat ist eine binäre Maske, die zwar teilweise korrekt Haare entfernt, was allerdings auch zu einem Verlust von Läsionsanteilen führen kann, wenn die Läsion stark fragmentiert ist. Es hat sich gezeigt, dass die Anwendung von morphologischen Operationen "Schließen" (Closing) und "Öffnen" (Opening) die Maske bereinigt, indem kleine Löcher gefüllt und kleine Artefakte entfernt werden. Diese Schritte verbessern die Qualität der Maske erheblich. Andererseits wird damit auch die Form verändert, was den Wahrheitsgehalt der ABC-Scores beeinträchtigt. Insofern wird auf die Anwendung von Morphologischen Operationen verzichtet, um die Form der Läsion so originalgetreu wie möglich zu erhalten.
+1. Das Bild wird auf die feste Eingabegroesse des Modells (256 x 256) skaliert.
+2. Die Pixelwerte werden normalisiert.
+3. Die Farbkanalstruktur bleibt erhalten, da das Modell auf RGB-Eingaben trainiert wurde.
 
-#### Modellspezifische Nachverarbeitung für das U-Net-Modell
+## Nachverarbeitung
 
-Das U-Net-Modell gibt für jeden Pixel einen Logit-Wert aus, der zunächst in eine Wahrscheinlichkeit umgewandelt werden muss. Zum einen wird die Sigmoid-Aktivierungsfunktion angewendet, um die Werte in den Bereich [0, 1] zu skalieren, also die Wahrscheinlichkeit, dass ein Pixel zur Läsion gehört. Dadurch, dass das Modell immer Wahrscheinlichkeitswerte liefert, ist die Maske weicher und kann auch Unsicherheiten an den Rändern der Läsion darstellen. Durch die Anwendung eines empirisch ermittelten Schwellenwerts von `0.7` wird die Maske anschließend binarisiert, um eine klare Trennung zwischen Läsion und Hintergrund zu erreichen. Dieser höhere Schwellenwert im Vergleich zum Standardwert von `0.5` reduziert die Anzahl der falsch positiven bzw. unsicherer Pixel am Rand der Läsion, was zu einer präziseren Segmentierung führt.
+### Nachverarbeitung fuer Otsu
 
-Die Maske wird außerdem auf die ursprüngliche Bildgröße zurückskaliert, um mit dem Originalbild korrespondieren zu können. Dabei wird wieder `INTER_NEAREST` verwendet, um harte Kanten zu erhalten.
+Der Otsu-Ansatz kann Artefakte wie Haare oder Reflexionen in die Maske aufnehmen. Morphologische Operationen (Closing/Opening) koennen Locher fuellen und kleine Stoerbereiche entfernen. Gleichzeitig besteht dabei die Gefahr, die tatsaechliche Laesionsform zu veraendern.
 
-Das nachfolgende Bild zeigt die Anwendung des neuronalen Modells auf ein Beispielbild. Es enthält das Originalbild, die rohe binäre Maske des Modells, die bereinigte Maske und die Überlagerung der Maskengrenze auf das Originalbild.
-![Asymmetry Score Verteilung](../images/neural_lesion_cutout.png)
+Im Projekt wurde daher je nach Auswertungskontext sorgfaeltig entschieden, ob eine morphologische Nachbearbeitung angewendet wird.
 
+### Nachverarbeitung fuer U-Net
 
-## Vergleich der beiden Methoden
+1. Die Modell-Logits werden mit Sigmoid in Wahrscheinlichkeiten ueberfuehrt.
+2. Ein empirisch gewaehlter Threshold (0.7) erzeugt eine binaere Maske.
+3. Die Maske wird auf die Originalgroesse zurueckskaliert (`INTER_NEAREST`).
 
-Die beiden Ansätze haben jeweils ihre Vor- und Nachteile. Otsu's Methode ist einfach zu implementieren und benötigt keine Trainingsdaten, aber sie kann bei komplexen Läsionen oder ungleichmäßiger Beleuchtung versagen. Das U-Net-Modell kann komplexe Merkmale lernen und eine präzisere Segmentierung liefern, erfordert jedoch eine umfangreiche Trainingsphase und ist rechenintensiver.
+So bleibt die Maskenkante moeglichst stabil und fuer nachgelagerte Analysen nutzbar.
 
-![Asymmetry Score Verteilung](../images/binary_mask_examples.png)
+![Segmentierungsbeispiel](../images/neural_lesion_cutout.png)
 
-Anhand des Beispiel Bildes zeigt sich, dass beide Methoden ihre Stärken und Schwächen haben. In dem verwendeten Datensatz gibt es Fälle, in denen Otsu's Methode eine akzeptable Maske liefert, aber auch Fälle, in denen sie versagt und das U-Net-Modell eine deutlich bessere Segmentierung ermöglicht. Ebenso gibt es Fälle in denen beide Ansätze kein nutzbares Ergebnis liefern, was die Herausforderung der Segmentierung von Hautläsionen verdeutlicht. In der Praxis wird die Entscheidung der besseren Maske durch den Dermatologen selbst getroffen. Damit ist die Implementierung beider Ansätze sinnvoll, um in der App eine Auswahlmöglichkeit zu bieten und die bestmögliche Maske für die Anwendung der ABC-Kriterien zu erhalten.
+## Vergleich beider Methoden
+
+Beide Methoden haben unterschiedliche Staerken:
+
+- Otsu ist leichtgewichtig und schnell, aber weniger robust bei schwierigen Aufnahmen.
+- U-Net ist oft praeziser, aber modell- und datenabhaengig.
+
+![Maskenvergleich](../images/binary_mask_examples.png)
+
+In der Praxis zeigt sich, dass je nach Bildqualitaet entweder der klassische oder der neuronale Ansatz bessere Ergebnisse liefern kann. Deshalb ist die Bereitstellung beider Verfahren im Prototyp sinnvoll.
+
+## Siehe auch
+
+- [ABC-Algorithmen](./README.md)
+- [Machine Learning](../ml/README.md)

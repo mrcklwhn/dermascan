@@ -16,17 +16,22 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
-  - Home: index.md
-  - App-Entwicklung: ./app/README.md
-  - App-Features: ./app/features.md
-  - App-Architektur: ./app/architecture.md
-  - Datenbank: ./db/README.md
-  - Machine Learning: ./ml/README.md
-  - Multibranch Architektur: ./ml/multibranch_architecture.md
-  - Trainingspipeline: ./ml/pipeline/pipeline_doc.md
-  - Modell Export: ./ml/onnx_export.md
-  - Auditierung: ./ml/auditing.md
-  - Trainingsergebnisse: ./ml/training_results.md
-  - ABC Algorithmen: ./abc_algorithms/README.md
-  - Läsionsmasken: ./abc_algorithms/lesion_cutout.md
+  - Startseite: index.md
+  - Glossar: glossar.md
+  - App:
+    - App-Entwicklung: ./app/README.md
+    - App-Features: ./app/features.md
+    - App-Architektur: ./app/architecture.md
+  - Datenbank:
+    - Datenhaltung und Backend-Architektur: ./db/README.md
+  - Machine Learning:
+    - Machine Learning: ./ml/README.md
+    - Multibranch-Architektur: ./ml/multibranch_architecture.md
+    - Trainingspipeline: ./ml/pipeline.md
+    - ONNX-Export: ./ml/onnx_export.md
+    - Auditing: ./ml/auditing.md
+    - Trainingsergebnisse: ./ml/training_results.md
+  - ABC-Algorithmen:
+    - ABC-Algorithmen: ./abc_algorithms/README.md
+    - Läsionssegmentierung: ./abc_algorithms/lesion_cutout.md
 

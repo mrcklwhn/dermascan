@@ -60,7 +60,7 @@ Der Zugriff auf diesen Bucket wird durch präzise PostgreSQL-Policies (RLS) auf 
 
 * **Lese-Berechtigung (SELECT):** Ein Arzt kann Bilder nur dann einsehen oder herunterladen, wenn das Verzeichnis (der erste Ordneraufruf des Pfades) mit der `practiceid` seines eigenen Profils übereinstimmt.
 
-Durch diese Architektur ist mathematisch und datenbankseitig garantiert, dass kein Arzt und keine Praxis jemals – weder absichtlich noch durch Client-Fehler – Einblick in die medizinischen Bilddaten oder Diagnosedaten eines fremden Mandanten erhalten kann.
+Durch diese Architektur wird datenbankseitig erzwungen und in Tests abgesichert, dass Ärzte und Praxen nicht auf medizinische Bild- oder Diagnosedaten fremder Mandanten zugreifen können.
 
 ## Siehe auch
 - [App Dokumentation](../app/README.md)

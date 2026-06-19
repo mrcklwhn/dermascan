@@ -46,7 +46,7 @@ Verantwortlich für die gesamte Authentifizierung und Sitzungsverwaltung (Login,
 
 ### `DatabaseService` (`db_service.dart`)
 
-Der zentrale Einstiegspunkt für alle Datenoperationen. Die App nutzt **Supabase** als Backend. Um eine lose Kopplung (Loose Coupling) zu garantieren, rufen die Controller niemals direkte Datenbankabfragen auf. Sie kommunizieren ausschließlich mit dem `DatabaseService`. Dieser triggert im Hintergrund optimierte **Supabase Edge Functions** (serverseitige Funktionen). Der Service nimmt die Rohdaten der Edge Functions entgegen, transformiert und parst diese in die stark typisierten Datenmodelle der App (Dart-Objekte) und gibt diese an die Controller zurück. Bei einer eventuellen Migration des Datenbbackend muss somit nur dieser Service angepasst werden.
+Der zentrale Einstiegspunkt für alle Datenoperationen. Die App nutzt **Supabase** als Backend. Um eine lose Kopplung (Loose Coupling) zu garantieren, rufen die Controller niemals direkte Datenbankabfragen auf. Sie kommunizieren ausschließlich mit dem `DatabaseService`. Dieser triggert im Hintergrund optimierte **Supabase Edge Functions** (serverseitige Funktionen). Der Service nimmt die Rohdaten der Edge Functions entgegen, transformiert und parst diese in die stark typisierten Datenmodelle der App (Dart-Objekte) und gibt diese an die Controller zurück. Bei einer eventuellen Migration des Datenbackend muss somit nur dieser Service angepasst werden.
 
 ## Der Splash-Screen und dynamisches Routing
 
@@ -86,7 +86,7 @@ Hierzu ist das trainierte Machine-Learning-Modell als Datei in den assets der An
 
 Sobald ein Bild aufgenommen und der Cutout bestätigt wurde, wird die Bildmatrix in ein Float32-Tensor-Format transformiert und an das ONNX-Modell übergeben. Die native Laufzeitumgebung berechnet Klassifizierung ggf. unter Verwendung einer gerätespezifischen Hardwarebeschleunigung.
 
-Die gesamte Berechnung wird in einer Wrapper-Klasse namens `LesionAnalysis` gekapselt. Diese Klasse bündelt die gesamte logische Analyseeinheit, um eine saubere Datenübergabe zu gewährleisten. Das Ergebnis dieses Objekts wird über das reaktive GetX-System unmittelbar in der UI zur Anzeige gebracht, sodass der Dermatologe die Auswertung sofort einsehen kann. Parallel dazu werden die Ergbnisse der Analyse mittels des `DatabaseService` persistent in der Datenbank gespeichert.
+Die gesamte Berechnung wird in einer Wrapper-Klasse namens `LesionAnalysis` gekapselt. Diese Klasse bündelt die gesamte logische Analyseeinheit, um eine saubere Datenübergabe zu gewährleisten. Das Ergebnis dieses Objekts wird über das reaktive GetX-System unmittelbar in der UI zur Anzeige gebracht, sodass der Dermatologe die Auswertung sofort einsehen kann. Parallel dazu werden die Ergebnisse der Analyse mittels des `DatabaseService` persistent in der Datenbank gespeichert.
 
 ## Siehe auch:
 - [App-Entwicklung](./README.md)

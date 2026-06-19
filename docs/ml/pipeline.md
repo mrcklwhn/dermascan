@@ -4,7 +4,7 @@ Die Trainingspipeline entstand nach der Entscheidung für eine Multibranch-Archi
 
 Ohne eine gemeinsame Pipeline wären die Ergebnisse der Branches nur eingeschränkt vergleichbar. Unterschiede im Datensplit, in der Normalisierung, Augmentierung, Klassengewichtung oder Threshold-Wahl können die Metriken stark beeinflussen. Die Pipeline stellt deshalb einen einheitlichen Experimentrahmen bereit: Sie lädt eine Konfiguration, erzeugt Train-/Val-/Test-Splits, baut Datenloader und Modell, trainiert den Branch, bewertet ihn und speichert alle relevanten Artefakte. Dadurch können aus vielen Trainingsläufen gezielt die besten Modelle ausgewählt werden, die später über Ensemble Voting kombiniert werden.
 
-![](../../images/trainingspipeline.png)
+![](../images/trainingspipeline.png)
 
 ## Konfiguration
 
@@ -48,4 +48,16 @@ Die Pipeline speichert pro Branch Modellgewichte, Branch-Konfiguration, Training
 
 Architektonisch ist die Pipeline modular aufgebaut. Der `PipelineOrchestrator` koordiniert den Gesamtablauf, die `DataLoaderFactory` baut die Loader, der `AugmentationBuilder` erzeugt Transformationen, die `ModelFactory` baut Modelle, der `Trainer` übernimmt Training und Evaluation, der `MetricsCalculator` berechnet Metriken und Thresholds, und `Plotter` sowie `MLFlowLogger` speichern Ergebnisse. Diese Trennung macht neue Branches, Filter, Modelle oder Trainingsstrategien leichter integrierbar und hält die Multibranch-Experimente reproduzierbar vergleichbar.
 
-Die Pipeline ist damit der methodische Rahmen, um die Multibranch-Idee praktisch zu prüfen: verschiedene Datenrepräsentationen, Modellfamilien und Trainingsentscheidungen können unter kontrollierten Bedingungen verglichen werden. Die besten Branch-Modelle können anschließend als Kandidaten für das Ensemble Voting dienen und für eine spätere Nutzung in der App nachvollziehbar dokumentiert werden.
+## Fazit
+
+Die Pipeline ist der methodische Rahmen, um die Multibranch-Idee praktisch zu prüfen. Verschiedene Datenrepräsentationen, Modellfamilien und Trainingsentscheidungen können unter kontrollierten Bedingungen verglichen werden, ohne dass Unterschiede im Ablauf die Aussagekraft der Ergebnisse verzerren.
+
+Dadurch lassen sich die besten Branch-Modelle gezielt als Kandidaten für das Ensemble Voting auswählen und für eine spätere Nutzung in der App nachvollziehbar dokumentieren. Die Pipeline verbindet damit Training, Bewertung und Rückverfolgbarkeit zu einem einheitlichen Experimentprozess.
+
+## Siehe auch
+
+- [Multibranch Architektur](./multibranch_architecture.md)
+- [Auditierung](./auditing.md)
+- [Trainingsergebnisse](./training_results.md)
+- [Machine Learning Übersicht](./README.md)
+- [Modell Export](./onnx_export.md)
