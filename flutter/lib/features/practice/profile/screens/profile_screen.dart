@@ -71,7 +71,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
                 : controller.openChangeEmailScreen,
           ),
         ),
-        const SizedBox(height: AppTheme.spaceMedium),
+        const SizedBox(height: AppTheme.spaceSmall),
         Card(
           child: ListTile(
             leading: const Icon(Icons.password),

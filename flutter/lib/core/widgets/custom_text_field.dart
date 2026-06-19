@@ -74,14 +74,23 @@ class CustomTextField extends StatelessWidget {
               enabledBorder: noBorder,
               focusedBorder: noBorder,
               labelText: labelText,
-              prefixIcon: Icon(prefixIcon),
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(
+                  left: AppTheme.spaceMedium,
+                  right: AppTheme.spaceSmall + 4.0,
+                ),
+                child: Icon(prefixIcon),
+              ),
               suffixIcon: isPasswordField
-                  ? IconButton(
-                      onPressed: controller.togglePasswordObscurity,
-                      icon: Icon(
-                        isCurrentlyObscure
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: AppTheme.spaceSmall),
+                      child: IconButton(
+                        onPressed: controller.togglePasswordObscurity,
+                        icon: Icon(
+                          isCurrentlyObscure
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
                       ),
                     )
                   : null,
