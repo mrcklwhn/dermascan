@@ -54,9 +54,6 @@ pipeline_config = PipelineConfig(
                     AugmentationType.RANDOM_ROTATION,
                     AugmentationType.COLOR_JITTER,
                 ],
-                val=[
-                    AugmentationType.RESIZE
-                ]
             ),
         ),
         BranchConfig(
@@ -88,9 +85,6 @@ pipeline_config = PipelineConfig(
                     AugmentationType.RANDOM_ROTATION,
                     AugmentationType.COLOR_JITTER,
                 ],
-                val=[
-                    AugmentationType.RESIZE
-                ]
             ),
         ),
         BranchConfig(
@@ -122,9 +116,6 @@ pipeline_config = PipelineConfig(
                     AugmentationType.RANDOM_ROTATION,
                     AugmentationType.COLOR_JITTER,
                 ],
-                val=[
-                    AugmentationType.RESIZE
-                ]
             ),
         ),
     ],
