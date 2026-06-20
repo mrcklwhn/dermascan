@@ -83,7 +83,9 @@ class CustomTextField extends StatelessWidget {
               ),
               suffixIcon: isPasswordField
                   ? Padding(
-                      padding: const EdgeInsets.only(right: AppTheme.spaceSmall),
+                      padding: const EdgeInsets.only(
+                        right: AppTheme.spaceSmall,
+                      ),
                       child: IconButton(
                         onPressed: controller.togglePasswordObscurity,
                         icon: Icon(

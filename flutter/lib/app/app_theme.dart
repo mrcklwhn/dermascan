@@ -68,7 +68,7 @@ class AppTheme {
       // Prevents Material 3 tinting on scroll
       iconTheme: IconThemeData(color: textDark),
       actionsPadding: EdgeInsets.only(right: spaceMedium),
-      
+
       titleTextStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
@@ -263,7 +263,10 @@ class AppTheme {
       style: IconButton.styleFrom(
         foregroundColor: textDark,
         backgroundColor: highlightColor,
-        padding: EdgeInsets.zero,
+        fixedSize: const Size(
+          AppTheme.radiusLarge * 2,
+          AppTheme.radiusLarge * 2,
+        ),
       ),
     ),
     visualDensity: VisualDensity.adaptivePlatformDensity,

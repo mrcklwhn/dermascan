@@ -158,8 +158,7 @@ class InvitationsController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'accept-practice-invitation-dialog',
 
-      title:
-          'Accept invitation?'.tr,
+      title: 'Accept invitation?'.tr,
 
       subtitle:
           'Accepting grants access to practice data and shares your professional profile with the owner.'
