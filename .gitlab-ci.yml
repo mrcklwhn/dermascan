@@ -1,6 +1,7 @@
 stages:
   - deploy
 
+
 pages:
   stage: deploy
   image: python:3.11
