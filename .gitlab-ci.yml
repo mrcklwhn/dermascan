@@ -1,13 +1,15 @@
 stages:
   - deploy
 
-
 pages:
   stage: deploy
-  image: python:3.11
   before_script:
+    - python3 -m venv venv
+    - . venv/bin/activate
+    - pip install --upgrade pip
     - pip install mkdocs-material
   script:
+    - . venv/bin/activate
     - mkdocs build --site-dir public
   artifacts:
     paths:
