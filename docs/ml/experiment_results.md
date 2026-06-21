@@ -4,15 +4,20 @@
 
 Ziel der Experimente war es, für die binäre Klassifikation von **Melanom vs. Nicht-Melanom** auf HAM10000 eine Modellkonfiguration zu identifizieren, die für ein mobiles Dermascan-System geeignet ist. Im Vordergrund standen dabei drei Anforderungen: hohe **Sensitivität** zur Vermeidung übersehener Melanome, hohe **Spezifität** zur Begrenzung unnötiger Fehlalarme und gleichzeitig eine **effiziente Architektur**, die sich perspektivisch für mobile Hardware eignet.
 
-Die Experimente wurden deshalb nicht als reine Architektur-Benchmarking-Übung angelegt, sondern als gezielte Suche nach einem guten **klinisch-praktischen Trade-off**. Getestet wurden unterschiedliche Backbones, Loss-Funktionen, Strategien zur Behandlung des Klassenungleichgewichts und Trainings-Hyperparameter, weil genau diese Faktoren in der Literatur als zentrale Stellhebel für medizinische Bildklassifikation unter Imbalance gelten.
+Die Experimente wurden deshalb nicht als reine Architektur-Benchmarking-Übung angelegt, sondern als gezielte Suche nach einem guten **klinisch-praktischen Trade-off**. Getestet wurden unterschiedliche Modell-Backbones, Loss-Funktionen, Strategien zur Behandlung des Klassenungleichgewichts und Trainings-Hyperparameter, weil genau diese Faktoren in der Literatur als zentrale Stellhebel für medizinische Bildklassifikation unter Imbalance gelten.
 
 ## Vorgehen und Begründung der getesteten Konfigurationen
 
 Getestet wurden mehrere CNN-Architekturen mit ImageNet-Pretraining, darunter EfficientNet V2-S, MobileNet V3, ResNet-Varianten, Inception V3 und SqueezeNet. Diese Auswahl deckt sowohl leistungsstarke als auch ressourcenschonende Modelle ab und folgt dem Ziel, nicht nur maximale Genauigkeit, sondern auch mobile Einsetzbarkeit zu beurteilen.
 
-Die Loss-Funktionen wurden zwischen **Cross Entropy (CE)** und **BCE with Logits (BCE)** variiert. CE wurde getestet, weil sie für Mehrklassen- und binäre Klassifikation robust und einfach interpretierbar ist. BCE wurde zusätzlich getestet, weil sie in Kombination mit `pos_weight` eine direkte Möglichkeit bietet, die Minderheitsklasse Melanom stärker zu gewichten.
+Die Loss-Funktionen wurden zwischen **Cross Entropy (CE)** und **BCE with Logits (BCE)** variiert. CE wurde getestet, weil sie für Mehrklassen- und binäre Klassifikation robust und einfach interpretierbar ist. BCE wurde zusätzlich getestet, weil sie in Kombination mit `pos_weight` eine direkte Möglichkeit bietet, die Minderheitsklasse Melanom stärker zu gewichten und somit die Sensitivität zu erhöhen.
 
-Zusätzlich wurden verschiedene Strategien zur Behandlung des Klassenungleichgewichts geprüft: keine Gewichtung, gewichtete Sampler sowie erhöhte `pos_weight`-Werte. Diese Kombinationen wurden getestet, weil in der Literatur zu medizinischen Bilddaten wiederholt gezeigt wird, dass Imbalance-Handling einen größeren Einfluss auf Sensitivität und F1-Macro haben kann als kleine Architekturänderungen.
+Zusätzlich wurden verschiedene Strategien zur Behandlung des Klassenungleichgewichts geprüft: 
+- keine Gewichtung
+- gewichtete Sampler: Daten der Minderheitsklasse werden häufiger gezogen, weshalb das Modell mehr Melanom-Beispiele sieht, um daraus zu lernen
+- erhöhte `pos_weight`-Werte: Die Minderheitsklasse wird direkt im Loss stärker gewichtet, um die Fehler auf dieser Klasse schwerer zu bestrafen
+
+Diese Kombinationen wurden getestet, weil in der Literatur zu medizinischen Bilddaten wiederholt gezeigt wird, dass Imbalance-Handling einen größeren Einfluss auf Sensitivität und F1-Macro haben kann als kleine Architekturänderungen.
 
 Auch die Hyperparameter wurden gezielt variiert. Niedrige Lernraten um 1e-4 und 3e-4, Batchgrößen von 8 und 16 sowie unterschiedliche Weight-Decay-Werte wurden geprüft, weil Transfer-Learning-Studien für medizinische Bilder genau diese Bereiche als besonders relevant identifizieren. Die Augmentierung wurde von minimal bis stärker regulierend getestet, um zu prüfen, wann zusätzliche Bildvariation die Generalisierung verbessert und wann sie das Training eher unnötig erschwert.
 
@@ -54,9 +59,9 @@ Die Interpretation ist, dass EfficientNet V2-S mit BCE die Minderheitsklasse bes
 
 Dieses Modell ist deshalb zentral, weil es die beste Trennschärfe über alle Schwellenwerte hinweg erreicht. Getestet wurde hier die Gegenhypothese: Vielleicht braucht EfficientNet gar kein explizites Imbalance-Handling, wenn Lernrate, Batchgröße und Augmentierung sehr günstig gewählt sind.
 
-Das Ergebnis ist bemerkenswert: Mit CE, keiner expliziten Klassengewichtung, kleiner Batchgröße und höherer Lernrate erreicht dieses Modell den höchsten AUC-Wert aller Runs und sogar die höchste Sensitivität unter den Top-3-Modellen. Das zeigt, dass ein sehr sauberes Transfer-Learning-Setup bei EfficientNet bereits einen großen Teil der Klassifikationsaufgabe lösen kann.
+Mit CE, keiner expliziten Klassengewichtung, kleiner Batchgröße und höherer Lernrate erreicht dieses Modell den höchsten AUC-Wert aller Runs und sogar die höchste Sensitivität unter den Top-3-Modellen. Das zeigt, dass ein sehr sauberes Transfer-Learning-Setup bei EfficientNet bereits einen großen Teil der Klassifikationsaufgabe lösen kann.
 
-Interpretativ bedeutet das: Das Modell sortiert positive und negative Fälle global hervorragend, ist also sehr stark in der Score-Rangordnung. Dennoch ist sein fester Arbeitspunkt etwas schwächer als bei `eff_bce_strong_reg`, weshalb F1-Macro und MCC minimal darunter liegen.
+Das bedeutet, dass das Modell positive und negative Fälle global hervorragend sortiert, also sehr stark in der Score-Rangordnung ist. Dennoch ist sein fester Arbeitspunkt etwas schwächer als bei `eff_bce_strong_reg`, weshalb F1-Macro und MCC minimal darunter liegen.
 
 ### 3. `efficientnet_v2_s_rgb`: CE mit starkem Sampler
 
@@ -64,7 +69,7 @@ Dieses Modell wurde getestet, um die Frage zu klären, ob CE durch Oversampling 
 
 Mit F1-Macro 0.8877, AUC 0.9691 und Sensitivität 80.2% zeigt dieses Modell, dass ein starker Sampler unter CE tatsächlich einen relevanten Teil des Imbalance-Problems abfangen kann. Gegenüber reinen CE-Setups ohne Sampler steigt die Sensitivität deutlich, ohne dass die Gesamtrelevanz des Modells zusammenbricht.
 
-Die Interpretation ist jedoch auch klar: CE plus Sampler reicht nicht ganz an BCE plus Sampler plus `pos_weight` heran. Das deutet darauf hin, dass reines Oversampling zwar mehr positive Beispiele sichtbar macht, aber die Verlustfunktion selbst die Fehler auf der Melanom-Klasse nicht stark genug priorisiert. Genau darin liegt der Vorteil des besten BCE-Modells.
+Insofern kommen Modelle mit CE plus Sampler nicht ganz an BCE plus Sampler plus `pos_weight` heran. Das deutet darauf hin, dass reines Oversampling zwar mehr positive Beispiele sichtbar macht, aber die Verlustfunktion selbst die Fehler auf der Melanom-Klasse nicht stark genug priorisiert. Genau darin liegt der Vorteil des besten BCE-Modells.
 
 ### 4. `mobilenet_v3_large_ce`: wichtigster Lightweight-Kandidat
 
@@ -72,7 +77,7 @@ Dieses Modell wurde vor allem mit Blick auf die Zielplattform untersucht. Für e
 
 Das Ergebnis ist überraschend stark: F1-Macro 0.8866 und MCC 0.773 liegen sehr nahe an einigen EfficientNet-Varianten. Besonders bemerkenswert ist, dass MobileNet V3 Large CE mehrere größere ResNet- und Inception-Modelle schlägt.
 
-Die Interpretation lautet: Für eine strikt on-device ausgeführte Dermascan-App könnte MobileNet V3 Large ein sehr interessanter Fallback oder Zweitpfad sein. Das Modell ist zwar dem besten EfficientNet-Branch unterlegen, aber die Leistungslücke ist kleiner als erwartet. Damit entsteht eine wichtige Produktperspektive: maximales Screening-Niveau mit EfficientNet V2-S versus höhere Effizienz mit MobileNet V3 Large.
+Für eine strikt on-device ausgeführte Dermascan-App könnte MobileNet V3 Large damit ein sehr interessanter Fallback oder Zweitpfad sein. Das Modell ist zwar dem besten EfficientNet-Branch unterlegen, aber die Leistungslücke ist kleiner als erwartet. Damit entsteht eine wichtige Produktperspektive: maximales Screening-Niveau mit EfficientNet V2-S versus höhere Effizienz mit MobileNet V3 Large.
 
 ## Gesamtinterpretation der Suchstrategie
 
