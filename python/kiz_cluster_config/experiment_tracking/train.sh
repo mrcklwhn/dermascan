@@ -14,4 +14,4 @@
 
 mkdir -p /home/pichkuril97175/dermascan/logs
 
-/nfs/scratch/students/pichkuril97175/dermascan-env/bin/python /home/pichkuril97175/dermascan/python/kiz_cluster_config/experiment_tracking/efficientnet_finetuning.py
+/nfs/scratch/students/pichkuril97175/dermascan-env/bin/python /home/pichkuril97175/dermascan/python/kiz_cluster_config/experiment_tracking/no_pretrain.py
