@@ -31,28 +31,29 @@ Im Refinement-Lauf wurde ausserdem ein Branch ohne ImageNet-Pretraining (`pretra
 
 Die folgende Tabelle zeigt alle getesteten Modelle, sortiert nach F1-Macro. Fuer die vertiefte Analyse werden anschliessend fuenf Modelle genauer betrachtet, weil sie unterschiedliche und besonders aufschlussreiche Punkte im Suchraum repraesentieren: das beste Gesamtmodell, das AUC-staerkste CE-Modell, ein CE-Modell mit Sampler, ein leichtgewichtiges mobiles Modell sowie das `pretrained=False`-Modell als methodische Kontrollbedingung.
 
-| Rang | Branch | F1-Macro | AUC | Sensitivity | Specificity | Precision | MCC | Acc | Loss | LR | Batch | Sampler | Gewichtung | Epochs |
-|------|--------|----------|-----|-------------|-------------|-----------|-----|-----|------|----|-------|---------|------------|--------|
-| 1 | `eff_ce_class_weights_strong_reg` | **0.9175** | 0.9728 | 80.8 % | 98.7 % | **94.0 %** | **0.837** | **96.2 %** | CE | 1e-4 | 16 | - | cw=[1,7] | 25 | v
-| 2 | `eff_bce_strong_reg` | 0.9105 | 0.9731 | 82.0 % | 98.0 % | 92.2 % | 0.822 | 95.7 % | BCE | 1e-4 | 16 | (1,7) | pos_weight=8 | 30 | v
-| 3 | `eff_ce_class_weights_moderate` | 0.9087 | 0.9622 | 77.8 % | **98.8 %** | **94.0 %** | 0.821 | 95.8 % | CE | 1e-4 | 16 | - | cw=[1,3] | 25 | v
-| 4 | `eff_bce_lower_penalty` | 0.9074 | **0.9745** | 82.0 % | 97.8 % | 91.6 % | 0.815 | 95.7 % | BCE | 1e-4 | 16 | (1,4) | pos_weight=4 | 30 |  v
-| 5 | `eff_ce_class_weights_plus_sampler` | 0.9055 | 0.9644 | 77.8 % | 98.6 % | 93.3 % | 0.814 | 95.7 % | CE | 1e-4 | 16 | (1,4) | cw=[1,4] | 25 | v
-| 6 | `efficientnet_v2_s_bce` | 0.8983 | 0.9680 | 82.0 % | 97.2 % | 90.0 % | 0.797 | 95.1 % | BCE | 1e-4 | 16 | (1,7) | pos_weight=8 | 40 | v
-| 7 | `eff_ce_class_weights_only` | 0.8872 | 0.9723 | 79.6 % | 97.0 % | 89.1 % | 0.774 | 94.5 % | CE | 1e-4 | 16 | - | cw=[1,7] | 25 | v
-| 8 | `mobilenet_v3_large_ce` | 0.8866 | 0.9577 | 79.0 % | 97.1 % | 89.3 % | 0.773 | 94.5 % | CE | 1e-4 | 16 | - | - | 40 | v
-| 9 | `resnet101_ce` | 0.8808 | 0.9624 | 74.9 % | 97.7 % | 90.2 % | 0.764 | 94.5 % | CE | 1e-4 | 16 | - | - | 40 | v
-| 10 | `resnet50_ce` | 0.8747 | 0.9704 | 76.0 % | 97.0 % | 88.5 % | 0.750 | 94.0 % | CE | 1e-4 | 16 | - | - | 40 | v
-| 11 | `resnet50_bce` | 0.8706 | 0.9471 | 80.2 % | 95.7 % | 86.2 % | 0.742 | 93.5 % | BCE | 1e-4 | 16 | (1,7) | pos_weight=8 | 40 | v
-| 12 | `resnet18_ce` | 0.8686 | 0.9666 | 78.4 % | 96.0 % | 86.5 % | 0.737 | 93.5 % | CE | 1e-4 | 16 | - | - | 40 | v
-| 13 | `eff_ce_with_sampler` | 0.8663 | 0.9690 | 81.4 % | 95.1 % | 85.2 % | 0.734 | 93.2 % | CE | 3e-4 | 8 | (1,4) | - | 25 | v
-| 14 | `inception_v3_ce` | 0.8640 | 0.9680 | 76.7 % | 96.1 % | 87.1 % | 0.728 | 93.5 % | CE | 1e-4 | 16 | - | - | 40 | v
-| 15 | `efficientnet_v2_s_ce` | 0.8620 | 0.9640 | 78.4 % | 95.5 % | 86.8 % | 0.724 | 93.5 % | CE | 1e-4 | 16 | - | - | 40 | v
-| 16 | `eff_ce_best_known` | 0.8546 | 0.9549 | 65.9 % | 98.2 % | 90.2 % | 0.718 | 93.6 % | CE | 3e-4 | 8 | - | - | 25 | v
-| 17 | `mobilenet_v3_large_bce` | 0.8490 | 0.9560 | 84.4 % | 93.0 % | 85.6 % | 0.705 | 93.5 % | BCE | 1e-4 | 16 | (1,7) | pos_weight=8 | 40 | v
-| 18 | `mobilenet_v3_small_ce` | 0.8350 | 0.9520 | 80.8 % | 92.8 % | 84.0 % | 0.675 | 93.5 % | CE | 1e-4 | 16 | - | - | 40 | v
-| 19 | `squeezenet_1_1_ce` | 0.8183 | 0.9450 | 76.7 % | 92.6 % | 79.7 % | 0.641 | 90.4 % | CE | 1e-4 | 16 | - | - | 40 | v
-| 20 | `eff_ce_class_weights_no_pretrain` | 0.6894 | 0.9101 | **91.6 %** | 74.6 % | 67.8 % | 0.485 | 76.9 % | CE | 1e-4 | 16 | - | cw=[1,7] | 35 | v
+| Rang | Branch | F1-Macro | AUC | Sensitivity | Specificity | Precision | MCC | Acc | opt. Threshold | Loss | LR | Batch | Sampler | Gewichtung | Epochs |
+|------|--------|----------|-----|-------------|-------------|-----------|-----|-----|----------|------|----|-------|---------|------------|--------|
+| 1 | `eff_ce_class_weights_strong_reg` | **0.9175** | 0.9728 | 80.8 % | 98.7 % | **94.0 %** | **0.837** | **96.2 %** | 0.1 | CE | 1e-4 | 16 | - | cw=[1,7] | 25 |
+| 2 | `eff_bce_strong_reg` | 0.9105 | 0.9731 | 82.0 % | 98.0 % | 92.2 % | 0.822 | 95.7 % |  0.1 | BCE | 1e-4 | 16 | (1,7) | pos_weight=8 | 30 |
+| 3 | `eff_ce_class_weights_moderate` | 0.9087 | 0.9622 | 77.8 % | **98.8 %** | **94.0 %** | 0.821 | 95.8 % | 0.1 | CE | 1e-4 | 16 | - | cw=[1,3] | 25 | v
+| 4 | `eff_bce_lower_penalty` | 0.9074 | 0.9745 | 82.0 % | 97.8 % | 91.6 % | 0.815 | 95.7 % | 0.1 | BCE | 1e-4 | 16 | (1,4) | pos_weight=4 | 30 |  v
+| 5 | `eff_ce_class_weights_plus_sampler` | 0.9055 | 0.9644 | 77.8 % | 98.6 % | 93.3 % | 0.814 | 95.7 % | 0.1 | CE | 1e-4 | 16 | (1,4) | cw=[1,4] | 25 | v
+| 6 | `efficientnet_v2_s_bce` | 0.8983 | 0.9680 | 82.0 % | 97.2 % | 90.0 % | 0.797 | 95.1 % | 0.1 | BCE | 1e-4 | 16 | (1,7) | pos_weight=8 | 40 |
+| 7 | `efficientnet_v2_s_rgb` | 0.8885 | **0.9766** | 74.9 % | 98.2 % % | 91.67 % | 0.78 | 94.88 % | 0.1 | CE | 3e-4 | 16 | (1,7) | - | 35 |
+| 8 | `eff_ce_class_weights_only` | 0.8872 | 0.9723 | 79.6 % | 97.0 % | 89.1 % | 0.774 | 94.5 % | 0.1 | CE | 1e-4 | 16 | - | cw=[1,7] | 25 | v
+| 9 | `mobilenet_v3_large_ce` | 0.8866 | 0.9577 | 79.0 % | 97.1 % | 89.3 % | 0.773 | 94.5 % | 0.1 | CE | 1e-4 | 16 | - | - | 40 | v
+| 10 | `resnet101_ce` | 0.8808 | 0.9624 | 74.9 % | 97.7 % | 90.2 % | 0.764 | 94.5 % | 0.1 | CE | 1e-4 | 16 | - | - | 40 | v
+| 11 | `resnet50_ce` | 0.8747 | 0.9704 | 76.0 % | 97.0 % | 88.5 % | 0.750 | 94.0 % | 0.1 | CE | 1e-4 | 16 | - | - | 40 | v
+| 12 | `resnet50_bce` | 0.8706 | 0.9471 | 80.2 % | 95.7 % | 86.2 % | 0.742 | 93.5 % | 0.1 | BCE | 1e-4 | 16 | (1,7) | pos_weight=8 | 40 | v
+| 13 | `resnet18_ce` | 0.8686 | 0.9666 | 78.4 % | 96.0 % | 86.5 % | 0.737 | 93.5 % | 0.1 | CE | 1e-4 | 16 | - | - | 40 | v
+| 14 | `eff_ce_with_sampler` | 0.8663 | 0.9690 | 81.4 % | 95.1 % | 85.2 % | 0.734 | 93.2 % | 0.1 | CE | 3e-4 | 8 | (1,4) | - | 25 | v
+| 15 | `inception_v3_ce` | 0.8640 | 0.9680 | 76.7 % | 96.1 % | 87.1 % | 0.728 | 93.5 % | 0.1 | CE | 1e-4 | 16 | - | - | 40 | v
+| 16 | `efficientnet_v2_s_ce` | 0.8620 | 0.9640 | 78.4 % | 95.5 % | 86.8 % | 0.724 | 93.5 % | 0.1 | CE | 1e-4 | 16 | - | - | 40 | v
+| 17 | `eff_ce_best_known` | 0.8546 | 0.9549 | 65.9 % | 98.2 % | 90.2 % | 0.718 | 93.6 % | 0.1 | CE | 3e-4 | 8 | - | - | 25 | v
+| 18 | `mobilenet_v3_large_bce` | 0.8490 | 0.9560 | 84.4 % | 93.0 % | 85.6 % | 0.705 | 93.5 % | 0.1 | BCE | 1e-4 | 16 | (1,7) | pos_weight=8 | 40 | v
+| 19 | `mobilenet_v3_small_ce` | 0.8350 | 0.9520 | 80.8 % | 92.8 % | 84.0 % | 0.675 | 93.5 % | 0.1 | CE | 1e-4 | 16 | - | - | 40 | v
+| 20 | `squeezenet_1_1_ce` | 0.8183 | 0.9450 | 76.7 % | 92.6 % | 79.7 % | 0.641 | 90.4 % | 0.1 | CE | 1e-4 | 16 | - | - | 40 | v
+| 21 | `eff_ce_class_weights_no_pretrain` | 0.6894 | 0.9101 | **91.6 %** | 74.6 % | 67.8 % | 0.485 | 76.9 % | 0.1 | CE | 1e-4 | 16 | - | cw=[1,7] | 35 | v
 
 ## Vertiefte Analyse von fuenf besonders wichtigen Modellen
 
@@ -64,23 +65,15 @@ Das Ergebnis bestaetigt diese Hypothese deutlich: F1-Macro steigt von 0.8872 auf
 
 Fuer den Anwendungskontext ist diese Konfiguration besonders relevant, weil sie nicht nur einen hohen Durchschnittswert erreicht, sondern die klinisch entscheidenden Metriken ausgewogen bedient. Die Sensitivitaet bleibt mit 80.8 % hoch, waehrend die sehr hohe Spezifitaet die Zahl unnoetiger Fehlalarme begrenzt.
 
-### 2. `rgb_efficientnet_minipc`: AUC-staerkstes Referenzmodell
-
-Dieses Modell ist zentral, weil es die beste Trennschaerfe ueber alle Schwellenwerte hinweg erreicht. Getestet wurde hier die Gegenhypothese, dass EfficientNet auch ohne explizites Imbalance-Handling stark performen kann, wenn Lernrate, Batchgroesse und Augmentierung guenstig gewaehlt sind. Diese Einordnung passt zu EfficientNet-basierten Melanom-Systemen, bei denen eine stabile Validierungsstrategie, sorgfaeltiges Pipeline-Tuning und AUC-orientierte Modellselektion entscheidende Erfolgsfaktoren waren.
-
-Mit CE, keiner expliziten Klassengewichtung, kleiner Batchgroesse und hoeherer Lernrate erreicht dieses Modell den hoechsten AUC-Wert aller Runs und eine sehr hohe Sensitivitaet von 83.2 %. Das zeigt, dass ein gut abgestimmtes Transfer-Learning-Setup bei EfficientNet bereits einen grossen Teil der Klassifikationsaufgabe loesen kann.
-
-Gleichzeitig bleibt der feste Arbeitspunkt etwas schwaecher als beim besten CE-Class-Weight-Branch. F1-Macro und MCC liegen unter den besten Refinement-Modellen. Fuer Threshold-Tuning oder eine serverseitige Nachoptimierung der Entscheidungsschwelle bleibt `rgb_efficientnet_minipc` dennoch ein wichtiger Referenzpunkt.
-
-### 3. `efficientnet_v2_s_rgb`: CE mit starkem Sampler
+### 2. `efficientnet_v2_s_rgb`: CE mit starkem Sampler
 
 Dieses Modell wurde getestet, um den isolierten Einfluss eines gewichteten Samplers unter CE sichtbar zu machen. Die Frage war, ob Oversampling einen aehnlichen Effekt wie BCE mit `pos_weight` oder CE mit `class_weights` erzielen kann.
 
-Mit F1-Macro 0.8877, AUC 0.9691 und Sensitivitaet 80.2 % zeigt dieser Branch, dass ein starker Sampler unter CE einen relevanten Teil des Imbalance-Problems abfangen kann. Gegenueber reinen CE-Setups ohne Sampler steigt die Sensitivitaet, ohne dass die Gesamtleistung einbricht.
+Mit F1-Macro 0.8885, AUC 0.9766 und Sensitivitaet 74.9 % zeigt dieser Branch, dass ein starker Sampler unter CE einen relevanten Teil des Imbalance-Problems abfangen kann. Gegenueber reinen CE-Setups ohne Sampler steigt die Sensitivitaet, ohne dass die Gesamtleistung einbricht.
 
 Die Ergebnisse zeigen jedoch auch die Grenze dieses Ansatzes. Reines Oversampling macht positive Beispiele haeufiger sichtbar, priorisiert Fehler auf der Melanom-Klasse aber nicht direkt in der Verlustfunktion. Die besten Ergebnisse entstehen deshalb in den Refinement-Laeufen durch eine sorgfaeltig abgestimmte loss-seitige Gewichtung und passende Regularisierung.
 
-### 4. `mobilenet_v3_large_ce`: wichtigster Lightweight-Kandidat
+### 3. `mobilenet_v3_large_ce`: wichtigster Lightweight-Kandidat
 
 Fuer eine mobile Anwendung ist nicht nur maximale Modellguete relevant, sondern auch Speicherbedarf, Parameterzahl und Inferenzgeschwindigkeit. MobileNet V3 Large wurde deshalb als ressourcenschonender Kandidat evaluiert.
 
@@ -88,7 +81,7 @@ Das Ergebnis ist stark: F1-Macro 0.8866 und MCC 0.773 liegen nahe an mehreren Ef
 
 Fuer eine strikt on-device ausgefuehrte Dermascan-App koennte dieses Modell als Lightweight-Fallback oder Zweitpfad dienen. Gegenueber dem besten EfficientNet-Branch bleibt eine messbare Leistungsluecke, sie ist aber kleiner als aufgrund der Architekturkomplexitaet zu erwarten waere.
 
-### 5. `eff_ce_class_weights_no_pretrain`: Training ohne ImageNet-Initialisierung
+### 4. `eff_ce_class_weights_no_pretrain`: Training ohne ImageNet-Initialisierung
 
 Dieser Branch wurde als methodische Kontrollbedingung in den Refinement-Lauf aufgenommen. Die Konfiguration entspricht im Kern dem besten CE-Branch (`cw=[1,7]`, `wd=0.001`), verwendet jedoch keine ImageNet-Gewichte. Das Modell wurde vollstaendig von zufaelligen Initialisierungen trainiert (`pretrained=False`). Um diesen strukturellen Nachteil teilweise zu kompensieren, wurden 35 Epochen und eine umfangreichere Augmentierungsstrategie eingesetzt. Der Vergleich ist auch deshalb relevant, weil EFFNet auf HAM10000 in Ablationsversuchen ebenfalls einen deutlichen Nutzen von Transfer Learning gegenueber einem Training ohne vortrainierte Gewichte berichtet.
 
@@ -115,8 +108,6 @@ Darueber hinaus zeigen die Resultate, dass die Suchstrategie nicht auf Accuracy 
 **Primaermodell:** `eff_ce_class_weights_strong_reg` mit CE, `class_weights=[1,7]`, `weight_decay=0.001`, Batchgroesse 16 und Lernrate `1e-4`. Dieser Branch erzielt den hoechsten F1-Macro, den hoechsten MCC, die beste Precision und die hoechste Accuracy der Versuchsreihe. Er ist damit der naheliegende Hauptkandidat fuer den Klassifikationspfad im Dermascan-System.
 
 **Alternative bei Sensitivitaetsprioritaet:** `eff_bce_strong_reg` mit BCE, `pos_weight=8`, gewichtetem Sampler `(1,7)` und staerkerem Weight Decay. Dieses Modell bleibt relevant, wenn Recall hoeher priorisiert wird, etwa in einem Screening-Szenario mit nachgelagerten Bestaetigungsschritten.
-
-**AUC-orientierte Referenz:** `rgb_efficientnet_minipc` eignet sich als Vergleichsmodell fuer Threshold-Optimierung, weil es die beste globale Score-Trennung erreicht. Es ist besonders interessant, wenn die Entscheidungsschwelle nachtraeglich an konkrete klinische Anforderungen angepasst werden soll.
 
 **Lightweight-Fallback:** `mobilenet_v3_large_ce` ist der wichtigste Kandidat fuer ressourcenbeschraenkte Mobilgeraete. Die Modellguete liegt unter dem besten EfficientNet-Branch, ist aber fuer ein deutlich leichteres Modell bemerkenswert hoch.
 
