@@ -2,11 +2,11 @@
 
 Auditing beschreibt den Prozess der Nachverfolgung und Überprüfung von Entscheidungen. In diesem Zusammenhang bezieht es sich auf die Fähigkeit für gegebenes Modell nachzuverfolgen, auf welchen Hyperparametern und Eingangsdaten das Training basiert, um das gleiche Modell mit den gleichen Ergebnissen reproduzieren zu können. Diese Fähigkeit bietet Transparenz in Bezug auf die Trainingsdaten, die Modellarchitektur, die Hyperparameter und die Trainingsprozedur. Es ermöglicht auch die Identifikation von Fehlern oder Inkonsistenzen im Trainingsprozess und unterstützt die Reproduzierbarkeit und Optimierung von Modellen.
 
->Hinweis: Für exakten Reproduktion muss während des Trainings der `seed`-Parameter in der `PipelineConfig` gesetzt werden, damit die Zufallsprozesse (z.B. Datenaugmentation, Initialisierung der Modellgewichte) deterministisch sind.
+Da im Allgemeinen oft mathematischer Zufall für das Modelltraining verwendet wird um das Lernvermögen der Modelle zu verbessern bzw. zu stabilisieren, ist es wichtig, dass die Trainingspipeline alle relevanten Informationen speichert, um die Rückverfolgung und Reproduzierbarkeit der Ergebnisse zu gewährleisten. Insofern wird auf einen statischen `seed`-Parameter in der `PipelineConfig` zurückgegriffen, um damit die Zufallsprozesse (z.B. Datenaugmentation, Initialisierung der Modellgewichte) deterministisch zu gestalten.
 
 ## Rückverfolgungsprozess
 
-Die Eingabedaten wurden vorab explizit in Dateien (`train_df.csv`, `val_df.csv`, `test_df.csv`) gespeichert, um die Rückverfolgung zu erleichtern. Diese Dateien enthalten die Pfade zu den Bildern und die entsprechenden Labels. Insofern ist der Datensplit in der [FAUBox](https://faubox.rrze.uni-erlangen.de/getlink/fiBdx9pHi9z1Qo3cPAcJmh/Dermascan) im Verzeichnis `data` abgelegt (Achtung: Der Pfad muss angepasst werden).
+Die Eingabedaten wurden vorab explizit in Dateien (`train_df.csv`, `val_df.csv`, `test_df.csv`) gespeichert, um die Rückverfolgung zu erleichtern. Diese Dateien enthalten die Pfade zu den Bildern und die entsprechenden Labels. Insofern ist der Datensplit in der [FAUBox](https://faubox.rrze.uni-erlangen.de/getlink/fiBdx9pHi9z1Qo3cPAcJmh/Dermascan) im Verzeichnis `data` abgelegt.
 
 ### Trainingsausgabe
 

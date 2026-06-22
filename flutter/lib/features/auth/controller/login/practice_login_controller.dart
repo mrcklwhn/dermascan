@@ -78,7 +78,7 @@ class PracticeLoginController extends GetxController {
             CustomSnackBar(
               icon: Icons.check_circle,
               title: 'Login Successful'.tr,
-              message: 'Your Login was successful. You are now logged in.'.tr,
+              message: 'You are now logged in.'.tr,
             ),
           );
         }

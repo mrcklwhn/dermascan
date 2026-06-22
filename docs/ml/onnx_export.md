@@ -1,52 +1,58 @@
-# Übertrag von Pytorch Modellen zu Flutter/Dart
+# Uebertrag von PyTorch-Modellen nach Flutter/Dart
 
-## Export des Lesionsmasken-Modells
+Die in Python trainierten Modelle werden fuer die App in ein plattformunabhaengiges Format exportiert. Hierfuer wird ONNX (Open Neural Network Exchange) genutzt.
 
-Im Notebook [lesion_cutout_model_export](../../python/onnx_porting/lesion_cutout_model_export.ipynb) soll das fertig trainierte UNet-Modell in die plattformübergreifend kompatible ONNX-Bibliothek (Open Neural Network Exchange) exportiert werden, um es auf mobilen Endgeräten nutzen zu können. Hierfür ist es notwendig, sowohl die genaue Modellarchitektur zu definieren als auch einen passenden Beispiel-Tensor. Die ONNX Bibliothek erstellt einen sogenannten Execution-Graph, der die inneren Rechenoperationen des Modells aufzeichnet. Dieser Graph ist eine unabhängige Darstellung des Modells, die von verschiedenen Frameworks und Plattformen interpretiert werden kann. Aus diesem Grund ist ein typisierter Bespiel-Tensor zwingend erforderlich, damit der Execution-Graph durch einen dynamischen Durchlauf (Trace) des Modells erstellt werden kann. 
+Fuer die mobile Inferenz in Flutter wird ONNX Runtime ueber das Paket `flutter_onnxruntime` eingebunden.
 
-Bei unserem Export hat sich zudem gezeigt, dass der moderne PyTorch Dynamo-Export Probleme verursachen kann. Das wurde daran festgestellt, dass für die gleiche Modellkonfiguration und identischem Eingabetensor ein unterschiedlicher Wertebereich der Logits entstanden ist. 
-Die stabilste Lösung bestand daher schlicht darin, den Export-Parameter `dynamo=False` zu setzen.
+## Vorteile des ONNX-Pfads
 
-### Datenformate: Inputs und Logits
-Eingabe-Daten (Inputs): Das Modell erwartet in diesem Fall einen Daten-Tensor vom Typ `float32`. Die Eingabedimensionen lauten `[1, 3, 256, 256]` (entspricht: Batch-Size 1, 3 Farbkanäle für RGB, 256 Pixel Höhe, 256 Pixel Breite). Die Bildwerte sind dabei auf ein Intervall zwischen `0.0` und `1.0` skaliert.
+- Klare Trennung zwischen Training (PyTorch/Python) und Inferenz (Flutter/ONNX Runtime)
+- Einheitliches Modellformat fuer Android und iOS
+- Reproduzierbarer Exportprozess mit festen Input-/Output-Signaturen
+- Gute Wartbarkeit durch versionierbare Modellartefakte
 
-Ausgabe-Daten (Logits): Die vom Modell zurückkommenden Werte sind unskalierte und nicht-normalisierte Aktivierungswerte (die Logits) vom Typ `float32`. Je nach Eingabebedienungen und Gewichten können diese nach außen ausgegebenen Modell-Logits beispielhaft Werte zwischen `-7.42` und `8.89` annehmen. Zur tatsächlichen Interpretation als Lesionsmaske müssen die Logits nachverarbeitet werden, u.a. durch Anwendung einer Sigmoid-Funktion. Diese Nachverarbeitung ist für Python und Dart identisch.
+## Exportprozess
+
+Unabhaengig vom Modelltyp umfasst der Export folgende Schritte:
+
+1. Finale Modellarchitektur definieren und trainierte Gewichte laden.
+2. Dummy-Input mit korrekter Form und Datentyp festlegen.
+3. ONNX-Export mit expliziten Ein- und Ausgaben ausfuehren.
+4. ONNX-Ausgabe in Python gegen PyTorch-Ausgabe validieren.
+5. Modell in Flutter integrieren und erneute Laufzeitvalidierung durchfuehren.
+
+Modelltypspezifische Unterschiede liegen in der Nachverarbeitung:
+
+- Segmentierung: Logits/Maskenscores werden per Sigmoid und Threshold zu binaeren Masken.
+- Klassifikation: Klassenlogits werden in Label und Konfidenz ueberfuehrt.
+
+## Wichtige Beobachtung beim Export
+
+Im Projekt zeigte sich, dass der Dynamo-Export in Einzelfaellen inkonsistente Ergebnisse erzeugen kann. Die stabilste Variante war der Export mit `dynamo=False`.
 
 ## Integration in Flutter
 
-Um die Modelle in der App zu betreiben, wird das Flutter-Paket [`flutter_onnxruntime`](https://pub.dev/packages/flutter_onnxruntime) herangezogen. Bei dieser Bibliothek handelt es sich eigentlich "nur" um eine Wrapper-Schnittstelle. Unter der Haube kommuniziert dieser Wrapper direkt mit den offiziell unterstützten, nativen C/C++ ONNX-Builds der jeweiligen Entwicklungsumgebungen (Apple CoreML für iOS oder NNAPI für Android). Dies garantiert maximale Hardware-Beschleunigung bei gleichzeitiger plattformunabhängiger Syntax.
+Dart ist strikt typisiert. Deshalb muessen Tensorformate und Datentypen exakt zu Python passen:
 
-### Inferenz in Dart
-Dank der Abkapselung ist die eigentliche Inferenz-Ausführung in Dart unkompliziert:
+- Eingaben als `Float32List`
+- Korrekte Tensorformen gemaess ONNX-Signatur
+- Identische Vor- und Nachverarbeitung wie in Python
 
-```dart
-Future<Uint8List> runInference() async {
-  final Float32List inputData = _preprocess(_cachedImage!);
+Zur Absicherung wurde ein direkter Inferenzvergleich mit identischen Testinputs durchgefuehrt.
 
-  OrtValue inputTensor = await OrtValue.fromList(
-    inputData,
-    [1, 3, 256, 256],
-  );
+- Segmentierungsmodelle zeigten sehr kleine numerische Abweichungen.
+- Bei einzelnen Klassifikationsmodellen traten groessere Differenzen auf und mussten gesondert analysiert werden.
 
-  final String inputName = _session!.inputNames.first;
-  final String outputName = _session!.outputNames.first;
+## Hindernis Filter-Branch
 
-  final outputs = await _session!.run({
-    inputName: inputTensor,
-  });
+Die gefilterten Branches basieren in Python auf Scikit-Image. Fuer diese Filter existiert in Dart/Flutter nicht fuer alle Faelle eine direkt aequivalente Implementierung.
 
-  final List<double> maskScores = (await outputs[outputName]!.asFlattenedList()).cast<double>();
+- Gabor- und GLCM-Filter konnten in Dart naeherungsweise abgebildet werden.
+- Fuer LBP liegt aktuell keine ausreichend robuste Portierung vor.
 
-  return _postprocess(maskScores);
-}
-```
+Da fuer Filter-Branches in Flutter bislang keine vollstaendig konsistente Reproduktion erreicht wurde, werden diese Branches derzeit nicht produktiv verwendet. RGB-basierte Modelle liefern bereits tragfaehige Ergebnisse.
 
-Das ONNX Model rechnet im 32-Bit Fließkommazahlen (`float32`). In Dart gibt es allerdings keinen primitiven Datentypen dafür, zwingend ein cast zu 64-Bit `double` notwendig ist.
+## Siehe auch
 
-**Verarbeitung & Aufbereitung der Daten:**
-Die im Code-Snippet ersichtlichen Methoden `_preprocess` und `_postprocess` sind Teil des [Läsionsmaskenmodells](./lesion_cutout.md) und werden dort näher erklärt.
-Für das Klassifikationsmodell sind die Schritte ähnlich, allerdings mit einem anderen Ausgabeformat und einer anderen Nachverarbeitung der Logits.
-
-## Ergebnisse
-
-Wie im bereits genannten Notebook nachzulesen ist, sind die Ausgaben der PyTorch und ONNX-Modelle identisch, was die Korrektheit des Exports bestätigt. Auch bei Inferenz in Dart mit der `flutter_onnxruntime` Bibliothek konnten die gleichen Wertebereiche der Logits beobachtet werden, was auf eine erfolgreiche Integration hindeutet.
+- [Machine Learning](./README.md)
+- [Trainingsergebnisse](./training_results.md)

@@ -1,42 +1,50 @@
 # Dermascan Dokumentation
 
-**Team**: 
+## Team
+
 - [John Schubert](mailto:schubertjo97184@th-nuernberg.de)
 - [Illia Pichkur](mailto:pichkuril97175@th-nuernberg.de)
 - [Maurice Klawuhn](mailto:klawuhnma96400@th-nuernberg.de)
 
-**Betreuer**:
+## Betreuung
+
 - [Christian Axenie](mailto:cristian.axenie@th-nuernberg.de)
 
-## Kurzbeschreibung
-Dermascan umfasst die Forschung und Entwicklung einer mobilen App, mit der Bilder von Hautläsionen aufgenommen werden sollen und mithilfe eines ML Models direkt auf dem Endgerät des Anwenders klassifiziert wird. Dabei soll insbesondere die Datensicherheit und der Datenschutz der sensiblen Patientendaten gewährleistet werden, indem die Verarbeitung ausschließlich auf dem Endgerät erfolgt und alle Ergebnisse verschlüsselt gespeichert werden.
+## Projektüberblick
 
-## Allgemeine Projektinformationen
-- Zielgruppe: ausschließlich Ärzte
-- App Framework: Flutter 
-- Datenhaltung: Supabase
-- Primärplattform: Android
-- Sicherheit: Bilder und Patientendaten werden verschlüsselt gespeichert; Zugriff nur für Ärzte innerhalb derselben Praxis
+Dermascan ist ein praxisnahes Forschungsprojekt zur Entwicklung einer mobilen App für die dermatologische Verlaufsdokumentation. Die Anwendung wurde in enger Abstimmung mit einer Dermatologin konzipiert und fokussiert die strukturierte Erfassung von Hautläsionen, die Nachverfolgung über Zeit und eine KI-gestützte Ersteinschätzung.
 
+## Architektur auf einen Blick
 
-## Entwicklung und Forschung
+### Lokal auf dem Endgerät
 
-### App
+- Aufnahme und Vorverarbeitung von Bilddaten
+- On-Device-Inferenz des Klassifikators (ONNX Runtime)
+- Berechnung deterministischer ABC-Merkmale
 
-Die App-Entwicklung erfolgt mit dem Framework Flutter, um eine plattformübergreifende Entwicklung zu ermöglichen.
-In der [App Dokumentation](./app/README.md) finden sich detaillierte Informationen zur Zusammenarbeit mit einem realen Stakeholder, der App-Architektur und den implementierten Features.
+### Cloud-Backend (Supabase)
 
+- Speicherung von Patienten-, Läsions- und Diagnosedaten
+- Authentifizierung und rollenbasierte Autorisierung
+- Serverseitige Prüfung kritischer Schreiboperationen über Edge Functions
+- Zugriffssteuerung über RLS- und Storage-Policies
 
-### ML Backend
+Damit ist klar getrennt: Die KI-Auswertung läuft lokal, während persistente Verwaltungs- und Dokumentationsdaten kontrolliert im Backend gehalten werden.
 
-Verschiedene neuronale Modelle wurden evaluiert, um einen Kompromiss zwischen Genauigkeit und Effizienz zu finden.
-Dabei wird neben dem Finetuning von vortrainierten Modellen auch eine eigene Modellarchitektur entwickelt, die speziell auf die Anforderungen der Hautläsionserkennung zugeschnitten ist.
+## Grenzen und Nutzungskontext
 
-Nähere Informationen zur Modellentwicklung finden sich in der [ML Dokumentation](./ml/README.md).
+- Dermascan ist ein Forschungsprototyp und **kein Medizinprodukt**.
+- Die Ergebnisse sind als **Entscheidungsunterstützung** gedacht und ersetzen keine fachärztliche Diagnose.
+- Die klinische Verantwortung verbleibt bei medizinischem Fachpersonal.
 
+## Struktur der Dokumentation
 
-### Datenbank
+1. [App](./app/README.md)
+2. [Datenbank](./db/README.md)
+3. [Machine Learning](./ml/README.md)
+4. [ABC-Algorithmen](./abc_algorithms/README.md)
+5. [Glossar](./glossar.md)
 
-Zur Datenhaltung wird die Cloud-Plattform Supabase eingesetzt, die auf PostgreSQL basiert. Sie ermöglicht ein stabiles und konsistentes Datenbankschema, das den organisatorischen Ablauf einer Arztpraxis sowie den dermatologischen Diagnoseprozess nativ abbildet. Die Entscheidung für einen externen Dienstleister ist auch damit zu begründen, dass wir selbst keine dauerhaft verfügbare Datenbank aufsetzen und einen ortsunabhängigen Zugriff ermöglichen müssen, wodurch der Fokus auf der Entwicklung bleibt.
+## Fazit
 
-Details zum Datenbankdesign und Sicherheitsmaßnahmen finden sich in der [Datenbank Dokumentation](./db/README.md).
+Dermascan verbindet klinische Anforderungen mit einer End-to-End-Umsetzung aus App, Datenhaltung, ML-Pipeline und deterministischen Merkmalsalgorithmen. Die Kombination aus On-Device-Inferenz und abgesicherter Cloud-Dokumentation ermöglicht einen praxisnahen Workflow für strukturierte Untersuchungen und mit minimalem Anschaffungsaufwand.

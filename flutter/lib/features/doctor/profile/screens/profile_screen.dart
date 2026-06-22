@@ -57,7 +57,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
           prefixIcon: Icons.person,
           textInputType: TextInputType.name,
         ),
-        const SizedBox(height: AppTheme.spaceMedium),
+        const SizedBox(height: AppTheme.spaceSmall),
         Card(
           child: ListTile(
             leading: const Icon(Icons.calendar_month),
@@ -110,7 +110,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
                 : controller.openChangeEmailScreen,
           ),
         ),
-        const SizedBox(height: AppTheme.spaceMedium),
+        const SizedBox(height: AppTheme.spaceSmall),
         Card(
           child: ListTile(
             leading: const Icon(Icons.password),
