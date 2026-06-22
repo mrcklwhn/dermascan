@@ -52,7 +52,6 @@ class TrainerConfig(BaseModel, frozen=True):
 
 class AugmentationConfig(BaseModel, frozen=True):
     train: list[AugmentationType]
-    val: list[AugmentationType]
 
 class BranchConfig(BaseModel, frozen=True):
     branch_id: str

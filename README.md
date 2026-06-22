@@ -1,75 +1,83 @@
-# Projektname (Arbeitstitel)
-Mobile App zur Erfassung von Hautanomalien und Erst‑Einschätzung der Dringlichkeit.
+# Dermascan (Arbeitstitel)
 
-**Team**: 
-- [John Schubert](schubertjo97184@th-nuernberg.de)
-- [Illia Pichkur](pichkuril97175@th-nuernberg.de)
-- [Maurice Klawuhn](klawuhnma96400@th-nuernberg.de)
+Mobile App zur strukturierten Erfassung von Hautlaesionen und zur KI-gestuetzten Ersteinschaetzung der Dringlichkeit.
 
-**Betreuer**:
-- [Christian Axenie](cristian.axenie@th-nuernberg.de)
+## Team
+
+- [John Schubert](mailto:schubertjo97184@th-nuernberg.de)
+- [Illia Pichkur](mailto:pichkuril97175@th-nuernberg.de)
+- [Maurice Klawuhn](mailto:klawuhnma96400@th-nuernberg.de)
+
+## Betreuung
+
+- [Christian Axenie](mailto:cristian.axenie@th-nuernberg.de)
 
 ## Kurzbeschreibung
->Diese App ermöglicht das Fotografieren und Erfassen von Hautanomalien und liefert eine erste, nicht-klinische Einschätzung, ob eine weitergehende dringliche Untersuchung empfohlen wird. Ziel ist ein Prototyp / Proof-of-Concept für eine mobile, plattformübergreifende Lösung.
 
-## Ziel
-- datenschutzkonforme Erfassung von Hautveränderungen
-- Erste Priorisierung (dringlich / nicht dringlich) zur Unterstützung von Ärzten
-- Forschung: Vergleich mehrerer ML‑Ansätze auf mobilen Geräten
+Dermascan ist ein Forschungs- und Entwicklungsprojekt für eine mobile, plattformübergreifende Anwendung im dermatologischen Umfeld. Die App unterstützt die Dokumentation von Hautläsionen und liefert eine KI-basierte Ersteinschätzung.
 
-### Konkrete Ergebnisse
-- Mobile App (Proof of Concept) mit lokal laufendem ML Modell
-- Repo: Demo‑App, Modelle, README(s)
-- Präsentationsfolien
-- Optional: Abschlussbericht
+Die Bildanalyse (Inferenz) erfolgt standardmäßig lokal auf dem Endgerät mittels ONNX Runtime. Patienten-, Läsions- und Diagnosedaten werden strukturiert über Supabase gespeichert und durch Rollenmodell, serverseitige Validierung und Policies abgesichert.
 
+## Zielsetzung
 
+- Datenschutzkonforme Erfassung von Hautveränderungen
+- Strukturierte Dokumentation für Verlaufskontrollen
+- KI-gestützte Priorisierung als Entscheidungshilfe
+- Vergleich mehrerer ML-Strategien für mobile Nutzung
 
-## Projektdaten
+## Konkrete Ergebnisse
 
-### Hauptfunktionen
-- Aufnahme und Verwaltung von Fotos / Befunden
-- Lokale Vorverarbeitung (Bilder, Metadaten anonymisieren)
-- On‑device Inferenz mit leichtgewichtigen Modellen (z. B. TensorFlow Lite)
-- Anzeige einer erklärbaren Einschätzung (z. B. Feature‑Wichtigkeit, Confidence)
+- Mobile Flutter-App (Proof of Concept)
+- Lokale Modellinferenz mit ONNX Runtime
+- Dokumentierte Trainings- und Evaluierungspipeline in Python
+- Dokumentation in Markdown und Jupyter Notebooks
 
-### Technische Eckdaten
-- Framework: Flutter (plattformagnostisch, mobile Fokus)
-- On‑device ML: TensorFlow Lite oder vergleichbare Embedded‑Bibliothek
-- ML‑Modelle: mehrere Ansätze evaluieren (Decision Trees / Random Forests, SVM, CNNs für Bildfeatures)
-- Erklärungsmethoden: SHAP / Feature‑Importances für Modelldehnung
+## Technischer Rahmen
 
+- App-Framework: Flutter
+- Lokale Inferenz: ONNX Runtime (via Flutter-Wrapper)
+- Backend: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- ML-Entwicklung: Python, PyTorch, ONNX-Export
+
+## Trennung von Inferenz und Datenhaltung
+
+- **Lokal auf dem Gerät**:
+  - Vorverarbeitung von Bilddaten für die Analyse
+  - Ausführung der Klassifikation (On-Device-Inferenz)
+  - Berechnung deterministischer ABC-Merkmale
+- **Cloud-Backend (Supabase)**:
+  - Persistenz von Patienten-, Läsions- und Diagnosedaten
+  - Rollen- und Zugriffsverwaltung (Praxis/Arzt)
+  - Serverseitige Validierung kritischer Schreibvorgänge über Edge Functions
+  - Zugriffsschutz durch Row Level Security (RLS) und Storage-Policies
+
+## Grenzen und Nutzungskontext
+
+- Dermascan ist ein Forschungsprototyp und derzeit **kein zertifiziertes Medizinprodukt**.
+- Die bereitgestellten Auswertungen dienen der **klinischen Entscheidungsunterstützung**, nicht der finalen Diagnose.
+- Die medizinische Bewertung und Verantwortung verbleibt immer bei qualifiziertem Fachpersonal.
 
 ## Datenquellen
-- Öffentliche Datensätze (z. B. Kaggle)
-    - https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000
-    - https://www.nature.com/articles/s41597-024-03743-w#Sec9
-- Echte Klinikdaten durch Kontakt zum Klinikum Nürnberg oder aus Rumänien 
 
-## ML‑Ansatz (grob)
-- Datensammlung → Preprocessing → Feature‑Extraktion (Bild + Metadaten)
-- Modellvergleich: klassifikatorische Priorisierung (Dringlich / Nicht)
-- Bewertung: Accuracy, Precision/Recall, F1, AUC
-- Erklärbarkeit: SHAP oder Tree‑based feature importances
-
-## Nächste Schritte (ToDo)
-- Anforderungsanalyse mit Ärzt:innen / Dermatolog:innen
-- Datensammlung und rechtliche Prüfung
-- Prototyp UI + Kamera‑Workflow
-- ML‑Baseline trainieren und on‑device testen
+- HAM10000 / ISIC-Daten:
+  - https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000
+  - https://www.nature.com/articles/s41597-024-03743-w#Sec9
 
 ## Dokumentation
 
-Alle Informationen zu Analyse, Daten, Modellentwicklung und -export sind in Form von Markdown-Dateien und Jupyter Notebooks organisiert.
-Die Markdown-Dateien im `docs/` Verzeichnis sind der Kern der Projektdokumentation, während die Jupyter Notebooks im `python/` Verzeichnis die detaillierten Schritte der Datenanalyse, Modellierung und Exportierung enthalten.
-Für eine interaktiven Aufruf der Dokumentation reicht es die folgenden Befehle im Terminal auszuführen:
+Die Projektdokumentation liegt im Verzeichnis `docs/` und wird mit MkDocs bereitgestellt. Notebooks und ML-Skripte befinden sich unter `python/`.
+
+### Lokaler Start
 
 ```bash
-# Install mkdocs
-pip install mkdocs
-
-# Serve the documentation locally
+pip install mkdocs mkdocs-material
 mkdocs serve
 ```
 
-Unter `http://127.0.0.1:8000/` kann die Dokumentation dann im Browser aufgerufen werden. Alle Markdown-Dateien und Notebooks sind dort übersichtlich strukturiert und können direkt eingesehen werden.
+Anschliessend ist die Dokumentation unter `http://127.0.0.1:8000/` erreichbar.
+
+## Ausblick
+
+- Erweiterung der Validierung mit reproduzierbaren Vergleichsläufen
+- Weitere Härtung des Sicherheitsmodells für Produktivbetrieb
+- Verbesserung der Modellrobustheit für seltene Klassen und schwierige Bildqualitäten

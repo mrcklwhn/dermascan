@@ -162,8 +162,7 @@ class PracticeRegisterController extends GetxController {
             CustomSnackBar(
               icon: Icons.check_circle,
               title: 'Registration Successful'.tr,
-              message:
-                'Your account was created and you are now logged in.'.tr,
+              message: 'Your account was created and you are now logged in.'.tr,
             ),
           );
         }
