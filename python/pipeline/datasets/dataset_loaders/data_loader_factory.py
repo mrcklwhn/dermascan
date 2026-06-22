@@ -7,7 +7,7 @@ import albumentations as A
 import random
 from functools import partial
 
-from pipeline.dataclasses.enums import DatasetLoaderType, FilterType, ModelType
+from pipeline.dataclasses.enums import DatasetLoaderType, FilterType, ModelType, AugmentationType
 from pipeline.dataclasses.pipeline_config import AugmentationConfig
 from pipeline.dataclasses.pipeline_runtime import TrainValTestDataLoaders, TrainValTestSplit
 
@@ -66,12 +66,12 @@ class DataLoaderFactory:
 
         if augmentation:
             train_augmentations = AugmentationBuilder.build(filter_type, model_type, augmentation.train, seed)
-            val_augmentations = AugmentationBuilder.build(filter_type, model_type, augmentation.val, seed)
-            test_augmentations = AugmentationBuilder.build(filter_type, model_type, [], seed)  # only apply normalization to test set if using filter dataset loader
         else:
             train_augmentations = None
-            val_augmentations = None
-            test_augmentations = None
+
+        # needed to apply resizing for validation and test sets to ensure consistent image sizes for different model archs
+        val_augmentations = AugmentationBuilder.build(filter_type, model_type, [AugmentationType.RESIZE], seed)
+        test_augmentations = AugmentationBuilder.build(filter_type, model_type, [AugmentationType.RESIZE], seed)
 
         def make_loader(ids_df: DataFrame, sampler_weights: tuple[float, float] | None, shuffle: bool, augmentations: A.Compose | None = None, seed: int | None = None) -> DataLoader:
             """

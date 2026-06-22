@@ -86,7 +86,6 @@ class EditPatientScreen extends GetView<EditPatientController> {
               ],
             ),
 
-            const SizedBox(height: AppTheme.spaceSmall),
             const SizedBox(height: AppTheme.spaceMedium),
 
             Text(
@@ -99,14 +98,14 @@ class EditPatientScreen extends GetView<EditPatientController> {
               subtitle: 'Does the patient regularly use sunscreen?'.tr,
               value: controller.sunscreenUse,
             ),
-            const SizedBox(height: AppTheme.spaceMedium),
+            const SizedBox(height: AppTheme.spaceSmall),
 
             ToggleCard(
               title: 'Sunburn History'.tr,
               subtitle: 'Has the patient ever had a sunburn?'.tr,
               value: controller.previousSunburns,
             ),
-            const SizedBox(height: AppTheme.spaceMedium),
+            const SizedBox(height: AppTheme.spaceSmall),
             ToggleCard(
               title: 'Tanning Bed Use'.tr,
               subtitle: 'Does the patient use tanning beds?'.tr,
@@ -125,14 +124,14 @@ class EditPatientScreen extends GetView<EditPatientController> {
               value: controller.personalHistoryMelanoma,
               subtitle: 'Previous personal melanoma diagnosis.'.tr,
             ),
-            const SizedBox(height: AppTheme.spaceMedium),
+            const SizedBox(height: AppTheme.spaceSmall),
             ToggleCard(
               title: 'Family History of Melanoma'.tr,
               value: controller.familyHistoryMelanoma,
               subtitle: 'Melanoma cases in close relatives.'.tr,
             ),
 
-            const SizedBox(height: AppTheme.spaceMedium),
+            const SizedBox(height: AppTheme.spaceSmall),
             ToggleCard(
               title: 'Skin Surgery'.tr,
               subtitle: 'Any previous skin-related surgeries?'.tr,
@@ -144,7 +143,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    const SizedBox(height: AppTheme.spaceMedium),
+                    const SizedBox(height: AppTheme.spaceSmall),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppTheme.spaceMedium,

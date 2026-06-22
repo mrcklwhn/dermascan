@@ -1,17 +1,27 @@
 # Deterministische Algorithmen zur Merkmalsextraktion aus Bildern
 
-## Ziel
-Die reine Verwendung eines angepassten CNN-Klassifikators bringt den Nachteil mit sich, dass die Art und Weise der Klassifizierung eines Bildes für den Menschen nicht nachvollziehbar ist.
-Da dieses Projekt im medizinischen Kontext Verwendung finden soll, ist die Nachvollziehbarkeit von Entscheidungen jedoch eine grundlegende Vorraussetzung.
-Aus diesem Grund kam der Gedanke auf, Determinismus in den Prozess der maschinengestützten Entscheidung künstlich einzuführen, wie das Kapitel zur [`eigenen Klassifikator Architektur`](./multibranch_architecture.md) erklärt.
+Die reine Verwendung eines neuronalen Klassifikators bringt den Nachteil mit sich, dass die Art und Weise der Klassifizierung eines Bildes für den Menschen nicht nachvollziehbar ist.
+Da dieses Projekt im medizinischen Kontext genutzt werden soll, ist die Nachvollziehbarkeit von Entscheidungen eine grundlegende Voraussetzung.
 
-Die ABCDE-Kriterien sind ein etabliertes Werkzeug für Dermatologen, um die Merkmale von Hautläsionen zu bewerten. Durch die Implementierung von Algorithmen, die diese Kriterien quantifizieren, können erklärbare Informationen bereitgestellt werden, die Ärzten helfen, fundierte Entscheidungen zu treffen.
+Ein klassischer Arbeitsschritt von Dermatologen bei der Analyse von Hautläsionen ist die Anwendung der sogenannten [ABCDE-Kriterien](https://www.aad.org/public/diseases/skin-cancer/find/at-risk/abcdes), die verschiedene visuelle Merkmale einer Läsion bewerten.
+Diese Kriterien sind ein etabliertes Werkzeug für Dermatologen, um die Merkmale von Hautläsionen zu bewerten. Durch die Implementierung von Algorithmen, die diese Kriterien quantifizieren, können erklärbare Informationen bereitgestellt werden, die Ärzten helfen, fundierte Entscheidungen zu treffen.
+
+Das folgende Bild stellt die Kriterien im Vergleich zwischen einem gutartigen Leberfleck (links) und einem bösartigen Melanom (rechts) dar:
+
+![](../images/abcde_melanoma_eng.jpg)
+
+Quelle: https://www.aimatmelanoma.org/melanoma-101/understanding-melanoma/moles-and-other-lesions/know-your-abcdes/
+
+Da die Kriterien als weit verbreitet und klinisch relevant gelten, sollten sie in unserem Projekt ebenfalls berücksichtigt werden. Allerdings ist die direkte Implementierung von Diameter (D) und Evolution (E) aufgrund der fehlenden zeitlichen Daten und der Skalierungsproblematik nicht trivial, weshalb der Fokus auf die Kriterien A, B und C gelegt wurde.
+
 
 ## Details zur Implementierung
 
-Für jedes der drei Kriterien (Asymmetrie, Border und Color) wurden zwei verschiedene Implementierungsansätze entwickelt und verglichen. Alle Ansätze wurden in Python implementiert, wobei für jedes Kriterium festgestellt werden soll, welcher Algorithmus am geeignesten ist. Dieser 
+Für jedes der drei Kriterien (Asymmetrie, Border und Color) wurden zwei verschiedene Implementierungsansätze entwickelt und verglichen. Alle Ansätze wurden in Python implementiert, wobei für jedes Kriterium festgestellt werden soll, welcher Algorithmus am geeigneten ist. 
 
+Für die Berechnung zu den ABC-Kriterien muss die eigentliche Läsion von ihrem Hintergrund getrennt werden. Die Segmentierung wird in Form einer sogenannten binären Maske durchgeführt, die für jedes Pixel angibt, ob es zur Läsion gehört oder nicht.
 Alle Vergleiche von Implementierungsansätzen nutzen Otsu's Thresholding um eine binäre Maske der Läsion zu erstellen. 
+Details zu den beiden getesteten Ansätzen finden sich in der [zugehörigen Beschreibung](../abc_algorithms/lesion_cutout.md). Darin sind auch die Vor- und Nachverarbeitungsschritte beschrieben, die für beide Ansätze notwendig sind, um die Qualität der Segmentierungsergebnisse zu verbessern.
 
 Um die Leistung der Algorithmen zu bewerten, wurden sie auf alle 10000 Bilder angewandt und die berechneten Scores nach den beiden relevanten Klassen (Melanom vs. Leberfleck) gruppiert.
 Ein Boxplot dient der Visualisierung der Verteilung der Scores in den beiden Klassen, um die Differenzierungskraft des Algorithmus zu bewerten. Ein signifikanter Unterschied in der Verteilung der Scores zwischen den Klassen würde darauf hindeuten, dass der Algorithmus relevante Merkmale extrahiert, die zur Unterscheidung beitragen können.
@@ -30,7 +40,7 @@ Dieser Ansatz basiert auf der vereinfachten Annahme, dass sich die Symmetrie ein
 1. Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding
 2. Zentroid-Berechnung: Bestimmung des geometrischen Schwerpunkts der Läsion, um die Quadranten zu definieren
 3. Quadranten-Aufteilung: Aufteilung der Maske in vier Quadranten basierend auf dem Zentroid
-4. Differenberechnung: Berechnung der absoluten Differenz zwischen diagonal gegenüberliegenden Quadranten
+4. Differenzberechnung: Berechnung der absoluten Differenz zwischen diagonal gegenüberliegenden Quadranten
 5. Normalisierung: Mittelung der zwei Differenzwerte und Normalisierung auf [0, 1], wobei 0 = völlig symmetrisch und 1 = völlig asymmetrisch
 
 
@@ -48,7 +58,7 @@ Dieser Ansatz ist wissenschaftlich präziser, da er die Spiegelsymmetrie entlang
 
 ![Asymmetry Score Verteilung](../images/asymmetry_score_analysis.png)
 
-Wie dem Boxplot zu entnehmen, eignet sich der Ansatz der Hauptachsen-basierten Spiegelsymmetrie deutlich besser zur Differenzierung zwischen Melanomen und Leberflecken, da der Mittelwert der Scores mit 0.27 für Melanome und 0.20 für Leberflecken deutlicher auseiander liegt als bei der quadranten-basierten Punktsymmetrie (0.37 vs. 0.35). Zudem erstreckt sich das 75. Perzentil der Melanom-Scores bis 0.61, was darauf hinweist, dass Melanome tendenziell deutlich asymmetrischer sind als Leberflecken. 
+Wie dem Boxplot zu entnehmen ist, eignet sich der Ansatz der hauptachsenbasierten Spiegelsymmetrie deutlich besser zur Differenzierung zwischen Melanomen und Leberflecken, da der Mittelwert der Scores mit 0.27 für Melanome und 0.20 für Leberflecken klarer getrennt ist als bei der quadrantenbasierten Punktsymmetrie (0.37 vs. 0.35). Zudem erstreckt sich das 75. Perzentil der Melanom-Scores bis 0.61, was darauf hinweist, dass Melanome tendenziell deutlich asymmetrischer sind als Leberflecken.
 
 
 ---
@@ -65,7 +75,7 @@ Die RDV-Methode quantifiziert die Abweichung der Läsionsform von einer idealen 
 2. Zentroid-Berechnung: Bestimmung des geometrischen Schwerpunkts der Läsion
 3. Bestimmung des Umrisses: Aufblähen der Maske durch Dilation und anschließend Subtraktion der ursprünglichen Maske
 4. Radiale Distanzberechnung: Berechnung der euklidischen Distanzen von jedem Punkt auf der Grenzlinie zum Zentroid
-5. Varianzberechnung: Ermittlung des Varainzkoeffizienten (Standardabweichung / Mittelwert) der Radien, um die Unregelmäßigkeit zu quantifizieren
+5. Varianzberechnung: Ermittlung des Varianzkoeffizienten (Standardabweichung / Mittelwert) der Radien, um die Unregelmäßigkeit zu quantifizieren
 6. Normalisierung: Skalierung des RDV-Werts auf [0, 1], wobei 0 = perfekte Kreisform und 1 = maximale Irregularität
 
 #### Ansatz 2: Konkavitäts-Analyse
@@ -104,3 +114,15 @@ Um die Farbvielfalt unabhängig von individuellen Hauttypen und variierenden Bel
 
 Da für dieses Kriterium nur ein Ansatz implementiert wurde, kann die Differenzierungskraft nur an der Analyse des Color Uniformity Scores selbst beurteilt werden. Die weiteren Boxplots zu `Effective Color Count` und `Entropy` sind lediglich die Rohwerte der Farbvielfalt darstellen, ohne die Normalisierung und Inversion, die für die finale Score-Berechnung notwendig sind.
 Die Verteilung des Uniformity Scores zeigt wieder eine deutliche Überlappung zwischen Melanomen und Leberflecken, wobei die Mittelwerte ähnlich zu den vorherigen Kriterien, mit einer Differenz von 0.031, relativ nah beieinander liegen. Nur der Abstand zwischen den 25. Perzentilen der beiden Klassen lässt darauf schließen, dass die Farbvielfalt bei Leberfleck tendenziell geringer ist als bei Melanomen. 
+
+
+## Übertrag auf die App
+
+Die Algorithmen zur Berechnung der ABC-Kriterien wurden in Python implementiert, da sie dort einfacher zu entwickeln und zu testen sind. Für die Integration in die Flutter-App müssen diese Algorithmen jedoch in eine Form gebracht werden, die auf mobilen Geräten lauffähig ist.
+Die [OpenCV-Bibliothek](https://en.wikipedia.org/wiki/OpenCV) wurde bereits in der Python-Implementierung verwendet, um die Bildverarbeitungsschritte durchzuführen. Glücklicherweise bietet OpenCV auch eine native C++-Implementierung, die über Dart-FFI in Flutter eingebunden werden kann.
+Ein Vergleich der Inferenz auf beiden Plattformen (Python vs. Flutter) zeigt, dass die Berechnung der ABC-Kriterien auf mobilen Geräten ohne signifikante Verzögerung möglich ist. Dabei sind die (Zwischen)Ergebnisse der ABC-Algorithmen identisch.
+
+
+## Siehe auch
+- [Läsionssegmentierung](./lesion_cutout.md)
+- [ML Dokumentation](../ml/README.md)
