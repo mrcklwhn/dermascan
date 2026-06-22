@@ -1,15 +1,23 @@
 stages:
   - deploy
 
+
 pages:
   stage: deploy
-  image: python:3.11
+
   before_script:
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
     - pip install mkdocs-material
+
   script:
+    - source venv/bin/activate
     - mkdocs build --site-dir public
+
   artifacts:
     paths:
       - public
+
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
