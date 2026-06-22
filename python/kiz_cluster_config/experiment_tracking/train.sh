@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --gres=gpu:1
-#SBATCH --time=03:00:00
+#SBATCH --time=01:00:00
 #SBATCH --qos=basic
 #SBATCH --output=/home/pichkuril97175/dermascan/logs/%j.out
 #SBATCH --error=/home/pichkuril97175/dermascan/logs/%j.err
@@ -14,4 +14,4 @@
 
 mkdir -p /home/pichkuril97175/dermascan/logs
 
-/nfs/scratch/students/pichkuril97175/dermascan-env/bin/python /home/pichkuril97175/dermascan/python/kiz_cluster_config/experiment_tracking/train_config.py
+/nfs/scratch/students/pichkuril97175/dermascan-env/bin/python /home/pichkuril97175/dermascan/python/kiz_cluster_config/experiment_tracking/last_experiment.py

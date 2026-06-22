@@ -24,7 +24,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
               tooltip: 'Invited Doctors'.tr,
             ),
           ),
-          const SizedBox(width: AppTheme.spaceSmall,),
+          const SizedBox(width: AppTheme.spaceSmall),
           Obx(
             () => IconButton(
               onPressed: controller.isInitializing.value
