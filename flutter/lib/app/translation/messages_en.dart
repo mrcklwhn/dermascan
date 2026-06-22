@@ -248,8 +248,6 @@ const Map<String, String> enUS = <String, String>{
       'Invalid email or password. Please try again.',
   'Not a practice account. Please use doctor login.':
       'Not a practice account. Please use doctor login.',
-  'Your Login was successful. You are now logged in.':
-      'Your Login was successful. You are now logged in.',
   'Passwords must match and meet security requirements.':
       'Passwords must match and meet security requirements.',
   'Account creation failed. Email may be in use or connection lost.':

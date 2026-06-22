@@ -254,8 +254,6 @@ const Map<String, String> roRO = <String, String>{
       'E-mail sau parolă invalidă. Vă rugăm să încercați din nou.',
   'Not a practice account. Please use doctor login.':
       'Acesta nu este un cont de cabinet. Vă rugăm să folosiți autentificarea pentru medic.',
-  'Your Login was successful. You are now logged in.':
-      'Autentificarea a reușit. Acum sunteți conectat.',
   'Passwords must match and meet security requirements.':
       'Parolele trebuie să coincidă și să îndeplinească cerințele de securitate.',
   'Account creation failed. Email may be in use or connection lost.':

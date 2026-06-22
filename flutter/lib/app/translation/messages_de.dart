@@ -252,8 +252,6 @@ const Map<String, String> deDE = <String, String>{
       'Ungültige E-Mail oder Passwort. Bitte versuchen Sie es erneut.',
   'Not a practice account. Please use doctor login.':
       'Kein Praxis-Konto. Bitte nutzen Sie den Arzt-Login.',
-  'Your Login was successful. You are now logged in.':
-      'Ihr Login war erfolgreich. Sie sind jetzt eingeloggt.',
   'Passwords must match and meet security requirements.':
       'Passwörter müssen übereinstimmen und den Sicherheitsanforderungen entsprechen.',
   'Account creation failed. Email may be in use or connection lost.':

@@ -66,14 +66,17 @@ class AppTheme {
       scrolledUnderElevation: 0,
 
       // Prevents Material 3 tinting on scroll
-      iconTheme: IconThemeData(color: primary),
+      iconTheme: IconThemeData(color: textDark),
+      actionsPadding: EdgeInsets.only(right: spaceMedium),
+
       titleTextStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textDark,
       ),
       centerTitle: true,
-      toolbarHeight: 56,
+      toolbarHeight: 64,
+      leadingWidth: 80,
     ),
 
     // Elevated Button
@@ -255,9 +258,16 @@ class AppTheme {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
 
-    iconTheme: const IconThemeData(color: primary),
+    iconTheme: const IconThemeData(color: textDark),
     iconButtonTheme: IconButtonThemeData(
-      style: ButtonStyle(foregroundColor: WidgetStateProperty.all(primary)),
+      style: IconButton.styleFrom(
+        foregroundColor: textDark,
+        backgroundColor: highlightColor,
+        fixedSize: const Size(
+          AppTheme.radiusLarge * 2,
+          AppTheme.radiusLarge * 2,
+        ),
+      ),
     ),
     visualDensity: VisualDensity.adaptivePlatformDensity,
   );
