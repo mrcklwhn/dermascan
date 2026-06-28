@@ -215,7 +215,14 @@ class EditPatientScreen extends GetView<EditPatientController> {
                 label: Text('Update'.tr),
               ),
             ),
-            const SizedBox(height: AppTheme.spaceLarge),
+            const SizedBox(height: AppTheme.spaceMedium),
+            OutlinedButton.icon(
+              onPressed: controller.isLoading.value
+                  ? null
+                  : () => controller.showDeletePatientDialog(),
+              icon: const Icon(Icons.delete),
+              label: Text('Delete'.tr),
+            ),
           ],
         ),
       ),

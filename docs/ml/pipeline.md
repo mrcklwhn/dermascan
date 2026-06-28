@@ -58,6 +58,6 @@ Dadurch lassen sich die besten Branch-Modelle gezielt als Kandidaten für das En
 
 - [Multibranch Architektur](./multibranch_architecture.md)
 - [Auditierung](./auditing.md)
-- [Trainingsergebnisse](./training_results.md)
+- [Experimentergebnisse](./experiment_results.md)
 - [Machine Learning Übersicht](./README.md)
 - [Modell Export](./onnx_export.md)

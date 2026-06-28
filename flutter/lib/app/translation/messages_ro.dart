@@ -331,4 +331,15 @@ const Map<String, String> roRO = <String, String>{
       'Pacientul selectat nu are nicio leziune în prezent.\n Adăugați noi leziuni pe ecranul anterior.',
   'Your account was created and you are now logged in.':
       'Contul dumneavoastră a fost creat și acum sunteți conectat.',
+  'Help & Documentation': 'Ajutor și Documentație',
+  'Documentation': 'Documentație',
+  'Patient Deleted': 'Pacient șters',
+  'Patient successfully deleted.': 'Pacientul a fost șters cu succes.',
+
+  'Error Deleting Patient': 'Eroare la ștergerea pacientului',
+  'Deletion failed. Ensure no lesions are linked.': 'Ștergerea a eșuat. Asigurați-vă că nu există leziuni asociate.',
+
+  'Delete Patient?': 'Ștergeți pacientul?',
+  'Delete patient? Associated lesions must be removed first.':
+      'Ștergeți pacientul? Leziunile asociate trebuie eliminate mai întâi.',
 };

@@ -328,4 +328,16 @@ const Map<String, String> deDE = <String, String>{
       'Der ausgewählte Patient hat derzeit keine Läsion.\n Fügen Sie auf dem vorherigen Bildschirm neue Läsionen hinzu.',
   'Your account was created and you are now logged in.':
       'Ihr Konto wurde erstellt und Sie sind jetzt eingeloggt.',
+  'Help & Documentation': 'Hilfe & Dokumentation',
+  'Documentation': 'Dokumentation',
+  'Patient Deleted': 'Patient gelöscht',
+  'Patient successfully deleted.': 'Patient erfolgreich gelöscht.',
+
+  'Error Deleting Patient': 'Fehler beim Löschen des Patienten',
+  'Deletion failed. Ensure no lesions are linked.':
+  'Löschen fehlgeschlagen. Stellen Sie sicher, dass keine Lesionen verknüpft sind.',
+
+  'Delete Patient?': 'Patient löschen?',
+  'Delete patient? Associated lesions must be removed first.':
+      'Patient löschen? Zugehörige Läsionen müssen zuerst entfernt werden.',
 };

@@ -3,13 +3,16 @@ import 'dart:io';
 
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
+import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/patient.dart';
+import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -126,7 +129,29 @@ class PdfExportController extends GetxController {
 
       final pw.Document pdf = buildPdf();
       final Directory output = await getApplicationDocumentsDirectory();
-      final File file = File('${output.path}/example.pdf');
+
+      final Doctor? currentDoctor = authService.currentDoctor.value;
+
+      if (currentDoctor == null || currentDoctor.practiceId == null) {
+        throw Exception();
+      }
+
+      final Practice? currentPractice = await dbService.fetchPractice(
+        id: currentDoctor.practiceId!,
+      );
+
+      if (currentPractice == null) throw Exception();
+
+      final String practiceName = currentPractice.name.replaceAll(' ', '-');
+      final String doctorName = currentDoctor.name.replaceAll(' ', '-');
+      final String patientName = patient.name.replaceAll(' ', '-');
+      final String timestamp = DateFormat(
+        'yyyy-MM-dd_HH-mm-ss',
+      ).format(DateTime.now());
+
+      final File file = File(
+        '${output.path}/${practiceName}_${doctorName}_${patientName}_$timestamp.pdf',
+      );
 
       // Save the PDF file
       await file.writeAsBytes(await pdf.save());

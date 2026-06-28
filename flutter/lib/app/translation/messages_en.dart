@@ -206,7 +206,7 @@ const Map<String, String> enUS = <String, String>{
   'Pending': 'Pending',
   'Invited on': 'Invited on',
   'You have successfully joined the practice.':
-      'You have successfully joined the practice..',
+      'You have successfully joined the practice.',
   'Accept invitation?': 'Accept invitation?',
   'Your name was successfully changed.': 'Your name was successfully changed.',
   'An invitation has been sent.': 'An invitation has been sent.',
@@ -322,4 +322,17 @@ const Map<String, String> enUS = <String, String>{
       'The selected patient currently has no lesion.\n Add new lesions on the previous screen.',
   'Your account was created and you are now logged in.':
       'Your account was created and you are now logged in.',
+  'Help & Documentation': 'Help & Documentation',
+  'Documentation': 'Documentation',
+
+  'Patient Deleted': 'Patient Deleted',
+  'Patient successfully deleted.': 'Patient successfully deleted.',
+
+  'Error Deleting Patient': 'Error Deleting Patient',
+  'Deletion failed. Ensure no lesions are linked.':
+  'Deletion failed. Ensure no lesions are linked.',
+
+  'Delete Patient?': 'Delete Patient?',
+  'Delete patient? Associated lesions must be removed first.':
+      'Delete patient? Associated lesions must be removed first.',
 };
