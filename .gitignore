@@ -18,7 +18,6 @@ kaggle-json
 python/*/models/
 
 # mkdocs build output
-site/
 public/
 
 # intellij

@@ -65,16 +65,22 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                     Expanded(
                       child: Obx(() {
                         if (controller.selectedLesion.value != null) {
-                          final Color displayColor =
+                          final Color baseColor =
                               controller.selectedLesion.value!.wasRemoved.value
-                              ? Colors.grey.withValues(alpha: 0.3)
-                              : controller
-                                    .selectedLesion
-                                    .value!
-                                    .isSuspicious
-                                    .value
-                              ? Colors.red.withValues(alpha: 0.3)
-                              : AppTheme.highlightColor;
+                                  ? Colors.grey
+                                  : controller
+                                          .selectedLesion
+                                          .value!
+                                          .isSuspicious
+                                          .value
+                                      ? Colors.red
+                                      : AppTheme.secondary;
+
+                          final Color displayColor = Color.lerp(
+                            AppTheme.highlightColor,
+                            baseColor,
+                            0.5,
+                          )!;
 
                           return Container(
                             decoration: BoxDecoration(

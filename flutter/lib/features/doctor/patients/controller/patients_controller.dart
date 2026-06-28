@@ -98,16 +98,21 @@ class PatientsController extends GetxController {
     _sortLists();
   }
 
-  void editPatient({required Patient patient}) {
-    final int index = patients.indexWhere((Patient p) => p.id == patient.id);
-    if (index != -1) {
-      patients[index] = patient;
-    }
-    final int visibleIndex = visiblePatients.indexWhere(
-      (Patient p) => p.id == patient.id,
-    );
-    if (visibleIndex != -1) {
-      visiblePatients[visibleIndex] = patient;
+  void editPatient({required Patient patient, required bool deleted}) {
+    if (deleted) {
+      patients.removeWhere((Patient p) => p.id == patient.id);
+      visiblePatients.removeWhere((Patient p) => p.id == patient.id);
+    } else {
+      final int index = patients.indexWhere((Patient p) => p.id == patient.id);
+      if (index != -1) {
+        patients[index] = patient;
+      }
+      final int visibleIndex = visiblePatients.indexWhere(
+        (Patient p) => p.id == patient.id,
+      );
+      if (visibleIndex != -1) {
+        visiblePatients[visibleIndex] = patient;
+      }
     }
     _sortLists();
   }
@@ -130,7 +135,7 @@ class PatientsController extends GetxController {
 
     Get.toNamed(
       '/doctor/patient-details',
-      arguments: <String, Object>{
+      arguments: <String, dynamic>{
         'patient': selectedPatient,
         'editPatient': editPatient,
       },

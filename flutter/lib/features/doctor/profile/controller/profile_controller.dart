@@ -223,6 +223,12 @@ class DoctorProfileController extends GetxController {
     nameController.text = name;
   }
 
+  Future<void> openDocumentationScreen() async {
+    if (isLoading.value || isInitializing.value) return;
+
+    await Get.toNamed('/help/documentation');
+  }
+
   Future<void> openChangeEmailScreen() async {
     if (isLoading.value || isInitializing.value) return;
 

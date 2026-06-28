@@ -82,6 +82,20 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
                 : controller.openChangePasswordScreen,
           ),
         ),
+        const SizedBox(height: AppTheme.spaceMedium),
+        Text(
+          'Help & Documentation'.tr,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: AppTheme.spaceSmall),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.description),
+            title: Text('Documentation'.tr),
+            trailing: const Icon(Icons.arrow_forward),
+            onTap: controller.openDocumentationScreen,
+          ),
+        ),
         const SizedBox(height: AppTheme.spaceLarge),
         OutlinedButton.icon(
           onPressed:

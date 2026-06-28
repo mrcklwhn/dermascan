@@ -71,11 +71,10 @@ class DiagnosisMainController extends GetxController {
 
   Future<void> _initializeData() async {
     try {
-      await drawOverlays();
       await fetchDoctorNames();
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('Error while drawing overlays: $e');
+        debugPrint('Error while initializing data: $e');
       }
     } finally {
       isLoading.value = false;
@@ -134,25 +133,40 @@ class DiagnosisMainController extends GetxController {
     }
   }
 
-  Future<void> drawOverlays() async {
-    for (final Diagnosis diagnosis in lesion.diagnoses) {
-      final Uint8List bytes = diagnosis.analyzedImages!['original']!;
+  Future<void> drawOverlaysForDiagnosis(Diagnosis diagnosis) async {
+    final Map<String, Uint8List?>? images = diagnosis.analyzedImages;
+    if (images == null || images['original'] == null) {
+      return;
+    }
+
+    if (images.containsKey('contour') && images.containsKey('concavity')) {
+      return;
+    }
+
+    try {
+      final Uint8List bytes = images['original']!;
+      if (bytes.isEmpty) return;
+
       final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
+      if (mat.isEmpty) return;
 
       final LesionAnalysis lesionAnalysis = LesionAnalysis(mat);
       await lesionAnalysis.runLesionAnalysis(
-        useNeuralModel: diagnosis.cutoutType == CutoutType.ml ? true : false,
+        useNeuralModel: diagnosis.cutoutType == CutoutType.ml,
         onlyMask: true,
       );
 
-      diagnosis.analyzedImages?.addAll(<String, Uint8List>{
-        'contour': cv
-            .imencode('.png', lesionAnalysis.getLesionContourOverlay())
-            .$2,
-        'concavity': cv
-            .imencode('.png', lesionAnalysis.getConcavityOverlay())
-            .$2,
-      });
+      final Uint8List contour =
+          cv.imencode('.png', lesionAnalysis.getLesionContourOverlay()).$2;
+      final Uint8List concavity =
+          cv.imencode('.png', lesionAnalysis.getConcavityOverlay()).$2;
+
+      images['contour'] = contour;
+      images['concavity'] = concavity;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error drawing overlay: $e');
+      }
     }
     lesion.diagnoses.refresh();
   }

@@ -29,4 +29,4 @@ Weitere Informationen zum Auditing-Prozess und der Rückverfolgung von Modellen 
 ## Siehe auch
 - [Auditierung](auditing.md)
 - [Trainingspipeline](./pipeline.md)
-- [Trainingsergebnisse](./training_results.md)
+- [Experimentergebnisse](./experiment_results.md)

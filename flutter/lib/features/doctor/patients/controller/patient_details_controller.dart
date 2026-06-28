@@ -21,7 +21,8 @@ class PatientDetailsController extends GetxController {
   final RxBool isLoading = false.obs;
 
   late Patient patient;
-  late final void Function({required Patient patient})? editPatient;
+  late final void Function({required Patient patient, required bool deleted})?
+  editPatient;
 
   final RxList<BodyLesion> lesions = <BodyLesion>[].obs;
   final Rxn<BodyLesion> selectedLesion = Rxn<BodyLesion>();
@@ -185,8 +186,8 @@ class PatientDetailsController extends GetxController {
   }
 
   Future<void> openEditPatientPage() async {
-    void editPatient({required Patient patient}) {
-      this.editPatient?.call(patient: patient);
+    void editPatient({required Patient patient, required bool deleted}) {
+      this.editPatient?.call(patient: patient, deleted: deleted);
       this.patient = patient;
     }
 

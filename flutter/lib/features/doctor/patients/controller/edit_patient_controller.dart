@@ -7,6 +7,7 @@ import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service.dart';
 import 'package:dermascan/core/widgets/country_selector_bottom_sheet.dart';
+import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,7 +48,8 @@ class EditPatientController extends GetxController {
   List<Gender> get genderOptions => Gender.values;
 
   late Patient patient;
-  late final void Function({required Patient patient})? editPatient;
+  late final void Function({required Patient patient, required bool deleted})?
+  editPatient;
 
   @override
   void onClose() {
@@ -138,6 +140,94 @@ class EditPatientController extends GetxController {
     );
   }
 
+  Future<void> deletePatient() async {
+    final String? doctorId = authService.currentUser.value?.id;
+
+    if (doctorId == null) {
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: 'Authentication Error'.tr,
+            message: 'Authentication error. Please log in again.'.tr,
+          ),
+        );
+      }
+      return;
+    }
+
+    isLoading.value = true;
+
+    try {
+      final Practice? practiceOfDoctor = await dbService
+          .checkDoctorHasPractice();
+
+      if (practiceOfDoctor == null) {
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'No Practice Assigned'.tr,
+              message:
+                  'You must be assigned to a practice to execute this operation.'
+                      .tr,
+            ),
+          );
+        }
+        return;
+      }
+
+      final bool successful = await dbService.deletePatientProfile(
+        patientId: patient.id,
+      );
+      if (successful) {
+        editPatient?.call(patient: patient, deleted: true);
+        Get.until((Route<dynamic> route) => Get.currentRoute == '/doctor/home');
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.check_circle,
+              title: 'Patient Deleted'.tr,
+              message: 'Patient successfully deleted.'.tr,
+            ),
+          );
+        }
+      } else {
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: 'Error Deleting Patient'.tr,
+              message: 'Deletion failed. Ensure no lesions are linked.'.tr,
+            ),
+          );
+        }
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> showDeletePatientDialog() async {
+    if (isLoading.value) return;
+
+    await CustomDialogHelper.show(
+      routeName: 'delete-patient-dialog',
+
+      title: 'Delete Patient?'.tr,
+
+      subtitle: 'Delete patient? Associated lesions must be removed first.'.tr,
+
+      isDismissable: true,
+
+      submitText: 'Delete'.tr,
+
+      onSubmit: (_) async {
+        await deletePatient();
+      },
+    );
+  }
+
   Future<void> submitPatientData() async {
     if (isLoading.value) return;
 
@@ -214,7 +304,7 @@ class EditPatientController extends GetxController {
       );
 
       if (updatedPatient != null) {
-        editPatient?.call(patient: updatedPatient);
+        editPatient?.call(patient: updatedPatient, deleted: false);
         Get.back(closeOverlays: true);
         if (!Get.isSnackbarOpen) {
           Get.showSnackbar(
