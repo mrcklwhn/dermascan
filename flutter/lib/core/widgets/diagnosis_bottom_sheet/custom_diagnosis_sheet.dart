@@ -24,6 +24,7 @@ class DiagnosisDetailController extends GetxController {
   final TextEditingController notesController = TextEditingController();
   final FocusNode notesFocusNode = FocusNode();
   final RxBool isLoading = false.obs;
+  final RxBool isDrawingOverlays = false.obs;
   final RxString currentNotesText = ''.obs;
 
   DiagnosisDetailController({
@@ -49,6 +50,23 @@ class DiagnosisDetailController extends GetxController {
   }
 
   bool get hasNotesChanged => currentNotesText.value != diagnosis.notes;
+
+  Future<void> drawOverlays() async {
+    if (isDrawingOverlays.value) return;
+
+    final Map<String, Uint8List?>? images = diagnosis.analyzedImages;
+    if (images == null || images['original'] == null) return;
+    if (images.containsKey('contour') && images.containsKey('concavity')) return;
+
+    isDrawingOverlays.value = true;
+
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    try {
+      await mainController.drawOverlaysForDiagnosis(diagnosis);
+    } finally {
+      isDrawingOverlays.value = false;
+    }
+  }
 
   Future<void> submittedNotes() async {
     if (isLoading.value) return;
@@ -322,59 +340,73 @@ class CustomDiagnosisSheet extends StatelessWidget {
             );
           }),
           if (diagnosis.analyzedImages != null &&
-              diagnosis.analyzedImages!.entries
-                  .where(
-                    (MapEntry<String, Uint8List?> e) => e.key != 'original',
-                  )
-                  .isNotEmpty) ...<Widget>[
+              diagnosis.analyzedImages!['original'] != null) ...<Widget>[
             const SizedBox(height: AppTheme.spaceMedium),
             ExpansionTile(
               collapsedBackgroundColor: AppTheme.scaffoldBg,
               backgroundColor: AppTheme.scaffoldBg,
               initiallyExpanded: false,
-
+              onExpansionChanged: (bool expanded) {
+                if (expanded) {
+                  controller.drawOverlays();
+                }
+              },
               title: Text(
                 'Analysis Insights'.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: diagnosis.analyzedImages!.entries
-                      .where(
-                        (MapEntry<String, Uint8List?> e) => e.key != 'original',
-                      )
-                      .map((MapEntry<String, Uint8List?> entry) {
-                        return Column(
-                          children: <Widget>[
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.radiusMedium,
+                Obx(() {
+                  if (controller.isDrawingOverlays.value) {
+                    return SizedBox(
+                      height: size,
+                      child: const Center(
+                        child: CircularProgressIndicator.adaptive(),
+                      ),
+                    );
+                  }
+
+                  final List<MapEntry<String, Uint8List?>> overlayImages =
+                      diagnosis.analyzedImages!.entries
+                          .where(
+                            (MapEntry<String, Uint8List?> e) =>
+                                e.key != 'original' && e.value != null,
+                          )
+                          .toList();
+
+                  if (overlayImages.isEmpty) {
+                    return SizedBox(height: size);
+                  }
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children:
+                        overlayImages.map((MapEntry<String, Uint8List?> entry) {
+                          return Column(
+                            children: <Widget>[
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusSmall + 2,
+                                ),
+                                child: Image(
+                                  image: MemoryImage(entry.value!),
+                                  height: size,
+                                  width: size,
+                                  fit: BoxFit.cover,
+                                  gaplessPlayback: true,
+                                  errorBuilder:
+                                      (
+                                        BuildContext context,
+                                        Object error,
+                                        StackTrace? stackTrace,
+                                      ) => const Icon(Icons.broken_image),
+                                ),
                               ),
-                              child: Image(
-                                image: MemoryImage(entry.value!),
-                                height: size,
-                                width: size,
-                                fit: BoxFit.cover,
-                                gaplessPlayback: true,
-                                errorBuilder:
-                                    (
-                                      BuildContext context,
-                                      Object error,
-                                      StackTrace? stackTrace,
-                                    ) => const Icon(Icons.broken_image),
-                              ),
-                            ),
-                            const SizedBox(height: AppTheme.spaceSmall),
-                            Text(
-                              entry.key,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        );
-                      })
-                      .toList(),
-                ),
+                            ],
+                          );
+                        }).toList(),
+                  );
+                }),
               ],
             ),
           ],

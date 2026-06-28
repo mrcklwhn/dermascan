@@ -50,6 +50,9 @@ class AppTheme {
 
     // Text
     textTheme: const TextTheme(
+      headlineLarge: TextStyle(color: textDark, fontWeight: FontWeight.bold),
+      headlineMedium: TextStyle(color: textDark, fontWeight: FontWeight.bold),
+      headlineSmall: TextStyle(color: textDark, fontWeight: FontWeight.bold),
       bodyLarge: TextStyle(color: textDark),
       bodyMedium: TextStyle(color: textDark),
       bodySmall: TextStyle(color: textDark),

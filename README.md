@@ -1,6 +1,4 @@
-# Dermascan (Arbeitstitel)
-
-Mobile App zur strukturierten Erfassung von Hautlaesionen und zur KI-gestuetzten Ersteinschaetzung der Dringlichkeit.
+# Dermascan Dokumentation
 
 ## Team
 
@@ -10,74 +8,45 @@ Mobile App zur strukturierten Erfassung von Hautlaesionen und zur KI-gestuetzten
 
 ## Betreuung
 
-- [Christian Axenie](mailto:cristian.axenie@th-nuernberg.de)
+- [Cristian Axenie](mailto:cristian.axenie@th-nuernberg.de)
 
-## Kurzbeschreibung
+## Projektüberblick
 
-Dermascan ist ein Forschungs- und Entwicklungsprojekt für eine mobile, plattformübergreifende Anwendung im dermatologischen Umfeld. Die App unterstützt die Dokumentation von Hautläsionen und liefert eine KI-basierte Ersteinschätzung.
+Dermascan ist ein praxisnahes Forschungsprojekt zur Entwicklung einer mobilen App für die dermatologische Verlaufsdokumentation. Die Anwendung wurde in enger Abstimmung mit einer Dermatologin konzipiert und fokussiert die strukturierte Erfassung von Hautläsionen, die Nachverfolgung über Zeit und eine KI-gestützte Ersteinschätzung.
 
-Die Bildanalyse (Inferenz) erfolgt standardmäßig lokal auf dem Endgerät mittels ONNX Runtime. Patienten-, Läsions- und Diagnosedaten werden strukturiert über Supabase gespeichert und durch Rollenmodell, serverseitige Validierung und Policies abgesichert.
+## Architektur auf einen Blick
 
-## Zielsetzung
+### Lokal auf dem Endgerät
 
-- Datenschutzkonforme Erfassung von Hautveränderungen
-- Strukturierte Dokumentation für Verlaufskontrollen
-- KI-gestützte Priorisierung als Entscheidungshilfe
-- Vergleich mehrerer ML-Strategien für mobile Nutzung
+- Aufnahme und Vorverarbeitung von Bilddaten
+- On-Device-Inferenz des Klassifikators (ONNX Runtime)
+- Berechnung deterministischer ABC-Merkmale
 
-## Konkrete Ergebnisse
+### Cloud-Backend (Supabase)
 
-- Mobile Flutter-App (Proof of Concept)
-- Lokale Modellinferenz mit ONNX Runtime
-- Dokumentierte Trainings- und Evaluierungspipeline in Python
-- Dokumentation in Markdown und Jupyter Notebooks
+- Speicherung von Patienten-, Läsions- und Diagnosedaten
+- Authentifizierung und rollenbasierte Autorisierung
+- Serverseitige Prüfung kritischer Schreiboperationen über Edge Functions
+- Zugriffssteuerung über RLS- und Storage-Policies
 
-## Technischer Rahmen
-
-- App-Framework: Flutter
-- Lokale Inferenz: ONNX Runtime (via Flutter-Wrapper)
-- Backend: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
-- ML-Entwicklung: Python, PyTorch, ONNX-Export
-
-## Trennung von Inferenz und Datenhaltung
-
-- **Lokal auf dem Gerät**:
-  - Vorverarbeitung von Bilddaten für die Analyse
-  - Ausführung der Klassifikation (On-Device-Inferenz)
-  - Berechnung deterministischer ABC-Merkmale
-- **Cloud-Backend (Supabase)**:
-  - Persistenz von Patienten-, Läsions- und Diagnosedaten
-  - Rollen- und Zugriffsverwaltung (Praxis/Arzt)
-  - Serverseitige Validierung kritischer Schreibvorgänge über Edge Functions
-  - Zugriffsschutz durch Row Level Security (RLS) und Storage-Policies
+Damit ist klar getrennt: Die KI-Auswertung läuft lokal, während persistente Verwaltungs- und Dokumentationsdaten kontrolliert im Backend gehalten werden.
 
 ## Grenzen und Nutzungskontext
 
-- Dermascan ist ein Forschungsprototyp und derzeit **kein zertifiziertes Medizinprodukt**.
-- Die bereitgestellten Auswertungen dienen der **klinischen Entscheidungsunterstützung**, nicht der finalen Diagnose.
-- Die medizinische Bewertung und Verantwortung verbleibt immer bei qualifiziertem Fachpersonal.
+- Dermascan ist ein Forschungsprototyp und **kein Medizinprodukt**.
+- Die Ergebnisse sind als **Entscheidungsunterstützung** gedacht und ersetzen keine fachärztliche Diagnose.
+- Die klinische Verantwortung verbleibt bei medizinischem Fachpersonal.
 
-## Datenquellen
+## Struktur der Dokumentation
 
-- HAM10000 / ISIC-Daten:
-  - https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000
-  - https://www.nature.com/articles/s41597-024-03743-w#Sec9
+1. [App](./app/README.md)
+2. [Datenbank](./db/README.md)
+3. [Machine Learning](./ml/README.md)
+4. [ABC-Algorithmen](./abc_algorithms/README.md)
+5. [Glossar](./glossar.md)
 
-## Dokumentation
+**Hinweis zum Lesen der Dokumentation:** Die Inhalte sind in Markdown verfasst und wurden mit MkDocs in eine statische Website überführt. Der Einstieg erfolgt über die `site/index.html` Seite, welche im Browser geöffnet werden kann. Alternativ können die Markdown-Dateien direkt in einem Editor betrachtet werden.
 
-Die Projektdokumentation liegt im Verzeichnis `docs/` und wird mit MkDocs bereitgestellt. Notebooks und ML-Skripte befinden sich unter `python/`.
+## Fazit
 
-### Lokaler Start
-
-```bash
-pip install mkdocs mkdocs-material
-mkdocs serve
-```
-
-Anschliessend ist die Dokumentation unter `http://127.0.0.1:8000/` erreichbar.
-
-## Ausblick
-
-- Erweiterung der Validierung mit reproduzierbaren Vergleichsläufen
-- Weitere Härtung des Sicherheitsmodells für Produktivbetrieb
-- Verbesserung der Modellrobustheit für seltene Klassen und schwierige Bildqualitäten
+Dermascan verbindet klinische Anforderungen mit einer End-to-End-Umsetzung aus App, Datenhaltung, ML-Pipeline und deterministischen Merkmalsalgorithmen. Die Kombination aus On-Device-Inferenz und abgesicherter Cloud-Dokumentation ermöglicht einen praxisnahen Workflow für strukturierte Untersuchungen und mit minimalem Anschaffungsaufwand.

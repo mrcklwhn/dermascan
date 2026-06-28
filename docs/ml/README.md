@@ -1,72 +1,72 @@
 # Machine Learning
 
-Dieses Kapitel gibt einen Ueberblick ueber die Entwicklung der ML-Modelle zur Klassifikation von Hautlaesionen. Es beschreibt Datengrundlagen, Modellansaetze, Trainingsprozess und den Exportpfad fuer die mobile App.
+Dieses Kapitel gibt einen Überblick über die Entwicklung der ML-Modelle zur Klassifikation von Hautläsionen. Es beschreibt Datengrundlagen, Modellansätze, Trainingsprozess und den Exportpfad für die mobile App.
 
 ## Entwicklungsumgebung
 
 Die Modellentwicklung erfolgte in Python.
 
-- Erste Baselines wurden mit TensorFlow/Keras umgesetzt.
-- Fuer Transfer Learning und flexible Experimentsteuerung wurde auf PyTorch umgestellt.
-- Fuer die mobile Inferenz wurde ONNX als Austauschformat mit ONNX Runtime evaluiert.
+- Erste Baselines wurden mit TensorFlow / Keras umgesetzt.
+- Für Transfer Learning und flexible Experimentsteuerung wurde auf PyTorch umgestellt.
+- Für die mobile Inferenz wurde ONNX als Austauschformat geprüft; ONNX Runtime wurde als Laufzeitumgebung für die App evaluiert.
 
-## Datensaetze
+## Datensätze
 
-Das Projekt nutzt den ISIC-2018-Kontext, insbesondere:
+Das Projekt nutzt ISIC-Kontextdaten, insbesondere:
 
-- Segmentierungsdaten fuer Laesionsmasken
-- HAM10000 fuer die Klassifikation von Hautlaesionen
+- Segmentierungsdaten für Läsionsmasken.
+- HAM10000 für die Klassifikation von Hautläsionen.
 
-Der HAM10000-Datensatz enthaelt sieben Klassen und ist stark unausgeglichen. Fuer den klinischen Anwendungskontext der Stakeholderin wurde die Aufgabe auf eine binaere Klassifikation reduziert:
+Der HAM10000-Datensatz enthält sieben Klassen und ist stark unausgeglichen. Für den klinischen Anwendungskontext der Stakeholderin wurde die Aufgabe auf eine binäre Klassifikation reduziert:
 
 - Melanocytic nevi (nv)
 - Melanoma (mel)
 
-Damit entsteht weiterhin ein deutliches Klassenungleichgewicht, das im Training gezielt behandelt werden muss.
+Dadurch bleibt ein deutliches Klassenungleichgewicht bestehen, das im Training durch gezielte Maßnahmen adressiert werden muss.
 
 ## Klassifikatorentwicklung
 
 ### Einfache CNN-Baselines
 
-Zu Beginn wurden einfache CNNs trainiert, um die grundsaetzliche Machbarkeit zu pruefen. Die Ergebnisse zeigten, dass kleine, manuell entworfene Netze die Komplexitaet der Aufgabe nicht robust abbilden.
+Zu Beginn wurden einfache CNNs trainiert, um die grundsätzliche Machbarkeit zu prüfen. Diese Baselines zeigten, dass kleine Netze die Komplexität der Aufgabe nicht zuverlässig abbilden.
 
-### Finetuning vortrainierter Modelle
+### Fine-Tuning vortrainierter Modelle
 
-Anschliessend wurden vortrainierte Architekturen evaluiert (u. a. ResNet, EfficientNet, DenseNet, MobileNet). Transfer Learning erwies sich als robusterer Ausgangspunkt als rein von Grund auf trainierte Baselines.
+Anschließend wurden vortrainierte Architekturen evaluiert, darunter ResNet, EfficientNet, DenseNet und MobileNet. Transfer Learning erwies sich als robuster Ausgangspunkt gegenüber rein von Grund auf trainierten Modellen, insbesondere bei begrenzter Trainingsdatenmenge.
 
 ### Multibranch-Architektur
 
-Als weiterfuehrender Ansatz wurde eine Multibranch-Architektur entwickelt. Mehrere Branches verarbeiten unterschiedliche Datenrepraesentationen und werden anschliessend kombiniert. Die Ergebnisse und technischen Hintergruende sind in der [Multibranch-Architektur](./multibranch_architecture.md) dokumentiert.
+Als weiterführender Ansatz wurde eine Multibranch-Architektur entwickelt. Mehrere Branches verarbeiten unterschiedliche Datenrepräsentationen und ihre Merkmale werden anschließend zusammengeführt. Technische Details und Ergebnisse sind in der [Multibranch-Architektur](./multibranch_architecture.md) dokumentiert.
 
 ## Trainingspipeline und Auditing
 
-Zur Vergleichbarkeit und Reproduzierbarkeit wurde eine modulare Pipeline aufgebaut. Sie standardisiert Splits, Training, Metrikberechnung, Threshold-Optimierung und Artefaktspeicherung.
+Zur Vergleichbarkeit und Reproduzierbarkeit wurde eine modulare Pipeline aufgebaut. Sie standardisiert Daten-Splits, Training, Metrikberechnung, Threshold-Optimierung sowie das Speichern von Artefakten.
 
 - Details zur Pipeline: [Trainingspipeline](./pipeline.md)
-- Rueckverfolgbarkeit und Artefakte: [Auditing](./auditing.md)
+- Rückverfolgbarkeit und Artefakte: [Auditing](./auditing.md)
 
-## Modelluebertrag in die App
+## Modellübertrag in die App
 
-Fuer den produktiven Inferenzpfad in der App wird ONNX Runtime genutzt. Die Modelle werden in Python exportiert und anschliessend in Flutter eingebunden.
+Für den produktiven Inferenzpfad in der App wird ONNX Runtime genutzt. Die Modelle werden in Python exportiert und anschließend in die Flutter-App eingebunden.
 
 Weitere Details zum Export- und Validierungsprozess stehen in [ONNX-Export](./onnx_export.md).
 
-## Trainingsergebnisse
+## Experimentergebnisse
 
-Die dokumentierten Zwischenstaende und Metriken befinden sich in [Trainingsergebnisse](./training_results.md). Da nicht alle Runs auf identischen Voraussetzungen basieren, sind Ergebnisse nur eingeschraenkt direkt vergleichbar.
+Die dokumentierten Zwischenstände und Metriken befinden sich in [Experimentergebnisse](./experiment_results.md). Dort sind Basistests und die fokussierte HAM10000-Modellserie gemeinsam eingeordnet. Da nicht alle Runs unter identischen Voraussetzungen durchgeführt wurden, sind direkte Vergleiche nur eingeschränkt belastbar.
 
 ## Fazit
 
-- Transfer Learning und strukturierte Experimentsteuerung sind fuer die Aufgabe zentral.
-- Die Multibranch-Idee ist fachlich vielversprechend, erhoeht aber Implementierungs- und Portierungsaufwand.
+- Transfer Learning und strukturierte Experimentsteuerung sind für die Aufgabe zentral.
+- Die Multibranch-Idee ist fachlich vielversprechend, erhöht jedoch Implementierungs- und Portierungsaufwand.
 - Die Pipeline verbessert Reproduzierbarkeit und belastbare Modellvergleiche deutlich.
-- ONNX-basierter Modelluebertrag ist fuer den mobilen Einsatz praktikabel, erfordert aber systematische Validierung zwischen Python und App-Laufzeit.
+- ONNX-basierter Modellübertrag ist für den mobilen Einsatz praktikabel, erfordert aber systematische Validierung zwischen Python- und App-Laufzeit.
 
 ## Siehe auch
 
 - [Multibranch-Architektur](./multibranch_architecture.md)
 - [Trainingspipeline](./pipeline.md)
 - [ONNX-Export](./onnx_export.md)
-- [Trainingsergebnisse](./training_results.md)
+- [Experimentergebnisse](./experiment_results.md)
 - [Auditing](./auditing.md)
 - [ABC-Algorithmen](../abc_algorithms/README.md)

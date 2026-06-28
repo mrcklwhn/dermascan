@@ -1,0 +1,1066 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="multibranch_architecture.html">
+      
+      
+        <link rel="next" href="onnx_export.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Trainingspipeline - Dermascan Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#trainingspipeline" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="Dermascan Documentation" class="md-header__button md-logo" aria-label="Dermascan Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Dermascan Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Trainingspipeline
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="Dermascan Documentation" class="md-nav__button md-logo" aria-label="Dermascan Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Dermascan Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Startseite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossar.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    App
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../app/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App-Entwicklung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../app/features.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App-Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../app/architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App-Architektur
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datenbank
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Datenbank
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datenhaltung und Backend-Architektur
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Machine Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multibranch_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multibranch-Architektur
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainingspipeline
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="pipeline.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainingspipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#konfiguration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Konfiguration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datenmanagement-und-augmentierung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datenmanagement und Augmentierung
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-und-bewertung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training und Bewertung
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-learning-und-modellvarianten" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transfer Learning und Modellvarianten
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#umgang-mit-klassenungleichgewicht" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Umgang mit Klassenungleichgewicht
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auditing-und-architektur" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auditing und Architektur
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fazit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fazit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#siehe-auch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Siehe auch
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="onnx_export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ONNX-Export
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="auditing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auditing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="experiment_results.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainingsergebnisse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ABC-Algorithmen
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ABC-Algorithmen
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../abc_algorithms/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ABC-Algorithmen
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../abc_algorithms/lesion_cutout.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Läsionssegmentierung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="trainingspipeline">Trainingspipeline</h1>
+<p>Die Trainingspipeline entstand nach der Entscheidung für eine Multibranch-Architektur. Diese Architektur untersucht mehrere Sichtweisen auf dieselbe Hautläsion: Ein Branch kann mit RGB-Bildern arbeiten, andere Branches mit gefilterten Repräsentationen wie Gabor, LBP oder GLCM. Dadurch entstand die Notwendigkeit, viele Experimente mit unterschiedlichen Eingaben, Modellen und Hyperparametern vergleichbar durchführen zu können.</p>
+<p>Ohne eine gemeinsame Pipeline wären die Ergebnisse der Branches nur eingeschränkt vergleichbar. Unterschiede im Datensplit, in der Normalisierung, Augmentierung, Klassengewichtung oder Threshold-Wahl können die Metriken stark beeinflussen. Die Pipeline stellt deshalb einen einheitlichen Experimentrahmen bereit: Sie lädt eine Konfiguration, erzeugt Train-/Val-/Test-Splits, baut Datenloader und Modell, trainiert den Branch, bewertet ihn und speichert alle relevanten Artefakte. Dadurch können aus vielen Trainingsläufen gezielt die besten Modelle ausgewählt werden, die später über Ensemble Voting kombiniert werden.</p>
+<p><img alt="" src="../images/trainingspipeline.png" /></p>
+<h2 id="konfiguration">Konfiguration</h2>
+<p>Die Pipeline wird über JSON-nahe Pydantic-<code>BaseModel</code>-Klassen konfiguriert. Das ist sinnvoll, weil ein Trainingslauf viele verschachtelte Entscheidungen enthält: Modelltyp, Filtertyp, Loss-Funktion, Optimizer, Scheduler, Batchgröße, Augmentierungen, Sampler und Seed. Pydantic validiert diese Werte früh, wandelt sie in typisierte Python-Objekte um und verhindert so viele Fehler, die sonst erst während des Trainings auffallen würden.</p>
+<p>Die Konfigurationen sind außerdem gut serialisierbar. Dadurch kann die verwendete Branch-Konfiguration zusammen mit Modell, Metriken und Trainingsverlauf gespeichert werden. Für Auditing und Reproduzierbarkeit ist das zentral, weil ein später genutztes Modell nur dann nachvollziehbar ist, wenn seine exakten Trainingsparameter erhalten bleiben.</p>
+<h2 id="datenmanagement-und-augmentierung">Datenmanagement und Augmentierung</h2>
+<p>Die Pipeline nutzt PyTorch-<code>DataLoader</code>, weil Training in Batches, paralleles Laden, Shuffling und optional gewichtetes Sampling damit direkt unterstützt werden. Die <code>DataLoaderFactory</code> kapselt dabei, ob ein Branch RGB-Bilder oder vorberechnete <code>.npy</code>-Feature-Maps lädt. Der Trainer erhält am Ende immer Tensor-Batches und muss die konkrete Datenquelle nicht kennen.</p>
+<p>Augmentierungen werden mit Albumentations aufgebaut. Die Bibliothek bietet performante und gut kombinierbare Bildoperationen wie Resize, Crop, Rotation, Flip, ColorJitter, CoarseDropout, Normalisierung und <code>ToTensorV2</code>. Der <code>AugmentationBuilder</code> übersetzt die konfigurierten <code>AugmentationType</code>-Werte in eine passende Transformationspipeline und berücksichtigt dabei die Eingabegröße der jeweiligen Modellarchitektur.</p>
+<p>Nicht jede Augmentierung ist für jede Repräsentation gleich geeignet. Geometrische Operationen können für RGB- und Filterdaten sinnvoll sein, solange die Läsion fachlich erhalten bleibt. Farbveränderungen wie <code>ColorJitter</code> passen dagegen vor allem zu RGB-Bildern, weil Gabor-, LBP- oder GLCM-Kanäle keine echten Farbkanäle darstellen. Validierungs- und Testdaten werden bewusst nur deterministisch resized und normalisiert, damit die Bewertung stabil und reproduzierbar bleibt.</p>
+<h2 id="training-und-bewertung">Training und Bewertung</h2>
+<p>Während des Trainings wird nach jeder Epoche auf dem Validierungsset geprüft, wie gut das Modell generalisiert. Das beste Modell wird anhand des Val-F1-Macro-Scores gespeichert. Diese Metrik ist geeigneter als reine Accuracy, weil der HAM10000-Datensatz in der binären Melanom-Klassifikation unausgeglichen ist. Macro-F1 gewichtet beide Klassen gleich und verhindert, dass ein Modell nur wegen guter Leistung auf der häufigeren Nicht-Melanom-Klasse bevorzugt wird.</p>
+<p>Nach dem Training wird auf dem Validierungsset ein geeigneter Threshold gesucht. Der Standardwert <code>0.5</code> ist bei unausgeglichenen Daten und medizinisch unterschiedlichen Fehlerkosten nicht zwingend optimal. Die Pipeline sucht deshalb einen Threshold, der eine Mindest-Spezifität erfüllt und dabei die Sensitivität maximiert. Erst danach wird das Testset mit diesem Threshold ausgewertet, damit das Testset nicht zur Modellentscheidung verwendet wird.</p>
+<p>Neben Accuracy werden Sensitivität, Spezifität, F1-Werte, AUC und MCC betrachtet. Besonders wichtig ist die Sensitivität, weil falsch negative Melanom-Vorhersagen kritisch sind. Gleichzeitig muss die Spezifität beachtet werden, damit nicht zu viele gutartige Läsionen fälschlich als auffällig bewertet werden.</p>
+<h2 id="transfer-learning-und-modellvarianten">Transfer Learning und Modellvarianten</h2>
+<p>Transfer Learning war anfangs ein naheliegender Ansatz, weil vortrainierte Torchvision-Modelle bereits allgemeine visuelle Merkmale wie Kanten, Formen und Texturen gelernt haben. Die Pipeline unterstützt daher <code>pretrained=true</code> sowie das optionale Einfrieren bestehender Gewichte über <code>freeze_weights=true</code>.</p>
+<p>Im Projekt zeigte sich jedoch, dass das reine Trainieren der letzten Schicht bei eingefrorenen Gewichten schlechte Ergebnisse liefert. Statt den Backbone vollständig einzufrieren, ist es jedoch sinnvoller, mehr Schichten weiterzutrainieren und das Modell stärker an die Hautläsionsdaten anzupassen. Besonders bei Filterdaten unterscheiden sich Kanalzahl und Bedeutung der Eingaben stark von normalen RGB-Fotos. Ein Gabor- oder GLCM-Branch verarbeitet technische Merkmalsrepräsentationen, nicht natürliche Farbbilder. Diese Flexibilität war wichtig, um unterschiedliche Transfer-Learning-Strategien kontrolliert prüfen zu können.</p>
+<p>Die <code>ModelFactory</code> macht verschiedene Torchvision-Architekturen vergleichbar, etwa ResNet, EfficientNet, MobileNet, Inception und SqueezeNet. Bei Filterdaten wird der erste Conv-Layer an die jeweilige Kanalzahl angepasst, und der Output-Layer wird passend zur binären Klassifikation ersetzt.</p>
+<h2 id="umgang-mit-klassenungleichgewicht">Umgang mit Klassenungleichgewicht</h2>
+<p>Der Datensatz enthält deutlich weniger Melanome als gutartige Nävi. Die Pipeline kombiniert deshalb mehrere Maßnahmen gegen Klassenungleichgewicht. Der <code>WeightedRandomSampler</code> wirkt auf der Datenebene: Melanom-Beispiele können häufiger in Trainingsbatches gezogen werden, obwohl sie im Datensatz seltener sind. Gewichtete Loss-Funktionen wirken auf der Optimierungsebene: <code>pos_weight</code> bei <code>BCEWithLogitsLoss</code> oder <code>class_weights</code> bei <code>CrossEntropyLoss</code> erhöhen die Bestrafung für Fehler auf der Minderheitsklasse.</p>
+<p>Zusätzlich wirkt die Threshold-Optimierung auf der Entscheidungsebene. Das Modell gibt zunächst Wahrscheinlichkeiten aus; erst der Threshold entscheidet zwischen Melanom und Nicht-Melanom. Durch die Wahl eines geeigneten Thresholds kann die Pipeline Sensitivität und Spezifität besser an die medizinische Aufgabenstellung anpassen.</p>
+<h2 id="auditing-und-architektur">Auditing und Architektur</h2>
+<p>Die Pipeline speichert pro Branch Modellgewichte, Branch-Konfiguration, Trainingsverlauf, finale Metriken und Plots wie Confusion Matrix, ROC-Kurve, Precision-Recall-Kurve und Konfidenzverteilung. Zusätzlich werden Parameter, Metriken, Artefakte und Modelle über MLflow protokolliert. Dadurch bleibt nachvollziehbar, mit welchen Daten und Einstellungen ein Modell entstanden ist.</p>
+<p>Architektonisch ist die Pipeline modular aufgebaut. Der <code>PipelineOrchestrator</code> koordiniert den Gesamtablauf, die <code>DataLoaderFactory</code> baut die Loader, der <code>AugmentationBuilder</code> erzeugt Transformationen, die <code>ModelFactory</code> baut Modelle, der <code>Trainer</code> übernimmt Training und Evaluation, der <code>MetricsCalculator</code> berechnet Metriken und Thresholds, und <code>Plotter</code> sowie <code>MLFlowLogger</code> speichern Ergebnisse. Diese Trennung macht neue Branches, Filter, Modelle oder Trainingsstrategien leichter integrierbar und hält die Multibranch-Experimente reproduzierbar vergleichbar.</p>
+<h2 id="fazit">Fazit</h2>
+<p>Die Pipeline ist der methodische Rahmen, um die Multibranch-Idee praktisch zu prüfen. Verschiedene Datenrepräsentationen, Modellfamilien und Trainingsentscheidungen können unter kontrollierten Bedingungen verglichen werden, ohne dass Unterschiede im Ablauf die Aussagekraft der Ergebnisse verzerren.</p>
+<p>Dadurch lassen sich die besten Branch-Modelle gezielt als Kandidaten für das Ensemble Voting auswählen und für eine spätere Nutzung in der App nachvollziehbar dokumentieren. Die Pipeline verbindet damit Training, Bewertung und Rückverfolgbarkeit zu einem einheitlichen Experimentprozess.</p>
+<h2 id="siehe-auch">Siehe auch</h2>
+<ul>
+<li><a href="multibranch_architecture.html">Multibranch Architektur</a></li>
+<li><a href="auditing.html">Auditierung</a></li>
+<li><a href="experiment_results.html">Experimentergebnisse</a></li>
+<li><a href="index.html">Machine Learning Übersicht</a></li>
+<li><a href="onnx_export.html">Modell Export</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
