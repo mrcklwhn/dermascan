@@ -1,7 +1,6 @@
 stages:
   - deploy
 
-
 pages:
   stage: deploy
 
@@ -20,4 +19,5 @@ pages:
       - public
 
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    # Trigger pipeline on any push to any branch
+    - if: '$CI_COMMIT_BRANCH'
