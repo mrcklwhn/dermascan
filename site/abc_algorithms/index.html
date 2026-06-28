@@ -1,0 +1,1160 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../ml/experiment_results.html">
+      
+      
+        <link rel="next" href="lesion_cutout.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>ABC-Algorithmen - Dermascan Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deterministische-algorithmen-zur-merkmalsextraktion-aus-bildern" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="Dermascan Documentation" class="md-header__button md-logo" aria-label="Dermascan Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Dermascan Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ABC-Algorithmen
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="Dermascan Documentation" class="md-nav__button md-logo" aria-label="Dermascan Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Dermascan Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Startseite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossar.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    App
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../app/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App-Entwicklung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../app/features.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App-Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../app/architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App-Architektur
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datenbank
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Datenbank
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datenhaltung und Backend-Architektur
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Machine Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ml/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ml/multibranch_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multibranch-Architektur
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ml/pipeline.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainingspipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ml/onnx_export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ONNX-Export
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ml/auditing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auditing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ml/experiment_results.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainingsergebnisse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ABC-Algorithmen
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ABC-Algorithmen
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ABC-Algorithmen
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="index.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ABC-Algorithmen
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#details-zur-implementierung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Details zur Implementierung
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Details zur Implementierung">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kriterium-a-asymmetry-asymmetrie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kriterium A - Asymmetry (Asymmetrie)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kriterium A - Asymmetry (Asymmetrie)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ansatz-1-quadranten-basierte-punktsymmetrie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ansatz 1: Quadranten-basierte Punktsymmetrie
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ansatz-2-hauptachsen-basierte-spiegelsymmetrie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ansatz 2: Hauptachsen-basierte Spiegelsymmetrie
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kriterium-b-border-grenzziehung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kriterium B - Border (Grenzziehung)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kriterium B - Border (Grenzziehung)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ansatz-1-radiale-distanzvarianz-rdv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ansatz 1: Radiale Distanzvarianz (RDV)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ansatz-2-konkavitats-analyse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ansatz 2: Konkavitäts-Analyse
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kriterium-c-color-farbung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kriterium C - Color (Färbung)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ubertrag-auf-die-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Übertrag auf die App
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#siehe-auch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Siehe auch
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lesion_cutout.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Läsionssegmentierung
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="deterministische-algorithmen-zur-merkmalsextraktion-aus-bildern">Deterministische Algorithmen zur Merkmalsextraktion aus Bildern</h1>
+<p>Die reine Verwendung eines neuronalen Klassifikators bringt den Nachteil mit sich, dass die Art und Weise der Klassifizierung eines Bildes für den Menschen nicht nachvollziehbar ist.
+Da dieses Projekt im medizinischen Kontext genutzt werden soll, ist die Nachvollziehbarkeit von Entscheidungen eine grundlegende Voraussetzung.</p>
+<p>Ein klassischer Arbeitsschritt von Dermatologen bei der Analyse von Hautläsionen ist die Anwendung der sogenannten <a href="https://www.aad.org/public/diseases/skin-cancer/find/at-risk/abcdes">ABCDE-Kriterien</a>, die verschiedene visuelle Merkmale einer Läsion bewerten.
+Diese Kriterien sind ein etabliertes Werkzeug für Dermatologen, um die Merkmale von Hautläsionen zu bewerten. Durch die Implementierung von Algorithmen, die diese Kriterien quantifizieren, können erklärbare Informationen bereitgestellt werden, die Ärzten helfen, fundierte Entscheidungen zu treffen.</p>
+<p>Das folgende Bild stellt die Kriterien im Vergleich zwischen einem gutartigen Leberfleck (links) und einem bösartigen Melanom (rechts) dar:</p>
+<p><img alt="" src="../images/abcde_melanoma_eng.jpg" /></p>
+<p>Quelle: https://www.aimatmelanoma.org/melanoma-101/understanding-melanoma/moles-and-other-lesions/know-your-abcdes/</p>
+<p>Da die Kriterien als weit verbreitet und klinisch relevant gelten, sollten sie in unserem Projekt ebenfalls berücksichtigt werden. Allerdings ist die direkte Implementierung von Diameter (D) und Evolution (E) aufgrund der fehlenden zeitlichen Daten und der Skalierungsproblematik nicht trivial, weshalb der Fokus auf die Kriterien A, B und C gelegt wurde.</p>
+<h2 id="details-zur-implementierung">Details zur Implementierung</h2>
+<p>Für jedes der drei Kriterien (Asymmetrie, Border und Color) wurden zwei verschiedene Implementierungsansätze entwickelt und verglichen. Alle Ansätze wurden in Python implementiert, wobei für jedes Kriterium festgestellt werden soll, welcher Algorithmus am geeigneten ist. </p>
+<p>Für die Berechnung zu den ABC-Kriterien muss die eigentliche Läsion von ihrem Hintergrund getrennt werden. Die Segmentierung wird in Form einer sogenannten binären Maske durchgeführt, die für jedes Pixel angibt, ob es zur Läsion gehört oder nicht.
+Alle Vergleiche von Implementierungsansätzen nutzen Otsu's Thresholding um eine binäre Maske der Läsion zu erstellen. 
+Details zu den beiden getesteten Ansätzen finden sich in der <a href="lesion_cutout.html">zugehörigen Beschreibung</a>. Darin sind auch die Vor- und Nachverarbeitungsschritte beschrieben, die für beide Ansätze notwendig sind, um die Qualität der Segmentierungsergebnisse zu verbessern.</p>
+<p>Um die Leistung der Algorithmen zu bewerten, wurden sie auf alle 10000 Bilder angewandt und die berechneten Scores nach den beiden relevanten Klassen (Melanom vs. Leberfleck) gruppiert.
+Ein Boxplot dient der Visualisierung der Verteilung der Scores in den beiden Klassen, um die Differenzierungskraft des Algorithmus zu bewerten. Ein signifikanter Unterschied in der Verteilung der Scores zwischen den Klassen würde darauf hindeuten, dass der Algorithmus relevante Merkmale extrahiert, die zur Unterscheidung beitragen können.</p>
+<h3 id="kriterium-a-asymmetry-asymmetrie">Kriterium A - Asymmetry (Asymmetrie)</h3>
+<p>Die Asymmetrie eines Muttermals ist eines der wichtigsten Indikatoren zur Unterscheidung zwischen gutartigen Muttermalen und Melanomen. Während gutartige Muttermale in der Regel symmetrisch sind, weisen Melanome oft eine unregelmäßige Form auf, die zu Asymmetrie führt. </p>
+<p>Dazu sollen zwei Ansätze zur Quantifizierung der Asymmetrie auf einer Skala von 0 (völlig symmetrisch) bis 1 (völlig asymmetrisch) verglichen werden. 
+Für die Berechnungen wird ausschließlich die binäre Maske der Läsion verwendet. Farbwerte spielen bei der Asymmetrie-Berechnung keine Rolle, da die Form der Läsion im Vordergrund steht.</p>
+<h4 id="ansatz-1-quadranten-basierte-punktsymmetrie">Ansatz 1: Quadranten-basierte Punktsymmetrie</h4>
+<p>Dieser Ansatz basiert auf der vereinfachten Annahme, dass sich die Symmetrie einer Läsion durch den Vergleich von vier Quadranten (oben links, oben rechts, unten links, unten rechts) beurteilen lässt. Hierbei wird die Anzahl der Pixel in jedem Quadranten gezählt und der absolute Unterschied zwischen gegenüberliegenden Quadranten (Punktsymmetrie) berechnet.</p>
+<ol>
+<li>Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding</li>
+<li>Zentroid-Berechnung: Bestimmung des geometrischen Schwerpunkts der Läsion, um die Quadranten zu definieren</li>
+<li>Quadranten-Aufteilung: Aufteilung der Maske in vier Quadranten basierend auf dem Zentroid</li>
+<li>Differenzberechnung: Berechnung der absoluten Differenz zwischen diagonal gegenüberliegenden Quadranten</li>
+<li>Normalisierung: Mittelung der zwei Differenzwerte und Normalisierung auf [0, 1], wobei 0 = völlig symmetrisch und 1 = völlig asymmetrisch</li>
+</ol>
+<h4 id="ansatz-2-hauptachsen-basierte-spiegelsymmetrie">Ansatz 2: Hauptachsen-basierte Spiegelsymmetrie</h4>
+<p>Dieser Ansatz ist wissenschaftlich präziser, da er die Spiegelsymmetrie entlang der Hauptachse der Läsion bewertet. Da Muttermale oft oval sind, wird die Läsion zuerst an ihrer längsten Ausdehnung ausgerichtet. Die Asymmetrie wird dann über die Schnittmenge und Vereinigung (Intersection over Union, IoU) der gespiegelten Hälften definiert.</p>
+<ol>
+<li>Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding</li>
+<li>Hauptachsen-Berechnung: Bestimmung der Hauptachse durch Bildmomente</li>
+<li>Geometrische Ausrichtung: Rotation der Maske, um die Hauptachse horizontal auszurichten</li>
+<li>Symmetrie-Prüfung: Spiegelung der Maske entlang horizontaler und vertikaler Achse und Berechnung der Überlappung </li>
+<li>Analyse der Überlappung: Berechnung der IoU zwischen den gespiegelten Hälften, um die Asymmetrie zu quantifizieren</li>
+<li>Normalisierung: Mittelwert aus horizontaler und vertikaler Asymmetrie, normalisiert auf [0, 1], wobei 0 = völlig symmetrisch und 1 = völlig asymmetrisch</li>
+</ol>
+<p><img alt="Asymmetry Score Verteilung" src="../images/asymmetry_score_analysis.png" /></p>
+<p>Wie dem Boxplot zu entnehmen ist, eignet sich der Ansatz der hauptachsenbasierten Spiegelsymmetrie deutlich besser zur Differenzierung zwischen Melanomen und Leberflecken, da der Mittelwert der Scores mit 0.27 für Melanome und 0.20 für Leberflecken klarer getrennt ist als bei der quadrantenbasierten Punktsymmetrie (0.37 vs. 0.35). Zudem erstreckt sich das 75. Perzentil der Melanom-Scores bis 0.61, was darauf hinweist, dass Melanome tendenziell deutlich asymmetrischer sind als Leberflecken.</p>
+<hr />
+<h3 id="kriterium-b-border-grenzziehung">Kriterium B - Border (Grenzziehung)</h3>
+<p>Unregelmäßige, ausgefranste oder unscharfe Ränder sind ein klinisches Warnzeichen für maligne Hautläsionen. Zur objektiven Quantifizierung dieser Irregularitäten wurden zwei komplementäre Algorithmen implementiert, die unterschiedliche Aspekte der Randgestalt erfassen.</p>
+<h4 id="ansatz-1-radiale-distanzvarianz-rdv">Ansatz 1: Radiale Distanzvarianz (RDV)</h4>
+<p>Die RDV-Methode quantifiziert die Abweichung der Läsionsform von einer idealen Kreisform. Dabei werden die Distanzen vom geometrischen Zentrum (Zentroid) zu allen Punkten auf der Grenzlinie berechnet. Eine perfekt kreisförmige Läsion weist eine minimale Varianz auf, während irreguläre Ränder zu einer hohen statistischen Varianz der Radien führen.</p>
+<ol>
+<li>Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding</li>
+<li>Zentroid-Berechnung: Bestimmung des geometrischen Schwerpunkts der Läsion</li>
+<li>Bestimmung des Umrisses: Aufblähen der Maske durch Dilation und anschließend Subtraktion der ursprünglichen Maske</li>
+<li>Radiale Distanzberechnung: Berechnung der euklidischen Distanzen von jedem Punkt auf der Grenzlinie zum Zentroid</li>
+<li>Varianzberechnung: Ermittlung des Varianzkoeffizienten (Standardabweichung / Mittelwert) der Radien, um die Unregelmäßigkeit zu quantifizieren</li>
+<li>Normalisierung: Skalierung des RDV-Werts auf [0, 1], wobei 0 = perfekte Kreisform und 1 = maximale Irregularität</li>
+</ol>
+<h4 id="ansatz-2-konkavitats-analyse">Ansatz 2: Konkavitäts-Analyse</h4>
+<p>Dieser Ansatz bewertet die "Zerklüftung" des Randes durch den Vergleich der tatsächlichen Läsionsmaske mit ihrer konvexen Hülle (dem kleinstmöglichen konvexen Set, das die Läsion umschließt). Die Differenz zwischen der konvexen Hülle und der tatsächlichen Maske ergibt die sogenannten Konkavitäten (Einbuchtungen). Das Verhältnis dieser Konkavitätsfläche zur Gesamtfläche der Läsion dient als Maß für die Randunregelmäßigkeit.</p>
+<ol>
+<li>Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding</li>
+<li>Masken-Bereinigung: Entfernung kleiner Löcher in der Maske durch Morphologische Operationen (z.B. Closing)</li>
+<li>Konvexe Hülle: Berechnung der konvexen Hülle der Maske, um eine glatte Umhüllung der Läsion zu erhalten</li>
+<li>Konkavitätsfläche: Berechnung der Fläche der Konkavitäten durch Subtraktion der tatsächlichen Maske von der konvexen Hülle</li>
+<li>Normalisierung: Normalisierung der Konkavitätsflächen durch die Gesamtfläche der Läsion, um einen Wert zwischen 0 (perfekt konvex bzw. sehr gleichmäßige Border) und 1 (maximale Konkavität bzw. sehr unregelmäßige Border) zu erhalten.</li>
+</ol>
+<p><img alt="Border Score Verteilung" src="../images/border_score_analysis.png" /></p>
+<p>Da die Mittelwerte beider Ansätze mit einer Differenz von ungefähr 0.04 relativ nah beieinander liegen und auch die Standardabweichungen sehr ähnlich sind, lässt sich der überlegene Ansatz nur direkt über die Verteilung der Scores beurteilen. Hier zeigt sich, dass der Konkavitäts-Ansatz einen deutlich höheren Zahlenraum an Scores für Melanome abdeckt (bis 0.41) während die Verteilung beim RDV-Ansatz deutlich kompakter ist und nur bis 0.25 reicht. Die starke Überlappung der Verteilungen beider Ansätze deutet darauf hin, dass auch viele Melanome relativ regelmäßige Ränder aufweisen können, was die Differenzierung erschwert. Dennoch scheint der Konkavitäts-Ansatz aufgrund seiner größeren Varianz bei Melanomen eine etwas bessere Trennung zu ermöglichen.</p>
+<hr />
+<h3 id="kriterium-c-color-farbung">Kriterium C - Color (Färbung)</h3>
+<p>Die Farbanalyse ist ein entscheidendes Merkmal bei der Detektion maligner Melanome, da diese oft eine ausgeprägte Farbvariabilität (Variegation) aufweisen. Während gutartige Läsionen meist einfarbig oder homogen gefärbt sind, zeigen Melanome häufig verschiedene Nuancen von Braun, Schwarz sowie rötliche, bläuliche oder graue Areale.</p>
+<p>Um die Farbvielfalt unabhängig von individuellen Hauttypen und variierenden Beleuchtungsbedingungen zu quantifizieren, wird eine <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3184460/">relative Farbhistogramm-Analyse</a> eingesetzt. Der Kern dieses Ansatzes besteht darin, nicht die absoluten RGB-Werte zu betrachten, sondern die Abweichung der Läsionspixel von der durchschnittlichen Hautfarbe der Umgebung. Die Komplexität dieser Farbverteilung wird mathematisch über die Shannon-Entropie gemessen: Eine hohe Entropie korreliert mit einer größeren Vielfalt an relativen Farben und deutet somit auf eine höhere Wahrscheinlichkeit für ein Melanom hin.</p>
+<ol>
+<li>Maskenerstellung: Generierung einer binären Maske der Läsion durch Otsu's Thresholding</li>
+<li>Hautfarbenermittlung: Berechnung der durchschnittlichen Hintergrund-Hautfarbe, um eine individuelle Referenz für das jeweilige Bild zu erhalten</li>
+<li>Relative Farbberechnung: Von jedem Pixel innerhalb der Läsion wird die Differenz zu der durchschnittlichen Hautfarbe berechnet, um relative Farbwerte zu erhalten</li>
+<li>Farbquantisierung: Quantisierung der relativen Farbwerte in ein 3D Histogram mit 32 Bins pro Farbkanal (ergibt 32768 mögliche Farbklassen), um die Komplexität der Farbverteilung zu reduzieren. Ähnliche Farben werden in denselben Bin gruppiert, um die Analyse zu vereinfachen.</li>
+<li>Histogram-Filterung: Entfernung von Bins, die zu nah an dem Bin der durchschnittlichen Hautfarbe liegen, um Rauschen durch Hintergrundpixel zu minimieren</li>
+<li>Entropie-Berechnung: Quantifizierung der Farbvielfalt durch Berechnung der Shannon-Entropie des gefilterten Histograms.</li>
+<li>Normalisierung: Inversion der Entropie und Skalierung auf [0, 1], wobei 0 = hohe Farbvielfalt (eher gutartig) und 1 = geringe Farbvielfalt (eher bösartig) bedeutet.</li>
+</ol>
+<p><img alt="Color Scores" src="../images/color_score_analysis.png" /></p>
+<p>Da für dieses Kriterium nur ein Ansatz implementiert wurde, kann die Differenzierungskraft nur an der Analyse des Color Uniformity Scores selbst beurteilt werden. Die weiteren Boxplots zu <code>Effective Color Count</code> und <code>Entropy</code> sind lediglich die Rohwerte der Farbvielfalt darstellen, ohne die Normalisierung und Inversion, die für die finale Score-Berechnung notwendig sind.
+Die Verteilung des Uniformity Scores zeigt wieder eine deutliche Überlappung zwischen Melanomen und Leberflecken, wobei die Mittelwerte ähnlich zu den vorherigen Kriterien, mit einer Differenz von 0.031, relativ nah beieinander liegen. Nur der Abstand zwischen den 25. Perzentilen der beiden Klassen lässt darauf schließen, dass die Farbvielfalt bei Leberfleck tendenziell geringer ist als bei Melanomen. </p>
+<h2 id="ubertrag-auf-die-app">Übertrag auf die App</h2>
+<p>Die Algorithmen zur Berechnung der ABC-Kriterien wurden in Python implementiert, da sie dort einfacher zu entwickeln und zu testen sind. Für die Integration in die Flutter-App müssen diese Algorithmen jedoch in eine Form gebracht werden, die auf mobilen Geräten lauffähig ist.
+Die <a href="https://en.wikipedia.org/wiki/OpenCV">OpenCV-Bibliothek</a> wurde bereits in der Python-Implementierung verwendet, um die Bildverarbeitungsschritte durchzuführen. Glücklicherweise bietet OpenCV auch eine native C++-Implementierung, die über Dart-FFI in Flutter eingebunden werden kann.
+Ein Vergleich der Inferenz auf beiden Plattformen (Python vs. Flutter) zeigt, dass die Berechnung der ABC-Kriterien auf mobilen Geräten ohne signifikante Verzögerung möglich ist. Dabei sind die (Zwischen)Ergebnisse der ABC-Algorithmen identisch.</p>
+<h2 id="siehe-auch">Siehe auch</h2>
+<ul>
+<li><a href="lesion_cutout.html">Läsionssegmentierung</a></li>
+<li><a href="../ml/index.html">ML Dokumentation</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

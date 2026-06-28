@@ -8,7 +8,7 @@
 
 ## Betreuung
 
-- [Christian Axenie](mailto:cristian.axenie@th-nuernberg.de)
+- [Cristian Axenie](mailto:cristian.axenie@th-nuernberg.de)
 
 ## Projektüberblick
 

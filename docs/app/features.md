@@ -2,6 +2,24 @@
 
 Der Funktionsumfang der Anwendung ist exakt auf den klinischen Untersuchungspfad abgestimmt. Er begleitet den Arzt vom Erstkontakt über die visuelle und KI-gestützte Analyse bis hin zur Archivierung.
 
+## Arzt- und Praxisverwaltung
+
+Um einen Patienten zu dokumentieren, muss der Arzt zunächst ein eigenes Benutzerkonto anlegen. Dieses Konto ist zu Beginn mit keiner Praxis verknüpft, sodass der Arzt einer bestehenden Praxis beitreten muss. Die Praxiszuordnung ist für die Verwaltung von Patientendaten entscheidend, da sie den Zugriff auf die Daten anderer Ärzte derselben Praxis regelt.
+
+![](../images/doctor_login.gif)
+
+Gleichermaßen muss ein Praxisadministrator ein eigenes Konto anlegen, um die Praxis zu registrieren. Der Administrator kann dann weitere Ärzte einladen, die der Praxis zugeordnet werden sollen. Damit ist sichergestellt, dass nur autorisierte Ärzte Zugriff auf die Patientendaten der Praxis erhalten.
+
+![](../images/practice_login.gif)
+
+### Arztverwaltung und Mehrbenutzerfähigkeit
+
+Jeder Arzt ist genau einer Praxis zugeordnet und besitzt ein eigenes Benutzerkonto mit eindeutiger E-Mail-Adresse. Ärzte derselben Praxis können die Patientendaten anderer zugeordneter Kollegen einsehen, sodass die Behandlung im Team konsistent dokumentiert und fortgeführt werden kann.
+
+**Das Praxiskonto verwaltet den Zugriff über ein Einladungsmodul**: Einladungen an neue Ärzte können in einem eigenen Fenster eingesehen und bei Bedarf jederzeit zurückgenommen werden, etwa bei versehentlichem Versand. Sobald ein Arzt eine Einladung akzeptiert, erhält er Zugriff auf die Patientendaten der Praxis; dieser Zugriff kann durch die Praxisadministration jederzeit wieder entzogen werden, indem der Arzt aus der Praxis entfernt wird.
+
+![](../images/doctor_management.gif)
+
 ## Patientenverwaltung und Anamnese
 
 Das Anlegen eines neuen Patienten bildet den Startpunkt der Dokumentation. Die zu erfassenden Parameter wurden gemeinsam mit der Fachärztin definiert. Sie umfassen neben den demografischen Stammdaten gezielt jene Risikofaktoren, die für eine fundierte Hautkrebsdiagnostik und -prävention maßgeblich sind:
@@ -14,6 +32,8 @@ Das Anlegen eines neuen Patienten bildet den Startpunkt der Dokumentation. Die z
 Alle Daten können bei Folgeuntersuchungen aktualisiert werden. In der zentralen Patientenübersicht werden diese Risikofaktoren kompakt zusammengefasst, um dem Arzt sofort den Kontext des Patienten zu vermitteln.
 
 ![](../images/patient_screen.gif)
+
+> **Hinweis:** Um einen Patienten aus der Praxis zu löschen, muss der Arzt das Patientenprofil öffnen und die Option "Delete" auswählen. **Es dürfen keine Läsionen mehr mit dem Patienten verknüpft sein**, da sonst die Datenintegrität nicht gewährleistet ist.
 
 ## Das digitale Patientenprofil & Interaktive 3D-Körperkarte
 
@@ -44,7 +64,6 @@ Wird ein neuer Punkt auf der 3D-Karte gesetzt, öffnet sich der Workflow zur Lä
 
 Der Arzt kann das klinische Bild entweder direkt über die Kamera des Mobilgeräts aufnehmen oder aus der Galerie importieren. Um Störfaktoren (wie gesunde Hautareale oder Haare) zu minimieren und das neuronale Netzwerk auf den relevanten Bereich zu fokussieren, wird im nächsten Schritt ein optimierter Bildausschnitt – der sogenannte Läsions-Cutout – durch den Dermatologen ausgewählt.
 
-![](../images/workflow.gif)
 
 ### Medizinische Statusverfolgung
 
@@ -55,6 +74,10 @@ Jede Läsion besitzt einen dynamischen Status, der den klinischen Verlauf widers
 * **Histologisch bestätigt** (nach Laborbefund als Melanom klassifiziert)
 
 Da eine Läsion über Jahre hinweg unbegrenzt viele Diagnosen und Bildaufnahmen enthalten kann, wird die morphologische Veränderung lückenlos nachvollziehbar.
+
+![](../images/workflow.gif)
+
+>**Hinweis:** Um eine Läsion zu löschen, muss der Arzt das Läsionsprofil öffnen und die Option "Delete" auswählen. Es müssen erst **alle Diagnosen der Läsion gelöscht** werden, bevor die Läsion selbst gelöscht werden kann.
 
 ## KI-gestützte Analyse und Diagnosedokumentation
 
@@ -67,11 +90,19 @@ Ergänzend dokumentiert der Arzt das Untersuchungsdatum, den behandelnden Kolleg
 
 ![](../images/diagnosis.gif)
 
+
 ## Automatisierte PDF-Berichterstellung
 
 Für die Archivierung in der primären Praxis-EDV oder für die Weitergabe an den Patienten wurde ein Export-Modul implementiert. Der Arzt kann über eine Checkbox-Auswahl dediziert steuern, welche Läsionen und welche spezifischen Untersuchungszeitpunkte in den Bericht einfließen sollen. Das generierte PDF-Dokument enthält strukturiert alle Stammdaten, Anamnesefaktoren, die bildlichen Dokumentationen, die berechneten KI-Metriken sowie die ärztlichen Kommentare.
 
 ![](../images/export.gif)
+
+## Kurzdokumentation
+
+In der App ist eine Kurzdokumentation integriert, die die zentralen App-Funktionen erläutert. Sie ist jederzeit über das eigene Arztprofil zugänglich und bietet eine schnelle Orientierungshilfe für neue Nutzer.
+
+![](../images/in_app_documentation.gif)
+
 
 ## Siehe auch
 - [App-Architektur](./architecture.md)

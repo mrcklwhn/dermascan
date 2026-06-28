@@ -386,6 +386,31 @@ class DBService extends GetxService {
     }
   }
 
+  Future<bool> deletePatientProfile({required String patientId}) async {
+    try {
+      final FunctionResponse response = await authService
+          .supabaseClient
+          .functions
+          .invoke(
+            'delete-patient',
+            body: <String, String?>{'patientId': patientId},
+          );
+
+      if (response.status != 200) {
+        if (kDebugMode) {
+          debugPrint('Error: ${response.status} - ${response.data}');
+        }
+        return false;
+      }
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
+      return false;
+    }
+  }
+
   Future<Patient?> createPatientProfile({
     required String practiceId,
     required String name,

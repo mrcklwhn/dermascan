@@ -25,6 +25,7 @@ Diese Seite definiert zentrale Begriffe und Abkurzungen der Dermascan-Dokumentat
 - **Sensitivität (Recall für positive Klasse)**: Anteil korrekt erkannter Melanome.
 - **Spezifität**: Anteil korrekt erkannter gutartiger Läsionen.
 - **Threshold**: Entscheidungsgrenze, ab der eine Wahrscheinlichkeit als positive Klasse gilt.
+- **Cross Entropy (CE)**: Verlustfunktion für 
 
 ## Plattform und Deployment
 
