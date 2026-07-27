@@ -39,11 +39,11 @@ Damit ist klar getrennt: Die KI-Auswertung läuft lokal, während persistente Ve
 
 ## Struktur der Dokumentation
 
-1. [App](./app/README.md)
-2. [Datenbank](./db/README.md)
-3. [Machine Learning](./ml/README.md)
-4. [ABC-Algorithmen](./abc_algorithms/README.md)
-5. [Glossar](./glossar.md)
+1. [App](./docs/app/README.md)
+2. [Datenbank](./docs/db/README.md)
+3. [Machine Learning](./docs/ml/README.md)
+4. [ABC-Algorithmen](./docs/abc_algorithms/README.md)
+5. [Glossar](./docs/glossar.md)
 
 **Hinweis zum Lesen der Dokumentation:** Die Inhalte sind in Markdown verfasst und wurden mit MkDocs in eine statische Website überführt. Der Einstieg erfolgt über die `site/index.html` Seite, welche im Browser geöffnet werden kann. Alternativ können die Markdown-Dateien direkt in einem Editor betrachtet werden.
 
