@@ -1,0 +1,182 @@
+import { createClient } from "npm:@supabase/supabase-js@2.39.0";
+
+// --- Environment Variables ---
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error("Missing Supabase configuration.");
+}
+
+// --- Supabase Client (Service Role) ---
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+  },
+});
+
+// --- CORS Headers ---
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// --- Helper: Response ---
+const jsonResponse = (body: any, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+Deno.serve(async (req) => {
+  // 1. Handle CORS Preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return jsonResponse({ error: "No authorization header passed" }, 401);
+    }
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+
+    if (userError || !user) {
+      return jsonResponse({ error: "Invalid User Token" }, 401);
+    }
+
+    // 2. Parse Request Body (jetzt mit allen Feldern inklusive id)
+    const body = await req.json();
+    const {
+      id,
+      practiceId,
+      name,
+      dateOfBirth,
+      gender,
+      currentCountry,
+      birthCountry,
+      tanningBedExposure,
+      previousSkinSurgeries,
+      previousSunburns,
+      previousCancerSurgeries,
+      sunscreenUse,
+      personalHistoryMelanoma,
+      familyHistoryMelanoma
+    } = body;
+
+    // VALIDIERUNG: Alle Felder sind Pflichtfelder
+    const requiredFields = [
+      'id', 'practiceId', 'name', 'dateOfBirth', 'gender', 'currentCountry',
+      'birthCountry', 'tanningBedExposure', 'previousSkinSurgeries',
+      'previousSunburns', 'previousCancerSurgeries', 'sunscreenUse',
+      'personalHistoryMelanoma', 'familyHistoryMelanoma'
+    ];
+
+    for (const field of requiredFields) {
+      if (body[field] === undefined || body[field] === null || body[field] === "") {
+        return jsonResponse({ error: `Field '${field}' is required and was not provided.` }, 400);
+      }
+    }
+
+    // 3. Security Check: Validate Doctor's Practice ID
+    const { data: doctor, error: doctorError } = await supabase
+      .from('doctor')
+      .select('practiceid')
+      .eq('doctorid', user.id)
+      .maybeSingle();
+
+    if (doctorError) {
+      console.error("DB Fetch Error (Doctor):", doctorError);
+      return jsonResponse({ error: "Database error fetching doctor." }, 500);
+    }
+
+    if (!doctor) {
+      return jsonResponse({ error: "Sender is not registered as a doctor." }, 404);
+    }
+
+    if (doctor.practiceid !== practiceId) {
+      return jsonResponse({ error: "Unauthorized: Practice ID does not match sender's practice." }, 403);
+    }
+
+    // 4. Security Check: Validate Patient Ownership
+    const { data: existingPatient, error: patientError } = await supabase
+      .from('patient')
+      .select('practiceid')
+      .eq('patientid', id)
+      .maybeSingle();
+
+    if (patientError) {
+      console.error("DB Fetch Error (Patient Validation):", patientError);
+      return jsonResponse({ error: "Database error during patient validation." }, 500);
+    }
+
+    if (!existingPatient) {
+      return jsonResponse({ error: "Patient not found." }, 404);
+    }
+
+    if (existingPatient.practiceid !== doctor.practiceid) {
+      return jsonResponse({ error: "Unauthorized: Patient does not belong to your practice." }, 403);
+    }
+
+    // 5. Update Data
+    const { data: updatedPatient, error: updateError } = await supabase
+      .from("patient")
+      .update({
+        name: name,
+        dateofbirth: dateOfBirth,
+        gender: gender,
+        tanningbedexposure: tanningBedExposure,
+        previousskinsurgeries: previousSkinSurgeries,
+        previoussunburns: previousSunburns,
+        currentcountry: currentCountry,
+        birthcountry: birthCountry,
+        previouscancersurgeries: previousCancerSurgeries,
+        sunscreenuse: sunscreenUse,
+        personalhistorymelanoma: personalHistoryMelanoma,
+        familyhistorymelanoma: familyHistoryMelanoma
+      })
+      .eq('patientid', id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error("DB Update Error:", updateError);
+      return jsonResponse({
+        error: "Database update failed.",
+        details: updateError.message
+      }, 500);
+    }
+
+    // 6. Map DB fields to Dart Model
+    const mappedPatient = {
+      id: updatedPatient.patientid,
+      name: updatedPatient.name,
+      dateOfBirth: updatedPatient.dateofbirth,
+      gender: updatedPatient.gender,
+      currentCountry: updatedPatient.currentcountry,
+      birthCountry: updatedPatient.birthcountry,
+      tanningBedExposure: updatedPatient.tanningbedexposure,
+      previousSkinSurgeries: updatedPatient.previousskinsurgeries,
+      previousSunburns: updatedPatient.previoussunburns,
+      previousCancerSurgeries: updatedPatient.previouscancersurgeries,
+      sunscreenUse: updatedPatient.sunscreenuse,
+      personalHistoryMelanoma: updatedPatient.personalhistorymelanoma,
+      familyHistoryMelanoma: updatedPatient.familyhistorymelanoma,
+      note: updatedPatient.note,
+      practiceId: updatedPatient.practiceid,
+    };
+
+    return jsonResponse(mappedPatient, 200);
+
+  } catch (e) {
+    console.error("Function Error:", e);
+    return jsonResponse({ error: "Internal Server Error" }, 500);
+  }
+});

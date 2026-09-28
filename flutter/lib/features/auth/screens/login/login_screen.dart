@@ -30,67 +30,13 @@ class LoginScreen extends GetView<LoginController> {
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
+              
               const SizedBox(height: AppTheme.spaceLarge),
-              SegmentedButton<AuthOption>(
-                showSelectedIcon: false,
-                segments: <ButtonSegment<AuthOption>>[
-                  ButtonSegment<AuthOption>(
-                    value: AuthOption.doctor,
-                    label: Text('Doctor'.tr),
-                    icon: const Icon(Icons.medical_services_outlined),
-                  ),
-                  ButtonSegment<AuthOption>(
-                    value: AuthOption.practice,
-                    label: Text('Practice'.tr),
-                    icon: const Icon(Icons.business_outlined),
-                  ),
-                ],
-                selected: <AuthOption>{
-                  controller.currentSelectedAuthOption.value,
-                },
-                onSelectionChanged: (Set<AuthOption> newSelection) =>
-                    controller.changeCurrentSelectedAuthOption(
-                      newAuthOption: newSelection.first,
-                    ),
-              ),
-              const SizedBox(height: AppTheme.spaceLarge),
-              if (controller.currentSelectedAuthOption.value ==
-                  AuthOption.doctor)
-                ...buildDoctorLoginFormFields()
-              else
-                ...buildPracticeLoginFormFields(),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Obx(() {
-          return Padding(
-            padding: AppTheme.scaffoldPadding,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.app_registration),
-              onPressed: controller.isLoading.value
-                  ? null
-                  : controller.navigateToRegister,
-              label: Text('Create Account'.tr),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-List<Widget> buildDoctorLoginFormFields() {
-  final DoctorLoginController doctorLoginController =
-      Get.find<DoctorLoginController>();
-
-  return <Widget>[
-    CustomTextField(
+              CustomTextField(
       textEditingController: doctorLoginController.emailController,
       focusNode: doctorLoginController.emailFocusNode,
       onSubmitted: (_) => doctorLoginController.submittedEmail(),
-      labelText: 'Doctor E-Mail'.tr,
+      labelText: 'E-Mail'.tr,
       prefixIcon: Icons.email,
       textInputType: TextInputType.emailAddress,
     ),
@@ -113,42 +59,24 @@ List<Widget> buildDoctorLoginFormFields() {
           : doctorLoginController.submitLoginData,
       label: Text('Login'.tr),
     ),
-  ];
-}
-
-List<Widget> buildPracticeLoginFormFields() {
-  final PracticeLoginController practiceLoginController =
-      Get.find<PracticeLoginController>();
-
-  return <Widget>[
-    CustomTextField(
-      textEditingController: practiceLoginController.emailController,
-      focusNode: practiceLoginController.emailFocusNode,
-      onSubmitted: (_) => practiceLoginController.submittedEmail(),
-      labelText: 'Practice E-Mail'.tr,
-      textInputType: TextInputType.emailAddress,
-      prefixIcon: Icons.email,
-    ),
-    const SizedBox(height: AppTheme.spaceMedium),
-    CustomTextField(
-      textEditingController: practiceLoginController.passwordController,
-      focusNode: practiceLoginController.passwordFocusNode,
-      onSubmitted: practiceLoginController.loginController.isLoading.value
-          ? (_) {}
-          : (_) => practiceLoginController.submitLoginData(),
-      labelText: 'Password'.tr,
-      textInputType: TextInputType.visiblePassword,
-      prefixIcon: Icons.password,
-    ),
-    const SizedBox(height: AppTheme.spaceLarge),
-    Obx(
-      () => FilledButton.icon(
-        icon: const Icon(Icons.login),
-        onPressed: practiceLoginController.loginController.isLoading.value
-            ? null
-            : practiceLoginController.submitLoginData,
-        label: Text('Login'.tr),
+            ],
+          ),
+        ),
       ),
-    ),
-  ];
+      bottomNavigationBar: SafeArea(
+        child: Obx(() {
+          return Padding(
+            padding: AppTheme.scaffoldPadding,
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.app_registration),
+              onPressed: controller.isLoading.value
+                  ? null
+                  : controller.navigateToRegister,
+              label: Text('Create Account'.tr),
+            ),
+          );
+        }),
+      ),
+    );
+  }
 }
