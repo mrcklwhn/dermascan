@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class DoctorsController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
+  DoctorDbService doctorDbService = Get.find<DoctorDbService>();
 
   ScrollController listScrollController = ScrollController();
 
@@ -54,7 +54,7 @@ class DoctorsController extends GetxController {
 
     if (practiceId == null) return;
 
-    final List<Doctor> assignedDoctors = await dbService.fetchDoctors(
+    final List<Doctor> assignedDoctors = await doctorDbService.fetchDoctors(
       practiceId: practiceId,
     );
     doctors.assignAll(assignedDoctors);

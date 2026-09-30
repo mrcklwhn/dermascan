@@ -5,7 +5,7 @@ import 'package:dartcv4/dartcv.dart' as cv;
 
 class LesionUtils {
   // Score calculation
-  static double calculateAsymmetryRatio(cv.Mat rotatedMask) {
+  static double calculateAsymmetryRatio({required cv.Mat rotatedMask}) {
     final int cx = rotatedMask.cols ~/ 2;
     final int cy = rotatedMask.rows ~/ 2;
 
@@ -32,7 +32,10 @@ class LesionUtils {
     return 1.0 - ((asymmetryLR + asymmetryTB) / 2.0);
   }
 
-  static double calculateBorderRatio(cv.Mat concavityMask, cv.Mat lesionMask) {
+  static double calculateBorderRatio({
+    required cv.Mat concavityMask,
+    required cv.Mat lesionMask,
+  }) {
     final int concavityPixels = cv.countNonZero(concavityMask);
     final int totalLesionPixels = cv.countNonZero(lesionMask);
     if (totalLesionPixels == 0) return 0.0;
@@ -40,18 +43,21 @@ class LesionUtils {
   }
 
   // Mask processing for Inference
-  static cv.Mat cleanLesionMask(cv.Mat rawMask, List<int> originalSize) {
-    final cv.Mat largest = getLargestConnectedArea(rawMask);
-    final cv.Mat filled = fillHolesInMask(largest);
-    final cv.Mat resized = resizeMask(filled, <int>[
-      originalSize.first,
-      originalSize.last,
-    ]);
-    final cv.Mat smoothed = smoothMaskEdges(resized);
+  static cv.Mat cleanLesionMask({
+    required cv.Mat rawMask,
+    required List<int> originalSize,
+  }) {
+    final cv.Mat largest = getLargestConnectedArea(rawMask: rawMask);
+    final cv.Mat filled = fillHolesInMask(largestMask: largest);
+    final cv.Mat resized = resizeMask(
+      filledMask: filled,
+      size: <int>[originalSize.first, originalSize.last],
+    );
+    final cv.Mat smoothed = smoothMaskEdges(resizedMask: resized);
     return smoothed;
   }
 
-  static cv.Mat getLargestConnectedArea(cv.Mat rawMask) {
+  static cv.Mat getLargestConnectedArea({required cv.Mat rawMask}) {
     final cv.Mat labels = cv.Mat.empty();
     final cv.Mat stats = cv.Mat.empty();
     final cv.Mat centroids = cv.Mat.empty();
@@ -86,7 +92,7 @@ class LesionUtils {
     return cv.compare(labels, target, cv.CMP_EQ);
   }
 
-  static cv.Mat fillHolesInMask(cv.Mat largestMask) {
+  static cv.Mat fillHolesInMask({required cv.Mat largestMask}) {
     final cv.Mat maskU8 = largestMask.convertTo(cv.MatType.CV_8UC1);
     final cv.Mat flood = maskU8.clone();
     final cv.Mat floodFillBuffer = cv.Mat.zeros(
@@ -105,14 +111,14 @@ class LesionUtils {
     return cv.bitwiseOR(maskU8, holes);
   }
 
-  static cv.Mat resizeMask(cv.Mat filledMask, List<int> size) {
+  static cv.Mat resizeMask({required cv.Mat filledMask, required List<int> size}) {
     return cv.resize(filledMask, (
       size[1],
       size[0],
     ), interpolation: cv.INTER_NEAREST);
   }
 
-  static cv.Mat smoothMaskEdges(cv.Mat resizedMask) {
+  static cv.Mat smoothMaskEdges({required cv.Mat resizedMask}) {
     final cv.Mat kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (7, 7));
     cv.Mat cleaned = cv.morphologyEx(resizedMask, cv.MORPH_CLOSE, kernel);
     cleaned = cv.morphologyEx(cleaned, cv.MORPH_OPEN, kernel);
@@ -121,13 +127,16 @@ class LesionUtils {
   }
 
   // Misc
-  static List<int> getCentroid(cv.Mat binaryMask) {
+  static List<int> getCentroid({required cv.Mat binaryMask}) {
     final cv.Moments m = cv.moments(binaryMask);
     if (m.m00 == 0) return <int>[0, 0];
     return <int>[(m.m10 / m.m00).toInt(), (m.m01 / m.m00).toInt()];
   }
 
-  static List<double> getAvgSkinColor(cv.Mat image, cv.Mat lesionMask) {
+  static List<double> getAvgSkinColor({
+    required cv.Mat image,
+    required cv.Mat lesionMask,
+  }) {
     final cv.Mat skinMask = cv.bitwiseNOT(lesionMask);
     final cv.Scalar avgSkinColor = cv.mean(image, mask: skinMask);
     return <double>[
@@ -137,11 +146,11 @@ class LesionUtils {
     ];
   }
 
-  static List<List<double>> transformImageToRelColors(
-    cv.Mat imageFloat,
-    cv.Mat lesionMask,
-    List<double> avgSkin,
-  ) {
+  static List<List<double>> transformImageToRelColors({
+    required cv.Mat imageFloat,
+    required cv.Mat lesionMask,
+    required List<double> avgSkin,
+  }) {
     final List<List<double>> relColors = <List<double>>[];
     final cv.VecMat channels = cv.split(imageFloat);
     final cv.Mat bChan = channels[0];
@@ -165,9 +174,9 @@ class LesionUtils {
     return relColors;
   }
 
-  static List<List<int>> quantizeRelativeColors(
-    List<List<double>> imageRelColors,
-  ) {
+  static List<List<int>> quantizeRelativeColors({
+    required List<List<double>> imageRelColors,
+  }) {
     return imageRelColors.map((List<double> relColor) {
       return relColor
           .map((double v) => (((v + 1.0) / 2.0).clamp(0.0, 1.0) * 31).floor())
@@ -175,7 +184,9 @@ class LesionUtils {
     }).toList();
   }
 
-  static List<double> getRelColorHistogram(List<List<int>> binIndices) {
+  static List<double> getRelColorHistogram({
+    required List<List<int>> binIndices,
+  }) {
     final int maxIndex = 32 * 32 * 32;
     final List<double> hist = List<double>.filled(maxIndex, 0.0);
 
@@ -192,10 +203,10 @@ class LesionUtils {
     return hist;
   }
 
-  static List<double> filterSkinInHistogram(
-    List<double> histogram,
-    List<double> avgSkin,
-  ) {
+  static List<double> filterSkinInHistogram({
+    required List<double> histogram,
+    required List<double> avgSkin,
+  }) {
     final List<int> skinBin = avgSkin
         .map((double c) => (c.clamp(0.0, 1.0) * 31).round())
         .toList();
@@ -221,7 +232,7 @@ class LesionUtils {
     return histFiltered;
   }
 
-  static double getHistogramEntropy(List<double> histogram) {
+  static double getHistogramEntropy({required List<double> histogram}) {
     double entropy = 0.0;
     for (final double p in histogram) {
       if (p > 0.0) entropy -= p * (math.log(p) / math.log(2));
@@ -229,18 +240,21 @@ class LesionUtils {
     return entropy;
   }
 
-  static int getEffColorCount(List<double> histogram, double threshold) {
+  static int getEffColorCount({
+    required List<double> histogram,
+    required double threshold,
+  }) {
     return histogram.where((double p) => p > threshold).length;
   }
 
   // Transforms
-  static cv.Mat alignMaskByDominantAxis(cv.Mat binaryMask) {
+  static cv.Mat alignMaskByDominantAxis({required cv.Mat binaryMask}) {
     final cv.Moments m = cv.moments(binaryMask);
     if (m.m00 == 0) return binaryMask;
     final double angleRad = 0.5 * math.atan2(2 * m.mu11, m.mu20 - m.mu02);
     final double angleDeg = angleRad * 180 / math.pi;
 
-    final List<int> center = getCentroid(binaryMask);
+    final List<int> center = getCentroid(binaryMask: binaryMask);
     final cv.Point2f centerPt = cv.Point2f(
       center[0].toDouble(),
       center[1].toDouble(),
@@ -263,7 +277,7 @@ class LesionUtils {
     return cv.warpAffine(binaryMask, rotMat, (newWidth, newHeight));
   }
 
-  static cv.Mat getConvexHullMask(cv.Mat binaryMask) {
+  static cv.Mat getConvexHullMask({required cv.Mat binaryMask}) {
     final (cv.Contours, cv.VecVec4i) records = cv.findContours(
       binaryMask,
       cv.RETR_EXTERNAL,
@@ -303,7 +317,7 @@ class LesionUtils {
     return hullMask;
   }
 
-  static cv.Mat getLesionContourMask(cv.Mat binaryMask) {
+  static cv.Mat getLesionContourMask({required cv.Mat binaryMask}) {
     final cv.Mat dilatedMask = cv.dilate(
       binaryMask,
       cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3)),
@@ -312,19 +326,22 @@ class LesionUtils {
     return cv.subtract(dilatedMask, binaryMask);
   }
 
-  static cv.Mat getConcavityMask(cv.Mat binaryMask, cv.Mat hullMask) {
+  static cv.Mat getConcavityMask({
+    required cv.Mat binaryMask,
+    required cv.Mat hullMask,
+  }) {
     return cv.subtract(hullMask, binaryMask);
   }
 
-  static cv.Mat transformImageToFloat(cv.Mat image) {
+  static cv.Mat transformImageToFloat({required cv.Mat image}) {
     return image.convertTo(cv.MatType.CV_32FC3, alpha: 1.0 / 255.0);
   }
 
-  static Float32List multidimResize(
-    int dims,
-    int rows,
-    int columns,
-    Float32List data, {
+  static Float32List multidimResize({
+    required int dims,
+    required int rows,
+    required int columns,
+    required Float32List data,
     int? sourceRows,
     int? sourceCols,
   }) {

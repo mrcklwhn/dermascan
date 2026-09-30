@@ -3,7 +3,11 @@ import 'package:dermascan/app/constants.dart';
 import 'package:dermascan/app/navigation_routes.dart';
 import 'package:dermascan/app/translation/messages.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
+import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
+import 'package:dermascan/core/services/db_service/patient_db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
+import 'package:dermascan/core/services/encryption_service.dart';
 import 'package:dermascan/core/services/local_asset_server.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -16,7 +20,11 @@ Future<void> main() async {
   await Supabase.initialize(url: supabaseURL, anonKey: anonKey);
 
   await Get.putAsync(() async => AuthService());
-  await Get.putAsync(() async => DBService());
+  await Get.putAsync(() async => EncryptionService());
+  await Get.putAsync(() async => PracticeDbService());
+  await Get.putAsync(() async => DoctorDbService());
+  await Get.putAsync(() async => PatientDbService());
+  await Get.putAsync(() async => LesionDbService());
 
   await LocalAssetServer.start();
 

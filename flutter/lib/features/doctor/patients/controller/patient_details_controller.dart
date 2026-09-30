@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
 import 'package:dermascan/core/widgets/patient_info_bottom_sheet.dart';
@@ -13,7 +13,7 @@ import 'package:get/get.dart';
 
 class PatientDetailsController extends GetxController {
   final AuthService authService = Get.find<AuthService>();
-  final DBService dbService = Get.find<DBService>();
+  final LesionDbService lesionDbService = Get.find<LesionDbService>();
 
   final GlobalKey bodySelectorKey = GlobalKey();
 
@@ -57,7 +57,7 @@ class PatientDetailsController extends GetxController {
     final String? doctorId = authService.currentUser.value?.id;
     if (doctorId == null) return;
 
-    final List<BodyLesion> fetchedLesions = await dbService.fetchLesions(
+    final List<BodyLesion> fetchedLesions = await lesionDbService.fetchLesions(
       patientId: patient.id,
     );
 
@@ -119,7 +119,7 @@ class PatientDetailsController extends GetxController {
         onSubmit: (String locationName) async {
           isSubmitting = true;
 
-          final BodyLesion? created = await dbService.createLesion(
+          final BodyLesion? created = await lesionDbService.createLesion(
             patientId: patient.id,
             locationName: locationName,
             position: lesion.position,

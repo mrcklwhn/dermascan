@@ -27,6 +27,8 @@ class CountrySelectorBottomSheetController extends GetxController {
   @override
   void onClose() {
     searchBarController.dispose();
+    searchBarFocusNode.dispose();
+    listScrollController.dispose();
     super.onClose();
   }
 

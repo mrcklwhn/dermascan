@@ -1,6 +1,6 @@
 import 'package:dermascan/app/enums.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/features/auth/controller/register/register_controller.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class DoctorRegisterController extends GetxController {
-  DBService dbService = Get.find<DBService>();
+  DoctorDbService doctorDbService = Get.find<DoctorDbService>();
   AuthService authService = Get.find<AuthService>();
 
   RegisterController registerController;
@@ -178,7 +178,7 @@ class DoctorRegisterController extends GetxController {
         return;
       }
 
-      final bool profileCreated = await dbService.createDoctorProfile(
+      final bool profileCreated = await doctorDbService.createDoctorProfile(
         name: nameController.text.trim(),
         gender: selectedGender!.name,
         dateOfBirth: dateOfBirth,
@@ -196,12 +196,13 @@ class DoctorRegisterController extends GetxController {
         }
         await authService.evaluateRouteAndNavigate();
       } else {
+        await authService.supabaseClient.rpc('delete_account_without_profile');
         if (!Get.isSnackbarOpen) {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
               title: 'Profile Creation Error'.tr,
-              message: 'Account created, but practice setup failed.'.tr,
+              message: 'Account creation failed during profile setup.'.tr,
             ),
           );
         }

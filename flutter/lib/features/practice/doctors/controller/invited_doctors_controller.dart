@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/invitation.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class InvitedDoctorsController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
+  PracticeDbService practiceDbService = Get.find<PracticeDbService>();
 
   ScrollController listScrollController = ScrollController();
 
@@ -55,7 +55,7 @@ class InvitedDoctorsController extends GetxController {
       return;
     }
 
-    final List<PracticeInvitation> invitations = await dbService
+    final List<PracticeInvitation> invitations = await practiceDbService
         .fetchInvitedDoctors(practiceId: practiceId);
 
     final List<Doctor> invitedDoctors = invitations

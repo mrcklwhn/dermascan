@@ -8,7 +8,7 @@ import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
 import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_capture_sheet.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_cutout_sheet.dart';
@@ -20,7 +20,7 @@ import 'package:get/get.dart';
 
 class DiagnosisMainController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
+  DoctorDbService doctorDbService = Get.find<DoctorDbService>();
 
   final BodyLesion lesion;
   final Patient patient;
@@ -173,7 +173,7 @@ class DiagnosisMainController extends GetxController {
 
   Future<void> fetchDoctorNames() async {
     for (final Diagnosis diagnosis in lesion.diagnoses) {
-      final Doctor? doctor = await dbService.fetchDoctor(
+      final Doctor? doctor = await doctorDbService.fetchDoctor(
         id: diagnosis.doctorId,
       );
       if (doctor == null) return;

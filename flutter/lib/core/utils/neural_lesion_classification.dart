@@ -24,8 +24,8 @@ class NeuralLesionClassification {
   //    return probs;
   //  }
 
-  Future<Map<String, dynamic>> run(cv.Mat image) async {
-    return rgbModel!.run(image);
+  Future<Map<String, dynamic>> run({required cv.Mat image}) async {
+    return rgbModel!.run(image: image);
   }
 
   //  Future<Map<String, dynamic>> runRGB(cv.Mat image) async {
@@ -119,12 +119,12 @@ abstract class NeuralModel {
     return _modelMetadata!;
   }
 
-  Future<Map<String, dynamic>> run(cv.Mat image) async {
+  Future<Map<String, dynamic>> run({required cv.Mat image}) async {
     if (_session == null) {
       await initializeModel();
     }
 
-    final Float32List inputData = _preprocess(image);
+    final Float32List inputData = _preprocess(image: image);
 
     final OrtValue inputTensor = await OrtValue.fromList(inputData, <int>[
       1,
@@ -153,7 +153,7 @@ abstract class NeuralModel {
     return result;
   }
 
-  Float32List _preprocess(cv.Mat image) {
+  Float32List _preprocess({required cv.Mat image}) {
     final cv.Mat rgbImage = cv.cvtColor(image, cv.COLOR_BGR2RGB);
     final cv.Mat resized = cv.resize(rgbImage, (
       224,

@@ -84,7 +84,7 @@ class DocumentationController extends GetxController {
     debugPrint('Clicked Link: $href');
   }
 
-  void openFeatureDetail(DocumentationFeature feature) {
+  void openFeatureDetail({required DocumentationFeature feature}) {
     Get.toNamed('/help/documentation/detail', arguments: feature);
   }
 
