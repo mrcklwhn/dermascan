@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dermascan/core/models/invitation.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/foundation.dart';
@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class InvitationsController extends GetxController {
-  DBService dbService = Get.find<DBService>();
+  PracticeDbService practiceDbService = Get.find<PracticeDbService>();
   AuthService authService = Get.find<AuthService>();
 
   ScrollController listScrollController = ScrollController();
@@ -59,7 +59,7 @@ class InvitationsController extends GetxController {
       return;
     }
 
-    final List<PracticeInvitation> fetchedInvitations = await dbService
+    final List<PracticeInvitation> fetchedInvitations = await practiceDbService
         .fetchInvitingPractices(doctorId: doctorId);
 
     pendingInvitations.assignAll(fetchedInvitations);
@@ -116,7 +116,7 @@ class InvitationsController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool success = await dbService.acceptPracticeInvitation(
+      final bool success = await practiceDbService.acceptPracticeInvitation(
         practiceId: practice.id,
       );
       if (success) {
@@ -168,9 +168,7 @@ class InvitationsController extends GetxController {
 
       submitText: 'Accept'.tr,
 
-      onSubmit: isLoading.value || isInitializing.value
-          ? null
-          : (_) async {
+      onSubmit: (_) async {
               await acceptPracticeInvitation(
                 practice: selectedInvitation.practice,
               );

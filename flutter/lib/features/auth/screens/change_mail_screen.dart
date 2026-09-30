@@ -13,54 +13,50 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Change E-Mail'.tr)),
-      body: ListView(
-        controller: controller.scrollController,
-        scrollDirection: Axis.vertical,
+      body: SingleChildScrollView(
         padding: AppTheme.scaffoldPadding,
-        children: <Widget>[
-          const CustomIcon(iconData: Icons.mail),
-          const SizedBox(height: AppTheme.spaceLarge),
-          CustomTextField(
-            textEditingController: controller.newEmailController,
-            focusNode: controller.newEmailFocusNode,
-            onSubmitted: (_) => controller.submitNewPassword(),
-            labelText: 'New E-Mail'.tr,
-            prefixIcon: Icons.mail,
-            textInputType: TextInputType.emailAddress,
-            checkCriteria: <CheckCriteria>[
-              CheckCriteria(
-                criteriaName: 'Correctly formatted'.tr,
-                criteriaState: controller.isValidEmail,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.spaceMedium),
-          CustomTextField(
-            textEditingController: controller.confirmNewEmailController,
-            focusNode: controller.confirmNewEmailFocusNode,
-            onSubmitted: controller.isLoading.value
-                ? (_) {}
-                : (_) => controller.submitChangedEmail(),
-            labelText: 'Confirm new E-Mail'.tr,
-            prefixIcon: Icons.mail,
-            textInputType: TextInputType.emailAddress,
-            checkCriteria: <CheckCriteria>[
-              CheckCriteria(
-                criteriaName: 'E-Mails match'.tr,
-                criteriaState: controller.emailsMatch,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.spaceLarge),
-          Obx(
-            () => ElevatedButton(
-              onPressed: controller.isLoading.value
-                  ? null
-                  : controller.submitChangedEmail,
-              child: Text('Submit'.tr),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            const CustomIcon(iconData: Icons.mail),
+            const SizedBox(height: AppTheme.spaceLarge),
+            CustomTextField(
+              textEditingController: controller.newEmailController,
+              focusNode: controller.newEmailFocusNode,
+              onSubmitted: (_) => controller.submitNewPassword(),
+              labelText: 'New E-Mail'.tr,
+              prefixIcon: Icons.mail,
+              textInputType: TextInputType.emailAddress,
+              checkCriteria: <CheckCriteria>[
+                CheckCriteria(
+                  criteriaName: 'Correctly formatted'.tr,
+                  criteriaState: controller.isValidEmail,
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: AppTheme.spaceMedium),
+            CustomTextField(
+              textEditingController: controller.confirmNewEmailController,
+              focusNode: controller.confirmNewEmailFocusNode,
+              onSubmitted: (_) => controller.submitChangedEmail(),
+              labelText: 'Confirm new E-Mail'.tr,
+              prefixIcon: Icons.mail,
+              textInputType: TextInputType.emailAddress,
+              checkCriteria: <CheckCriteria>[
+                CheckCriteria(
+                  criteriaName: 'E-Mails match'.tr,
+                  criteriaState: controller.emailsMatch,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.spaceLarge),
+            ElevatedButton(
+                onPressed: controller.submitChangedEmail,
+                child: Text('Submit'.tr),
+              ),
+
+          ],
+        ),
       ),
     );
   }

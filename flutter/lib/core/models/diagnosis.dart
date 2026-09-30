@@ -38,37 +38,37 @@ class Diagnosis {
 
   factory Diagnosis.fromJson(Map<String, dynamic> json) {
     return Diagnosis(
-      id: json['id'] as String,
+      id: json['diagnosis_id'] as String,
       notes: json['notes'] as String,
       date: DateTime.parse(json['date'] as String).toLocal(),
-      imagePath: json['imagePath'] as String,
-      lesionId: json['lesionId'] as String,
-      doctorId: json['doctorId'] as String,
+      imagePath: json['image_path'] as String,
+      lesionId: json['lesion_id'] as String,
+      doctorId: json['doctor_id'] as String,
       cutoutType: CutoutType.values.firstWhere(
-        (CutoutType type) => type.name == (json['cutoutType'] as String),
+        (CutoutType type) => type.name == (json['cutout_type'] as String),
       ),
-      aScore: json['aScore'] as double? ?? 0.0,
-      bScore: json['bScore'] as double? ?? 0.0,
-      cScore: json['cScore'] as double? ?? 0.0,
+      aScore: (json['a_score'] as num?)?.toDouble() ?? 0.0,
+      bScore: (json['b_score'] as num?)?.toDouble() ?? 0.0,
+      cScore: (json['c_score'] as num?)?.toDouble() ?? 0.0,
       analyzedImages: json['analyzedImages'] as Map<String, Uint8List?>?,
-      prediction: LesionType.values[json['prediction'] as int],
+      prediction: LesionType.values[(json['prediction'] as num).toInt()],
       confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': id,
+      'diagnosis_id': id,
       'notes': notes,
       'date': date.toIso8601String(),
-      'imagePath': imagePath,
-      'lesionId': lesionId,
-      'doctorId': doctorId,
-      'cutoutType': cutoutType.name,
-      'aScore': aScore,
-      'bScore': bScore,
-      'cScore': cScore,
-      'prediction': prediction,
+      'image_path': imagePath,
+      'lesion_id': lesionId,
+      'doctor_id': doctorId,
+      'cutout_type': cutoutType.name,
+      'a_score': aScore,
+      'b_score': bScore,
+      'c_score': cScore,
+      'prediction': prediction.index,
       'confidence': confidence,
     };
   }

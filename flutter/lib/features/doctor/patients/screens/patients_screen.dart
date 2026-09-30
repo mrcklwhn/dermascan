@@ -15,15 +15,12 @@ class PatientsScreen extends GetView<PatientsController> {
       appBar: AppBar(
         title: Text('Patients'.tr),
         actions: <Widget>[
-          Obx(
-            () => IconButton(
-              onPressed: controller.isInitializing.value
-                  ? null
-                  : controller.openAddNewPatientScreen,
+          IconButton(
+              onPressed: controller.openAddNewPatientScreen,
               icon: const Icon(Icons.person_add),
               tooltip: 'Add Patient'.tr,
             ),
-          ),
+
         ],
       ),
       body: SafeArea(
@@ -66,9 +63,7 @@ class PatientsScreen extends GetView<PatientsController> {
           const Spacer(),
           FilledButton.icon(
             icon: const Icon(Icons.person_add),
-            onPressed: controller.isInitializing.value
-                ? null
-                : controller.openAddNewPatientScreen,
+            onPressed: controller.openAddNewPatientScreen,
             label: Text('Add Patient'.tr),
           ),
         ],
@@ -116,9 +111,7 @@ class PatientsScreen extends GetView<PatientsController> {
                           subtitle: Text(
                             '${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}',
                           ),
-                          onTap: controller.isInitializing.value
-                              ? null
-                              : () => controller.openPatientProfile(
+                          onTap: () => controller.openPatientProfile(
                                   patientId: patient.id,
                                 ),
                         ),

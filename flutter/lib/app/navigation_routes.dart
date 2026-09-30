@@ -4,18 +4,21 @@ import 'package:dermascan/features/auth/bindings/auth_bindings.dart';
 import 'package:dermascan/features/auth/screens/change_mail_screen.dart';
 import 'package:dermascan/features/auth/screens/change_password_screen.dart';
 import 'package:dermascan/features/auth/screens/login/login_screen.dart';
+import 'package:dermascan/features/auth/screens/onboarding/onboarding_screen.dart';
 import 'package:dermascan/features/auth/screens/register/register_screen.dart';
 import 'package:dermascan/features/doctor/home/bindings/home_bindings.dart';
 import 'package:dermascan/features/doctor/home/screens/home_view.dart';
 import 'package:dermascan/features/doctor/init/bindings/init_bindings.dart';
 import 'package:dermascan/features/doctor/init/screens/init_screen.dart';
 import 'package:dermascan/features/doctor/init/screens/invitations_screen.dart';
+import 'package:dermascan/features/doctor/init/screens/key_import_screen.dart';
+import 'package:dermascan/features/doctor/init/screens/key_lock_screen.dart';
 import 'package:dermascan/features/doctor/patients/bindings/patients_bindings.dart';
 import 'package:dermascan/features/doctor/patients/screens/add_patient_screen.dart';
 import 'package:dermascan/features/doctor/patients/screens/edit_lesion_screen.dart';
 import 'package:dermascan/features/doctor/patients/screens/edit_patient_screen.dart';
 import 'package:dermascan/features/doctor/patients/screens/patient_details_screen.dart';
-import 'package:dermascan/features/doctor/patients/screens/pdf_export_lesion_list_screen.dart';
+import 'package:dermascan/features/doctor/patients/screens/pdf_export_screen.dart';
 import 'package:dermascan/features/help/bindings/help_bindings.dart';
 import 'package:dermascan/features/help/screens/documentation_feature_screen.dart';
 import 'package:dermascan/features/help/screens/documentation_screen.dart';
@@ -36,6 +39,11 @@ class NavigationRoutes {
       name: '/splash',
       page: () => SplashScreen(),
       binding: SplashBindings(),
+    ),
+    GetPage<dynamic>(
+      name: '/auth/onboarding',
+      page: () => const OnboardingScreen(),
+      binding: AuthBindings(),
     ),
     GetPage<dynamic>(
       name: '/auth/login',
@@ -80,6 +88,18 @@ class NavigationRoutes {
     GetPage<dynamic>(
       name: '/doctor/init',
       page: () => const DoctorInitScreen(),
+      binding: DoctorInitBindings(),
+      middlewares: <GetMiddleware>[AuthMiddleware(), DoctorMiddleware()],
+    ),
+    GetPage<dynamic>(
+      name: '/doctor/key-import',
+      page: () => const KeyImportScreen(),
+      binding: DoctorInitBindings(),
+      middlewares: <GetMiddleware>[AuthMiddleware(), DoctorMiddleware()],
+    ),
+    GetPage<dynamic>(
+      name: '/doctor/key-lock',
+      page: () => const KeyLockScreen(),
       binding: DoctorInitBindings(),
       middlewares: <GetMiddleware>[AuthMiddleware(), DoctorMiddleware()],
     ),

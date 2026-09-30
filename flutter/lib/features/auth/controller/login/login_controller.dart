@@ -1,46 +1,27 @@
 import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/services/auth_service.dart';
+import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController {
-  ScrollController scrollController = ScrollController();
+  final AuthService authService = Get.find<AuthService>();
+
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  final FocusNode emailFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
 
   Rx<AuthOption> currentSelectedAuthOption = AuthOption.doctor.obs;
-
   RxBool isLoading = false.obs;
-
-  @override
-  void onClose() {
-    scrollController.dispose();
-    super.onClose();
-  }
-
-  void changeCurrentSelectedAuthOption({required AuthOption newAuthOption}) {
-    if (currentSelectedAuthOption.value != newAuthOption) {
-      currentSelectedAuthOption.value = newAuthOption;
-    }
-  }
-
-  Future<void> navigateToRegister() async {
-    if (isLoading.value) return;
-
-    await Get.toNamed('/auth/register');
-  }
-
-  AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
-
-
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
-  FocusNode emailFocusNode = FocusNode();
-  FocusNode passwordFocusNode = FocusNode();
 
   @override
   void onClose() {
     emailController.dispose();
     passwordController.dispose();
+    emailFocusNode.dispose();
+    passwordFocusNode.dispose();
     super.onClose();
   }
 
@@ -68,10 +49,8 @@ class LoginController extends GetxController {
     isLoading.value = true;
 
     try {
-     
-
       final bool success = await authService.signIn(
-        email: emailController.text,
+        email: emailController.text.trim(),
         password: passwordController.text,
       );
 

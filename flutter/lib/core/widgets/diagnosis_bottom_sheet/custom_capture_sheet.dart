@@ -5,7 +5,7 @@ import 'package:dartcv4/dartcv.dart' as cv;
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/enums.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
@@ -19,7 +19,7 @@ import 'package:uuid/uuid.dart';
 class CaptureController extends GetxController {
   final DiagnosisMainController mainController;
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
+  LesionDbService lesionDbService = Get.find<LesionDbService>();
 
   final ImagePicker picker = ImagePicker();
   final RxBool isLoading = false.obs;
@@ -77,7 +77,7 @@ class CaptureController extends GetxController {
       final String storagePath =
           '$practiceId/${mainController.patient.id}/$currentDiagnosisId.jpg';
 
-      final String? imagePath = await dbService.uploadFile(
+      final String? imagePath = await lesionDbService.uploadFile(
         bucket: 'lesion_images',
         storagePath: storagePath,
         file: File(croppedFile.path),

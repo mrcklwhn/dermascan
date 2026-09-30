@@ -3,7 +3,8 @@ import 'package:dermascan/core/models/country.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
+import 'package:dermascan/core/services/db_service/patient_db_service.dart';
 import 'package:dermascan/core/widgets/country_selector_bottom_sheet.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +12,9 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class AddPatientController extends GetxController {
-  DBService dbService = Get.find<DBService>();
+  DoctorDbService doctorDbService = Get.find<DoctorDbService>();
+  PatientDbService patientDbService = Get.find<PatientDbService>();
   AuthService authService = Get.find<AuthService>();
-
-  ScrollController scrollController = ScrollController();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController birthdayController = TextEditingController();
@@ -46,11 +46,12 @@ class AddPatientController extends GetxController {
 
   @override
   void onClose() {
-    scrollController.dispose();
     nameController.dispose();
     birthdayController.dispose();
     currentCountryTextController.dispose();
     birthCountryTextController.dispose();
+    nameFocusNode.dispose();
+    emailFocusNode.dispose();
     super.onClose();
   }
 
@@ -130,7 +131,7 @@ class AddPatientController extends GetxController {
     isLoading.value = true;
 
     try {
-      final Practice? practiceOfDoctor = await dbService
+      final Practice? practiceOfDoctor = await doctorDbService
           .checkDoctorHasPractice();
 
       if (practiceOfDoctor == null) {
@@ -148,7 +149,7 @@ class AddPatientController extends GetxController {
         return;
       }
 
-      final Patient? createdPatient = await dbService.createPatientProfile(
+      final Patient? createdPatient = await patientDbService.createPatientProfile(
         name: nameController.text.trim(),
         gender: selectedGender!.name,
         dateOfBirth: dateOfBirth!,

@@ -54,9 +54,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
           Obx(
             () => FilledButton.icon(
               icon: const Icon(Icons.refresh),
-              onPressed: controller.isLoading.value
-                  ? null
-                  : controller.reloadInvitations,
+              onPressed: controller.reloadInvitations,
               label: Text('Refresh'.tr),
             ),
           ),
@@ -105,11 +103,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
                         subtitle: Text(
                           '${'Invited on'.tr} ${DateFormat('dd.MM.yyyy').format(invitation.createdAt)}',
                         ),
-                        onTap: () =>
-                            controller.isLoading.value ||
-                                controller.isInitializing.value
-                            ? null
-                            : controller.showPracticeJoinDialog(
+                        onTap: () => controller.showPracticeJoinDialog(
                                 practiceId: invitation.practice.id,
                               ),
                       ),

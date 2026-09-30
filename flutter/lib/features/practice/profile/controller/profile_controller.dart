@@ -1,19 +1,20 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
+import 'package:dermascan/core/services/encryption_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class PracticeProfileController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
-
-  ScrollController scrollController = ScrollController();
+  PracticeDbService practiceDbService = Get.find<PracticeDbService>();
 
   TextEditingController nameController = TextEditingController();
 
@@ -24,7 +25,6 @@ class PracticeProfileController extends GetxController {
 
   @override
   void onClose() {
-    scrollController.dispose();
     nameController.dispose();
     super.onClose();
   }
@@ -55,7 +55,7 @@ class PracticeProfileController extends GetxController {
 
     if (practiceId == null) return;
 
-    final Practice? fetchedPractice = await dbService.fetchPractice(
+    final Practice? fetchedPractice = await practiceDbService.fetchPractice(
       id: practiceId,
     );
 
@@ -93,7 +93,8 @@ class PracticeProfileController extends GetxController {
     isLoading.value = true;
 
     try {
-      final Practice? fetchedPractice = await dbService.changePracticeName(
+      final Practice? fetchedPractice = await practiceDbService.changePracticeName(
+        practiceId: authService.currentPractice.value!.id,
         newName: newName.trim(),
       );
 
@@ -147,6 +148,61 @@ class PracticeProfileController extends GetxController {
     if (isLoading.value || isInitializing.value) return;
 
     await Get.toNamed('/auth/change-password');
+  }
+
+  Future<void> openKeyExportDialog() async {
+    final EncryptionService encryptionService = Get.find<EncryptionService>();
+    final String? practiceId = authService.currentPractice.value?.id;
+    final String? practiceKey = await encryptionService.getPracticeKey(practiceId: practiceId ?? '');
+
+    if (practiceKey == null || practiceId == null) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Error'.tr,
+          message: 'Could not load practice key.'.tr,
+        ),
+      );
+      return;
+    }
+
+    final String qrData = jsonEncode(<String, String>{
+      'practice_id': practiceId,
+      'key': practiceKey,
+    });
+
+    await Get.dialog(
+      Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                'Export Practice Key'.tr,
+                style: Get.textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Show this QR code to new doctors to allow them to decrypt patient data.'.tr,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              QrImageView(
+                data: qrData,
+                version: QrVersions.auto,
+                size: 200.0,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Get.back(),
+                child: Text('Close'.tr),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> showLogoutDialog() async {

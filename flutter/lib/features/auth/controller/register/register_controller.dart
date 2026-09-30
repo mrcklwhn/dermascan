@@ -1,29 +1,23 @@
 import 'package:dermascan/app/enums.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RegisterController extends GetxController {
-  ScrollController scrollController = ScrollController();
-
   Rx<AuthOption> currentSelectedAuthOption = AuthOption.doctor.obs;
 
   RxBool isLoading = false.obs;
 
   @override
-  void onClose() {
-    scrollController.dispose();
-    super.onClose();
-  }
-
-  void changeCurrentSelectedAuthOption({required AuthOption newAuthOption}) {
-    if (currentSelectedAuthOption.value != newAuthOption) {
-      currentSelectedAuthOption.value = newAuthOption;
+  void onInit() {
+    super.onInit();
+    if (Get.arguments != null && Get.arguments is Map) {
+      final int? initialTabIndex = Get.arguments['initialTabIndex'] as int?;
+      if (initialTabIndex == 0) {
+        currentSelectedAuthOption.value = AuthOption.practice;
+      } else if (initialTabIndex == 1) {
+        currentSelectedAuthOption.value = AuthOption.doctor;
+      }
     }
   }
 
-  Future<void> navigateBackToLogin() async {
-    if (isLoading.value) return;
 
-    await Get.toNamed('/auth/login');
-  }
 }

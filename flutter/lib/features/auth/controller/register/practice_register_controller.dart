@@ -1,12 +1,14 @@
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
+import 'package:dermascan/core/services/encryption_service.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/features/auth/controller/register/register_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PracticeRegisterController extends GetxController {
-  DBService dbService = Get.find<DBService>();
+  PracticeDbService practiceDbService = Get.find<PracticeDbService>();
   AuthService authService = Get.find<AuthService>();
 
   RegisterController registerController;
@@ -68,7 +70,7 @@ class PracticeRegisterController extends GetxController {
   }
 
   void submittedName() {
-    nameFocusNode.unfocus();
+    emailFocusNode.requestFocus();
   }
 
   void submittedEmail() {
@@ -152,11 +154,25 @@ class PracticeRegisterController extends GetxController {
         return;
       }
 
-      final bool profileCreated = await dbService.createPracticeProfile(
+      // Generate E2EE key for the new practice
+      final EncryptionService encryptionService = Get.find<EncryptionService>();
+      final String practiceKey = encryptionService.generateKey();
+      
+      // Generate keyVerifier using EncryptionService
+      final String keyVerifier = encryptionService.generateKeyVerifier(base64Key: practiceKey);
+
+      final bool profileCreated = await practiceDbService.createPracticeProfile(
         name: nameController.text.trim(),
+        keyVerifier: keyVerifier,
       );
 
       if (profileCreated) {
+        // Save the key locally
+        final User? user = authService.supabaseClient.auth.currentUser;
+        if (user != null) {
+          await encryptionService.savePracticeKey(practiceId: user.id, base64Key: practiceKey);
+        }
+
         if (!Get.isSnackbarOpen) {
           Get.showSnackbar(
             CustomSnackBar(
@@ -168,12 +184,13 @@ class PracticeRegisterController extends GetxController {
         }
         await authService.evaluateRouteAndNavigate();
       } else {
+        await authService.supabaseClient.rpc('delete_account_without_profile');
         if (!Get.isSnackbarOpen) {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
               title: 'Profile Creation Error'.tr,
-              message: 'Account created, but practice setup failed.'.tr,
+              message: 'Account creation failed during practice setup.'.tr,
             ),
           );
         }

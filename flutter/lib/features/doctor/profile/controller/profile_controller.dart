@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/foundation.dart';
@@ -12,9 +13,8 @@ import 'package:get/get.dart';
 
 class DoctorProfileController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
-
-  ScrollController scrollController = ScrollController();
+  DoctorDbService doctorDbService = Get.find<DoctorDbService>();
+  PracticeDbService practiceDbService = Get.find<PracticeDbService>();
 
   TextEditingController nameController = TextEditingController();
 
@@ -25,7 +25,6 @@ class DoctorProfileController extends GetxController {
 
   @override
   void onClose() {
-    scrollController.dispose();
     nameController.dispose();
     super.onClose();
   }
@@ -55,7 +54,7 @@ class DoctorProfileController extends GetxController {
 
     if (doctorId == null) return;
 
-    final Doctor? fetchedDoctor = await dbService.fetchDoctor(id: doctorId);
+    final Doctor? fetchedDoctor = await doctorDbService.fetchDoctor(id: doctorId);
 
     if (fetchedDoctor == null) return;
 
@@ -69,7 +68,7 @@ class DoctorProfileController extends GetxController {
 
     if (practiceId == null) return;
 
-    final Practice? fetchedPractice = await dbService.fetchPractice(
+    final Practice? fetchedPractice = await practiceDbService.fetchPractice(
       id: practiceId,
     );
 
@@ -107,7 +106,8 @@ class DoctorProfileController extends GetxController {
     isLoading.value = true;
 
     try {
-      final Doctor? fetchedDoctor = await dbService.changeDoctorName(
+      final Doctor? fetchedDoctor = await doctorDbService.changeDoctorName(
+        doctorId: authService.currentDoctor.value!.id,
         newName: newName.trim(),
       );
 
@@ -164,7 +164,7 @@ class DoctorProfileController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool success = await dbService.leaveCurrentPractice(
+      final bool success = await practiceDbService.leaveCurrentPractice(
         doctorId: authService.currentDoctor.value!.id,
       );
       if (success) {

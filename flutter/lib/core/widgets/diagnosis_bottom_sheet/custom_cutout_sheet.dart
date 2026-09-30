@@ -5,7 +5,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/enums.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
@@ -16,7 +16,7 @@ import 'package:get/get.dart';
 class CutoutController extends GetxController {
   final DiagnosisMainController mainController;
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
+  LesionDbService lesionDbService = Get.find<LesionDbService>();
 
   final RxBool isLoading = false.obs;
 
@@ -90,7 +90,7 @@ class CutoutController extends GetxController {
   }
 
   Future<Diagnosis?> uploadDiagnosis({required Diagnosis diagnosis}) async {
-    final Diagnosis? newDiagnosis = await dbService.createDiagnosis(
+    final Diagnosis? newDiagnosis = await lesionDbService.createDiagnosis(
       diagnosis: diagnosis,
     );
 
@@ -115,7 +115,7 @@ class CutoutController extends GetxController {
       final String storagePath =
           '$practiceId/${mainController.patient.id}/${diagnosis.id}.jpg';
 
-      await dbService.deleteFile(
+      await lesionDbService.deleteFile(
         bucket: 'lesion_images',
         storagePath: storagePath,
       );
