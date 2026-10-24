@@ -1,0 +1,140 @@
+import { createClient } from "npm:@supabase/supabase-js@2.39.0";
+
+// --- Environment Variables ---
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error("Missing Supabase configuration.");
+}
+
+// --- Supabase Client (Service Role) ---
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+});
+
+// --- CORS Headers ---
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// --- Helper: Response ---
+const jsonResponse = (body: any, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+Deno.serve(async (req) => {
+  // 1. Handle CORS Preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return jsonResponse({ error: "No authorization header passed" }, 401);
+    }
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+
+    if (userError || !user) {
+      return jsonResponse({ error: "Invalid User Token" }, 401);
+    }
+
+    // 2. Parse Request Body
+    const { id: diagnosisId } = await req.json();
+
+    if (!diagnosisId) {
+      return jsonResponse({ error: "Diagnosis ID is required." }, 400);
+    }
+
+    // 3. Fetch Data & Validation
+    const { data: doctor, error: doctorError } = await supabase
+      .from('doctor')
+      .select('practiceid')
+      .eq('doctorid', user.id)
+      .maybeSingle();
+
+    if (doctorError || !doctor || !doctor.practiceid) {
+      return jsonResponse({ error: "Doctor not found or unauthorized." }, 403);
+    }
+
+    const { data: diagnosisInfo, error: fetchError } = await supabase
+      .from('diagnosis')
+      .select(`
+        diagnosisid,
+        imagepath,
+        lesion!inner (
+          patient!inner (
+            practiceid
+          )
+        )
+      `)
+      .eq('diagnosisid', diagnosisId)
+      .maybeSingle();
+
+    if (fetchError || !diagnosisInfo) {
+      return jsonResponse({ error: "Diagnosis not found." }, 404);
+    }
+
+    const patientPracticeId = (diagnosisInfo as any).lesion?.patient?.practiceid;
+
+    if (doctor.practiceid !== patientPracticeId) {
+      return jsonResponse({ error: "Unauthorized: Practice mismatch." }, 403);
+    }
+
+    // 4. Delete Database Record
+    const { error: deleteError } = await supabase
+      .from('diagnosis')
+      .delete()
+      .eq('diagnosisid', diagnosisId);
+
+    if (deleteError) {
+      return jsonResponse({ error: "Failed to delete diagnosis." }, 500);
+    }
+
+    // 5. Delete Image from Storage
+    let storageDeleted = false;
+    let storageWarning = null;
+    const imagePath = diagnosisInfo.imagepath;
+
+    if (imagePath) {
+      const segments = imagePath.split('/');
+      if (segments.length >= 2) {
+        const bucket = segments[0];
+        const storagePath = segments.slice(1).join('/');
+
+        const { error: storageError } = await supabase
+          .storage
+          .from(bucket)
+          .remove([storagePath]);
+
+        if (storageError) {
+          console.error("Storage Delete Error:", storageError);
+          storageWarning = "Diagnosis deleted, but failed to delete image file.";
+        } else {
+          storageDeleted = true;
+        }
+      }
+    }
+
+    // 6. Return Success
+    return jsonResponse({
+      success: true,
+      message: "Diagnosis successfully deleted.",
+      deletedId: diagnosisId,
+      imageDeleted: storageDeleted,
+      warning: storageWarning
+    }, 200);
+
+  } catch (e) {
+    console.error("Function Error:", e);
+    return jsonResponse({ error: "Internal Server Error" }, 500);
+  }
+});

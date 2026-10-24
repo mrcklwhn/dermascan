@@ -1,0 +1,146 @@
+import { createClient } from "npm:@supabase/supabase-js@2.39.0";
+
+// --- Environment Variables ---
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error("Missing Supabase configuration.");
+}
+
+// --- Supabase Client (Service Role) ---
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+  },
+});
+
+// --- CORS Headers ---
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// --- Helper: Response ---
+const jsonResponse = (body: any, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+Deno.serve(async (req) => {
+  // 1. Handle CORS Preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return jsonResponse({ error: "No authorization header passed" }, 401);
+    }
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+
+    if (userError || !user) {
+      return jsonResponse({ error: "Invalid User Token" }, 401);
+    }
+
+    // 2. Parse Request Body
+    const { patientId, locationName, normal, position, suspicious, wasRemoved, testResult, notes } = await req.json();
+
+    if (!patientId || !locationName || !normal || !position) {
+      return jsonResponse({ error: "PatientId, LocationName, Normal, Position are required." }, 400);
+    }
+
+    const doctorId = user.id;
+
+    // 3. Fetch Data & Validation
+    // Check Doctor and practice assignment
+    const { data: doctor, error: doctorError } = await supabase
+      .from('doctor')
+      .select('practiceid')
+      .eq('doctorid', doctorId)
+      .maybeSingle();
+
+    if (doctorError) {
+      console.error("DB Fetch Error (Doctor):", doctorError);
+      return jsonResponse({ error: "Database error fetching doctor." }, 500);
+    }
+    if (!doctor) {
+      return jsonResponse({ error: "Doctor not found." }, 404);
+    }
+    if (!doctor.practiceid) {
+      return jsonResponse({ error: "Doctor is not assigned to any practice." }, 403);
+    }
+
+    // Check Patient and practice assignment
+    const { data: patient, error: patientError } = await supabase
+      .from('patient')
+      .select('practiceid')
+      .eq('patientid', patientId)
+      .maybeSingle();
+
+    if (patientError) {
+      console.error("DB Fetch Error (Patient):", patientError);
+      return jsonResponse({ error: "Database error fetching patient." }, 500);
+    }
+    if (!patient) {
+      return jsonResponse({ error: "Patient not found." }, 404);
+    }
+
+    // Authorization Check: Same practice
+    if (doctor.practiceid !== patient.practiceid) {
+      return jsonResponse({ error: "Unauthorized: You can only create lesions for patients in your own practice." }, 403);
+    }
+
+    // 4. Execute Database Operation
+    const { data: newLesion, error: insertError } = await supabase
+      .from('lesion')
+      .insert([
+        {
+          normal: normal,
+          locationname: locationName,
+          position: position,
+          patientid: patientId,
+          suspicious: typeof suspicious === 'boolean' ? suspicious : false,
+          wasremoved: typeof wasRemoved === 'boolean' ? wasRemoved : false,
+          testresult: testResult ?? "",
+          notes: notes ?? ""
+        }
+      ])
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error("DB Insert Error:", insertError);
+      return jsonResponse({ error: "Failed to create lesion." }, 500);
+    }
+
+    // 5. Map DB fields to Dart Model
+    const mappedLesion = {
+      id: newLesion.lesionid,
+      locationName: newLesion.locationname,
+      normal: newLesion.normal,
+      position: newLesion.position,
+      patientId: newLesion.patientid,
+      suspicious: newLesion.suspicious,
+      wasRemoved: newLesion.wasremoved,
+      testResult: newLesion.testresult,
+      notes: newLesion.notes,
+      diagnoses: []
+    };
+
+    return jsonResponse(mappedLesion, 201);
+
+  } catch (e) {
+    console.error("Function Error:", e);
+    return jsonResponse({ error: "Internal Server Error" }, 500);
+  }
+});

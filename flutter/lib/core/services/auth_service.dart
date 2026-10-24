@@ -1,6 +1,8 @@
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/practice.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
+import 'package:dermascan/core/services/encryption_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,29 +23,38 @@ class AuthService extends GetxService {
     final User? user = supabaseClient.auth.currentUser;
 
     if (user == null) {
-      await Get.offAllNamed('/auth/login');
+      await Get.offAllNamed('/auth/onboarding');
       return;
     }
 
     try {
-      final DBService dbService = Get.find<DBService>();
-      final Doctor? doctorAccount = await dbService.fetchDoctor(id: user.id);
+      final DoctorDbService doctorDbService = Get.find<DoctorDbService>();
+      final PracticeDbService practiceDbService = Get.find<PracticeDbService>();
+      final Doctor? doctorAccount = await doctorDbService.fetchDoctor(id: user.id);
 
       if (doctorAccount != null) {
-        final Practice? practice = await dbService.checkDoctorHasPractice();
+        final Practice? practice = await doctorDbService.checkDoctorHasPractice();
 
         currentDoctor.value = doctorAccount;
         currentPractice.value = practice;
         hasPractice.value = (practice != null);
         isInitialDataLoaded.value = true;
 
-        await Get.offAllNamed(
-          hasPractice.value ? '/doctor/home' : '/doctor/init',
-        );
+        if (hasPractice.value) {
+          final EncryptionService encryptionService = Get.find<EncryptionService>();
+          final String? key = await encryptionService.getPracticeKey(practiceId: practice!.id);
+          if (key == null || !encryptionService.isValidKeyFormat(base64Key: key)) {
+            await Get.offAllNamed('/doctor/key-lock');
+            return;
+          }
+          await Get.offAllNamed('/doctor/home');
+        } else {
+          await Get.offAllNamed('/doctor/init');
+        }
         return;
       }
 
-      final Practice? practiceAccount = await dbService.fetchPractice(
+      final Practice? practiceAccount = await practiceDbService.fetchPractice(
         id: user.id,
       );
 
@@ -57,12 +68,12 @@ class AuthService extends GetxService {
       }
 
       isInitialDataLoaded.value = true;
-      await Get.offAllNamed('/auth/login');
+      await Get.offAllNamed('/auth/onboarding');
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error during navigation: $e! Redirecting to /auth');
       }
-      await Get.offAllNamed('/auth/login');
+      await Get.offAllNamed('/auth/onboarding');
     }
   }
 
@@ -87,7 +98,7 @@ class AuthService extends GetxService {
     ever(currentUser, (User? user) {
       if (user == null) {
         // Force navigation to auth on logout or session expiry.
-        Get.offAllNamed('/auth/login');
+        Get.offAllNamed('/auth/onboarding');
       }
       // Note: Forward navigation (Login) is handled by SplashController
       // to avoid race conditions during app startup.

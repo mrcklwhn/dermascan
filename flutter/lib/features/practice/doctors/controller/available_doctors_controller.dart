@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/invitation.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AvailableDoctorsController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
+  DoctorDbService doctorDbService = Get.find<DoctorDbService>();
+  PracticeDbService practiceDbService = Get.find<PracticeDbService>();
 
   ScrollController listScrollController = ScrollController();
 
@@ -49,7 +51,7 @@ class AvailableDoctorsController extends GetxController {
   }
 
   Future<void> loadAvailableDoctors() async {
-    final List<Doctor> availableDoctors = await dbService.fetchDoctors(
+    final List<Doctor> availableDoctors = await doctorDbService.fetchDoctors(
       practiceId: null,
     );
 
@@ -68,7 +70,7 @@ class AvailableDoctorsController extends GetxController {
 
     if (practiceId == null) return <Doctor>[];
 
-    final List<PracticeInvitation> invitations = await dbService
+    final List<PracticeInvitation> invitations = await practiceDbService
         .fetchInvitedDoctors(practiceId: practiceId);
 
     final Set<String> invitedDoctorIds = invitations

@@ -33,41 +33,37 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
     final User? user = controller.authService.currentUser.value;
     final Doctor? doctor = controller.authService.currentDoctor.value;
 
-    return ListView(
-      controller: controller.scrollController,
+    return SingleChildScrollView(
       padding: AppTheme.scaffoldPadding,
-      children: <Widget>[
-        const CustomIcon(iconData: Icons.person),
-        const SizedBox(height: AppTheme.spaceLarge),
-
-        Text(
-          'Personal Information'.tr,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-
-        const SizedBox(height: AppTheme.spaceSmall),
-        CustomTextField(
-          textEditingController: controller.nameController,
-          focusNode: controller.nameFocusNode,
-          onSubmitted:
-              controller.isInitializing.value || controller.isLoading.value
-              ? (_) {}
-              : (String value) => controller.submitName(newName: value),
-          labelText: 'Name'.tr,
-          prefixIcon: Icons.person,
-          textInputType: TextInputType.name,
-        ),
-        const SizedBox(height: AppTheme.spaceSmall),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.calendar_month),
-            title: Text('Date of Birth'.tr),
-            subtitle: doctor == null
-                ? Text('Not available'.tr)
-                : Text(DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          const CustomIcon(iconData: Icons.person),
+          const SizedBox(height: AppTheme.spaceLarge),
+          Text(
+            'Doctor Information'.tr,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-        ),
-        const SizedBox(height: AppTheme.spaceMedium),
+          const SizedBox(height: AppTheme.spaceSmall),
+          CustomTextField(
+            textEditingController: controller.nameController,
+            focusNode: controller.nameFocusNode,
+            onSubmitted: (String value) => controller.submitName(newName: value),
+            labelText: 'Name'.tr,
+            prefixIcon: Icons.person,
+            textInputType: TextInputType.name,
+          ),
+          const SizedBox(height: AppTheme.spaceSmall),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.calendar_month),
+              title: Text('Date of Birth'.tr),
+              subtitle: doctor == null
+                  ? Text('Not available'.tr)
+                  : Text(DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)),
+            ),
+          ),
+          const SizedBox(height: AppTheme.spaceMedium),
 
         Text(
           'Practice Details'.tr,
@@ -76,75 +72,65 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
 
         const SizedBox(height: AppTheme.spaceSmall),
 
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.local_hospital),
-            title: Text('Current Practice'.tr),
-            subtitle: practice == null
-                ? Text('Not available'.tr)
-                : Text(
-                    '${'Name'.tr}: ${practice.name}\n${'E-Mail'.tr}: ${practice.email}',
-                  ),
-            trailing: const Icon(Icons.logout),
-            onTap: controller.isInitializing.value || controller.isLoading.value
-                ? null
-                : controller.showLeavePracticeDialog,
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.local_hospital),
+              title: Text('Current Practice'.tr),
+              subtitle: practice == null
+                  ? Text('Not available'.tr)
+                  : Text(
+                '${'Name'.tr}: ${practice.name}\n${'E-Mail'.tr}: ${practice.email}',
+              ),
+              trailing: const Icon(Icons.logout),
+              onTap: controller.showLeavePracticeDialog,
+            ),
           ),
-        ),
-        const SizedBox(height: AppTheme.spaceMedium),
-
-        Text(
-          'Security & Account'.tr,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-
-        const SizedBox(height: AppTheme.spaceSmall),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.mail),
-            title: Text('Change E-Mail'.tr),
-            subtitle: Text(_buildEmailText(user)),
-            trailing: const Icon(Icons.arrow_forward),
-            onTap: controller.isInitializing.value || controller.isLoading.value
-                ? null
-                : controller.openChangeEmailScreen,
+          const SizedBox(height: AppTheme.spaceMedium),
+          Text(
+            'Security & Account'.tr,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-        ),
-        const SizedBox(height: AppTheme.spaceSmall),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.password),
-            title: Text('Change Password'.tr),
-            trailing: const Icon(Icons.arrow_forward),
-            onTap: controller.isInitializing.value || controller.isLoading.value
-                ? null
-                : controller.openChangePasswordScreen,
+          const SizedBox(height: AppTheme.spaceSmall),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.mail),
+              title: Text('Change E-Mail'.tr),
+              subtitle: Text(_buildEmailText(user)),
+              trailing: const Icon(Icons.arrow_forward),
+              onTap: controller.openChangeEmailScreen,
+            ),
           ),
-        ),
-        const SizedBox(height: AppTheme.spaceMedium),
-        Text(
-          'Help & Documentation'.tr,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: AppTheme.spaceSmall),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.description),
-            title: Text('Documentation'.tr),
-            trailing: const Icon(Icons.arrow_forward),
-            onTap: controller.openDocumentationScreen,
+          const SizedBox(height: AppTheme.spaceSmall),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.password),
+              title: Text('Change Password'.tr),
+              trailing: const Icon(Icons.arrow_forward),
+              onTap: controller.openChangePasswordScreen,
+            ),
           ),
-        ),
-        const SizedBox(height: AppTheme.spaceLarge),
-        OutlinedButton.icon(
-          onPressed:
-              controller.isInitializing.value || controller.isLoading.value
-              ? null
-              : controller.showLogoutDialog,
-          icon: const Icon(Icons.logout),
-          label: Text('Logout'.tr),
-        ),
-      ],
+          const SizedBox(height: AppTheme.spaceMedium),
+          Text(
+            'Help & Documentation'.tr,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: AppTheme.spaceSmall),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.description),
+              title: Text('Documentation'.tr),
+              trailing: const Icon(Icons.arrow_forward),
+              onTap: controller.openDocumentationScreen,
+            ),
+          ),
+          const SizedBox(height: AppTheme.spaceLarge),
+          OutlinedButton.icon(
+            onPressed: controller.showLogoutDialog,
+            icon: const Icon(Icons.logout),
+            label: Text('Logout'.tr),
+          ),
+        ],
+      ),
     );
   }
 

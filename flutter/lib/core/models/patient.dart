@@ -35,39 +35,39 @@ class Patient {
 
   factory Patient.fromJson(Map<String, dynamic> json) {
     return Patient(
-      id: json['id'] as String,
+      id: json['patient_id'] as String,
       name: json['name'] as String,
-      dateOfBirth: DateTime.parse(json['dateOfBirth'] as String),
+      dateOfBirth: DateTime.parse(json['date_of_birth'] as String),
       gender: Gender.values.byName(json['gender'] as String),
-      practiceId: json['practiceId'] as String,
-      birthCountry: json['birthCountry'] as String,
-      currentCountry: json['currentCountry'] as String,
-      tanningBedExposure: json['tanningBedExposure'] as bool,
-      previousSkinSurgeries: json['previousSkinSurgeries'] as bool,
-      previousSunburns: json['previousSunburns'] as bool,
-      previousCancerSurgeries: json['previousCancerSurgeries'] as bool,
-      sunscreenUse: json['sunscreenUse'] as bool,
-      personalHistoryMelanoma: json['personalHistoryMelanoma'] as bool,
-      familyHistoryMelanoma: json['familyHistoryMelanoma'] as bool,
+      practiceId: json['practice_id'] as String,
+      birthCountry: json['birth_country'] as String,
+      currentCountry: json['current_country'] as String,
+      tanningBedExposure: json['tanning_bed_exposure'] as bool,
+      previousSkinSurgeries: json['previous_skin_surgeries'] as bool,
+      previousSunburns: json['previous_sunburns'] as bool,
+      previousCancerSurgeries: json['previous_cancer_surgeries'] as bool,
+      sunscreenUse: json['sunscreen_use'] as bool,
+      personalHistoryMelanoma: json['personal_history_melanoma'] as bool,
+      familyHistoryMelanoma: json['family_history_melanoma'] as bool,
     );
   }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': id,
+      'patient_id': id,
       'name': name,
-      'dateOfBirth': dateOfBirth.toIso8601String(),
+      'date_of_birth': dateOfBirth.toIso8601String(),
       'gender': gender.name,
-      'practiceId': practiceId,
-      'birthCountry': birthCountry,
-      'currentCountry': currentCountry,
-      'tanningBedExposure': tanningBedExposure,
-      'previousSkinSurgeries': previousSkinSurgeries,
-      'previousSunburns': previousSunburns,
-      'previousCancerSurgeries': previousCancerSurgeries,
-      'sunscreenUse': sunscreenUse,
-      'personalHistoryMelanoma': personalHistoryMelanoma,
-      'familyHistoryMelanoma': familyHistoryMelanoma,
+      'practice_id': practiceId,
+      'birth_country': birthCountry,
+      'current_country': currentCountry,
+      'tanning_bed_exposure': tanningBedExposure,
+      'previous_skin_surgeries': previousSkinSurgeries,
+      'previous_sunburns': previousSunburns,
+      'previous_cancer_surgeries': previousCancerSurgeries,
+      'sunscreen_use': sunscreenUse,
+      'personal_history_melanoma': personalHistoryMelanoma,
+      'family_history_melanoma': familyHistoryMelanoma,
     };
   }
 }

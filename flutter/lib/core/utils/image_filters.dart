@@ -7,7 +7,7 @@ class ImageFilters {
   static List<_ComplexKernel>? _gaborKernels;
   static List<_ComplexKernelMat>? _gaborKernelMats;
 
-  static Float32List gaborFilter(cv.Mat image) {
+  static Float32List gaborFilter({required cv.Mat image}) {
     _gaborKernelMats ??= _buildDefaultGaborKernelMats();
 
     final cv.Mat grayU8 = _toGrayMatU8(image);
@@ -77,7 +77,7 @@ class ImageFilters {
     return gaborMap;
   }
 
-  static Float32List glcmFilter(cv.Mat image) {
+  static Float32List glcmFilter({required cv.Mat image}) {
     const int win = 21;
     const int stride = 8;
     const int levels = 8;

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/foundation.dart';
@@ -11,7 +11,7 @@ import 'package:get/get.dart';
 
 class DoctorDetailsController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
+  PracticeDbService practiceDbService = Get.find<PracticeDbService>();
 
   ScrollController scrollController = ScrollController();
 
@@ -80,7 +80,7 @@ class DoctorDetailsController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool success = await dbService.inviteDoctorToPractice(
+      final bool success = await practiceDbService.inviteDoctorToPractice(
         practiceId: practiceId,
         doctorId: doctor.id,
       );
@@ -163,7 +163,7 @@ class DoctorDetailsController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool success = await dbService.revokePracticeInvitation(
+      final bool success = await practiceDbService.revokePracticeInvitation(
         practiceId: practiceId,
         doctorId: doctor.id,
       );
@@ -251,7 +251,7 @@ class DoctorDetailsController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool success = await dbService.leaveCurrentPractice(
+      final bool success = await practiceDbService.leaveCurrentPractice(
         doctorId: doctor.id,
       );
 

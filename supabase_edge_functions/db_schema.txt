@@ -1,0 +1,388 @@
+-- ============================================================
+-- DERMASCAN COMPLETE DATABASE & SECURITY SCHEMA (E2EE READY)
+-- ============================================================
+
+-- 1. CLEANUP OLD TABLES & TRIGGERS (CLEAN INSTALL)
+DROP TRIGGER IF EXISTS on_auth_user_email_update ON auth.users;
+DROP FUNCTION IF EXISTS public.handle_user_email_update();
+
+DROP TABLE IF EXISTS public.practice_invitation CASCADE;
+DROP TABLE IF EXISTS public.diagnosis CASCADE;
+DROP TABLE IF EXISTS public.lesion CASCADE;
+DROP TABLE IF EXISTS public.patient CASCADE;
+DROP TABLE IF EXISTS public.doctor CASCADE;
+DROP TABLE IF EXISTS public.practice CASCADE;
+
+-- 2. PRACTICE (Practice / Tenant)
+CREATE TABLE public.practice (
+  practice_id uuid NOT NULL,
+  name text NOT NULL,
+  email text NOT NULL UNIQUE,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT practice_pkey PRIMARY KEY (practice_id),
+  CONSTRAINT practice_user_fkey FOREIGN KEY (practice_id) REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+-- 3. DOCTOR (Doctor Profile)
+CREATE TABLE public.doctor (
+  doctor_id uuid NOT NULL,
+  name text NOT NULL,
+  date_of_birth date NOT NULL,
+  gender text NOT NULL CHECK (gender IN ('male', 'female', 'divers', 'undefined')),
+  practice_id uuid,
+  email text NOT NULL UNIQUE,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT doctor_pkey PRIMARY KEY (doctor_id),
+  CONSTRAINT doctor_user_fkey FOREIGN KEY (doctor_id) REFERENCES auth.users(id) ON DELETE CASCADE,
+  CONSTRAINT doctor_practice_fkey FOREIGN KEY (practice_id) REFERENCES public.practice(practice_id) ON DELETE SET NULL
+);
+
+-- 4. PATIENT (E2EE Encrypted Patient Record)
+-- All sensitive fields (name, date_of_birth, gender, birth_country, current_country) are defined as text (ENC:...)
+CREATE TABLE public.patient (
+  patient_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  practice_id uuid NOT NULL,
+  name text NOT NULL,
+  date_of_birth text NOT NULL,
+  gender text NOT NULL,
+  birth_country text NOT NULL,
+  current_country text NOT NULL,
+  tanning_bed_exposure boolean NOT NULL DEFAULT false,
+  previous_skin_surgeries boolean NOT NULL DEFAULT false,
+  previous_sunburns boolean NOT NULL DEFAULT false,
+  sunscreen_use boolean NOT NULL DEFAULT false,
+  personal_history_melanoma boolean NOT NULL DEFAULT false,
+  family_history_melanoma boolean NOT NULL DEFAULT false,
+  previous_cancer_surgeries boolean NOT NULL DEFAULT false,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT patient_pkey PRIMARY KEY (patient_id),
+  CONSTRAINT patient_practice_fkey FOREIGN KEY (practice_id) REFERENCES public.practice(practice_id) ON DELETE CASCADE
+);
+
+-- 5. LESION (E2EE Encrypted Lesions)
+-- location_name, position, normal, test_result, notes are defined as text (ENC:...)
+CREATE TABLE public.lesion (
+  lesion_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  patient_id uuid NOT NULL,
+  suspicious boolean NOT NULL DEFAULT false,
+  normal text NOT NULL DEFAULT ''::text,
+  position text NOT NULL DEFAULT ''::text,
+  location_name text NOT NULL DEFAULT ''::text,
+  was_removed boolean NOT NULL DEFAULT false,
+  test_result text NOT NULL DEFAULT ''::text,
+  notes text NOT NULL DEFAULT ''::text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT lesion_pkey PRIMARY KEY (lesion_id),
+  CONSTRAINT lesion_patient_fkey FOREIGN KEY (patient_id) REFERENCES public.patient(patient_id) ON DELETE CASCADE
+);
+
+-- 6. DIAGNOSIS (Diagnoses, AI Results & E2EE Notes)
+CREATE TABLE public.diagnosis (
+  diagnosis_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  lesion_id uuid NOT NULL,
+  doctor_id uuid NOT NULL,
+  date timestamp with time zone NOT NULL,
+  image_path text NOT NULL,
+  prediction numeric NOT NULL,
+  confidence numeric NOT NULL DEFAULT 0.01,
+  a_score numeric NOT NULL DEFAULT 0.0,
+  b_score numeric NOT NULL DEFAULT 0.0,
+  c_score numeric NOT NULL DEFAULT 0.0,
+  cutout_type text NOT NULL,
+  notes text NOT NULL DEFAULT ''::text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT diagnosis_pkey PRIMARY KEY (diagnosis_id),
+  CONSTRAINT diagnosis_doctor_fkey FOREIGN KEY (doctor_id) REFERENCES public.doctor(doctor_id) ON DELETE SET NULL,
+  CONSTRAINT diagnosis_lesion_fkey FOREIGN KEY (lesion_id) REFERENCES public.lesion(lesion_id) ON DELETE CASCADE
+);
+
+-- 7. PRACTICE INVITATION (Team Invitations)
+CREATE TABLE public.practice_invitation (
+  invitation_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  practice_id uuid NOT NULL,
+  doctor_id uuid NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT practice_invitation_pkey PRIMARY KEY (invitation_id),
+  CONSTRAINT practice_invitation_practice_fkey FOREIGN KEY (practice_id) REFERENCES public.practice(practice_id) ON DELETE CASCADE,
+  CONSTRAINT practice_invitation_doctor_fkey FOREIGN KEY (doctor_id) REFERENCES public.doctor(doctor_id) ON DELETE CASCADE
+);
+
+-- 8. PERFORMANCE INDEXES
+CREATE INDEX idx_doctor_practice_id ON public.doctor(practice_id);
+CREATE INDEX idx_patient_practice_id ON public.patient(practice_id);
+CREATE INDEX idx_lesion_patient_id ON public.lesion(patient_id);
+CREATE INDEX idx_diagnosis_lesion_id ON public.diagnosis(lesion_id);
+CREATE INDEX idx_diagnosis_doctor_id ON public.diagnosis(doctor_id);
+CREATE INDEX idx_invitation_practice_id ON public.practice_invitation(practice_id);
+CREATE INDEX idx_invitation_doctor_id ON public.practice_invitation(doctor_id);
+
+-- 9. ENABLE ROW LEVEL SECURITY (RLS)
+ALTER TABLE public.practice ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.doctor ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.patient ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lesion ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.diagnosis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.practice_invitation ENABLE ROW LEVEL SECURITY;
+
+-- 10. RLS POLICIES FOR PRACTICE & DOCTOR
+CREATE POLICY "Allow practice insert" ON public.practice FOR INSERT WITH CHECK (auth.uid() = practice_id);
+CREATE POLICY "Allow practice select" ON public.practice FOR SELECT USING (true);
+CREATE POLICY "Allow practice update" ON public.practice FOR UPDATE USING (auth.uid() = practice_id) WITH CHECK (auth.uid() = practice_id);
+CREATE POLICY "Allow practice delete" ON public.practice FOR DELETE USING (auth.uid() = practice_id);
+
+CREATE POLICY "Allow doctor insert" ON public.doctor FOR INSERT WITH CHECK (auth.uid() = doctor_id);
+CREATE POLICY "Allow doctor select" ON public.doctor FOR SELECT USING (true);
+CREATE POLICY "Allow doctor update" ON public.doctor FOR UPDATE USING (auth.uid() = doctor_id) WITH CHECK (auth.uid() = doctor_id);
+CREATE POLICY "Allow doctor delete" ON public.doctor FOR DELETE USING (auth.uid() = doctor_id);
+
+-- 11. RLS POLICIES FOR PATIENT, LESION, DIAGNOSIS
+CREATE POLICY "Allow practice and doctors to manage patients"
+  ON public.patient FOR ALL
+  USING (
+    practice_id = auth.uid()
+    OR practice_id IN (SELECT practice_id FROM public.doctor WHERE doctor_id = auth.uid())
+  )
+  WITH CHECK (
+    practice_id = auth.uid()
+    OR practice_id IN (SELECT practice_id FROM public.doctor WHERE doctor_id = auth.uid())
+  );
+
+CREATE POLICY "Allow practice and doctors to manage lesions"
+  ON public.lesion FOR ALL
+  USING (
+    patient_id IN (
+      SELECT patient_id FROM public.patient
+      WHERE practice_id = auth.uid()
+         OR practice_id IN (SELECT practice_id FROM public.doctor WHERE doctor_id = auth.uid())
+    )
+  )
+  WITH CHECK (
+    patient_id IN (
+      SELECT patient_id FROM public.patient
+      WHERE practice_id = auth.uid()
+         OR practice_id IN (SELECT practice_id FROM public.doctor WHERE doctor_id = auth.uid())
+    )
+  );
+
+CREATE POLICY "Allow practice and doctors to manage diagnosis"
+  ON public.diagnosis FOR ALL
+  USING (
+    lesion_id IN (
+      SELECT lesion_id FROM public.lesion
+      WHERE patient_id IN (
+        SELECT patient_id FROM public.patient
+        WHERE practice_id = auth.uid()
+           OR practice_id IN (SELECT practice_id FROM public.doctor WHERE doctor_id = auth.uid())
+      )
+    )
+  )
+  WITH CHECK (
+    lesion_id IN (
+      SELECT lesion_id FROM public.lesion
+      WHERE patient_id IN (
+        SELECT patient_id FROM public.patient
+        WHERE practice_id = auth.uid()
+           OR practice_id IN (SELECT practice_id FROM public.doctor WHERE doctor_id = auth.uid())
+      )
+    )
+  );
+
+CREATE POLICY "Allow practice and doctors to manage invitations"
+  ON public.practice_invitation FOR ALL
+  USING (
+    practice_id = auth.uid()
+    OR doctor_id = auth.uid()
+  )
+  WITH CHECK (
+    practice_id = auth.uid()
+    OR doctor_id = auth.uid()
+  );
+
+-- 12. SUPABASE STORAGE BUCKET & RLS POLICIES FOR ENCRYPTED IMAGES
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('lesion_images', 'lesion_images', false)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Allow authenticated users to upload lesion images"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'lesion_images');
+
+CREATE POLICY "Allow authenticated users to read lesion images"
+  ON storage.objects FOR SELECT TO authenticated
+  USING (bucket_id = 'lesion_images');
+
+CREATE POLICY "Allow authenticated users to delete lesion images"
+  ON storage.objects FOR DELETE TO authenticated
+  USING (bucket_id = 'lesion_images');
+
+CREATE POLICY "Allow authenticated users to update lesion images"
+  ON storage.objects FOR UPDATE TO authenticated
+  USING (bucket_id = 'lesion_images')
+  WITH CHECK (bucket_id = 'lesion_images');
+
+
+-- 13. AUTH EMAIL SYNCHRONIZATION (TRIGGER & FUNCTION)
+CREATE OR REPLACE FUNCTION public.handle_user_email_update()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  UPDATE public.doctor 
+  SET email = NEW.email 
+  WHERE doctor_id = NEW.id;
+
+  UPDATE public.practice 
+  SET email = NEW.email 
+  WHERE practice_id = NEW.id;
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_auth_user_email_update
+  AFTER UPDATE OF email ON auth.users
+  FOR EACH ROW
+  WHEN (old.email IS DISTINCT FROM new.email)
+  EXECUTE PROCEDURE public.handle_user_email_update();
+  
+
+-- ============================================================
+-- 14. EXTENSIONS FOR DIRECT CLIENT QUERIES (REPLACES ALL EDGE FUNCTIONS)
+-- ============================================================
+
+-- 14.1 Practice E2EE Key Verifier
+-- AES-256-GCM cipher of a known plaintext. Contains NO key material,
+-- but allows devices to verify if an imported practice key is valid.
+ALTER TABLE public.practice ADD COLUMN key_verifier text NOT NULL;
+
+-- 14.2 Prevent duplicate invitations
+ALTER TABLE public.practice_invitation
+  ADD CONSTRAINT practice_invitation_unique UNIQUE (practice_id, doctor_id);
+
+-- 14.3 Invitations can only be created by the practice itself and only for unassigned doctors
+CREATE OR REPLACE FUNCTION public.guard_practice_invitation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  IF NEW.practice_id IS DISTINCT FROM auth.uid() THEN
+    RAISE EXCEPTION 'Only the practice itself can manage its invitations.' USING ERRCODE = '42501';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM public.doctor
+    WHERE doctor_id = NEW.doctor_id AND practice_id IS NOT NULL
+  ) THEN
+    RAISE EXCEPTION 'Doctor is already assigned to a practice.' USING ERRCODE = '23514';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_practice_invitation_write
+  BEFORE INSERT OR UPDATE ON public.practice_invitation
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.guard_practice_invitation();
+
+-- 14.4 A doctor can only join a practice via a valid invitation
+CREATE OR REPLACE FUNCTION public.guard_doctor_practice_assignment()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  IF NEW.practice_id IS NOT NULL
+     AND (TG_OP = 'INSERT' OR NEW.practice_id IS DISTINCT FROM OLD.practice_id)
+     AND NOT EXISTS (
+       SELECT 1 FROM public.practice_invitation
+       WHERE practice_id = NEW.practice_id AND doctor_id = NEW.doctor_id
+     ) THEN
+    RAISE EXCEPTION 'A practice can only be joined by accepting an invitation.' USING ERRCODE = '42501';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_doctor_practice_assignment
+  BEFORE INSERT OR UPDATE OF practice_id ON public.doctor
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.guard_doctor_practice_assignment();
+
+-- 14.5 Accept invitation (atomic: assign practice + delete invitation)
+CREATE OR REPLACE FUNCTION public.accept_practice_invitation(p_practice_id uuid)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM public.practice_invitation
+    WHERE practice_id = p_practice_id AND doctor_id = auth.uid()
+  ) THEN
+    RETURN false;
+  END IF;
+
+  UPDATE public.doctor
+  SET practice_id = p_practice_id
+  WHERE doctor_id = auth.uid() AND practice_id IS NULL;
+
+  IF NOT FOUND THEN
+    RETURN false;
+  END IF;
+
+  DELETE FROM public.practice_invitation
+  WHERE practice_id = p_practice_id AND doctor_id = auth.uid();
+
+  RETURN true;
+END;
+$$;
+
+-- 14.6 Remove doctor from practice (by the doctor themselves or by the associated practice)
+CREATE OR REPLACE FUNCTION public.remove_doctor_from_practice(p_doctor_id uuid)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  UPDATE public.doctor
+  SET practice_id = NULL
+  WHERE doctor_id = p_doctor_id
+    AND practice_id IS NOT NULL
+    AND (doctor_id = auth.uid() OR practice_id = auth.uid());
+
+  RETURN FOUND;
+END;
+$$;
+
+-- 14.7 Registration rollback: deletes own Auth account only if no profile exists yet
+CREATE OR REPLACE FUNCTION public.delete_account_without_profile()
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public, auth
+AS $$
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RETURN false;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM public.doctor WHERE doctor_id = auth.uid())
+     OR EXISTS (SELECT 1 FROM public.practice WHERE practice_id = auth.uid()) THEN
+    RETURN false;
+  END IF;
+
+  DELETE FROM auth.users WHERE id = auth.uid();
+
+  RETURN FOUND;
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.accept_practice_invitation(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.remove_doctor_from_practice(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.delete_account_without_profile() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.accept_practice_invitation(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.remove_doctor_from_practice(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.delete_account_without_profile() TO authenticated;

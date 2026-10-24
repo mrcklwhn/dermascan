@@ -7,7 +7,7 @@ import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,7 @@ import 'package:share_plus/share_plus.dart';
 
 class PdfExportController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
+  PracticeDbService practiceDbService = Get.find<PracticeDbService>();
 
   ScrollController scrollController = ScrollController();
 
@@ -35,6 +35,12 @@ class PdfExportController extends GetxController {
   late RxList<BodyLesion> lesions;
 
   RxMap<String, Diagnosis> selectedDiagnoses = <String, Diagnosis>{}.obs;
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
 
   @override
   void onInit() {
@@ -96,7 +102,10 @@ class PdfExportController extends GetxController {
 
   // selection management
 
-  void toggleDiagnosisSelection(BodyLesion lesion, Diagnosis diagnosis) {
+  void toggleDiagnosisSelection({
+    required BodyLesion lesion,
+    required Diagnosis diagnosis,
+  }) {
     final String key = '${lesion.id}_${diagnosis.id}';
     if (selectedDiagnoses.containsKey(key)) {
       selectedDiagnoses.remove(key);
@@ -105,7 +114,12 @@ class PdfExportController extends GetxController {
     }
   }
 
-  void toggleAllDiagnosesForLesion(BodyLesion lesion) {
+  void toggleAllDiagnosesForLesion({required BodyLesion lesion}) {
+
+    if(isLoading.value) {
+      return;
+    }
+
     final bool allSelected =
         getSelectedDiagnosesCount(lesion) ==
         getTotalDiagnosesCountPerLesion(lesion);
@@ -124,6 +138,11 @@ class PdfExportController extends GetxController {
   // PDF generation
 
   Future<void> exportPDF() async {
+
+    if(isExporting.value || isExportable() == false) {
+      return;
+    }
+
     try {
       isExporting.value = true;
 
@@ -136,7 +155,7 @@ class PdfExportController extends GetxController {
         throw Exception();
       }
 
-      final Practice? currentPractice = await dbService.fetchPractice(
+      final Practice? currentPractice = await practiceDbService.fetchPractice(
         id: currentDoctor.practiceId!,
       );
 
@@ -235,7 +254,7 @@ class PdfExportController extends GetxController {
       children: <pw.Widget>[
         pw.Text(
           'Patient Data',
-          style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+          style: const pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
         ),
         pw.SizedBox(height: 12),
         pw.Table(
@@ -281,7 +300,7 @@ class PdfExportController extends GetxController {
           children: <pw.Widget>[
             pw.Text(
               'Lesion #$index: ${lesion.locationName}',
-              style: pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold),
+              style: const pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 4),
             pw.Text(
@@ -303,7 +322,7 @@ class PdfExportController extends GetxController {
             pw.SizedBox(height: 10),
             pw.Text(
               'Diagnosis history',
-              style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              style: const pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 6),
           ],

@@ -13,70 +13,66 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Change Password'.tr)),
-      body: ListView(
-        controller: controller.scrollController,
-        scrollDirection: Axis.vertical,
+      body: SingleChildScrollView(
         padding: AppTheme.scaffoldPadding,
-        children: <Widget>[
-          const CustomIcon(iconData: Icons.mail),
-          const SizedBox(height: AppTheme.spaceLarge),
-          CustomTextField(
-            textEditingController: controller.newPasswordController,
-            focusNode: controller.newPasswordFocusNode,
-            onSubmitted: (_) => controller.submitNewPassword(),
-            labelText: 'New Password'.tr,
-            prefixIcon: Icons.password,
-            textInputType: TextInputType.visiblePassword,
-            checkCriteria: <CheckCriteria>[
-              CheckCriteria(
-                criteriaName: 'Contains at least 8 characters'.tr,
-                criteriaState: controller.hasMinLength,
-              ),
-              CheckCriteria(
-                criteriaName: 'Contains an uppercase letter'.tr,
-                criteriaState: controller.hasUppercase,
-              ),
-              CheckCriteria(
-                criteriaName: 'Contains a lowercase letter'.tr,
-                criteriaState: controller.hasLowercase,
-              ),
-              CheckCriteria(
-                criteriaName: 'Contains a digit'.tr,
-                criteriaState: controller.hasDigits,
-              ),
-              CheckCriteria(
-                criteriaName: 'Contains special character'.tr,
-                criteriaState: controller.hasSpecialCharacters,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.spaceMedium),
-          CustomTextField(
-            textEditingController: controller.confirmNewPasswordController,
-            focusNode: controller.confirmNewPasswordFocusNode,
-            onSubmitted: controller.isLoading.value
-                ? (_) {}
-                : (_) => controller.submitChangedPassword(),
-            labelText: 'Confirm new Password'.tr,
-            prefixIcon: Icons.password,
-            textInputType: TextInputType.visiblePassword,
-            checkCriteria: <CheckCriteria>[
-              CheckCriteria(
-                criteriaName: 'Passwords match'.tr,
-                criteriaState: controller.passwordsMatch,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.spaceLarge),
-          Obx(
-            () => ElevatedButton(
-              onPressed: controller.isLoading.value
-                  ? null
-                  : controller.submitChangedPassword,
-              child: Text('Submit'.tr),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            const CustomIcon(iconData: Icons.password),
+            const SizedBox(height: AppTheme.spaceLarge),
+            CustomTextField(
+              textEditingController: controller.newPasswordController,
+              focusNode: controller.newPasswordFocusNode,
+              onSubmitted: (_) => controller.submitNewPassword(),
+              labelText: 'New Password'.tr,
+              prefixIcon: Icons.password,
+              textInputType: TextInputType.visiblePassword,
+              checkCriteria: <CheckCriteria>[
+                CheckCriteria(
+                  criteriaName: 'Contains at least 8 characters'.tr,
+                  criteriaState: controller.hasMinLength,
+                ),
+                CheckCriteria(
+                  criteriaName: 'Contains an uppercase letter'.tr,
+                  criteriaState: controller.hasUppercase,
+                ),
+                CheckCriteria(
+                  criteriaName: 'Contains a lowercase letter'.tr,
+                  criteriaState: controller.hasLowercase,
+                ),
+                CheckCriteria(
+                  criteriaName: 'Contains a digit'.tr,
+                  criteriaState: controller.hasDigits,
+                ),
+                CheckCriteria(
+                  criteriaName: 'Contains special character'.tr,
+                  criteriaState: controller.hasSpecialCharacters,
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: AppTheme.spaceMedium),
+            CustomTextField(
+              textEditingController: controller.confirmNewPasswordController,
+              focusNode: controller.confirmNewPasswordFocusNode,
+              onSubmitted: (_) => controller.submitChangedPassword(),
+              labelText: 'Confirm new Password'.tr,
+              prefixIcon: Icons.password,
+              textInputType: TextInputType.visiblePassword,
+              checkCriteria: <CheckCriteria>[
+                CheckCriteria(
+                  criteriaName: 'Passwords match'.tr,
+                  criteriaState: controller.passwordsMatch,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.spaceLarge),
+            ElevatedButton(
+                onPressed: controller.submitChangedPassword,
+                child: Text('Submit'.tr),
+              ),
+
+          ],
+        ),
       ),
     );
   }

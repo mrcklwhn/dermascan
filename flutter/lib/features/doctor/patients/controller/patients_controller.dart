@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
+import 'package:dermascan/core/services/db_service/patient_db_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class PatientsController extends GetxController {
   AuthService authService = Get.find<AuthService>();
-  DBService dbService = Get.find<DBService>();
+  DoctorDbService doctorDbService = Get.find<DoctorDbService>();
+  PatientDbService patientDbService = Get.find<PatientDbService>();
 
   ScrollController listScrollController = ScrollController();
   TextEditingController searchBarController = TextEditingController();
@@ -58,11 +60,11 @@ class PatientsController extends GetxController {
   }
 
   Future<void> loadPatients() async {
-    final Practice? practiceOfDoctor = await dbService.checkDoctorHasPractice();
+    final Practice? practiceOfDoctor = await doctorDbService.checkDoctorHasPractice();
 
     if (practiceOfDoctor == null) return;
 
-    final List<Patient> fetchedPatients = await dbService.fetchPatients(
+    final List<Patient> fetchedPatients = await patientDbService.fetchPatients(
       practiceId: practiceOfDoctor.id,
     );
 
