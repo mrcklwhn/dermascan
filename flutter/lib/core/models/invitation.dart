@@ -16,7 +16,7 @@ class PracticeInvitation {
 
   factory PracticeInvitation.fromJson(Map<String, dynamic> json) {
     return PracticeInvitation(
-      invitationId: json['invitationId'] as String,
+      invitationId: json['invitation_id'] as String,
       practice: Practice.fromJson(json['practice'] as Map<String, dynamic>),
       createdAt: DateTime.parse(json['created_at'] as String),
       doctor: Doctor.fromJson(json['doctor'] as Map<String, dynamic>),
@@ -25,7 +25,7 @@ class PracticeInvitation {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'invitationId': invitationId,
+      'invitation_id': invitationId,
       'practice': practice.toJson(),
       'created_at': createdAt.toIso8601String(),
       'doctor': doctor.toJson(),

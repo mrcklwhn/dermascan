@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/app/enums.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
@@ -14,12 +15,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DiagnosisDetailController extends GetxController {
   final Diagnosis diagnosis;
   final DiagnosisMainController mainController;
   final AuthService authService = Get.find<AuthService>();
-  final DBService dbService = Get.find<DBService>();
+  final LesionDbService lesionDbService = Get.find<LesionDbService>();
 
   final TextEditingController notesController = TextEditingController();
   final FocusNode notesFocusNode = FocusNode();
@@ -79,7 +82,7 @@ class DiagnosisDetailController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool success = await dbService.updateDiagnosis(
+      final bool success = await lesionDbService.updateDiagnosis(
         diagnosisId: diagnosisId,
         notes: currentNotesText.value.trim(),
       );
@@ -114,6 +117,43 @@ class DiagnosisDetailController extends GetxController {
     }
   }
 
+  Future<void> shareDiagnosis() async {
+    final Map<String, Uint8List?>? images = diagnosis.analyzedImages;
+    final Uint8List? imageBytes = images?['original'];
+
+    if (imageBytes == null) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Error'.tr,
+          message: 'No image available to share.'.tr,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final Directory tempDir = await getTemporaryDirectory();
+      final File file = await File('${tempDir.path}/dermascan_lesion_${diagnosis.id}.png').create();
+      await file.writeAsBytes(imageBytes);
+
+      await SharePlus.instance.share(
+        ShareParams(
+          files: <XFile>[XFile(file.path)],
+          text: 'DermaScan Lesion Report\nNotes: ${diagnosis.notes}',
+        ),
+      );
+    } catch (e) {
+      Get.showSnackbar(
+        CustomSnackBar(
+          icon: Icons.error,
+          title: 'Sharing Failed'.tr,
+          message: 'Could not share image. Please try again.'.tr,
+        ),
+      );
+    }
+  }
+
   Future<void> deleteDiagnosis() async {
     if (isLoading.value) return;
     if (authService.currentDoctor.value == null) return;
@@ -137,7 +177,7 @@ class DiagnosisDetailController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool success = await dbService.deleteDiagnosis(
+      final bool success = await lesionDbService.deleteDiagnosis(
         diagnosisId: diagnosisId,
       );
 
@@ -182,9 +222,7 @@ class DiagnosisDetailController extends GetxController {
               .tr,
       isDismissable: !isLoading.value,
       submitText: 'Delete'.tr,
-      onSubmit: isLoading.value
-          ? null
-          : (_) async {
+      onSubmit: (_) async {
               await deleteDiagnosis();
             },
     );
@@ -259,6 +297,11 @@ class CustomDiagnosisSheet extends StatelessWidget {
                   ],
                 ),
               ),
+              IconButton(
+                icon: const Icon(Icons.share),
+                tooltip: 'Share'.tr,
+                onPressed: controller.shareDiagnosis,
+              ),
             ],
           ),
           const SizedBox(height: AppTheme.spaceLarge),
@@ -331,9 +374,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
                 bottom: AppTheme.spaceMedium,
               ),
               child: FilledButton.icon(
-                onPressed: controller.isLoading.value
-                    ? null
-                    : () => controller.submittedNotes(),
+                onPressed: () => controller.submittedNotes(),
                 icon: const Icon(Icons.save),
                 label: Text('Save'.tr),
               ),
@@ -412,9 +453,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
           ],
           const SizedBox(height: AppTheme.spaceLarge),
           OutlinedButton.icon(
-            onPressed: controller.isLoading.value
-                ? null
-                : () => controller.showDeleteDiagnosisDialog(),
+            onPressed: () => controller.showDeleteDiagnosisDialog(),
             icon: const Icon(Icons.delete),
             label: Text('Delete'.tr),
           ),

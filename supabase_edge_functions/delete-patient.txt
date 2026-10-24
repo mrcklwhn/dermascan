@@ -1,0 +1,132 @@
+import { createClient } from "npm:@supabase/supabase-js@2.39.0";
+
+// --- Environment Variables ---
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error("Missing Supabase configuration.");
+}
+
+// --- Supabase Client (Service Role) ---
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+  },
+});
+
+// --- CORS Headers ---
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// --- Helper: Response ---
+const jsonResponse = (body: any, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+Deno.serve(async (req) => {
+  // 1. Handle CORS Preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return jsonResponse({ success: false, error: "No authorization header passed" }, 401);
+    }
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+
+    if (userError || !user) {
+      return jsonResponse({ success: false, error: "Invalid User Token" }, 401);
+    }
+
+    // 2. Parse Request Body
+    const body = await req.json();
+    const patientId = body.patientId;
+
+    if (!patientId) {
+      return jsonResponse({ success: false, error: "Patient ID is required." }, 400);
+    }
+
+    // 3. Fetch Data & Validation
+
+    // a) Arzt validieren
+    const { data: doctor, error: doctorError } = await supabase
+      .from('doctor')
+      .select('practiceid')
+      .eq('doctorid', user.id)
+      .maybeSingle();
+
+    if (doctorError) {
+      console.error("DB Fetch Error (Doctor):", doctorError);
+      return jsonResponse({ success: false, error: "Database error fetching doctor." }, 500);
+    }
+    if (!doctor || !doctor.practiceid) {
+      return jsonResponse({ success: false, error: "Unauthorized: Only assigned doctors can delete patients." }, 403);
+    }
+
+    // b) Patient und dessen Läsionen fetchen
+    const { data: patientInfo, error: fetchError } = await supabase
+      .from('patient')
+      .select(`
+        practiceid,
+        lesion (
+          lesionid
+        )
+      `)
+      .eq('patientid', patientId)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error("DB Fetch Error (Patient Join):", fetchError);
+      return jsonResponse({ success: false, error: "Database error fetching patient details." }, 500);
+    }
+    if (!patientInfo) {
+      return jsonResponse({ success: false, error: "Patient not found." }, 404);
+    }
+
+    // c) Sicherheitschecks durchführen
+    if (doctor.practiceid !== patientInfo.practiceid) {
+      return jsonResponse({ success: false, error: "Unauthorized: Practice mismatch. You can only delete patients from your own practice." }, 403);
+    }
+
+    const lesionsCount = (patientInfo as any).lesion?.length || 0;
+    if (lesionsCount > 0) {
+      return jsonResponse({ success: false, error: `Deletion failed: ${lesionsCount} lesion(s) still exist for this patient.` }, 403);
+    }
+
+    // 4. Execute Database Operation (Delete)
+    const { error: deleteError } = await supabase
+      .from('patient')
+      .delete()
+      .eq('patientid', patientId);
+
+    if (deleteError) {
+      console.error("DB Delete Error:", deleteError);
+      return jsonResponse({ success: false, error: "Failed to delete patient." }, 500);
+    }
+
+    // 5. Success Response
+    return jsonResponse({
+      success: true,
+      message: "Patient successfully deleted.",
+      deletedId: patientId
+    }, 200);
+
+  } catch (e) {
+    console.error("Function Error:", e);
+    return jsonResponse({ success: false, error: "Internal Server Error" }, 500);
+  }
+});

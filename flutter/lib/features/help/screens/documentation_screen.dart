@@ -45,7 +45,7 @@ class DocumentationScreen extends GetView<DocumentationController> {
                     leading: const Icon(Icons.description),
                     title: Text(feature.title),
                     trailing: const Icon(Icons.arrow_forward),
-                    onTap: () => controller.openFeatureDetail(feature),
+                    onTap: () => controller.openFeatureDetail(feature: feature),
                   ),
                 );
               },

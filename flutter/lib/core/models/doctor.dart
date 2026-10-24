@@ -19,22 +19,22 @@ class Doctor {
 
   factory Doctor.fromJson(Map<String, dynamic> json) {
     return Doctor(
-      id: json['id'] as String,
+      id: json['doctor_id'] as String,
       name: json['name'] as String,
-      dateOfBirth: DateTime.parse(json['dateOfBirth'] as String),
+      dateOfBirth: DateTime.parse(json['date_of_birth'] as String),
       gender: Gender.values.byName(json['gender'] as String),
-      practiceId: json['practiceId'] as String?,
+      practiceId: json['practice_id'] as String?,
       email: json['email'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': id,
+      'doctor_id': id,
       'name': name,
-      'dateOfBirth': dateOfBirth.toIso8601String(),
+      'date_of_birth': dateOfBirth.toIso8601String(),
       'gender': gender.name,
-      'practiceId': practiceId,
+      'practice_id': practiceId,
       'email': email,
     };
   }

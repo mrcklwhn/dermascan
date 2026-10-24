@@ -2,17 +2,15 @@ import 'dart:async';
 
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class EditLesionController extends GetxController {
-  DBService dbService = Get.find<DBService>();
+  LesionDbService lesionDbService = Get.find<LesionDbService>();
   AuthService authService = Get.find<AuthService>();
-
-  ScrollController scrollController = ScrollController();
 
   final TextEditingController locationNameController = TextEditingController();
   final TextEditingController testResultController = TextEditingController();
@@ -31,7 +29,6 @@ class EditLesionController extends GetxController {
 
   @override
   void onClose() {
-    scrollController.dispose();
     locationNameController.dispose();
     testResultController.dispose();
     locationNameFocusNode.dispose();
@@ -104,7 +101,7 @@ class EditLesionController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool successful = await dbService.updateLesion(
+      final bool successful = await lesionDbService.updateLesion(
         lesionId: lesion.id,
         locationName: locationNameController.text.trim(),
         suspicious: isSuspicious.value,
@@ -156,9 +153,7 @@ class EditLesionController extends GetxController {
       subtitle: 'Delete lesion? Associated diagnoses must be removed first.'.tr,
       isDismissable: true,
       submitText: 'Delete'.tr,
-      onSubmit: isLoading.value
-          ? null
-          : (_) async {
+      onSubmit: (_) async {
               await deleteLesion(lesion: lesion);
             },
     );
@@ -187,7 +182,7 @@ class EditLesionController extends GetxController {
     isLoading.value = true;
 
     try {
-      final bool successDiagnosis = await dbService.deleteLesion(
+      final bool successDiagnosis = await lesionDbService.deleteLesion(
         lesionId: lesion.id,
       );
 

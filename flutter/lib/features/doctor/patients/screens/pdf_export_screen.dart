@@ -75,10 +75,8 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
               trailing: Checkbox(
                 value: controller.areAllDiagnosesSelected(lesion),
                 tristate: true,
-                onChanged: controller.isLoading.value
-                    ? null
-                    : (bool? value) {
-                        controller.toggleAllDiagnosesForLesion(lesion);
+                onChanged: (bool? value) {
+                        controller.toggleAllDiagnosesForLesion(lesion: lesion);
                       },
               ),
               children: <Widget>[
@@ -127,8 +125,8 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
                           ),
                           onTap: () {
                             controller.toggleDiagnosisSelection(
-                              lesion,
-                              diagnosis,
+                              lesion: lesion,
+                              diagnosis: diagnosis,
                             );
                           },
                           trailing: Checkbox(
@@ -140,8 +138,8 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
                                 ? null
                                 : (bool? value) {
                                     controller.toggleDiagnosisSelection(
-                                      lesion,
-                                      diagnosis,
+                                      lesion: lesion,
+                                      diagnosis: diagnosis,
                                     );
                                   },
                           ),
@@ -201,11 +199,7 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
         const SizedBox(height: AppTheme.spaceLarge),
         FilledButton.icon(
           icon: const Icon(Icons.picture_as_pdf),
-          onPressed:
-              (controller.isExporting.value ||
-                  controller.isExportable() == false)
-              ? null
-              : controller.exportPDF,
+          onPressed: controller.exportPDF,
           label: const Text('Export'),
         ),
       ],

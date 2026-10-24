@@ -15,14 +15,12 @@ class RegisterScreen extends GetView<RegisterController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: SafeArea(
-        child: Obx(
-          () => ListView(
-            controller: controller.scrollController,
-            scrollDirection: Axis.vertical,
-            padding: AppTheme.scaffoldPadding.copyWith(
-              top: AppTheme.spaceLarge,
-            ),
+        child: SingleChildScrollView(
+          padding: AppTheme.scaffoldPadding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               const CustomIcon(iconData: Icons.app_registration),
               const SizedBox(height: AppTheme.spaceLarge),
@@ -32,43 +30,19 @@ class RegisterScreen extends GetView<RegisterController> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppTheme.spaceLarge),
-              SegmentedButton<AuthOption>(
-                showSelectedIcon: false,
-                segments: <ButtonSegment<AuthOption>>[
-                  ButtonSegment<AuthOption>(
-                    value: AuthOption.doctor,
-                    label: Text('Doctor'.tr),
-                    icon: const Icon(Icons.medical_services_outlined),
-                  ),
-                  ButtonSegment<AuthOption>(
-                    value: AuthOption.practice,
-                    label: Text('Practice'.tr),
-                    icon: const Icon(Icons.business_outlined),
-                  ),
-                ],
-                selected: <AuthOption>{
-                  controller.currentSelectedAuthOption.value,
-                },
-                onSelectionChanged: (Set<AuthOption> newSelection) =>
-                    controller.changeCurrentSelectedAuthOption(
-                      newAuthOption: newSelection.first,
-                    ),
-              ),
-              const SizedBox(height: AppTheme.spaceLarge),
-              if (controller.currentSelectedAuthOption.value ==
-                  AuthOption.doctor)
-                ...buildDoctorRegisterFormFields(context)
-              else
-                ...buildPracticeRegisterFormFields(context),
-              const SizedBox(height: AppTheme.spaceMedium),
               Obx(() {
-                return OutlinedButton.icon(
-                  icon: const Icon(Icons.login),
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : controller.navigateBackToLogin,
-                  label: Text('Login'.tr),
-                );
+                if (controller.currentSelectedAuthOption.value ==
+                    AuthOption.doctor) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: buildDoctorRegisterFormFields(context),
+                  );
+                } else {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: buildPracticeRegisterFormFields(context),
+                  );
+                }
               }),
             ],
           ),
@@ -191,9 +165,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
     CustomTextField(
       textEditingController: doctorRegisterController.confirmPasswordController,
       focusNode: doctorRegisterController.confirmPasswordFocusNode,
-      onSubmitted: doctorRegisterController.registerController.isLoading.value
-          ? (_) {}
-          : (_) => doctorRegisterController.submitRegisterData(),
+      onSubmitted: (_) => doctorRegisterController.submitRegisterData(),
       labelText: 'Confirm Password'.tr,
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
@@ -207,9 +179,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
     const SizedBox(height: AppTheme.spaceLarge),
     FilledButton.icon(
       icon: const Icon(Icons.app_registration),
-      onPressed: doctorRegisterController.registerController.isLoading.value
-          ? null
-          : doctorRegisterController.submitRegisterData,
+      onPressed: doctorRegisterController.submitRegisterData,
       label: Text('Register'.tr),
     ),
   ];
@@ -279,9 +249,7 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       textEditingController:
           practiceRegisterController.confirmPasswordController,
       focusNode: practiceRegisterController.confirmPasswordFocusNode,
-      onSubmitted: practiceRegisterController.registerController.isLoading.value
-          ? (_) {}
-          : (_) => practiceRegisterController.submitRegisterData(),
+      onSubmitted: (_) => practiceRegisterController.submitRegisterData(),
       labelText: 'Confirm Password'.tr,
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
@@ -295,9 +263,7 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
     const SizedBox(height: AppTheme.spaceLarge),
     FilledButton.icon(
       icon: const Icon(Icons.app_registration),
-      onPressed: practiceRegisterController.registerController.isLoading.value
-          ? null
-          : practiceRegisterController.submitRegisterData,
+      onPressed: practiceRegisterController.submitRegisterData,
       label: Text('Register'.tr),
     ),
   ];

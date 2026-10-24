@@ -29,35 +29,37 @@ class BodyLesion {
 
   factory BodyLesion.fromJson(Map<String, dynamic> json) {
     return BodyLesion(
-      id: json['id'] as String,
-      locationName: json['locationName'] as String,
+      id: json['lesion_id'] as String,
+      locationName: json['location_name'] as String,
       position: json['position'] as String,
       normal: json['normal'] as String,
-      patientId: json['patientId'] as String,
-      diagnoses: (json['diagnoses'] as List<dynamic>)
-          .map(
-            (dynamic item) => Diagnosis.fromJson(item as Map<String, dynamic>),
-          )
-          .toList()
-          .obs,
+      patientId: json['patient_id'] as String,
+      diagnoses: (json['diagnoses'] as List<dynamic>?)
+              ?.map(
+                (dynamic item) =>
+                    Diagnosis.fromJson(item as Map<String, dynamic>),
+              )
+              .toList()
+              .obs ??
+          <Diagnosis>[].obs,
       isSuspicious: (json['suspicious'] as bool).obs,
-      wasRemoved: (json['wasRemoved'] as bool).obs,
-      testResult: json['testResult'] as String,
+      wasRemoved: (json['was_removed'] as bool).obs,
+      testResult: json['test_result'] as String,
       notes: json['notes'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': id,
-      'locationName': locationName,
+      'lesion_id': id,
+      'location_name': locationName,
       'position': position,
       'normal': normal,
-      'patientId': patientId,
-      'suspicious': isSuspicious,
+      'patient_id': patientId,
+      'suspicious': isSuspicious.value,
       'notes': notes,
-      'testResult': testResult,
-      'wasRemoved': wasRemoved,
+      'test_result': testResult,
+      'was_removed': wasRemoved.value,
       'diagnoses': diagnoses.map((Diagnosis d) => d.toJson()).toList(),
     };
   }

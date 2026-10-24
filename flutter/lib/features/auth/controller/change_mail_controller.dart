@@ -1,5 +1,5 @@
 import 'package:dermascan/core/services/auth_service.dart';
-import 'package:dermascan/core/services/db_service.dart';
+
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChangeEmailController extends GetxController {
-  DBService dbService = Get.find<DBService>();
+
   AuthService authService = Get.find<AuthService>();
 
   ScrollController scrollController = ScrollController();
