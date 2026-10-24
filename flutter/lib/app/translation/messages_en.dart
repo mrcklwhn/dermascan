@@ -17,8 +17,6 @@ const Map<String, String> enUS = <String, String>{
   'Error Deleting Diagnosis': 'Error Deleting Diagnosis',
   'The Diagnosis could not be deleted.': 'The Diagnosis could not be deleted.',
   'Delete Diagnosis?': 'Delete Diagnosis?',
-  'Delete': 'Delete',
-  'Prediction': 'Prediction',
   'Uncertain': 'Uncertain',
   'Confident': 'Confident',
   'ABC - Scores': 'ABC - Scores',

@@ -134,13 +134,13 @@ class DiagnosisDetailController extends GetxController {
 
     try {
       final Directory tempDir = await getTemporaryDirectory();
-      final File file = await File('${tempDir.path}/dermascan_lesion_${diagnosis.id}.png').create();
+      final File file = await File('${tempDir.path}/lesions_${diagnosis.id}.png').create();
       await file.writeAsBytes(imageBytes);
 
       await SharePlus.instance.share(
         ShareParams(
           files: <XFile>[XFile(file.path)],
-          text: 'DermaScan Lesion Report\nNotes: ${diagnosis.notes}',
+          text: 'Lesion Report\nPatient: ${mainController.patient.name}\nDate:${diagnosis.date}\nPosition: ${mainController.lesion.position}\nNotes: ${diagnosis.notes}',
         ),
       );
     } catch (e) {
@@ -305,20 +305,6 @@ class CustomDiagnosisSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppTheme.spaceLarge),
-          Text('Prediction'.tr, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: AppTheme.spaceSmall),
-          _buildScoreIndicator(
-            context,
-            title: diagnosis.prediction.name.capitalizeFirst,
-            textLeft: 'Uncertain'.tr,
-            textRight: 'Confident'.tr,
-            score: diagnosis.confidence,
-            color: diagnosis.prediction == LesionType.nevi
-                ? Colors.green
-                : Colors.red,
-          ),
-
-          const SizedBox(height: AppTheme.spaceMedium),
           Text(
             'ABC - Scores'.tr,
             style: Theme.of(context).textTheme.titleMedium,

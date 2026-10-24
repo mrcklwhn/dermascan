@@ -18,8 +18,6 @@ const Map<String, String> deDE = <String, String>{
   'The Diagnosis could not be deleted.':
       'Die Diagnose konnte nicht gelöscht werden.',
   'Delete Diagnosis?': 'Diagnose löschen?',
-  'Delete': 'Löschen',
-  'Prediction': 'Vorhersage',
   'Uncertain': 'Unsicher',
   'Confident': 'Sicher',
   'ABC - Scores': 'ABC - Scores',

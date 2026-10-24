@@ -129,8 +129,8 @@ class CaptureController extends GetxController {
 
       final LesionAnalysis lesionML = LesionAnalysis(mat);
       final LesionAnalysis lesionAlgo = LesionAnalysis(mat);
-      await lesionML.runLesionAnalysis(useNeuralModel: true, onlyMask: true);
-      await lesionAlgo.runLesionAnalysis(useNeuralModel: false, onlyMask: true);
+      await lesionML.runLesionAnalysis(useNeuralModel: true);
+      await lesionAlgo.runLesionAnalysis(useNeuralModel: false);
 
       mainController.cutoutML = cv
           .imencode('.png', lesionML.getLesionContourOverlay())

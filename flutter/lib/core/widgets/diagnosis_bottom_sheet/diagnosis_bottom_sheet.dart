@@ -12,7 +12,7 @@ import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
 import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_capture_sheet.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_cutout_sheet.dart';
-import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_diagnosis_sheet.dart';
+import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_diagnosis_details_sheet.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/removed_lesion_sheet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -45,8 +45,6 @@ class DiagnosisMainController extends GetxController {
   double? draftBScore;
   double? draftCScore;
   Map<String, Uint8List?>? draftAnalyzedImages;
-  double? draftConfidence;
-  LesionType? draftPrediction;
 
   Uint8List? cutoutML;
   Uint8List? cutoutAlgo;
@@ -152,8 +150,7 @@ class DiagnosisMainController extends GetxController {
 
       final LesionAnalysis lesionAnalysis = LesionAnalysis(mat);
       await lesionAnalysis.runLesionAnalysis(
-        useNeuralModel: diagnosis.cutoutType == CutoutType.ml,
-        onlyMask: true,
+        useNeuralModel: diagnosis.cutoutType == CutoutType.ml
       );
 
       final Uint8List contour =
@@ -360,7 +357,7 @@ class DiagnosisBottomSheet extends StatelessWidget {
                     backgroundColor: AppTheme.primary,
                     foregroundColor: Colors.white,
                     onPressed: openEditLesionPage,
-                    child: const Icon(Icons.edit),
+                    child: const Icon(Icons.info),
                   ),
                 ),
               ),

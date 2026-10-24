@@ -176,12 +176,6 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
         ),
         const SizedBox(height: AppTheme.spaceSmall),
         ToggleCard(
-          title: 'AI Classification'.tr,
-          subtitle: 'Export AI-based classification results for each lesion'.tr,
-          value: controller.shouldExportMLClassification,
-        ),
-        const SizedBox(height: AppTheme.spaceSmall),
-        ToggleCard(
           title: 'ABC Scores'.tr,
           subtitle: 'Export ABC scores for each lesion'.tr,
           value: controller.shouldExportABCScores,

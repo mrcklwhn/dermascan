@@ -13,11 +13,9 @@ class EditLesionController extends GetxController {
   AuthService authService = Get.find<AuthService>();
 
   final TextEditingController locationNameController = TextEditingController();
-  final TextEditingController testResultController = TextEditingController();
   final TextEditingController notesController = TextEditingController();
   final FocusNode notesFocusNode = FocusNode();
   final FocusNode locationNameFocusNode = FocusNode();
-  final FocusNode testResultFocusNode = FocusNode();
 
   RxBool isLoading = false.obs;
   RxBool isSuspicious = false.obs;
@@ -30,9 +28,7 @@ class EditLesionController extends GetxController {
   @override
   void onClose() {
     locationNameController.dispose();
-    testResultController.dispose();
     locationNameFocusNode.dispose();
-    testResultFocusNode.dispose();
     notesController.dispose();
     notesFocusNode.dispose();
     super.onClose();
@@ -49,7 +45,6 @@ class EditLesionController extends GetxController {
     lesion = args['lesion'];
     updateLesions = args['updateLesions'];
     locationNameController.text = lesion.locationName;
-    testResultController.text = lesion.testResult;
     notesController.text = lesion.notes;
     isSuspicious.value = lesion.isSuspicious.value;
     wasRemoved.value = lesion.wasRemoved.value;
@@ -59,9 +54,6 @@ class EditLesionController extends GetxController {
     locationNameFocusNode.unfocus();
   }
 
-  void submittedTestResult() {
-    testResultFocusNode.unfocus();
-  }
 
   void submittedNotes() {
     notesFocusNode.unfocus();
@@ -106,7 +98,6 @@ class EditLesionController extends GetxController {
         locationName: locationNameController.text.trim(),
         suspicious: isSuspicious.value,
         wasRemoved: wasRemoved.value,
-        testResult: testResultController.text.trim(),
         notes: notesController.text.trim(),
       );
 
@@ -114,7 +105,6 @@ class EditLesionController extends GetxController {
         lesion.locationName = locationNameController.text.trim();
         lesion.isSuspicious.value = isSuspicious.value;
         lesion.wasRemoved.value = wasRemoved.value;
-        lesion.testResult = testResultController.text.trim();
         lesion.notes = notesController.text.trim();
 
         updateLesions?.call(lesion: lesion, delete: false);

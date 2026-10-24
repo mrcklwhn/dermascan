@@ -124,7 +124,6 @@ class PatientDetailsController extends GetxController {
             locationName: locationName,
             position: lesion.position,
             normal: lesion.normal,
-            testResult: '',
             notes: '',
             wasRemoved: false,
           );

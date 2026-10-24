@@ -11,7 +11,6 @@ class BodyLesion {
   RxBool wasRemoved;
   RxBool isSuspicious;
   String locationName;
-  String testResult;
   String notes;
 
   BodyLesion({
@@ -22,7 +21,6 @@ class BodyLesion {
     required this.position,
     required this.normal,
     required this.locationName,
-    required this.testResult,
     required this.wasRemoved,
     required this.notes,
   });
@@ -44,7 +42,6 @@ class BodyLesion {
           <Diagnosis>[].obs,
       isSuspicious: (json['suspicious'] as bool).obs,
       wasRemoved: (json['was_removed'] as bool).obs,
-      testResult: json['test_result'] as String,
       notes: json['notes'] as String,
     );
   }
@@ -58,7 +55,6 @@ class BodyLesion {
       'patient_id': patientId,
       'suspicious': isSuspicious.value,
       'notes': notes,
-      'test_result': testResult,
       'was_removed': wasRemoved.value,
       'diagnoses': diagnoses.map((Diagnosis d) => d.toJson()).toList(),
     };

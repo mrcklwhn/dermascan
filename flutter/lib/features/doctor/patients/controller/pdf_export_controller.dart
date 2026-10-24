@@ -27,7 +27,6 @@ class PdfExportController extends GetxController {
   RxBool isLoading = true.obs;
   RxBool isExporting = false.obs;
 
-  RxBool shouldExportMLClassification = true.obs;
   RxBool shouldExportABCScores = true.obs;
   RxBool shouldExportNotes = true.obs;
 
@@ -312,10 +311,6 @@ class PdfExportController extends GetxController {
               style: const pw.TextStyle(fontSize: 11),
             ),
             pw.Text(
-              'Test result: ${lesion.testResult.trim().isNotEmpty ? lesion.testResult : '-'}',
-              style: const pw.TextStyle(fontSize: 11),
-            ),
-            pw.Text(
               'Notes: ${lesion.notes.trim().isNotEmpty ? lesion.notes : '-'}',
               style: const pw.TextStyle(fontSize: 11),
             ),
@@ -346,10 +341,6 @@ class PdfExportController extends GetxController {
           if (shouldExportABCScores.value) _tableCell('A', isHeader: true),
           if (shouldExportABCScores.value) _tableCell('B', isHeader: true),
           if (shouldExportABCScores.value) _tableCell('C', isHeader: true),
-          if (shouldExportMLClassification.value)
-            _tableCell('Class', isHeader: true),
-          if (shouldExportMLClassification.value)
-            _tableCell('Confidence', isHeader: true),
           if (shouldExportNotes.value) _tableCell('Notes', isHeader: true),
         ],
       ),
@@ -364,10 +355,6 @@ class PdfExportController extends GetxController {
               _tableCell(_formatScore(diagnosis.bScore)),
             if (shouldExportABCScores.value)
               _tableCell(_formatScore(diagnosis.cScore)),
-            if (shouldExportMLClassification.value)
-              _tableCell(diagnosis.prediction.name),
-            if (shouldExportMLClassification.value)
-              _tableCell(_formatConfidence(diagnosis.confidence)),
             if (shouldExportNotes.value) _tableCell(diagnosis.notes),
           ],
         ),
@@ -383,10 +370,6 @@ class PdfExportController extends GetxController {
         if (shouldExportABCScores.value) 2: const pw.FlexColumnWidth(0.05),
         if (shouldExportABCScores.value) 3: const pw.FlexColumnWidth(0.05),
         if (shouldExportABCScores.value) 4: const pw.FlexColumnWidth(0.05),
-        if (shouldExportMLClassification.value)
-          5: const pw.FlexColumnWidth(0.10),
-        if (shouldExportMLClassification.value)
-          6: const pw.FlexColumnWidth(0.10),
         if (shouldExportNotes.value) 7: const pw.FlexColumnWidth(0.18),
       },
       children: rows,
@@ -457,11 +440,4 @@ class PdfExportController extends GetxController {
 
   String _formatScore(double? value) => value?.toStringAsFixed(2) ?? '-';
 
-  String _formatConfidence(double? value) {
-    if (value == null) {
-      return '-';
-    }
-
-    return '${(value * 100).toStringAsFixed(1)}%';
-  }
 }

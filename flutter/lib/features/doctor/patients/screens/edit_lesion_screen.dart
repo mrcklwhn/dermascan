@@ -65,15 +65,6 @@ class EditLesionScreen extends GetView<EditLesionController> {
                 ),
               ),
               const SizedBox(height: AppTheme.spaceMedium),
-              CustomTextField(
-                textEditingController: controller.testResultController,
-                focusNode: controller.testResultFocusNode,
-                onSubmitted: (_) => controller.submittedTestResult(),
-                labelText: 'Test Result'.tr,
-                prefixIcon: Icons.assignment,
-                textInputType: TextInputType.text,
-              ),
-              const SizedBox(height: AppTheme.spaceMedium),
               Text(
                 'Additional Info'.tr,
                 style: Theme.of(context).textTheme.titleMedium,

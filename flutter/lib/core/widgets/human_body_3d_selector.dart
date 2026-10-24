@@ -129,7 +129,6 @@ class HumanBody3DController extends GetxController {
           wasRemoved: false.obs,
           notes: '',
           locationName: '',
-          testResult: '',
         );
 
         selectedPosition.value = newLesion.position;

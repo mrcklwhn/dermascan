@@ -1,12 +1,6 @@
-# supabase db-password
-dermascan_db.txt
-
 # python data
 .venv*
 __pycache__/
-
-# mlflow output
-mlruns/
 
 # other data
 data

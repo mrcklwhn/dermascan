@@ -39,9 +39,7 @@ class CutoutController extends GetxController {
         aScore: mainController.draftAScore!,
         bScore: mainController.draftBScore!,
         cScore: mainController.draftCScore!,
-        prediction: mainController.draftPrediction!,
         analyzedImages: mainController.draftAnalyzedImages!,
-        confidence: mainController.draftConfidence!,
         doctorName: authService.currentDoctor.value!.name,
       );
 
@@ -69,8 +67,7 @@ class CutoutController extends GetxController {
 
     final LesionAnalysis lesion = LesionAnalysis(mat);
     await lesion.runLesionAnalysis(
-      useNeuralModel: type == CutoutType.ml ? true : false,
-      onlyMask: false,
+      useNeuralModel: type == CutoutType.ml ? true : false
     );
 
     mainController.draftAScore = lesion.getAsymmetryScore();
@@ -82,11 +79,6 @@ class CutoutController extends GetxController {
       'contour': cv.imencode('.png', lesion.getLesionContourOverlay()).$2,
       'concavity': cv.imencode('.png', lesion.getConcavityOverlay()).$2,
     });
-
-    if (lesion.labelText != null) {
-      mainController.draftConfidence = lesion.labelConfidence?.toPrecision(2);
-      mainController.draftPrediction = LesionType.values[lesion.labelIdx!];
-    }
   }
 
   Future<Diagnosis?> uploadDiagnosis({required Diagnosis diagnosis}) async {

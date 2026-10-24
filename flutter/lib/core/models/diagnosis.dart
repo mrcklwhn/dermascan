@@ -14,8 +14,6 @@ class Diagnosis {
   double bScore;
   double cScore;
   String notes;
-  double confidence;
-  LesionType prediction;
 
   final Map<String, Uint8List?>? analyzedImages;
 
@@ -32,8 +30,6 @@ class Diagnosis {
     required this.bScore,
     required this.cScore,
     required this.analyzedImages,
-    required this.prediction,
-    required this.confidence,
   });
 
   factory Diagnosis.fromJson(Map<String, dynamic> json) {
@@ -51,8 +47,6 @@ class Diagnosis {
       bScore: (json['b_score'] as num?)?.toDouble() ?? 0.0,
       cScore: (json['c_score'] as num?)?.toDouble() ?? 0.0,
       analyzedImages: json['analyzedImages'] as Map<String, Uint8List?>?,
-      prediction: LesionType.values[(json['prediction'] as num).toInt()],
-      confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -68,8 +62,6 @@ class Diagnosis {
       'a_score': aScore,
       'b_score': bScore,
       'c_score': cScore,
-      'prediction': prediction.index,
-      'confidence': confidence,
     };
   }
 }

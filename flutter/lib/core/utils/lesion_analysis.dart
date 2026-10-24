@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:dartcv4/dartcv.dart' as cv;
 import 'package:dermascan/core/utils/lesion_utils.dart';
-import 'package:dermascan/core/utils/neural_lesion_classification.dart';
 import 'package:dermascan/core/utils/neural_lesion_cutout.dart';
 import 'package:dermascan/core/utils/otsus_lesion_cutout.dart';
 
@@ -23,22 +22,14 @@ class LesionAnalysis {
 
   cv.Mat? get rotatedMask => _rotatedMask;
 
-  // Cache classification
-  int? labelIdx;
-  double? labelConfidence;
-  String? labelText;
-
   late NeuralLesionCutout _neuralCutout;
-  late NeuralLesionClassification _neuralLesionClassification;
 
   LesionAnalysis(this.image) {
     _neuralCutout = NeuralLesionCutout();
-    _neuralLesionClassification = NeuralLesionClassification();
   }
 
   Future<void> runLesionAnalysis({
-    required bool useNeuralModel,
-    required bool onlyMask,
+    required bool useNeuralModel
   }) async {
     if (useNeuralModel) {
       await _neuralCutout.initializeModel();
@@ -51,14 +42,6 @@ class LesionAnalysis {
       rawLesionMask = OtsusLesionCutout().run(image);
     }
 
-    if (!onlyMask) {
-      final Map<String, dynamic> inferenceResult =
-          await _neuralLesionClassification.run(image: image);
-
-      labelIdx = inferenceResult['label_int'] as int?;
-      labelConfidence = inferenceResult['confidence'] as double?;
-      labelText = inferenceResult['label_text'] as String?;
-    }
 
     if (rawLesionMask.isEmpty) return;
 

@@ -18,7 +18,6 @@ const Map<String, String> roRO = <String, String>{
   'The Diagnosis could not be deleted.': 'Diagnosticul nu a putut fi șters.',
   'Delete Diagnosis?': 'Ștergeți diagnosticul?',
   'Delete': 'Șterge',
-  'Prediction': 'Predicție',
   'Uncertain': 'Incert',
   'Confident': 'Sigur',
   'ABC - Scores': 'Scoruri ABC',

@@ -104,7 +104,6 @@ class LesionDbService extends GetxService {
   Future<BodyLesion?> createLesion({
     required String patientId,
     required String locationName,
-    required String testResult,
     required String notes,
     required String position,
     required String normal,
@@ -120,10 +119,6 @@ class LesionDbService extends GetxService {
             'patient_id': patientId,
             'location_name': encryptionService.encryptData(
               plainText: locationName,
-              base64Key: key,
-            ),
-            'test_result': encryptionService.encryptData(
-              plainText: testResult,
               base64Key: key,
             ),
             'notes': encryptionService.encryptData(
@@ -147,10 +142,6 @@ class LesionDbService extends GetxService {
         // Decrypt fields before creating model
         response['location_name'] = encryptionService.decryptData(
           encryptedText: response['location_name'] as String? ?? '',
-          base64Key: key,
-        );
-        response['test_result'] = encryptionService.decryptData(
-          encryptedText: response['test_result'] as String? ?? '',
           base64Key: key,
         );
         response['notes'] = encryptionService.decryptData(
@@ -180,7 +171,6 @@ class LesionDbService extends GetxService {
   Future<bool> updateLesion({
     required String lesionId,
     required String locationName,
-    required String testResult,
     required String notes,
     required bool suspicious,
     required bool wasRemoved,
@@ -194,10 +184,6 @@ class LesionDbService extends GetxService {
           .update(<dynamic, dynamic>{
             'location_name': encryptionService.encryptData(
               plainText: locationName,
-              base64Key: key,
-            ),
-            'test_result': encryptionService.encryptData(
-              plainText: testResult,
               base64Key: key,
             ),
             'notes': encryptionService.encryptData(
@@ -250,10 +236,6 @@ class LesionDbService extends GetxService {
         
         lesionMap['location_name'] = encryptionService.decryptData(
           encryptedText: lesionMap['location_name'] as String? ?? '',
-          base64Key: key,
-        );
-        lesionMap['test_result'] = encryptionService.decryptData(
-          encryptedText: lesionMap['test_result'] as String? ?? '',
           base64Key: key,
         );
         lesionMap['notes'] = encryptionService.decryptData(
@@ -316,8 +298,6 @@ class LesionDbService extends GetxService {
             'b_score': diagnosis.bScore,
             'c_score': diagnosis.cScore,
             'cutout_type': diagnosis.cutoutType.name,
-            'prediction': diagnosis.prediction.index,
-            'confidence': diagnosis.confidence,
             'notes': encryptionService.encryptData(
               plainText: diagnosis.notes,
               base64Key: key,
