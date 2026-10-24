@@ -5,6 +5,7 @@ import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/country.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/models/patient.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -70,9 +71,9 @@ class PatientInfoBottomSheet extends StatelessWidget {
     return Container(
       height: MediaQuery.sizeOf(context).height * 0.7,
       padding: AppTheme.scaffoldPadding.copyWith(top: 0, bottom: 0),
-      decoration: const BoxDecoration(
-        color: AppTheme.highlightColor,
-        borderRadius: BorderRadius.vertical(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(
           top: Radius.circular(AppTheme.radiusLarge),
         ),
       ),
@@ -94,7 +95,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
               controller: controller.listScrollController,
               children: <Widget>[
                 Card(
-                  color: AppTheme.scaffoldBg,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   child: ListTile(
                     title: Text(
                       patient.name,
@@ -103,9 +104,9 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     leading: const Icon(Icons.person),
                     trailing: const Icon(Icons.arrow_forward),
                     subtitle: Text(
-                      '${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}\n'
-                      '${'Country'.tr}: ${allCountries.firstWhereOrNull((Country c) => c.isoCode == patient.birthCountry)?.name ?? 'Not available'.tr}\n'
-                      '${'Gender'.tr}: ${patient.gender.name.capitalizeFirst?.tr}',
+                      '${TrKeys.common.birthday.tr}: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}\n'
+                      '${TrKeys.common.country.tr}: ${countries.firstWhereOrNull((Country c) => c.isoCode == patient.birthCountry)?.name ?? TrKeys.common.notAvailable.tr}\n'
+                      '${TrKeys.common.gender.tr}: ${patient.gender.name.capitalizeFirst?.tr}',
                     ),
                     onTap: () {
                       Get.back();
@@ -123,7 +124,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     patient.personalHistoryMelanoma ||
                     patient.familyHistoryMelanoma) ...<Widget>[
                   Text(
-                    'Medical History'.tr,
+                    TrKeys.patient.medicalHistory.tr,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: AppTheme.spaceSmall),
@@ -132,31 +133,38 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     spacing: AppTheme.spaceSmall,
                     children: <Widget>[
                       _buildHistoryChip(
-                        'Sunburn History'.tr,
+                        context,
+                        TrKeys.patient.sunburnHistory.tr,
                         patient.previousSunburns,
                       ),
                       _buildHistoryChip(
-                        'Skin Surgery'.tr,
+                        context,
+                        TrKeys.patient.skinSurgery.tr,
                         patient.previousSkinSurgeries,
                       ),
                       _buildHistoryChip(
-                        'Malignant Skin Surgery'.tr,
+                        context,
+                        TrKeys.patient.malignantSkinSurgery.tr,
                         patient.previousCancerSurgeries,
                       ),
                       _buildHistoryChip(
-                        'Tanning Bed Use'.tr,
+                        context,
+                        TrKeys.patient.tanningBedUse.tr,
                         patient.tanningBedExposure,
                       ),
                       _buildHistoryChip(
-                        'Sunscreen Use'.tr,
+                        context,
+                        TrKeys.patient.sunscreenUse.tr,
                         patient.sunscreenUse,
                       ),
                       _buildHistoryChip(
-                        'Personal Melanoma History'.tr,
+                        context,
+                        TrKeys.patient.personalHistoryMelanoma.tr,
                         patient.personalHistoryMelanoma,
                       ),
                       _buildHistoryChip(
-                        'Family Melanoma History'.tr,
+                        context,
+                        TrKeys.patient.familyHistoryMelanoma.tr,
                         patient.familyHistoryMelanoma,
                       ),
                     ],
@@ -164,7 +172,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                   const SizedBox(height: AppTheme.spaceMedium),
                 ],
                 Text(
-                  'Timeline (Latest Diagnoses)'.tr,
+                  TrKeys.diagnosis.timeline.tr,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppTheme.spaceSmall),
@@ -181,7 +189,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                   if (diagnoses.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.all(AppTheme.spaceMedium),
-                      child: Center(child: Text('No Diagnosis available!'.tr)),
+                      child: Center(child: Text(TrKeys.diagnosis.noDiagnosisAvailable.tr)),
                     );
                   }
                   return ListView.builder(
@@ -202,7 +210,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Card(
-                            color: AppTheme.scaffoldBg,
+                            color: Theme.of(context).scaffoldBackgroundColor,
                             child: ListTile(
                               title: Text(item.locationName),
                               leading: AspectRatio(
@@ -225,7 +233,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                '${'Date'.tr}: ${DateFormat('dd.MM.yyyy').format(item.diagnosis.date)}',
+                                '${TrKeys.common.date.tr}: ${DateFormat('dd.MM.yyyy').format(item.diagnosis.date)}',
                               ),
                               onTap: () {
                                 Get.back();
@@ -251,11 +259,11 @@ class PatientInfoBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildHistoryChip(String title, bool visible) {
+  Widget _buildHistoryChip(BuildContext context, String title, bool visible) {
     if (!visible) return const Center();
     return Chip(
       label: Text(title),
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       side: BorderSide.none,
     );
   }

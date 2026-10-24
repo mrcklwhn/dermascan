@@ -3,6 +3,7 @@ import 'package:dermascan/core/models/check_criteria.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/features/auth/controller/change_mail_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,7 +13,7 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Change E-Mail'.tr)),
+      appBar: AppBar(title: Text(TrKeys.auth.changeEmail.tr)),
       body: SingleChildScrollView(
         padding: AppTheme.scaffoldPadding,
         child: Column(
@@ -24,12 +25,12 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
               textEditingController: controller.newEmailController,
               focusNode: controller.newEmailFocusNode,
               onSubmitted: (_) => controller.submitNewPassword(),
-              labelText: 'New E-Mail'.tr,
+              labelText: TrKeys.auth.newEmail.tr,
               prefixIcon: Icons.mail,
               textInputType: TextInputType.emailAddress,
               checkCriteria: <CheckCriteria>[
                 CheckCriteria(
-                  criteriaName: 'Correctly formatted'.tr,
+                  criteriaName: TrKeys.auth.correctlyFormatted.tr,
                   criteriaState: controller.isValidEmail,
                 ),
               ],
@@ -39,12 +40,12 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
               textEditingController: controller.confirmNewEmailController,
               focusNode: controller.confirmNewEmailFocusNode,
               onSubmitted: (_) => controller.submitChangedEmail(),
-              labelText: 'Confirm new E-Mail'.tr,
+              labelText: TrKeys.auth.confirmNewEmail.tr,
               prefixIcon: Icons.mail,
               textInputType: TextInputType.emailAddress,
               checkCriteria: <CheckCriteria>[
                 CheckCriteria(
-                  criteriaName: 'E-Mails match'.tr,
+                  criteriaName: TrKeys.auth.emailsMatch.tr,
                   criteriaState: controller.emailsMatch,
                 ),
               ],
@@ -52,7 +53,7 @@ class ChangeEmailScreen extends GetView<ChangeEmailController> {
             const SizedBox(height: AppTheme.spaceLarge),
             ElevatedButton(
                 onPressed: controller.submitChangedEmail,
-                child: Text('Submit'.tr),
+                child: Text(TrKeys.common.submit.tr),
               ),
 
           ],

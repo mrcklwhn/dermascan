@@ -1,11 +1,12 @@
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/models/check_criteria.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/features/auth/controller/register/doctor_register_controller.dart';
 import 'package:dermascan/features/auth/controller/register/practice_register_controller.dart';
 import 'package:dermascan/features/auth/controller/register/register_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -25,7 +26,7 @@ class RegisterScreen extends GetView<RegisterController> {
               const CustomIcon(iconData: Icons.app_registration),
               const SizedBox(height: AppTheme.spaceLarge),
               Text(
-                'Join Dermascan!'.tr,
+                TrKeys.auth.joinDermascan.tr,
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
@@ -66,7 +67,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
       textEditingController: doctorRegisterController.nameController,
       focusNode: doctorRegisterController.nameFocusNode,
       onSubmitted: (_) => doctorRegisterController.submittedName(),
-      labelText: 'Full Name'.tr,
+      labelText: TrKeys.common.fullName.tr,
       prefixIcon: Icons.person,
       textInputType: TextInputType.name,
     ),
@@ -82,7 +83,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
               border: noBorder,
               enabledBorder: noBorder,
               focusedBorder: noBorder,
-              labelText: 'Date of Birth'.tr,
+              labelText: TrKeys.common.dateOfBirth.tr,
               prefixIcon: const Icon(Icons.calendar_month),
             ),
           ),
@@ -96,7 +97,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
               border: noBorder,
               enabledBorder: noBorder,
               focusedBorder: noBorder,
-              labelText: 'Gender'.tr,
+              labelText: TrKeys.common.gender.tr,
               prefixIcon: const Icon(Icons.wc_outlined),
             ),
             items: Gender.values.map((Gender g) {
@@ -120,12 +121,12 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
       textEditingController: doctorRegisterController.emailController,
       focusNode: doctorRegisterController.emailFocusNode,
       onSubmitted: (_) => doctorRegisterController.submittedEmail(),
-      labelText: 'E-Mail'.tr,
+      labelText: TrKeys.common.email.tr,
       prefixIcon: Icons.email,
       textInputType: TextInputType.emailAddress,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Correctly formatted'.tr,
+          criteriaName: TrKeys.auth.correctlyFormatted.tr,
           criteriaState: doctorRegisterController.isValidEmail,
         ),
       ],
@@ -135,28 +136,28 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
       textEditingController: doctorRegisterController.passwordController,
       focusNode: doctorRegisterController.passwordFocusNode,
       onSubmitted: (_) => doctorRegisterController.submittedPassword(),
-      labelText: 'Password'.tr,
+      labelText: TrKeys.common.password.tr,
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Contains at least 8 characters'.tr,
+          criteriaName: TrKeys.auth.minLength8.tr,
           criteriaState: doctorRegisterController.hasMinLength,
         ),
         CheckCriteria(
-          criteriaName: 'Contains an uppercase letter'.tr,
+          criteriaName: TrKeys.auth.containsUppercase.tr,
           criteriaState: doctorRegisterController.hasUppercase,
         ),
         CheckCriteria(
-          criteriaName: 'Contains a lowercase letter'.tr,
+          criteriaName: TrKeys.auth.containsLowercase.tr,
           criteriaState: doctorRegisterController.hasLowercase,
         ),
         CheckCriteria(
-          criteriaName: 'Contains a digit'.tr,
+          criteriaName: TrKeys.auth.containsDigit.tr,
           criteriaState: doctorRegisterController.hasDigits,
         ),
         CheckCriteria(
-          criteriaName: 'Contains special character'.tr,
+          criteriaName: TrKeys.auth.containsSpecialChar.tr,
           criteriaState: doctorRegisterController.hasSpecialCharacters,
         ),
       ],
@@ -166,12 +167,12 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
       textEditingController: doctorRegisterController.confirmPasswordController,
       focusNode: doctorRegisterController.confirmPasswordFocusNode,
       onSubmitted: (_) => doctorRegisterController.submitRegisterData(),
-      labelText: 'Confirm Password'.tr,
+      labelText: TrKeys.auth.confirmPassword.tr,
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Passwords match'.tr,
+          criteriaName: TrKeys.auth.passwordsMatch.tr,
           criteriaState: doctorRegisterController.passwordsMatch,
         ),
       ],
@@ -180,7 +181,7 @@ List<Widget> buildDoctorRegisterFormFields(BuildContext context) {
     FilledButton.icon(
       icon: const Icon(Icons.app_registration),
       onPressed: doctorRegisterController.submitRegisterData,
-      label: Text('Register'.tr),
+      label: Text(TrKeys.auth.register.tr),
     ),
   ];
 }
@@ -194,7 +195,7 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       textEditingController: practiceRegisterController.nameController,
       focusNode: practiceRegisterController.nameFocusNode,
       onSubmitted: (_) => practiceRegisterController.submittedName(),
-      labelText: 'Name'.tr,
+      labelText: TrKeys.common.name.tr,
       prefixIcon: Icons.person,
       textInputType: TextInputType.name,
     ),
@@ -203,12 +204,12 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       textEditingController: practiceRegisterController.emailController,
       focusNode: practiceRegisterController.emailFocusNode,
       onSubmitted: (_) => practiceRegisterController.submittedEmail(),
-      labelText: 'E-Mail'.tr,
+      labelText: TrKeys.common.email.tr,
       prefixIcon: Icons.email,
       textInputType: TextInputType.emailAddress,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Correctly formatted'.tr,
+          criteriaName: TrKeys.auth.correctlyFormatted.tr,
           criteriaState: practiceRegisterController.isValidEmail,
         ),
       ],
@@ -218,28 +219,28 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
       textEditingController: practiceRegisterController.passwordController,
       focusNode: practiceRegisterController.passwordFocusNode,
       onSubmitted: (_) => practiceRegisterController.submittedPassword(),
-      labelText: 'Password'.tr,
+      labelText: TrKeys.common.password.tr,
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Contains at least 8 characters'.tr,
+          criteriaName: TrKeys.auth.minLength8.tr,
           criteriaState: practiceRegisterController.hasMinLength,
         ),
         CheckCriteria(
-          criteriaName: 'Contains an uppercase letter'.tr,
+          criteriaName: TrKeys.auth.containsUppercase.tr,
           criteriaState: practiceRegisterController.hasUppercase,
         ),
         CheckCriteria(
-          criteriaName: 'Contains a lowercase letter'.tr,
+          criteriaName: TrKeys.auth.containsLowercase.tr,
           criteriaState: practiceRegisterController.hasLowercase,
         ),
         CheckCriteria(
-          criteriaName: 'Contains a digit'.tr,
+          criteriaName: TrKeys.auth.containsDigit.tr,
           criteriaState: practiceRegisterController.hasDigits,
         ),
         CheckCriteria(
-          criteriaName: 'Contains special character'.tr,
+          criteriaName: TrKeys.auth.containsSpecialChar.tr,
           criteriaState: practiceRegisterController.hasSpecialCharacters,
         ),
       ],
@@ -250,12 +251,12 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
           practiceRegisterController.confirmPasswordController,
       focusNode: practiceRegisterController.confirmPasswordFocusNode,
       onSubmitted: (_) => practiceRegisterController.submitRegisterData(),
-      labelText: 'Confirm Password'.tr,
+      labelText: TrKeys.auth.confirmPassword.tr,
       prefixIcon: Icons.password,
       textInputType: TextInputType.visiblePassword,
       checkCriteria: <CheckCriteria>[
         CheckCriteria(
-          criteriaName: 'Passwords match'.tr,
+          criteriaName: TrKeys.auth.passwordsMatch.tr,
           criteriaState: practiceRegisterController.passwordsMatch,
         ),
       ],
@@ -264,7 +265,7 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
     FilledButton.icon(
       icon: const Icon(Icons.app_registration),
       onPressed: practiceRegisterController.submitRegisterData,
-      label: Text('Register'.tr),
+      label: Text(TrKeys.auth.register.tr),
     ),
   ];
 }
@@ -272,12 +273,12 @@ List<Widget> buildPracticeRegisterFormFields(BuildContext context) {
 String _genderTranslationKey(Gender gender) {
   switch (gender) {
     case Gender.male:
-      return 'Male';
+      return TrKeys.common.male;
     case Gender.female:
-      return 'Female';
+      return TrKeys.common.female;
     case Gender.divers:
-      return 'Divers';
+      return TrKeys.common.divers;
     case Gender.undefined:
-      return 'Undefined';
+      return TrKeys.common.undefined;
   }
 }

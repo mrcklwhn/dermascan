@@ -1,0 +1,333 @@
+abstract class TrKeys {
+  static TrCommonKeys common = TrCommonKeys();
+  static TrAuthKeys auth = TrAuthKeys();
+  static TrOnboardingKeys onboarding = TrOnboardingKeys();
+  static TrPatientKeys patient = TrPatientKeys();
+  static TrLesionKeys lesion = TrLesionKeys();
+  static TrDiagnosisKeys diagnosis = TrDiagnosisKeys();
+  static TrPracticeKeys practice = TrPracticeKeys();
+  static TrDoctorKeys doctor = TrDoctorKeys();
+  static TrPdfKeys pdf = TrPdfKeys();
+  static TrHelpKeys help = TrHelpKeys();
+}
+
+class TrCommonKeys {
+  final String save = 'common.save';
+  final String cancel = 'common.cancel';
+  final String delete = 'common.delete';
+  final String edit = 'common.edit';
+  final String dismiss = 'common.dismiss';
+  final String submit = 'common.submit';
+  final String update = 'common.update';
+  final String create = 'common.create';
+  final String refresh = 'common.refresh';
+  final String close = 'common.close';
+  final String input = 'common.input';
+  final String search = 'common.search';
+  final String leave = 'common.leave';
+  final String accept = 'common.accept';
+  final String revoke = 'common.revoke';
+  final String remove = 'common.remove';
+  final String date = 'common.date';
+  final String birthday = 'common.birthday';
+  final String gender = 'common.gender';
+  final String male = 'common.male';
+  final String female = 'common.female';
+  final String divers = 'common.divers';
+  final String undefined = 'common.undefined';
+  final String email = 'common.email';
+  final String password = 'common.password';
+  final String name = 'common.name';
+  final String fullName = 'common.full_name';
+  final String dateOfBirth = 'common.date_of_birth';
+  final String country = 'common.country';
+  final String birthCountry = 'common.birth_country';
+  final String location = 'common.location';
+  final String notes = 'common.notes';
+  final String share = 'common.share';
+  final String sharingFailed = 'common.sharing_failed';
+  final String couldNotShareImage = 'common.could_not_share_image';
+  final String noImageToShare = 'common.no_image_to_share';
+  final String currently = 'common.currently';
+  final String pending = 'common.pending';
+  final String notAvailable = 'common.not_available';
+  final String error = 'common.error';
+  final String success = 'common.success';
+  final String securityAndAccount = 'common.security_and_account';
+  final String personalInformation = 'common.personal_information';
+  final String contactDetails = 'common.contact_details';
+  final String generalInformation = 'common.general_information';
+  final String additionalInfo = 'common.additional_info';
+  final String missingInformation = 'common.missing_information';
+  final String fillRequiredFields = 'common.fill_required_fields';
+  final String authenticationError = 'common.authentication_error';
+  final String authErrorReLogin = 'common.auth_error_re_login';
+  final String logout = 'common.logout';
+  final String logoutConfirm = 'common.logout_confirm';
+  final String logoutQuestion = 'common.logout_question';
+}
+
+class TrAuthKeys {
+  final String login = 'auth.login';
+  final String register = 'auth.register';
+  final String createAccount = 'auth.create_account';
+  final String welcomeBack = 'auth.welcome_back';
+  final String doctorEmail = 'auth.doctor_email';
+  final String practiceEmail = 'auth.practice_email';
+  final String joinDermascan = 'auth.join_dermascan';
+  final String newEmail = 'auth.new_email';
+  final String confirmNewEmail = 'auth.confirm_new_email';
+  final String changeEmail = 'auth.change_email';
+  final String newPassword = 'auth.new_password';
+  final String confirmPassword = 'auth.confirm_password';
+  final String confirmNewPassword = 'auth.confirm_new_password';
+  final String changePassword = 'auth.change_password';
+  final String passwordInsecure = 'auth.password_insecure';
+  final String invalidEmail = 'auth.invalid_email';
+  final String passwordChanged = 'auth.password_changed';
+  final String passwordsMatch = 'auth.passwords_match';
+  final String emailsMatch = 'auth.emails_match';
+  final String correctlyFormatted = 'auth.correctly_formatted';
+  final String minLength8 = 'auth.min_length_8';
+  final String containsUppercase = 'auth.contains_uppercase';
+  final String containsLowercase = 'auth.contains_lowercase';
+  final String containsDigit = 'auth.contains_digit';
+  final String containsSpecialChar = 'auth.contains_special_char';
+  final String loginSuccess = 'auth.login_success';
+  final String loggedInMsg = 'auth.logged_in_msg';
+  final String loginFailed = 'auth.login_failed';
+  final String invalidCredentialsMsg = 'auth.invalid_credentials_msg';
+  final String passwordChangedMsg = 'auth.password_changed_msg';
+  final String emailsDoNotMatchMsg = 'auth.emails_do_not_match_msg';
+  final String emailFormatErrorMsg = 'auth.email_format_error_msg';
+  final String verifyEmailMsg = 'auth.verify_email_msg';
+  final String registrationFailed = 'auth.registration_failed';
+  final String regFailedMsg = 'auth.reg_failed_msg';
+  final String registrationSuccessful = 'auth.registration_successful';
+  final String regSuccessMsg = 'auth.reg_success_msg';
+  final String accountCreatedMsg = 'auth.account_created_msg';
+  final String profileCreationError = 'auth.profile_creation_error';
+  final String profileSetupErrorMsg = 'auth.profile_setup_error_msg';
+  final String changeFailed = 'auth.change_failed';
+  final String changeEmailFailedMsg = 'auth.change_email_failed_msg';
+  final String changePasswordFailedMsg = 'auth.change_password_failed_msg';
+  final String almostThere = 'auth.almost_there';
+  final String differentEmails = 'auth.different_emails';
+  final String notDoctorAccountMsg = 'auth.not_doctor_account_msg';
+  final String notPracticeAccountMsg = 'auth.not_practice_account_msg';
+  final String passwordsRequirementsMsg = 'auth.passwords_requirements_msg';
+}
+
+class TrOnboardingKeys {
+  final String title = 'onboarding.title';
+  final String subtitle = 'onboarding.subtitle';
+  final String iAmPractice = 'onboarding.i_am_practice';
+  final String practiceDesc = 'onboarding.practice_desc';
+  final String iAmDoctor = 'onboarding.i_am_doctor';
+  final String doctorDesc = 'onboarding.doctor_desc';
+  final String practiceOptions = 'onboarding.practice_options';
+  final String doctorOptions = 'onboarding.doctor_options';
+}
+
+class TrPatientKeys {
+  final String patients = 'patient.patients';
+  final String newPatient = 'patient.new_patient';
+  final String addPatient = 'patient.add_patient';
+  final String editPatient = 'patient.edit_patient';
+  final String patientProfile = 'patient.patient_profile';
+  final String noPatientsAvailable = 'patient.no_patients_available';
+  final String noPatientsFoundMsg = 'patient.no_patients_found_msg';
+  final String patientCreated = 'patient.patient_created';
+  final String patientCreationFailed = 'patient.patient_creation_failed';
+  final String patientUpdated = 'patient.patient_updated';
+  final String patientUpdateFailed = 'patient.patient_update_failed';
+  final String profileUpdatedMsg = 'patient.profile_updated_msg';
+  final String profileUpdateFailedMsg = 'patient.profile_update_failed_msg';
+  final String patientDeleted = 'patient.patient_deleted';
+  final String patientDeletedMsg = 'patient.patient_deleted_msg';
+  final String errorDeletingPatient = 'patient.error_deleting_patient';
+  final String deletionFailedLesionsLinkedMsg = 'patient.deletion_failed_lesions_linked_msg';
+  final String deletePatientQuestion = 'patient.delete_patient_question';
+  final String deletePatientConfirmMsg = 'patient.delete_patient_confirm_msg';
+  final String medicalHistory = 'patient.medical_history';
+  final String sunburnHistory = 'patient.sunburn_history';
+  final String skinSurgery = 'patient.skin_surgery';
+  final String malignantSkinSurgery = 'patient.malignant_skin_surgery';
+  final String sunAndLifestyle = 'patient.sun_and_lifestyle';
+  final String sunscreenUse = 'patient.sunscreen_use';
+  final String sunscreenQuestion = 'patient.sunscreen_question';
+  final String sunburnQuestion = 'patient.sunburn_question';
+  final String tanningBedUse = 'patient.tanning_bed_use';
+  final String tanningBedQuestion = 'patient.tanning_bed_question';
+  final String personalHistoryMelanoma = 'patient.personal_history_melanoma';
+  final String personalMelanomaDesc = 'patient.personal_melanoma_desc';
+  final String familyHistoryMelanoma = 'patient.family_history_melanoma';
+  final String familyMelanomaDesc = 'patient.family_melanoma_desc';
+  final String skinSurgeriesQuestion = 'patient.skin_surgeries_question';
+  final String malignantCancerous = 'patient.malignant_cancerous';
+  final String cancerousRemovedQuestion = 'patient.cancerous_removed_question';
+}
+
+class TrLesionKeys {
+  final String cropLesion = 'lesion.crop_lesion';
+  final String createLesion = 'lesion.create_lesion';
+  final String editLesion = 'lesion.edit_lesion';
+  final String lesionName = 'lesion.lesion_name';
+  final String lesionExcised = 'lesion.lesion_excised';
+  final String excisedLesion = 'lesion.excised_lesion';
+  final String excised = 'lesion.excised';
+  final String suspicious = 'lesion.suspicious';
+  final String suspiciousLesion = 'lesion.suspicious_lesion';
+  final String markSuspicious = 'lesion.mark_suspicious';
+  final String markExcised = 'lesion.mark_excised';
+  final String placement = 'lesion.placement';
+  final String classification = 'lesion.classification';
+  final String testResult = 'lesion.test_result';
+  final String noLesionSelected = 'lesion.no_lesion_selected';
+  final String updatedLesion = 'lesion.updated_lesion';
+  final String lesionUpdatedMsg = 'lesion.lesion_updated_msg';
+  final String errorUpdatingLesion = 'lesion.error_updating_lesion';
+  final String lesionUpdateFailedMsg = 'lesion.lesion_update_failed_msg';
+  final String deleteLesionQuestion = 'lesion.delete_lesion_question';
+  final String lesionDeleted = 'lesion.lesion_deleted';
+  final String lesionDeletedMsg = 'lesion.lesion_deleted_msg';
+  final String errorDeletingLesion = 'lesion.error_deleting_lesion';
+  final String noLesionHereCreate = 'lesion.no_lesion_here_create';
+  final String noLesions = 'lesion.no_lesions';
+  final String selectedPatientNoLesions = 'lesion.selected_patient_no_lesions';
+  final String deleteLesionConfirmMsg = 'lesion.delete_lesion_confirm_msg';
+  final String deletionFailedDiagnosesLinked = 'lesion.deletion_failed_diagnoses_linked';
+  final String camera = 'lesion.camera';
+  final String gallery = 'lesion.gallery';
+  final String imageError = 'lesion.image_error';
+  final String couldNotSelectImage = 'lesion.could_not_select_image';
+  final String uploadFailed = 'lesion.upload_failed';
+  final String imageUploadFailed = 'lesion.image_upload_failed';
+}
+
+class TrDiagnosisKeys {
+  final String diagnosis = 'diagnosis.diagnosis';
+  final String timeline = 'diagnosis.timeline';
+  final String noDiagnosisAvailable = 'diagnosis.no_diagnosis_available';
+  final String analysisInsights = 'diagnosis.analysis_insights';
+  final String abcScores = 'diagnosis.abc_scores';
+  final String asymmetry = 'diagnosis.asymmetry';
+  final String symmetric = 'diagnosis.symmetric';
+  final String asymmetric = 'diagnosis.asymmetric';
+  final String border = 'diagnosis.border';
+  final String circular = 'diagnosis.circular';
+  final String irregular = 'diagnosis.irregular';
+  final String colorUniformity = 'diagnosis.color_uniformity';
+  final String uniform = 'diagnosis.uniform';
+  final String variegated = 'diagnosis.variegated';
+  final String uncertain = 'diagnosis.uncertain';
+  final String confident = 'diagnosis.confident';
+  final String lastDiagnosis = 'diagnosis.last_diagnosis';
+  final String diagnosisDeleted = 'diagnosis.diagnosis_deleted';
+  final String diagnosisDeletedMsg = 'diagnosis.diagnosis_deleted_msg';
+  final String errorDeletingDiagnosis = 'diagnosis.error_deleting_diagnosis';
+  final String diagnosisCouldNotBeDeleted = 'diagnosis.diagnosis_could_not_be_deleted';
+  final String deleteDiagnosisQuestion = 'diagnosis.delete_diagnosis_question';
+  final String deleteDiagnosisConfirmMsg = 'diagnosis.delete_diagnosis_confirm_msg';
+  final String diagnosisFailed = 'diagnosis.diagnosis_failed';
+  final String diagnosisCreationFailedMsg = 'diagnosis.diagnosis_creation_failed_msg';
+  final String notesUpdated = 'diagnosis.notes_updated';
+  final String notesSavedMsg = 'diagnosis.notes_saved_msg';
+  final String errorSavingNotes = 'diagnosis.error_saving_notes';
+  final String couldNotSaveUpdates = 'diagnosis.could_not_save_updates';
+  final String lesionExcisedDiagnosesRemain = 'diagnosis.lesion_excised_diagnoses_remain';
+}
+
+class TrPracticeKeys {
+  final String practiceInformation = 'practice.practice_information';
+  final String currentPractice = 'practice.current_practice';
+  final String practiceDetails = 'practice.practice_details';
+  final String noPracticeAssigned = 'practice.no_practice_assigned';
+  final String notAssignedToPracticeMsg = 'practice.not_assigned_to_practice_msg';
+  final String joinPracticeSuccess = 'practice.join_practice_success';
+  final String leavePracticeQuestion = 'practice.leave_practice_question';
+  final String leavePracticeConfirm = 'practice.leave_practice_confirm';
+  final String practiceLeft = 'practice.practice_left';
+  final String practiceLeftMsg = 'practice.practice_left_msg';
+  final String errorLeavingPractice = 'practice.error_leaving_practice';
+  final String couldNotLeavePracticeMsg = 'practice.could_not_leave_practice_msg';
+  final String inviteDoctor = 'practice.invite_doctor';
+  final String inviteDoctors = 'practice.invite_doctors';
+  final String invitedDoctors = 'practice.invited_doctors';
+  final String availableDoctors = 'practice.available_doctors';
+  final String doctorDetails = 'practice.doctor_details';
+  final String removeDoctor = 'practice.remove_doctor';
+  final String revokeInvitation = 'practice.revoke_invitation';
+  final String inviteDoctorQuestion = 'practice.invite_doctor_question';
+  final String invite = 'practice.invite';
+  final String invitationSent = 'practice.invitation_sent';
+  final String invitationSentMsg = 'practice.invitation_sent_msg';
+  final String invitationSentError = 'practice.invitation_sent_error';
+  final String alreadyInvitedMsg = 'practice.already_invited_msg';
+  final String invitationRevoked = 'practice.invitation_revoked';
+  final String invitationRevokedMsg = 'practice.invitation_revoked_msg';
+  final String revokingFailed = 'practice.revoking_failed';
+  final String revokingFailedMsg = 'practice.revoking_failed_msg';
+  final String revokeInvitationQuestion = 'practice.revoke_invitation_question';
+  final String revoke = 'practice.revoke';
+  final String revokeConfirmMsg = 'practice.revoke_confirm_msg';
+  final String removedDoctor = 'practice.removed_doctor';
+  final String doctorRemovedSuccessMsg = 'practice.doctor_removed_success_msg';
+  final String removingDoctorFailed = 'practice.removing_doctor_failed';
+  final String alreadyRemovedMsg = 'practice.already_removed_msg';
+  final String removeDoctorQuestion = 'practice.remove_doctor_question';
+  final String removeDoctorConfirmMsg = 'practice.remove_doctor_confirm_msg';
+  final String noDoctorsAssigned = 'practice.no_doctors_assigned';
+  final String noDoctorsInPracticeMsg = 'practice.no_doctors_in_practice_msg';
+  final String noDoctorsAvailable = 'practice.no_doctors_available';
+  final String noDoctorsAvailableRefreshMsg = 'practice.no_doctors_available_refresh_msg';
+  final String checkInvitations = 'practice.check_invitations';
+  final String pendingInvitations = 'practice.pending_invitations';
+  final String noPendingInvitations = 'practice.no_pending_invitations';
+  final String noOpenInvitationsMsg = 'practice.no_open_invitations_msg';
+  final String invitationAccepted = 'practice.invitation_accepted';
+  final String errorAcceptingInvitation = 'practice.error_accepting_invitation';
+  final String accept = 'practice.accept';
+  final String acceptInvitationQuestion = 'practice.accept_invitation_question';
+  final String acceptanceFailedMsg = 'practice.acceptance_failed_msg';
+  final String acceptingGrantsAccessMsg = 'practice.accepting_grants_access_msg';
+  final String showQrCodeToDoctors = 'practice.show_qr_code_to_doctors';
+  final String exportEncryptionKey = 'practice.export_encryption_key';
+  final String importPracticeKey = 'practice.import_practice_key';
+  final String scanQrCode = 'practice.scan_qr_code';
+  final String missingEncryptionKey = 'practice.missing_encryption_key';
+  final String securityCheck = 'practice.security_check';
+  final String showQrCodeDesc = 'practice.show_qr_code_desc';
+  final String couldNotLoadPracticeKey = 'practice.could_not_load_practice_key';
+  final String scanQrCodeDesc = 'practice.scan_qr_code_desc';
+  final String missingKeyMsg = 'practice.missing_key_msg';
+  final String invitedOn = 'practice.invited_on';
+}
+
+class TrDoctorKeys {
+  final String doctor = 'doctor.doctor';
+  final String doctors = 'doctor.doctors';
+  final String profile = 'doctor.profile';
+  final String doctorInformation = 'doctor.doctor_information';
+  final String updatedName = 'doctor.updated_name';
+  final String updateNameFailed = 'doctor.update_name_failed';
+  final String nameChangedSuccess = 'doctor.name_changed_success';
+}
+
+class TrPdfKeys {
+  final String exportPdf = 'pdf.export_pdf';
+  final String exportProperties = 'pdf.export_properties';
+  final String aiClassification = 'pdf.ai_classification';
+  final String aiClassificationDesc = 'pdf.ai_classification_desc';
+  final String abcScores = 'pdf.abc_scores';
+  final String abcScoresDesc = 'pdf.abc_scores_desc';
+  final String exportNotesDesc = 'pdf.export_notes_desc';
+  final String lesions = 'pdf.lesions';
+  final String export = 'pdf.export';
+  final String noLesionsFoundForPatient = 'pdf.no_lesions_found_for_patient';
+}
+
+class TrHelpKeys {
+  final String helpAndDocumentation = 'help.help_and_documentation';
+  final String documentation = 'help.documentation';
+}

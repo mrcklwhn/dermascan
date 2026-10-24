@@ -2,6 +2,7 @@ import 'package:dermascan/core/services/auth_service.dart';
 
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -61,8 +62,8 @@ class ChangeEmailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: TrKeys.common.missingInformation.tr,
+            message: TrKeys.common.fillRequiredFields.tr,
           ),
         );
       }
@@ -74,8 +75,8 @@ class ChangeEmailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Invalid E-Mail'.tr,
-            message: 'Your e-mail is not formatted correctly.'.tr,
+            title: TrKeys.auth.invalidEmail.tr,
+            message: TrKeys.auth.emailFormatErrorMsg.tr,
           ),
         );
       }
@@ -87,8 +88,8 @@ class ChangeEmailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Different E-Mails'.tr,
-            message: 'E-mails do not match. Please check and try again.'.tr,
+            title: TrKeys.auth.differentEmails.tr,
+            message: TrKeys.auth.emailsDoNotMatchMsg.tr,
           ),
         );
       }
@@ -100,8 +101,8 @@ class ChangeEmailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -120,9 +121,9 @@ class ChangeEmailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Change Failed'.tr,
+              title: TrKeys.auth.changeFailed.tr,
               message:
-                  'Could not change E-Mail. The email might already be in use or the connection failed.'
+                  TrKeys.auth.changeEmailFailedMsg
                       .tr,
             ),
           );
@@ -132,15 +133,15 @@ class ChangeEmailController extends GetxController {
         await CustomDialogHelper.show(
           routeName: 'confirm-email-dialog',
 
-          title: 'Almost there!'.tr,
+          title: TrKeys.auth.almostThere.tr,
 
           subtitle:
-              'Confirmation link sent. Please log out, verify your new email, and log back in.'
+              TrKeys.auth.verifyEmailMsg
                   .tr,
 
           isDismissable: true,
 
-          submitText: 'Logout',
+          submitText: TrKeys.common.logout.tr,
 
           onSubmit: (_) async {
             await authService.signOut();

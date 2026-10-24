@@ -1,8 +1,9 @@
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/features/auth/controller/register/register_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -116,8 +117,8 @@ class DoctorRegisterController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: TrKeys.common.missingInformation.tr,
+            message: TrKeys.common.fillRequiredFields.tr,
           ),
         );
       }
@@ -129,8 +130,8 @@ class DoctorRegisterController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Invalid E-Mail'.tr,
-            message: 'Your e-mail is not formatted correctly.'.tr,
+            title: TrKeys.auth.invalidEmail.tr,
+            message: TrKeys.auth.emailFormatErrorMsg.tr,
           ),
         );
       }
@@ -147,8 +148,8 @@ class DoctorRegisterController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Password Insecure'.tr,
-            message: 'Passwords must match and meet security requirements.'.tr,
+            title: TrKeys.auth.passwordInsecure.tr,
+            message: TrKeys.auth.passwordsRequirementsMsg.tr,
           ),
         );
       }
@@ -168,9 +169,9 @@ class DoctorRegisterController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Registration Failed'.tr,
+              title: TrKeys.auth.registrationFailed.tr,
               message:
-                  'Account creation failed. Email may be in use or connection lost.'
+                  TrKeys.auth.regFailedMsg
                       .tr,
             ),
           );
@@ -189,8 +190,8 @@ class DoctorRegisterController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Registration Successful'.tr,
-              message: 'Your account was created and you are now logged in.'.tr,
+              title: TrKeys.auth.registrationSuccessful.tr,
+              message: TrKeys.auth.accountCreatedMsg.tr,
             ),
           );
         }
@@ -201,8 +202,8 @@ class DoctorRegisterController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Profile Creation Error'.tr,
-              message: 'Account creation failed during profile setup.'.tr,
+              title: TrKeys.auth.profileCreationError.tr,
+              message: TrKeys.auth.profileSetupErrorMsg.tr,
             ),
           );
         }

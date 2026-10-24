@@ -2,6 +2,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/doctor/patients/controller/patients_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -13,12 +14,12 @@ class PatientsScreen extends GetView<PatientsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Patients'.tr),
+        title: Text(TrKeys.patient.patients.tr),
         actions: <Widget>[
           IconButton(
               onPressed: controller.openAddNewPatientScreen,
               icon: const Icon(Icons.person_add),
-              tooltip: 'Add Patient'.tr,
+              tooltip: TrKeys.patient.addPatient.tr,
             ),
 
         ],
@@ -50,13 +51,13 @@ class PatientsScreen extends GetView<PatientsController> {
           const CustomIcon(iconData: Icons.person_add),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No Patients available'.tr,
+            TrKeys.patient.noPatientsAvailable.tr,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'No patients found.\nPress below to add a patient.'.tr,
+            TrKeys.patient.noPatientsFoundMsg.tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -64,7 +65,7 @@ class PatientsScreen extends GetView<PatientsController> {
           FilledButton.icon(
             icon: const Icon(Icons.person_add),
             onPressed: controller.openAddNewPatientScreen,
-            label: Text('Add Patient'.tr),
+            label: Text(TrKeys.patient.addPatient.tr),
           ),
         ],
       ),
@@ -77,7 +78,7 @@ class PatientsScreen extends GetView<PatientsController> {
       child: Column(
         children: <Widget>[
           SearchBar(
-            hintText: 'Search ...'.tr,
+            hintText: TrKeys.common.search.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             trailing: <Widget>[
@@ -109,7 +110,7 @@ class PatientsScreen extends GetView<PatientsController> {
                           leading: const Icon(Icons.person),
                           trailing: const Icon(Icons.arrow_forward),
                           subtitle: Text(
-                            '${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}',
+                            '${TrKeys.common.birthday.tr}: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}',
                           ),
                           onTap: () => controller.openPatientProfile(
                                   patientId: patient.id,

@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/services/encryption_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -72,8 +74,8 @@ class PracticeProfileController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -104,8 +106,8 @@ class PracticeProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Updated Name'.tr,
-              message: 'Your name was successfully changed.'.tr,
+              title: TrKeys.doctor.updatedName.tr,
+              message: TrKeys.doctor.nameChangedSuccess.tr,
             ),
           );
         }
@@ -114,9 +116,9 @@ class PracticeProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Update Name Failed'.tr,
+              title: TrKeys.doctor.updateNameFailed.tr,
               message:
-                  'Name update failed. Please verify your data and try again.'
+                  TrKeys.auth.changeEmailFailedMsg
                       .tr,
             ),
           );
@@ -159,8 +161,8 @@ class PracticeProfileController extends GetxController {
       Get.showSnackbar(
         CustomSnackBar(
           icon: Icons.error,
-          title: 'Error'.tr,
-          message: 'Could not load practice key.'.tr,
+          title: TrKeys.common.error.tr,
+          message: TrKeys.practice.couldNotLoadPracticeKey.tr,
         ),
       );
       return;
@@ -179,24 +181,24 @@ class PracticeProfileController extends GetxController {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                'Export Practice Key'.tr,
+                TrKeys.practice.exportEncryptionKey.tr,
                 style: Get.textTheme.titleLarge,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppTheme.spaceMedium),
               Text(
-                'Show this QR code to new doctors to allow them to decrypt patient data.'.tr,
+                TrKeys.practice.showQrCodeDesc.tr,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.spaceLarge),
               QrImageView(
                 data: qrData,
                 version: QrVersions.auto,
                 size: 200.0,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.spaceLarge),
               ElevatedButton(
                 onPressed: () => Get.back(),
-                child: Text('Close'.tr),
+                child: Text(TrKeys.common.close.tr),
               ),
             ],
           ),
@@ -211,13 +213,13 @@ class PracticeProfileController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'logout-dialog',
 
-      title: 'Logout?'.tr,
+      title: TrKeys.common.logoutQuestion.tr,
 
-      subtitle: 'Are you sure you want to log out?'.tr,
+      subtitle: TrKeys.common.logoutConfirm.tr,
 
       isDismissable: true,
 
-      submitText: 'Logout'.tr,
+      submitText: TrKeys.common.logout.tr,
 
       onSubmit: (_) async {
         await authService.signOut();

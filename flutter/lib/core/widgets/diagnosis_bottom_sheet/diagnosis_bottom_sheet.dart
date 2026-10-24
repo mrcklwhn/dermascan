@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dartcv4/dartcv.dart' as cv;
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/models/doctor.dart';
@@ -242,9 +242,9 @@ class DiagnosisBottomSheet extends StatelessWidget {
             Positioned.fill(
               top: 20,
               child: Container(
-                decoration: const BoxDecoration(
-                  color: AppTheme.highlightColor,
-                  borderRadius: BorderRadius.vertical(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(AppTheme.radiusLarge),
                   ),
                 ),
@@ -328,8 +328,8 @@ class DiagnosisBottomSheet extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: currentPage == index
-                                  ? AppTheme.primary
-                                  : AppTheme.scaffoldBg,
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).scaffoldBackgroundColor,
                             ),
                           );
                         }),
@@ -354,7 +354,7 @@ class DiagnosisBottomSheet extends StatelessWidget {
                   child: FloatingActionButton(
                     heroTag: 'edit_lesion_fab_${lesion.id}',
                     elevation: 0,
-                    backgroundColor: AppTheme.primary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                     onPressed: openEditLesionPage,
                     child: const Icon(Icons.info),

@@ -2,6 +2,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/features/doctor/patients/controller/edit_lesion_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,7 +12,7 @@ class EditLesionScreen extends GetView<EditLesionController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Lesion'.tr)),
+      appBar: AppBar(title: Text(TrKeys.lesion.editLesion.tr)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: AppTheme.scaffoldPadding,
@@ -21,7 +22,7 @@ class EditLesionScreen extends GetView<EditLesionController> {
               const CustomIcon(iconData: Icons.edit_note),
               const SizedBox(height: AppTheme.spaceLarge),
               Text(
-                'Placement'.tr,
+                TrKeys.lesion.placement.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
 
@@ -30,13 +31,13 @@ class EditLesionScreen extends GetView<EditLesionController> {
                 textEditingController: controller.locationNameController,
                 focusNode: controller.locationNameFocusNode,
                 onSubmitted: (_) => controller.submittedLocationName(),
-                labelText: 'Location'.tr,
+                labelText: TrKeys.common.location.tr,
                 prefixIcon: Icons.place,
                 textInputType: TextInputType.text,
               ),
               const SizedBox(height: AppTheme.spaceMedium),
               Text(
-                'Classification'.tr,
+                TrKeys.lesion.classification.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
 
@@ -44,8 +45,8 @@ class EditLesionScreen extends GetView<EditLesionController> {
               Obx(
                 () => Card(
                   child: CheckboxListTile(
-                    title: Text('Suspicious Lesion'.tr),
-                    subtitle: Text('Mark this lesion as suspicious.'.tr),
+                    title: Text(TrKeys.lesion.suspiciousLesion.tr),
+                    subtitle: Text(TrKeys.lesion.markSuspicious.tr),
                     value: controller.isSuspicious.value,
                     onChanged: (bool? value) =>
                         controller.isSuspicious.value = value ?? false,
@@ -56,8 +57,8 @@ class EditLesionScreen extends GetView<EditLesionController> {
               Obx(
                 () => Card(
                   child: CheckboxListTile(
-                    title: Text('Excised Lesion'.tr),
-                    subtitle: Text('Mark this lesion as excised.'.tr),
+                    title: Text(TrKeys.lesion.excisedLesion.tr),
+                    subtitle: Text(TrKeys.lesion.markExcised.tr),
                     value: controller.wasRemoved.value,
                     onChanged: (bool? value) =>
                         controller.wasRemoved.value = value ?? false,
@@ -66,7 +67,7 @@ class EditLesionScreen extends GetView<EditLesionController> {
               ),
               const SizedBox(height: AppTheme.spaceMedium),
               Text(
-                'Additional Info'.tr,
+                TrKeys.common.additionalInfo.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: AppTheme.spaceSmall),
@@ -74,7 +75,7 @@ class EditLesionScreen extends GetView<EditLesionController> {
                 textEditingController: controller.notesController,
                 focusNode: controller.notesFocusNode,
                 onSubmitted: (_) => controller.submittedNotes(),
-                labelText: 'Notes'.tr,
+                labelText: TrKeys.common.notes.tr,
                 prefixIcon: Icons.description,
                 textInputType: TextInputType.multiline,
               ),
@@ -82,13 +83,13 @@ class EditLesionScreen extends GetView<EditLesionController> {
               FilledButton.icon(
                   icon: const Icon(Icons.save),
                   onPressed: controller.updateLesion,
-                  label: Text('Save'.tr),
+                  label: Text(TrKeys.common.save.tr),
                 ),
               const SizedBox(height: AppTheme.spaceMedium),
               OutlinedButton.icon(
                 icon: const Icon(Icons.delete),
                 onPressed: controller.showDeleteLesionDialog,
-                label: Text('Delete'.tr),
+                label: Text(TrKeys.common.delete.tr),
               ),
             ],
           ),

@@ -1,8 +1,9 @@
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/features/doctor/patients/controller/add_patient_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,7 +18,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text('New Patient'.tr)),
+      appBar: AppBar(title: Text(TrKeys.patient.newPatient.tr)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: AppTheme.scaffoldPadding,
@@ -27,7 +28,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
               const CustomIcon(iconData: Icons.person_add),
               const SizedBox(height: AppTheme.spaceLarge),
               Text(
-                'General Information'.tr,
+                TrKeys.common.generalInformation.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: AppTheme.spaceSmall),
@@ -35,7 +36,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                 textEditingController: controller.nameController,
                 focusNode: controller.nameFocusNode,
                 onSubmitted: (_) => controller.submittedName(),
-                labelText: 'Full Name'.tr,
+                labelText: TrKeys.common.fullName.tr,
                 prefixIcon: Icons.person,
                 textInputType: TextInputType.name,
               ),
@@ -51,7 +52,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                         border: noBorder,
                         enabledBorder: noBorder,
                         focusedBorder: noBorder,
-                        labelText: 'Date of Birth'.tr,
+                        labelText: TrKeys.common.dateOfBirth.tr,
                         prefixIcon: const Icon(Icons.calendar_month),
                       ),
                     ),
@@ -65,7 +66,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                         border: noBorder,
                         enabledBorder: noBorder,
                         focusedBorder: noBorder,
-                        labelText: 'Gender'.tr,
+                        labelText: TrKeys.common.gender.tr,
                         prefixIcon: const Icon(Icons.wc_outlined),
                       ),
                       items: Gender.values.map((Gender g) {
@@ -86,48 +87,48 @@ class AddPatientScreen extends GetView<AddPatientController> {
               ),
               const SizedBox(height: AppTheme.spaceMedium),
               Text(
-                'Sun & Lifestyle'.tr,
+                TrKeys.patient.sunAndLifestyle.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: AppTheme.spaceSmall),
               _buildToggleCard(
-                title: 'Sunscreen Use'.tr,
-                subtitle: 'Does the patient regularly use sunscreen?'.tr,
+                title: TrKeys.patient.sunscreenUse.tr,
+                subtitle: TrKeys.patient.sunscreenQuestion.tr,
                 value: controller.sunscreenUse,
               ),
               const SizedBox(height: AppTheme.spaceSmall),
               _buildToggleCard(
-                title: 'Sunburn History'.tr,
-                subtitle: 'Has the patient ever had a sunburn?'.tr,
+                title: TrKeys.patient.sunburnHistory.tr,
+                subtitle: TrKeys.patient.sunburnQuestion.tr,
                 value: controller.previousSunburns,
               ),
               const SizedBox(height: AppTheme.spaceSmall),
               _buildToggleCard(
-                title: 'Tanning Bed Use'.tr,
-                subtitle: 'Does the patient use tanning beds?'.tr,
+                title: TrKeys.patient.tanningBedUse.tr,
+                subtitle: TrKeys.patient.tanningBedQuestion.tr,
                 value: controller.tanningBedExposure,
               ),
               const SizedBox(height: AppTheme.spaceMedium),
               Text(
-                'Medical History'.tr,
+                TrKeys.patient.medicalHistory.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: AppTheme.spaceSmall),
               _buildToggleCard(
-                title: 'Personal History of Melanoma'.tr,
+                title: TrKeys.patient.personalHistoryMelanoma.tr,
                 value: controller.personalHistoryMelanoma,
-                subtitle: 'Previous personal melanoma diagnosis.'.tr,
+                subtitle: TrKeys.patient.personalMelanomaDesc.tr,
               ),
               const SizedBox(height: AppTheme.spaceSmall),
               _buildToggleCard(
-                title: 'Family History of Melanoma'.tr,
+                title: TrKeys.patient.familyHistoryMelanoma.tr,
                 value: controller.familyHistoryMelanoma,
-                subtitle: 'Melanoma cases in close relatives.'.tr,
+                subtitle: TrKeys.patient.familyMelanomaDesc.tr,
               ),
               const SizedBox(height: AppTheme.spaceSmall),
               _buildToggleCard(
-                title: 'Skin Surgery'.tr,
-                subtitle: 'Any previous skin-related surgeries?'.tr,
+                title: TrKeys.patient.skinSurgery.tr,
+                subtitle: TrKeys.patient.skinSurgeriesQuestion.tr,
                 value: controller.previousSkinSurgeries,
               ),
               Obx(() {
@@ -141,8 +142,8 @@ class AddPatientScreen extends GetView<AddPatientController> {
                           horizontal: AppTheme.spaceMedium,
                         ),
                         child: _buildToggleCard(
-                          title: 'Malignant / Cancerous'.tr,
-                          subtitle: 'Was a cancerous lesion removed?'.tr,
+                          title: TrKeys.patient.malignantCancerous.tr,
+                          subtitle: TrKeys.patient.cancerousRemovedQuestion.tr,
                           value: controller.previousCancerSurgeries,
                         ),
                       ),
@@ -153,7 +154,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                 }
               }),
               const SizedBox(height: AppTheme.spaceMedium),
-              Text('Location'.tr, style: Theme.of(context).textTheme.titleMedium),
+              Text(TrKeys.common.location.tr, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: AppTheme.spaceSmall),
               Row(
                 children: <Widget>[
@@ -169,7 +170,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                         border: noBorder,
                         enabledBorder: noBorder,
                         focusedBorder: noBorder,
-                        labelText: 'Country'.tr,
+                        labelText: TrKeys.common.country.tr,
                         prefixIcon: const Icon(Icons.public),
                       ),
                     ),
@@ -187,7 +188,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
                         border: noBorder,
                         enabledBorder: noBorder,
                         focusedBorder: noBorder,
-                        labelText: 'Birth Country'.tr,
+                        labelText: TrKeys.common.birthCountry.tr,
                         prefixIcon: const Icon(Icons.public),
                       ),
                     ),
@@ -198,7 +199,7 @@ class AddPatientScreen extends GetView<AddPatientController> {
               FilledButton.icon(
                   icon: const Icon(Icons.app_registration),
                   onPressed: controller.submitPatientData,
-                  label: Text('Create'.tr),
+                  label: Text(TrKeys.common.create.tr),
                 ),
 
               const SizedBox(height: AppTheme.spaceLarge),
@@ -229,13 +230,13 @@ class AddPatientScreen extends GetView<AddPatientController> {
   String _genderTranslationKey(Gender gender) {
     switch (gender) {
       case Gender.male:
-        return 'Male';
+        return TrKeys.common.male;
       case Gender.female:
-        return 'Female';
+        return TrKeys.common.female;
       case Gender.divers:
-        return 'Divers';
+        return TrKeys.common.divers;
       case Gender.undefined:
-        return 'Undefined';
+        return TrKeys.common.undefined;
     }
   }
 }

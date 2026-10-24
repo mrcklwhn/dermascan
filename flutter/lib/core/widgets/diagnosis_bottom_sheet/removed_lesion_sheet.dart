@@ -1,6 +1,7 @@
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -26,7 +27,7 @@ class RemovedLesionSheet extends StatelessWidget {
 
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Lesion Excised'.tr,
+            TrKeys.lesion.lesionExcised.tr,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSurface,
@@ -35,7 +36,7 @@ class RemovedLesionSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           Text(
-            'Lesion excised.\nDiagnoses remain accessible.'.tr,
+            TrKeys.diagnosis.lesionExcisedDiagnosesRemain.tr,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),

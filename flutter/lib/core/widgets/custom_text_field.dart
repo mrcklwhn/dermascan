@@ -101,13 +101,13 @@ class CustomTextField extends StatelessWidget {
         }),
         if (checkCriteria != null && checkCriteria!.isNotEmpty)
           ...checkCriteria!.map(
-            (CheckCriteria criteria) => _buildCriteriaRow(criteria),
+            (CheckCriteria criteria) => _buildCriteriaRow(context, criteria),
           ),
       ],
     );
   }
 
-  Widget _buildCriteriaRow(CheckCriteria checkCriteria) {
+  Widget _buildCriteriaRow(BuildContext context, CheckCriteria checkCriteria) {
     return Obx(() {
       final bool isValid = checkCriteria.criteriaState.value;
 
@@ -120,7 +120,7 @@ class CustomTextField extends StatelessWidget {
           children: <Widget>[
             Icon(
               isValid ? Icons.check_circle_outline : Icons.cancel_outlined,
-              color: isValid ? AppTheme.primary : AppTheme.textDark,
+              color: isValid ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
               size: 16,
             ),
             const SizedBox(width: AppTheme.spaceSmall),

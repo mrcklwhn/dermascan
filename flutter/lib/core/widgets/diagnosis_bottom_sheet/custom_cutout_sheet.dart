@@ -2,13 +2,14 @@ import 'dart:async';
 
 import 'package:dartcv4/dartcv.dart' as cv;
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -94,9 +95,9 @@ class CutoutController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'No Practice Assigned'.tr,
+              title: TrKeys.practice.noPracticeAssigned.tr,
               message:
-                  'You must be assigned to a practice to execute this operation.'
+                  TrKeys.practice.notAssignedToPracticeMsg
                       .tr,
             ),
           );
@@ -115,9 +116,9 @@ class CutoutController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Diagnosis Failed'.tr,
+            title: TrKeys.diagnosis.diagnosisFailed.tr,
             message:
-                'Diagnosis creation failed. Practice assignment required.'.tr,
+                TrKeys.diagnosis.diagnosisCreationFailedMsg.tr,
           ),
         );
       }
@@ -176,8 +177,8 @@ class CustomCutoutSheet extends StatelessWidget {
     return FilledButton(
       style: FilledButton.styleFrom(
         padding: EdgeInsets.zero,
-        backgroundColor: AppTheme.scaffoldBg,
-        foregroundColor: AppTheme.primary,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.primary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         ),

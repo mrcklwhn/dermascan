@@ -1,5 +1,34 @@
 import 'package:flutter/material.dart';
 
+
+/// Color Scheme Roles & Usage Reference:
+///
+/// - primary / onPrimary:
+///   Main actions: filled buttons, active/selected states; 'onPrimary' is the text/icon foreground.
+///
+/// - primaryContainer / onPrimaryContainer:
+///   Prominent, softer background surfaces and highlighted cards.
+///
+/// - secondary, tertiary (+ respective containers):
+///   Secondary accents and balancing tonal highlights.
+///
+/// - surface / onSurface:
+///   Page and card backgrounds; 'onSurface' is the primary foreground text.
+///
+/// - onSurfaceVariant:
+///   Secondary text, captions, and descriptions.
+///
+/// - surfaceContainerLow ... surfaceContainerHighest:
+///   Layer-by-layer increasing surface tones for visual elevation.
+///
+/// - outline, outlineVariant:
+///   Borders, structural outlines, and subtle dividers.
+///
+/// - error / onError:
+///   Error states, validation alerts, and foreground elements on error backgrounds.
+///
+
+
 class AppTheme {
   // ---------- Color Palette ----------
   static const Color primary = Color.fromRGBO(48, 71, 94, 1);
@@ -9,7 +38,6 @@ class AppTheme {
   // Neutral / Background Colors
   static const Color textDark = Color(0xFF393E41);
   static const Color scaffoldBg = Color.fromRGBO(241, 242, 246, 1);
-  static const Color disabledColor = Color.fromRGBO(228, 229, 233, 1);
   static const Color highlightColor = Color.fromRGBO(254, 255, 254, 1);
   static const Color white = Colors.white;
 
@@ -41,12 +69,11 @@ class AppTheme {
       onSecondary: textDark,
       error: danger,
       onError: white,
-      surface: white,
+      surface: highlightColor, // Chip Background -> Layer 1
       onSurface: textDark,
     ),
     primaryColor: primary,
-    scaffoldBackgroundColor: scaffoldBg,
-    canvasColor: white,
+    scaffoldBackgroundColor: scaffoldBg, // Scaffold Background -> Layer 0
 
     // Text
     textTheme: const TextTheme(

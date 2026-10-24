@@ -6,6 +6,7 @@ import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_toggle_card.dart';
 import 'package:dermascan/features/doctor/patients/controller/pdf_export_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -16,7 +17,7 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('PDF Export'.tr)),
+      appBar: AppBar(title: Text(TrKeys.pdf.exportPdf.tr)),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value) {
@@ -43,13 +44,13 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
           const CustomIcon(iconData: Icons.person_add),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No lesions'.tr,
+            TrKeys.lesion.noLesions.tr,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'The selected patient currently has no lesion.\n Add new lesions on the previous screen.'
+            TrKeys.lesion.selectedPatientNoLesions
                 .tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
@@ -93,7 +94,7 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
 
                     return Obx(
                       () => Card(
-                        color: AppTheme.scaffoldBg,
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         child: ListTile(
                           leading: AspectRatio(
                             aspectRatio: 1.0,
@@ -119,9 +120,9 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
                                     ),
                             ),
                           ),
-                          title: Text('Diagnosis ${index + 1}'),
+                          title: Text('${TrKeys.diagnosis.diagnosis.tr} ${index + 1}'),
                           subtitle: Text(
-                            'Date: ${DateFormat('dd.MM.yyyy').format(diagnosis.date)}',
+                            '${TrKeys.common.date.tr}: ${DateFormat('dd.MM.yyyy').format(diagnosis.date)}',
                           ),
                           onTap: () {
                             controller.toggleDiagnosisSelection(
@@ -171,30 +172,30 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
         const CustomIcon(iconData: Icons.picture_as_pdf),
         const SizedBox(height: AppTheme.spaceLarge),
         Text(
-          'Export Properties'.tr,
+          TrKeys.pdf.exportProperties.tr,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: AppTheme.spaceSmall),
         ToggleCard(
-          title: 'ABC Scores'.tr,
-          subtitle: 'Export ABC scores for each lesion'.tr,
+          title: TrKeys.pdf.abcScores.tr,
+          subtitle: TrKeys.pdf.abcScoresDesc.tr,
           value: controller.shouldExportABCScores,
         ),
         const SizedBox(height: AppTheme.spaceSmall),
         ToggleCard(
-          title: 'Notes'.tr,
-          subtitle: 'Export notes for each lesion'.tr,
+          title: TrKeys.common.notes.tr,
+          subtitle: TrKeys.pdf.exportNotesDesc.tr,
           value: controller.shouldExportNotes,
         ),
         const SizedBox(height: AppTheme.spaceMedium),
-        Text('Lesions', style: Theme.of(context).textTheme.titleMedium),
+        Text(TrKeys.pdf.lesions.tr, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: AppTheme.spaceSmall),
         ...separatedLesionTiles,
         const SizedBox(height: AppTheme.spaceLarge),
         FilledButton.icon(
           icon: const Icon(Icons.picture_as_pdf),
           onPressed: controller.exportPDF,
-          label: const Text('Export'),
+          label: Text(TrKeys.pdf.export.tr),
         ),
       ],
     );

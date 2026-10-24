@@ -1,3 +1,5 @@
+import 'package:dermascan/app/app_theme.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -51,21 +53,21 @@ class _RoleSelectionSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Text(
-            isPractice ? 'practice_options'.tr : 'doctor_options'.tr,
+            isPractice ? TrKeys.onboarding.practiceOptions.tr : TrKeys.onboarding.doctorOptions.tr,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppTheme.spaceLarge),
           ElevatedButton.icon(
             icon: const Icon(Icons.login),
             onPressed: controller.navigateToLogin,
-            label: Text('Login'.tr),
+            label: Text(TrKeys.auth.login.tr),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppTheme.spaceMedium),
           FilledButton.icon(
             icon: const Icon(Icons.app_registration),
             onPressed: () => controller.navigateToRegister(isPractice: isPractice),
-            label: Text('Register'.tr),
+            label: Text(TrKeys.auth.register.tr),
           ),
         ],
       ),

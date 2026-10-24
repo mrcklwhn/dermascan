@@ -10,6 +10,7 @@ import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -95,8 +96,8 @@ class DiagnosisDetailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Notes Updated'.tr,
-              message: 'Diagnosis notes saved successfully.'.tr,
+              title: TrKeys.diagnosis.notesUpdated.tr,
+              message: TrKeys.diagnosis.notesSavedMsg.tr,
             ),
           );
         }
@@ -105,8 +106,8 @@ class DiagnosisDetailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Saving Notes'.tr,
-              message: 'Could not save updates. Please try again.'.tr,
+              title: TrKeys.diagnosis.errorSavingNotes.tr,
+              message: TrKeys.diagnosis.couldNotSaveUpdates.tr,
             ),
           );
         }
@@ -124,8 +125,8 @@ class DiagnosisDetailController extends GetxController {
       Get.showSnackbar(
         CustomSnackBar(
           icon: Icons.error,
-          title: 'Error'.tr,
-          message: 'No image available to share.'.tr,
+          title: TrKeys.common.error.tr,
+          message: TrKeys.common.noImageToShare.tr,
         ),
       );
       return;
@@ -139,15 +140,15 @@ class DiagnosisDetailController extends GetxController {
       await SharePlus.instance.share(
         ShareParams(
           files: <XFile>[XFile(file.path)],
-          text: 'Lesion Report\nPatient: ${mainController.patient.name}\nDate:${diagnosis.date}\nPosition: ${mainController.lesion.position}\nNotes: ${diagnosis.notes}',
+          text: 'Lesion Report\nPatient: ${mainController.patient.name}\nDate:${DateFormat('dd.MM.yyyy').format(diagnosis.date)}\nPosition: ${mainController.lesion.locationName}${diagnosis.notes.isNotEmpty ? '\nNotes: ${diagnosis.notes}' : ''}',
         ),
       );
     } catch (e) {
       Get.showSnackbar(
         CustomSnackBar(
           icon: Icons.error,
-          title: 'Sharing Failed'.tr,
-          message: 'Could not share image. Please try again.'.tr,
+          title: TrKeys.common.sharingFailed.tr,
+          message: TrKeys.common.couldNotShareImage.tr,
         ),
       );
     }
@@ -163,8 +164,8 @@ class DiagnosisDetailController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -185,8 +186,8 @@ class DiagnosisDetailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Diagnosis Deleted'.tr,
-              message: 'The Diagnosis and its image have been deleted.'.tr,
+              title: TrKeys.diagnosis.diagnosisDeleted.tr,
+              message: TrKeys.diagnosis.diagnosisDeletedMsg.tr,
             ),
           );
         }
@@ -199,8 +200,8 @@ class DiagnosisDetailController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Deleting Diagnosis'.tr,
-              message: 'The Diagnosis could not be deleted.'.tr,
+              title: TrKeys.diagnosis.errorDeletingDiagnosis.tr,
+              message: TrKeys.diagnosis.diagnosisCouldNotBeDeleted.tr,
             ),
           );
         }
@@ -215,12 +216,12 @@ class DiagnosisDetailController extends GetxController {
 
     await CustomDialogHelper.show(
       routeName: 'delete-diagnosis-dialog',
-      title: 'Delete Diagnosis?'.tr,
+      title: TrKeys.diagnosis.deleteDiagnosisQuestion.tr,
       subtitle:
-          'Delete this diagnosis? All associated data and images will be permanently removed.'
+          TrKeys.diagnosis.deleteDiagnosisConfirmMsg
               .tr,
       isDismissable: !isLoading.value,
-      submitText: 'Delete'.tr,
+      submitText: TrKeys.common.delete.tr,
       onSubmit: (_) async {
               await deleteDiagnosis();
             },
@@ -277,18 +278,18 @@ class CustomDiagnosisSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      '${'Diagnosis'.tr} ${mainController.lesion.diagnoses.length - mainController.currentPage.value + 1}',
+                      '${TrKeys.diagnosis.diagnosis.tr} ${mainController.lesion.diagnoses.length - mainController.currentPage.value + 1}',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: AppTheme.spaceSmall),
                     Text(
-                      '${'Date'.tr}: ${DateFormat('dd.MM.yyyy').format(diagnosis.date)}',
+                      '${TrKeys.common.date.tr}: ${DateFormat('dd.MM.yyyy').format(diagnosis.date)}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     Text(
-                      '${'Doctor'.tr}: ${diagnosis.doctorName!}',
+                      '${TrKeys.doctor.doctor.tr}: ${diagnosis.doctorName!}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
@@ -298,43 +299,43 @@ class CustomDiagnosisSheet extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.share),
-                tooltip: 'Share'.tr,
+                tooltip: TrKeys.common.share.tr,
                 onPressed: controller.shareDiagnosis,
               ),
             ],
           ),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'ABC - Scores'.tr,
+            TrKeys.diagnosis.abcScores.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           _buildScoreIndicator(
             context,
-            title: 'Asymmetry'.tr,
+            title: TrKeys.diagnosis.asymmetry.tr,
             score: diagnosis.aScore,
-            textLeft: 'Symmetric'.tr,
-            textRight: 'Asymmetric'.tr,
+            textLeft: TrKeys.diagnosis.symmetric.tr,
+            textRight: TrKeys.diagnosis.asymmetric.tr,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           _buildScoreIndicator(
             context,
-            title: 'Border'.tr,
+            title: TrKeys.diagnosis.border.tr,
             score: diagnosis.bScore,
-            textLeft: 'Circular'.tr,
-            textRight: 'Irregular'.tr,
+            textLeft: TrKeys.diagnosis.circular.tr,
+            textRight: TrKeys.diagnosis.irregular.tr,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           _buildScoreIndicator(
             context,
-            title: 'Color Uniformity'.tr,
+            title: TrKeys.diagnosis.colorUniformity.tr,
             score: diagnosis.cScore,
-            textLeft: 'Uniform'.tr,
-            textRight: 'Variegated'.tr,
+            textLeft: TrKeys.diagnosis.uniform.tr,
+            textRight: TrKeys.diagnosis.variegated.tr,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Additional Info'.tr,
+            TrKeys.common.additionalInfo.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
@@ -343,7 +344,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
             focusNode: controller.notesFocusNode,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             onSubmitted: (_) => controller.submittedNotes(),
-            labelText: 'Notes'.tr,
+            labelText: TrKeys.common.notes.tr,
             prefixIcon: Icons.description,
             textInputType: TextInputType.multiline,
             minLines: 1,
@@ -361,7 +362,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: () => controller.submittedNotes(),
                 icon: const Icon(Icons.save),
-                label: Text('Save'.tr),
+                label: Text(TrKeys.common.save.tr),
               ),
             );
           }),
@@ -369,8 +370,8 @@ class CustomDiagnosisSheet extends StatelessWidget {
               diagnosis.analyzedImages!['original'] != null) ...<Widget>[
             const SizedBox(height: AppTheme.spaceMedium),
             ExpansionTile(
-              collapsedBackgroundColor: AppTheme.scaffoldBg,
-              backgroundColor: AppTheme.scaffoldBg,
+              collapsedBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               initiallyExpanded: false,
               onExpansionChanged: (bool expanded) {
                 if (expanded) {
@@ -378,7 +379,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
                 }
               },
               title: Text(
-                'Analysis Insights'.tr,
+                TrKeys.diagnosis.analysisInsights.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               children: <Widget>[
@@ -440,7 +441,7 @@ class CustomDiagnosisSheet extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () => controller.showDeleteDiagnosisDialog(),
             icon: const Icon(Icons.delete),
-            label: Text('Delete'.tr),
+            label: Text(TrKeys.common.delete.tr),
           ),
         ],
       );
@@ -481,7 +482,6 @@ class CustomDiagnosisSheet extends StatelessWidget {
               value: score,
               minHeight: 8,
               borderRadius: BorderRadius.circular(4),
-              backgroundColor: Theme.of(context).highlightColor,
               color: color ?? Theme.of(context).primaryColor,
             ),
             const SizedBox(height: AppTheme.spaceSmall),

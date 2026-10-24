@@ -1,4 +1,5 @@
 import 'package:dermascan/features/doctor/init/controller/key_import_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -10,7 +11,7 @@ class KeyImportScreen extends GetView<KeyImportController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Import Practice Key'.tr),
+        title: Text(TrKeys.practice.importPracticeKey.tr),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Get.back(result: false),
@@ -41,7 +42,7 @@ class KeyImportScreen extends GetView<KeyImportController> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'Scan the QR Code provided by the practice administrator to access patient data.'.tr,
+                TrKeys.practice.scanQrCodeDesc.tr,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.black87),
               ),

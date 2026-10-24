@@ -1,7 +1,6 @@
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/app/constants.dart';
 import 'package:dermascan/app/navigation_routes.dart';
-import 'package:dermascan/app/translation/messages.dart';
+import 'package:dermascan/core/constants.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
 import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
@@ -9,6 +8,7 @@ import 'package:dermascan/core/services/db_service/patient_db_service.dart';
 import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/services/encryption_service.dart';
 import 'package:dermascan/core/services/local_asset_server.dart';
+import 'package:dermascan/translations/app_translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/splash',
       getPages: NavigationRoutes.getRoutes,
-      translations: Messages(),
+      translations: AppTranslations(),
       locale: Get.deviceLocale,
       fallbackLocale: const Locale('en', 'US'),
       theme: AppTheme.light,

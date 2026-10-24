@@ -1,4 +1,4 @@
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/models/country.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/models/practice.dart';
@@ -7,6 +7,7 @@ import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
 import 'package:dermascan/core/services/db_service/patient_db_service.dart';
 import 'package:dermascan/core/widgets/country_selector_bottom_sheet.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -105,8 +106,8 @@ class AddPatientController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: TrKeys.common.missingInformation.tr,
+            message: TrKeys.common.fillRequiredFields.tr,
           ),
         );
       }
@@ -120,8 +121,8 @@ class AddPatientController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -139,9 +140,9 @@ class AddPatientController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'No Practice Assigned'.tr,
+              title: TrKeys.practice.noPracticeAssigned.tr,
               message:
-                  'You must be assigned to a practice to execute this operation.'
+                  TrKeys.practice.notAssignedToPracticeMsg
                       .tr,
             ),
           );
@@ -173,8 +174,8 @@ class AddPatientController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Patient Created'.tr,
-              message: 'Profile successfully created and added to practice.'.tr,
+              title: TrKeys.patient.patientCreated.tr,
+              message: TrKeys.patient.patientCreated.tr,
             ),
           );
         }
@@ -183,8 +184,8 @@ class AddPatientController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Patient Creation Failed'.tr,
-              message: 'Profile creation failed. Please check your data.'.tr,
+              title: TrKeys.patient.patientCreationFailed.tr,
+              message: TrKeys.patient.profileUpdateFailedMsg.tr,
             ),
           );
         }

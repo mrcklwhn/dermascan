@@ -5,6 +5,7 @@ import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -67,8 +68,8 @@ class EditLesionController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: TrKeys.common.missingInformation.tr,
+            message: TrKeys.common.fillRequiredFields.tr,
           ),
         );
       }
@@ -82,8 +83,8 @@ class EditLesionController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -113,8 +114,8 @@ class EditLesionController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Updated Lesion'.tr,
-              message: 'The Lesion has been successfully updated.'.tr,
+              title: TrKeys.lesion.updatedLesion.tr,
+              message: TrKeys.lesion.lesionUpdatedMsg.tr,
             ),
           );
         }
@@ -123,8 +124,8 @@ class EditLesionController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Updating Lesion'.tr,
-              message: 'The Lesion could not be updated.'.tr,
+              title: TrKeys.lesion.errorUpdatingLesion.tr,
+              message: TrKeys.lesion.lesionUpdateFailedMsg.tr,
             ),
           );
         }
@@ -139,10 +140,10 @@ class EditLesionController extends GetxController {
 
     await CustomDialogHelper.show(
       routeName: 'delete-lesion-dialog',
-      title: 'Delete Lesion?'.tr,
-      subtitle: 'Delete lesion? Associated diagnoses must be removed first.'.tr,
+      title: TrKeys.lesion.deleteLesionQuestion.tr,
+      subtitle: TrKeys.lesion.deleteLesionConfirmMsg.tr,
       isDismissable: true,
-      submitText: 'Delete'.tr,
+      submitText: TrKeys.common.delete.tr,
       onSubmit: (_) async {
               await deleteLesion(lesion: lesion);
             },
@@ -161,8 +162,8 @@ class EditLesionController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -195,8 +196,8 @@ class EditLesionController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Lesion Deleted'.tr,
-              message: 'The Lesion has been deleted.'.tr,
+              title: TrKeys.lesion.lesionDeleted.tr,
+              message: TrKeys.lesion.lesionDeletedMsg.tr,
             ),
           );
         }
@@ -205,8 +206,8 @@ class EditLesionController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Deleting Lesion'.tr,
-              message: 'Deletion failed. Ensure no diagnoses are linked.'.tr,
+              title: TrKeys.lesion.errorDeletingLesion.tr,
+              message: TrKeys.lesion.deletionFailedDiagnosesLinked.tr,
             ),
           );
         }

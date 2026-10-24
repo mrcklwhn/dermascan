@@ -4,6 +4,7 @@ import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/features/doctor/profile/controller/profile_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -15,7 +16,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Profile'.tr)),
+      appBar: AppBar(title: Text(TrKeys.doctor.profile.tr)),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -41,7 +42,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
           const CustomIcon(iconData: Icons.person),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'Doctor Information'.tr,
+            TrKeys.doctor.doctorInformation.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
@@ -49,7 +50,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
             textEditingController: controller.nameController,
             focusNode: controller.nameFocusNode,
             onSubmitted: (String value) => controller.submitName(newName: value),
-            labelText: 'Name'.tr,
+            labelText: TrKeys.common.name.tr,
             prefixIcon: Icons.person,
             textInputType: TextInputType.name,
           ),
@@ -57,16 +58,16 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.calendar_month),
-              title: Text('Date of Birth'.tr),
+              title: Text(TrKeys.common.dateOfBirth.tr),
               subtitle: doctor == null
-                  ? Text('Not available'.tr)
+                  ? Text(TrKeys.common.notAvailable.tr)
                   : Text(DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)),
             ),
           ),
           const SizedBox(height: AppTheme.spaceMedium),
 
         Text(
-          'Practice Details'.tr,
+          TrKeys.practice.practiceDetails.tr,
           style: Theme.of(context).textTheme.titleMedium,
         ),
 
@@ -75,11 +76,11 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.local_hospital),
-              title: Text('Current Practice'.tr),
+              title: Text(TrKeys.practice.currentPractice.tr),
               subtitle: practice == null
-                  ? Text('Not available'.tr)
+                  ? Text(TrKeys.common.notAvailable.tr)
                   : Text(
-                '${'Name'.tr}: ${practice.name}\n${'E-Mail'.tr}: ${practice.email}',
+                '${TrKeys.common.name.tr}: ${practice.name}\n${TrKeys.common.email.tr}: ${practice.email}',
               ),
               trailing: const Icon(Icons.logout),
               onTap: controller.showLeavePracticeDialog,
@@ -87,14 +88,14 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Security & Account'.tr,
+            TrKeys.common.securityAndAccount.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           Card(
             child: ListTile(
               leading: const Icon(Icons.mail),
-              title: Text('Change E-Mail'.tr),
+              title: Text(TrKeys.auth.changeEmail.tr),
               subtitle: Text(_buildEmailText(user)),
               trailing: const Icon(Icons.arrow_forward),
               onTap: controller.openChangeEmailScreen,
@@ -104,21 +105,21 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.password),
-              title: Text('Change Password'.tr),
+              title: Text(TrKeys.auth.changePassword.tr),
               trailing: const Icon(Icons.arrow_forward),
               onTap: controller.openChangePasswordScreen,
             ),
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Help & Documentation'.tr,
+            TrKeys.help.helpAndDocumentation.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           Card(
             child: ListTile(
               leading: const Icon(Icons.description),
-              title: Text('Documentation'.tr),
+              title: Text(TrKeys.help.documentation.tr),
               trailing: const Icon(Icons.arrow_forward),
               onTap: controller.openDocumentationScreen,
             ),
@@ -127,7 +128,7 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
           OutlinedButton.icon(
             onPressed: controller.showLogoutDialog,
             icon: const Icon(Icons.logout),
-            label: Text('Logout'.tr),
+            label: Text(TrKeys.common.logout.tr),
           ),
         ],
       ),
@@ -135,15 +136,15 @@ class DoctorProfileScreen extends GetView<DoctorProfileController> {
   }
 
   String _buildEmailText(User? user) {
-    if (user == null) return 'Not available'.tr;
+    if (user == null) return TrKeys.common.notAvailable.tr;
 
     final String? email = user.email;
     final String? newEmail = user.newEmail;
 
     if (newEmail == null || newEmail == email) {
-      return '${'Currently'.tr}: $email';
+      return '${TrKeys.common.currently.tr}: $email';
     }
 
-    return '${'Currently'.tr}: $email\n${'Pending'.tr}: $newEmail\n${'Please verify email and login again.'.tr}';
+    return '${TrKeys.common.currently.tr}: $email\n${TrKeys.common.pending.tr}: $newEmail\n${TrKeys.auth.verifyEmailMsg.tr}';
   }
 }

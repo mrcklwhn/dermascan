@@ -1,6 +1,7 @@
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/doctor/init/controller/init_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -21,14 +22,13 @@ class DoctorInitScreen extends GetView<DoctorInitController> {
               const CustomIcon(iconData: Icons.local_hospital),
               const SizedBox(height: AppTheme.spaceLarge),
               Text(
-                'No Practice Assigned'.tr,
+                TrKeys.practice.noPracticeAssigned.tr,
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppTheme.spaceMedium),
               Text(
-                'Not assigned to a practice.\nCheck your inbox for team invitations.'
-                    .tr,
+                TrKeys.practice.notAssignedToPracticeMsg.tr,
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
@@ -36,13 +36,13 @@ class DoctorInitScreen extends GetView<DoctorInitController> {
               FilledButton.icon(
                 icon: const Icon(Icons.local_hospital),
                 onPressed: controller.openInvitationsScreen,
-                label: Text('Check Invitations'.tr),
+                label: Text(TrKeys.practice.checkInvitations.tr),
               ),
               const SizedBox(height: AppTheme.spaceMedium),
               OutlinedButton.icon(
                 icon: const Icon(Icons.logout),
                 onPressed: controller.showLogoutDialog,
-                label: Text('Logout'.tr),
+                label: Text(TrKeys.common.logout.tr),
               ),
             ],
           ),

@@ -1,4 +1,4 @@
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:get/get.dart';
 
 class RegisterController extends GetxController {

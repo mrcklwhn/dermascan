@@ -2,6 +2,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/practice/doctors/controller/available_doctors_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -12,7 +13,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Available Doctors'.tr)),
+      appBar: AppBar(title: Text(TrKeys.practice.availableDoctors.tr)),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -40,13 +41,13 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
           const CustomIcon(iconData: Icons.person_add),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No Doctors Available'.tr,
+            TrKeys.practice.noDoctorsAvailable.tr,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'No doctors available.\nPress refresh to check again.'.tr,
+            TrKeys.practice.noDoctorsAvailableRefreshMsg.tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -57,7 +58,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
               onPressed: controller.isInitializing.value
                   ? null
                   : controller.reloadDoctors,
-              label: Text('Refresh'.tr),
+              label: Text(TrKeys.common.refresh.tr),
             ),
           ),
         ],
@@ -71,7 +72,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
       child: Column(
         children: <Widget>[
           SearchBar(
-            hintText: 'Search ...'.tr,
+            hintText: TrKeys.common.search.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             trailing: <Widget>[
@@ -101,7 +102,7 @@ class AvailableDoctorsScreen extends GetView<AvailableDoctorsController> {
                           leading: const Icon(Icons.person),
                           trailing: const Icon(Icons.arrow_forward),
                           subtitle: Text(
-                            '${'E-Mail'.tr}: ${doctor.email}\n${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
+                            '${TrKeys.common.email.tr}: ${doctor.email}\n${TrKeys.common.birthday.tr}: ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
                           ),
                           onTap: controller.isInitializing.value
                               ? null

@@ -1,6 +1,7 @@
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/auth/controller/onboarding/onboarding_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -20,32 +21,32 @@ class OnboardingScreen extends GetView<OnboardingController> {
               const CustomIcon(iconData:
                 Icons.health_and_safety,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.spaceLarge),
               Text(
-                'onboarding_title'.tr,
+                TrKeys.onboarding.title.tr,
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppTheme.spaceMedium),
               Text(
-                'onboarding_subtitle'.tr,
+                TrKeys.onboarding.subtitle.tr,
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
               const Spacer(flex: 3),
               _buildRoleCard(
                 context: context,
-                title: 'i_am_a_doctor'.tr,
-                description: 'doctor_onboarding_desc'.tr,
+                title: TrKeys.onboarding.iAmDoctor.tr,
+                description: TrKeys.onboarding.doctorDesc.tr,
                 icon: Icons.person,
                 onTap: () => controller.openRoleSelection(isPractice: false),
                 isPrimary: true,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppTheme.spaceMedium),
               _buildRoleCard(
                 context: context,
-                title: 'i_am_a_practice'.tr,
-                description: 'practice_onboarding_desc'.tr,
+                title: TrKeys.onboarding.iAmPractice.tr,
+                description: TrKeys.onboarding.practiceDesc.tr,
                 icon: Icons.local_hospital,
                 onTap: () => controller.openRoleSelection(isPractice: true),
                 isPrimary: false,
@@ -67,7 +68,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
     required bool isPrimary,
   }) {
     final Color bgColor = isPrimary
-        ? AppTheme.primary
+        ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.surface;
     final Color iconColor = isPrimary
         ? Theme.of(context).colorScheme.onPrimaryContainer

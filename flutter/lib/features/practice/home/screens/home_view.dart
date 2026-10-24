@@ -1,4 +1,5 @@
 import 'package:dermascan/features/practice/home/controller/home_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -20,12 +21,12 @@ class PracticeHomeScreen extends StatelessWidget {
             NavigationDestination(
               icon: const Icon(Icons.group_outlined),
               selectedIcon: const Icon(Icons.group),
-              label: 'Doctors'.tr,
+              label: TrKeys.doctor.doctors.tr,
             ),
             NavigationDestination(
               icon: const Icon(Icons.local_hospital_outlined),
               selectedIcon: const Icon(Icons.local_hospital),
-              label: 'Profile'.tr,
+              label: TrKeys.doctor.profile.tr,
             ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/features/practice/profile/controller/profile_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,7 +13,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Profile'.tr)),
+      appBar: AppBar(title: Text(TrKeys.doctor.profile.tr)),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -36,7 +37,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
           const CustomIcon(iconData: Icons.local_hospital),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'Practice Information'.tr,
+            TrKeys.practice.practiceInformation.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
@@ -44,21 +45,21 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
             textEditingController: controller.nameController,
             focusNode: controller.nameFocusNode,
             onSubmitted: (String value) => controller.submitName(newName: value),
-            labelText: 'Name'.tr,
+            labelText: TrKeys.common.name.tr,
             prefixIcon: Icons.local_hospital,
             textInputType: TextInputType.name,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Security & Account'.tr,
+            TrKeys.common.securityAndAccount.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           Card(
             child: ListTile(
               leading: const Icon(Icons.qr_code_2),
-              title: Text('Export Encryption Key'.tr),
-              subtitle: Text('Show QR Code to doctors'.tr),
+              title: Text(TrKeys.practice.exportEncryptionKey.tr),
+              subtitle: Text(TrKeys.practice.showQrCodeToDoctors.tr),
               trailing: const Icon(Icons.arrow_forward),
               onTap: controller.openKeyExportDialog,
             ),
@@ -67,7 +68,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.mail),
-              title: Text('Change E-Mail'.tr),
+              title: Text(TrKeys.auth.changeEmail.tr),
               subtitle: Text(_buildEmailText(user)),
               trailing: const Icon(Icons.arrow_forward),
               onTap: controller.openChangeEmailScreen,
@@ -77,21 +78,21 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.password),
-              title: Text('Change Password'.tr),
+              title: Text(TrKeys.auth.changePassword.tr),
               trailing: const Icon(Icons.arrow_forward),
               onTap: controller.openChangePasswordScreen,
             ),
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'Help & Documentation'.tr,
+            TrKeys.help.helpAndDocumentation.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           Card(
             child: ListTile(
               leading: const Icon(Icons.description),
-              title: Text('Documentation'.tr),
+              title: Text(TrKeys.help.documentation.tr),
               trailing: const Icon(Icons.arrow_forward),
               onTap: controller.openDocumentationScreen,
             ),
@@ -100,7 +101,7 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
           OutlinedButton.icon(
             onPressed: controller.showLogoutDialog,
             icon: const Icon(Icons.logout),
-            label: Text('Logout'.tr),
+            label: Text(TrKeys.common.logout.tr),
           ),
         ],
       ),
@@ -108,15 +109,15 @@ class PracticeProfileScreen extends GetView<PracticeProfileController> {
   }
 
   String _buildEmailText(User? user) {
-    if (user == null) return 'Not available'.tr;
+    if (user == null) return TrKeys.common.notAvailable.tr;
 
     final String? email = user.email;
     final String? newEmail = user.newEmail;
 
     if (newEmail == null || newEmail == email) {
-      return '${'Currently'.tr}: $email';
+      return '${TrKeys.common.currently.tr}: $email';
     }
 
-    return '${'Currently'.tr}: $email\n${'Pending'.tr}: $newEmail\n${'Please verify email and login again.'.tr}';
+    return '${TrKeys.common.currently.tr}: $email\n${TrKeys.common.pending.tr}: $newEmail\n${TrKeys.auth.verifyEmailMsg.tr}';
   }
 }

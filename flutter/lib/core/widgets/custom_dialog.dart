@@ -1,6 +1,7 @@
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -35,8 +36,8 @@ class CustomDialogHelper {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Missing Information'.tr,
-              message: 'Please fill in all required fields.'.tr,
+              title: TrKeys.common.missingInformation.tr,
+              message: TrKeys.common.fillRequiredFields.tr,
             ),
           );
         }
@@ -57,7 +58,7 @@ class CustomDialogHelper {
       PopScope(
         canPop: isDismissable,
         child: Dialog(
-          backgroundColor: AppTheme.highlightColor,
+          backgroundColor: Theme.of(Get.context!).colorScheme.surface,
           child: Container(
             padding: const EdgeInsets.all(AppTheme.spaceMedium),
             decoration: BoxDecoration(
@@ -101,7 +102,7 @@ class CustomDialogHelper {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => hide(routeName: routeName),
-                          child: Text('Dismiss'.tr),
+                          child: Text(TrKeys.common.dismiss.tr),
                         ),
                       ),
                       const SizedBox(width: AppTheme.spaceMedium),

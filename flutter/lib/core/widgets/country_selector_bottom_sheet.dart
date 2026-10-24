@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:circle_flags/circle_flags.dart';
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/country.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,10 +18,10 @@ class CountrySelectorBottomSheetController extends GetxController {
   void onInit() {
     unawaited(
       CircleFlag.preload(
-        allCountries.map((Country country) => country.isoCode).toList(),
+        countries.map((Country country) => country.isoCode).toList(),
       ),
     );
-    filteredCountries.assignAll(allCountries);
+    filteredCountries.assignAll(countries);
     super.onInit();
   }
 
@@ -34,7 +35,7 @@ class CountrySelectorBottomSheetController extends GetxController {
 
   void filterCountries({required String query}) {
     filteredCountries.assignAll(
-      allCountries
+      countries
           .where(
             (Country c) => c.name.toLowerCase().contains(query.toLowerCase()),
           )
@@ -69,9 +70,9 @@ class CountrySelectorBottomSheet extends StatelessWidget {
     return Container(
       height: MediaQuery.sizeOf(context).height * 0.85,
       padding: AppTheme.scaffoldPadding.copyWith(top: 0, bottom: 0),
-      decoration: const BoxDecoration(
-        color: AppTheme.highlightColor,
-        borderRadius: BorderRadius.vertical(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(
           top: Radius.circular(AppTheme.radiusLarge),
         ),
       ),
@@ -89,14 +90,15 @@ class CountrySelectorBottomSheet extends StatelessWidget {
             ),
           ),
           SearchBar(
-            hintText: 'Search ...'.tr,
+            hintText: TrKeys.common.search.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
-            backgroundColor: WidgetStateProperty.all(AppTheme.scaffoldBg),
+            backgroundColor: WidgetStateProperty.all(Theme.of(context).scaffoldBackgroundColor),
             trailing: <Widget>[
               IconButton(
                 onPressed: controller.clearSearchBar,
                 icon: const Icon(Icons.clear),
+                style: IconButton.styleFrom(backgroundColor: Theme.of(context).scaffoldBackgroundColor),
               ),
             ],
             onChanged: (String value) =>
@@ -117,7 +119,7 @@ class CountrySelectorBottomSheet extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Card(
-                        color: AppTheme.scaffoldBg,
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         child: ListTile(
                           leading: CircleFlag(country.isoCode, size: 28),
                           title: Text(

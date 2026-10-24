@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:dartcv4/dartcv.dart' as cv;
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,12 +38,12 @@ class CaptureController extends GetxController {
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         uiSettings: <PlatformUiSettings>[
           AndroidUiSettings(
-            toolbarTitle: 'Crop Lesion'.tr,
+            toolbarTitle: TrKeys.lesion.cropLesion.tr,
             initAspectRatio: CropAspectRatioPreset.square,
             hideBottomControls: true,
           ),
           IOSUiSettings(
-            title: 'Crop Lesion'.tr,
+            title: TrKeys.lesion.cropLesion.tr,
             aspectRatioLockEnabled: true,
             resetAspectRatioEnabled: false,
             aspectRatioPickerButtonHidden: true,
@@ -63,9 +64,9 @@ class CaptureController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'No Practice Assigned'.tr,
+              title: TrKeys.practice.noPracticeAssigned.tr,
               message:
-                  'You must be assigned to a practice to execute this operation.'
+                  TrKeys.practice.notAssignedToPracticeMsg
                       .tr,
             ),
           );
@@ -89,8 +90,8 @@ class CaptureController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Upload Failed'.tr,
-              message: 'Image upload failed. Please check your connection.'.tr,
+              title: TrKeys.lesion.uploadFailed.tr,
+              message: TrKeys.lesion.imageUploadFailed.tr,
             ),
           );
         }
@@ -109,8 +110,8 @@ class CaptureController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Image Error'.tr,
-            message: 'Could not select image. Please try again later.'.tr,
+            title: TrKeys.lesion.imageError.tr,
+            message: TrKeys.lesion.couldNotSelectImage.tr,
           ),
         );
       }
@@ -173,13 +174,13 @@ class CustomCaptureSheet extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.camera_enhance,
-              label: 'Camera'.tr,
+              label: TrKeys.lesion.camera.tr,
               onPressed: () => controller.selectImage(ImageSource.camera),
             ),
             _buildActionButton(
               context: context,
               icon: Icons.photo_library,
-              label: 'Gallery'.tr,
+              label: TrKeys.lesion.gallery.tr,
               onPressed: () => controller.selectImage(ImageSource.gallery),
             ),
           ],
@@ -199,8 +200,8 @@ class CustomCaptureSheet extends StatelessWidget {
     return FilledButton(
       style: FilledButton.styleFrom(
         padding: EdgeInsets.zero,
-        backgroundColor: AppTheme.scaffoldBg,
-        foregroundColor: AppTheme.primary,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.primary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         ),
@@ -210,7 +211,7 @@ class CustomCaptureSheet extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(icon, size: size / 3, color: AppTheme.primary),
+          Icon(icon, size: size / 3, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(label, style: Theme.of(context).textTheme.titleMedium),
         ],

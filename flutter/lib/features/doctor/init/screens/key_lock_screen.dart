@@ -1,6 +1,7 @@
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/doctor/init/controller/key_lock_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -27,13 +28,13 @@ class KeyLockScreen extends GetView<KeyLockController> {
                 ),
                 const SizedBox(height: AppTheme.spaceLarge),
                 Text(
-                  'Missing Encryption Key'.tr,
+                  TrKeys.practice.missingEncryptionKey.tr,
                   style: Theme.of(context).textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppTheme.spaceMedium),
                 Text(
-                  'You have joined a practice, but this device does not have the encryption key required to view patient data. Please import the key by scanning the QR code from the practice administrator.'.tr,
+                  TrKeys.practice.missingKeyMsg.tr,
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
@@ -41,13 +42,13 @@ class KeyLockScreen extends GetView<KeyLockController> {
                 FilledButton.icon(
                   icon: const Icon(Icons.qr_code_scanner),
                   onPressed: controller.scanQRCode,
-                  label: Text('Scan QR Code'.tr),
+                  label: Text(TrKeys.practice.scanQrCode.tr),
                 ),
                 const SizedBox(height: AppTheme.spaceMedium),
                 OutlinedButton.icon(
                   icon: const Icon(Icons.logout),
                   onPressed: controller.logout,
-                  label: Text('Logout'.tr),
+                  label: Text(TrKeys.common.logout.tr),
                 ),
               ],
             ),

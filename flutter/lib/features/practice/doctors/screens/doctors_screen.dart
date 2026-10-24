@@ -2,6 +2,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/practice/doctors/controller/doctors_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +14,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Doctors'.tr),
+        title: Text(TrKeys.doctor.doctors.tr),
         actions: <Widget>[
           Obx(
             () => IconButton(
@@ -21,7 +22,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
                   ? null
                   : controller.showPendingInvitations,
               icon: const Icon(Icons.pending_actions),
-              tooltip: 'Invited Doctors'.tr,
+              tooltip: TrKeys.practice.invitedDoctors.tr,
             ),
           ),
           const SizedBox(width: AppTheme.spaceSmall,),
@@ -31,7 +32,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
                   ? null
                   : controller.showAvailableDoctors,
               icon: const Icon(Icons.person_add),
-              tooltip: 'Invite Doctors'.tr,
+              tooltip: TrKeys.practice.inviteDoctors.tr,
             ),
           ),
         ],
@@ -63,13 +64,13 @@ class DoctorsScreen extends GetView<DoctorsController> {
           const CustomIcon(iconData: Icons.person_add),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No Doctors Assigned'.tr,
+            TrKeys.practice.noDoctorsAssigned.tr,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'No other doctors in practice.\nPress below to invite.'.tr,
+            TrKeys.practice.noDoctorsInPracticeMsg.tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -79,7 +80,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
             onPressed: controller.isInitializing.value
                 ? null
                 : controller.showAvailableDoctors,
-            label: Text('Invite Doctors'.tr),
+            label: Text(TrKeys.practice.inviteDoctors.tr),
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Obx(
@@ -88,7 +89,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
               onPressed: controller.isInitializing.value
                   ? null
                   : controller.reloadDoctors,
-              label: Text('Refresh'.tr),
+              label: Text(TrKeys.common.refresh.tr),
             ),
           ),
         ],
@@ -102,7 +103,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
       child: Column(
         children: <Widget>[
           SearchBar(
-            hintText: 'Search ...'.tr,
+            hintText: TrKeys.common.search.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             trailing: <Widget>[
@@ -133,7 +134,7 @@ class DoctorsScreen extends GetView<DoctorsController> {
                           leading: const Icon(Icons.person),
                           trailing: const Icon(Icons.arrow_forward),
                           subtitle: Text(
-                            '${'E-Mail'.tr}: ${doctor.email}\n${'Birthday'.tr}: ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
+                            '${TrKeys.common.email.tr}: ${doctor.email}\n${TrKeys.common.birthday.tr}: ${DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)}',
                           ),
                           onTap: controller.isInitializing.value
                               ? null

@@ -2,6 +2,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/invitation.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/doctor/init/controller/invitations_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -12,7 +13,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Pending Invitations'.tr)),
+      appBar: AppBar(title: Text(TrKeys.practice.pendingInvitations.tr)),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -40,13 +41,13 @@ class InvitationsScreen extends GetView<InvitationsController> {
           const CustomIcon(iconData: Icons.mark_email_read),
           const SizedBox(height: AppTheme.spaceLarge),
           Text(
-            'No Pending Invitations'.tr,
+            TrKeys.practice.noPendingInvitations.tr,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(
-            'No open invitations.\nPress refresh to check again.'.tr,
+            TrKeys.practice.noOpenInvitationsMsg.tr,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -55,7 +56,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
             () => FilledButton.icon(
               icon: const Icon(Icons.refresh),
               onPressed: controller.reloadInvitations,
-              label: Text('Refresh'.tr),
+              label: Text(TrKeys.common.refresh.tr),
             ),
           ),
         ],
@@ -69,7 +70,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
       child: Column(
         children: <Widget>[
           SearchBar(
-            hintText: 'Search ...'.tr,
+            hintText: TrKeys.common.search.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
             trailing: <Widget>[
@@ -101,7 +102,7 @@ class InvitationsScreen extends GetView<InvitationsController> {
                         leading: const Icon(Icons.local_hospital),
                         trailing: const Icon(Icons.arrow_forward),
                         subtitle: Text(
-                          '${'Invited on'.tr} ${DateFormat('dd.MM.yyyy').format(invitation.createdAt)}',
+                          '${TrKeys.practice.invitedOn.tr} ${DateFormat('dd.MM.yyyy').format(invitation.createdAt)}',
                         ),
                         onTap: () => controller.showPracticeJoinDialog(
                                 practiceId: invitation.practice.id,

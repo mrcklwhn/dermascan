@@ -2,6 +2,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/features/practice/doctors/controller/doctor_details_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -12,7 +13,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Doctor Details'.tr)),
+      appBar: AppBar(title: Text(TrKeys.practice.doctorDetails.tr)),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
@@ -36,7 +37,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
         const SizedBox(height: AppTheme.spaceLarge),
 
         Text(
-          'Personal Information'.tr,
+          TrKeys.common.personalInformation.tr,
           style: Theme.of(context).textTheme.titleMedium,
         ),
 
@@ -44,7 +45,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.person),
-            title: Text('Name'.tr),
+            title: Text(TrKeys.common.name.tr),
             subtitle: Text(doctor.name),
           ),
         ),
@@ -52,14 +53,14 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.calendar_month),
-            title: Text('Date of Birth'.tr),
+            title: Text(TrKeys.common.dateOfBirth.tr),
             subtitle: Text(DateFormat('dd.MM.yyyy').format(doctor.dateOfBirth)),
           ),
         ),
         const SizedBox(height: AppTheme.spaceMedium),
 
         Text(
-          'Contact Details'.tr,
+          TrKeys.common.contactDetails.tr,
           style: Theme.of(context).textTheme.titleMedium,
         ),
 
@@ -67,7 +68,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.mail),
-            title: Text('E-Mail'.tr),
+            title: Text(TrKeys.common.email.tr),
             subtitle: Text(doctor.email),
           ),
         ),
@@ -83,7 +84,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
                   ? null
                   : controller.showRemoveDialog,
               icon: const Icon(Icons.person_remove),
-              label: Text('Remove Doctor'.tr),
+              label: Text(TrKeys.practice.removeDoctor.tr),
             );
           } else if (controller.invitationSent.value) {
             return OutlinedButton.icon(
@@ -94,7 +95,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
                   ? null
                   : controller.showRevokeDialog,
               icon: const Icon(Icons.clear),
-              label: Text('Revoke Invitation'.tr),
+              label: Text(TrKeys.practice.revokeInvitation.tr),
             );
           } else {
             return OutlinedButton.icon(
@@ -105,7 +106,7 @@ class DoctorDetailsScreen extends GetView<DoctorDetailsController> {
                   ? null
                   : controller.showInviteDialog,
               icon: const Icon(Icons.outgoing_mail),
-              label: Text('Invite Doctor'.tr),
+              label: Text(TrKeys.practice.inviteDoctor.tr),
             );
           }
         }),
