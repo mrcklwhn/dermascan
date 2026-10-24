@@ -20,8 +20,6 @@ class LesionAnalysis {
   cv.Mat? _convexHullMask;
   cv.Mat? _concavityMask;
 
-  cv.Mat? get rotatedMask => _rotatedMask;
-
   late NeuralLesionCutout _neuralCutout;
 
   LesionAnalysis(this.image) {
@@ -133,13 +131,6 @@ class LesionAnalysis {
       binaryMask: _convexHullMask!,
     );
     overlay.setTo(cv.Scalar.fromRgb(0, 255, 0), mask: hullOutlineMask);
-    return overlay;
-  }
-
-  cv.Mat getConvexHullOverlay() {
-    if (_convexHullMask == null || _convexHullMask!.isEmpty) return image;
-    final cv.Mat overlay = image.clone();
-    overlay.setTo(cv.Scalar.fromRgb(0, 0, 255), mask: _convexHullMask);
     return overlay;
   }
 }

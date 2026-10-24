@@ -91,12 +91,6 @@ class PdfExportController extends GetxController {
         .length;
   }
 
-  String getExportedRatioText(BodyLesion lesion) {
-    final int total = getTotalDiagnosesCountPerLesion(lesion);
-    final int selected = getSelectedDiagnosesCount(lesion);
-    return '$selected / $total';
-  }
-
   bool isExportable() => selectedDiagnoses.isNotEmpty;
 
   // selection management

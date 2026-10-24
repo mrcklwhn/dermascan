@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/app/enums.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/lesion_db_service.dart';

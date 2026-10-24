@@ -6,7 +6,6 @@ import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 
 class NeuralLesionCutout {
   OrtSession? _session;
-  OrtModelMetadata? _modelMetadata;
   final String modelPath;
 
   NeuralLesionCutout({
@@ -15,14 +14,6 @@ class NeuralLesionCutout {
 
   Future<void> initializeModel() async {
     _session ??= await OnnxRuntime().createSessionFromAsset(modelPath);
-    _modelMetadata = await _session!.getMetadata();
-  }
-
-  Future<OrtModelMetadata> getModelMetadata() async {
-    if (_modelMetadata == null) {
-      await initializeModel();
-    }
-    return _modelMetadata!;
   }
 
   Future<cv.Mat> run(cv.Mat image) async {

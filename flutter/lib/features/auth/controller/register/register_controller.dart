@@ -10,7 +10,8 @@ class RegisterController extends GetxController {
   void onInit() {
     super.onInit();
     if (Get.arguments != null && Get.arguments is Map) {
-      final int? initialTabIndex = Get.arguments['initialTabIndex'] as int?;
+      final Map<dynamic, dynamic> args = Get.arguments as Map<dynamic, dynamic>;
+      final int? initialTabIndex = args['initialTabIndex'] as int?;
       if (initialTabIndex == 0) {
         currentSelectedAuthOption.value = AuthOption.practice;
       } else if (initialTabIndex == 1) {
