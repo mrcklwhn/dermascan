@@ -14,7 +14,6 @@ class AuthService extends GetxService {
   final Rx<Practice?> currentPractice = Rx<Practice?>(null);
 
   final Rx<Doctor?> currentDoctor = Rx<Doctor?>(null);
-  final RxBool hasPractice = false.obs;
   final RxBool isInitialDataLoaded = false.obs;
 
   bool get isLoggedIn => supabaseClient.auth.currentSession != null;
@@ -37,12 +36,11 @@ class AuthService extends GetxService {
 
         currentDoctor.value = doctorAccount;
         currentPractice.value = practice;
-        hasPractice.value = (practice != null);
         isInitialDataLoaded.value = true;
 
-        if (hasPractice.value) {
+        if (practice != null) {
           final EncryptionService encryptionService = Get.find<EncryptionService>();
-          final String? key = await encryptionService.getPracticeKey(practiceId: practice!.id);
+          final String? key = await encryptionService.getPracticeKey(practiceId: practice.id);
           if (key == null || !encryptionService.isValidKeyFormat(base64Key: key)) {
             await Get.offAllNamed('/doctor/key-lock');
             return;

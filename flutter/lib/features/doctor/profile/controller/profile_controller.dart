@@ -40,7 +40,7 @@ class DoctorProfileController extends GetxController {
     try {
       await loadDoctorData();
       await loadPracticeData();
-      updateNameController(name: authService.currentDoctor.value!.name);
+      updateNameController(name: authService.currentDoctor.value?.name ?? '');
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error while loading doctor data: $e');
@@ -63,9 +63,10 @@ class DoctorProfileController extends GetxController {
   }
 
   Future<void> loadPracticeData() async {
-    if (authService.currentDoctor.value == null) return;
+    final Doctor? currentDoctor = authService.currentDoctor.value;
+    if (currentDoctor == null) return;
 
-    final String? practiceId = authService.currentDoctor.value!.practiceId;
+    final String? practiceId = currentDoctor.practiceId;
 
     if (practiceId == null) return;
 
@@ -94,13 +95,16 @@ class DoctorProfileController extends GetxController {
       return;
     }
 
-    if (newName.trim() == authService.currentDoctor.value!.name) {
-      updateNameController(name: authService.currentDoctor.value!.name);
+    final Doctor? currentDoctor = authService.currentDoctor.value;
+    if (currentDoctor == null) return;
+
+    if (newName.trim() == currentDoctor.name) {
+      updateNameController(name: currentDoctor.name);
       return;
     }
 
     if (newName.trim().isEmpty) {
-      updateNameController(name: authService.currentDoctor.value!.name);
+      updateNameController(name: currentDoctor.name);
       return;
     }
 
@@ -108,7 +112,7 @@ class DoctorProfileController extends GetxController {
 
     try {
       final Doctor? fetchedDoctor = await doctorDbService.changeDoctorName(
-        doctorId: authService.currentDoctor.value!.id,
+        doctorId: currentDoctor.id,
         newName: newName.trim(),
       );
 
@@ -137,7 +141,7 @@ class DoctorProfileController extends GetxController {
         }
       }
     } finally {
-      updateNameController(name: authService.currentDoctor.value!.name);
+      updateNameController(name: authService.currentDoctor.value?.name ?? '');
       isLoading.value = false;
     }
   }
@@ -164,9 +168,12 @@ class DoctorProfileController extends GetxController {
 
     isLoading.value = true;
 
+    final Doctor? currentDoctor = authService.currentDoctor.value;
+    if (currentDoctor == null) return;
+
     try {
       final bool success = await practiceDbService.leaveCurrentPractice(
-        doctorId: authService.currentDoctor.value!.id,
+        doctorId: currentDoctor.id,
       );
       if (success) {
         if (!Get.isSnackbarOpen) {

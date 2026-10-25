@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
+import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
@@ -121,15 +122,18 @@ class CaptureController extends GetxController {
     required Uint8List image,
   }) async {
     try {
+      final Doctor? currentDoctor = authService.currentDoctor.value;
+      if (currentDoctor == null) return;
+      
       final Diagnosis diagnosis = Diagnosis(
         id: id,
         notes: '',
         date: DateTime.now(),
         imagePath: imagePath,
         lesionId: mainController.lesion.id,
-        doctorId: authService.currentDoctor.value!.id,
+        doctorId: currentDoctor.id,
         image: image,
-        doctorName: authService.currentDoctor.value!.name,
+        doctorName: currentDoctor.name,
       );
 
       final Diagnosis? uploadedDiagnosis = await uploadDiagnosis(

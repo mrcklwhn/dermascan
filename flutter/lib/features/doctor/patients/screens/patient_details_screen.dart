@@ -65,15 +65,12 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                     const SizedBox(width: AppTheme.spaceSmall),
                     Expanded(
                       child: Obx(() {
-                        if (controller.selectedLesion.value != null) {
+                        final BodyLesion? lesion = controller.selectedLesion.value;
+                        if (lesion != null) {
                           final Color baseColor =
-                              controller.selectedLesion.value!.wasRemoved.value
+                              lesion.wasRemoved.value
                                   ? Colors.grey
-                                  : controller
-                                          .selectedLesion
-                                          .value!
-                                          .isSuspicious
-                                          .value
+                                  : lesion.isSuspicious.value
                                       ? Colors.red
                                       : Theme.of(context).colorScheme.secondary;
 
@@ -101,17 +98,13 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  '${TrKeys.common.location.tr}: ${controller.selectedLesion.value!.locationName}',
+                                  '${TrKeys.common.location.tr}: ${lesion.locationName}',
                                   style: Theme.of(context).textTheme.titleSmall,
                                   textAlign: TextAlign.start,
                                 ),
-                                if (controller
-                                    .selectedLesion
-                                    .value!
-                                    .diagnoses
-                                    .isNotEmpty)
+                                if (lesion.diagnoses.isNotEmpty)
                                   Text(
-                                    '${TrKeys.diagnosis.lastDiagnosis.tr}: ${DateFormat('dd.MM.yyyy').format(controller.selectedLesion.value!.diagnoses.first.date)}',
+                                    '${TrKeys.diagnosis.lastDiagnosis.tr}: ${DateFormat('dd.MM.yyyy').format(lesion.diagnoses.first.date)}',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall,

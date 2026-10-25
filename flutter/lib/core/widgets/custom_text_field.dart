@@ -99,10 +99,10 @@ class CustomTextField extends StatelessWidget {
             ),
           );
         }),
-        if (checkCriteria != null && checkCriteria!.isNotEmpty)
-          ...checkCriteria!.map(
+        if (checkCriteria != null)
+          ...checkCriteria?.map(
             (CheckCriteria criteria) => _buildCriteriaRow(context, criteria),
-          ),
+          ) ?? <Widget>[],
       ],
     );
   }

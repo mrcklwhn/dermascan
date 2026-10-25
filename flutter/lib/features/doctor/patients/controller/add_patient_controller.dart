@@ -150,12 +150,19 @@ class AddPatientController extends GetxController {
         return;
       }
 
+      final Gender? gender = selectedGender;
+      final DateTime? dob = dateOfBirth;
+      final String? bCountry = birthCountry;
+      final String? currCountry = currentCountry;
+
+      if (gender == null || dob == null || bCountry == null || currCountry == null) return;
+
       final Patient? createdPatient = await patientDbService.createPatientProfile(
         name: nameController.text.trim(),
-        gender: selectedGender!.name,
-        dateOfBirth: dateOfBirth!,
-        birthCountry: birthCountry!,
-        currentCountry: currentCountry!,
+        gender: gender.name,
+        dateOfBirth: dob,
+        birthCountry: bCountry,
+        currentCountry: currCountry,
         practiceId: practiceOfDoctor.id,
         tanningBedExposure: tanningBedExposure.value,
         previousSkinSurgeries: previousSkinSurgeries.value,

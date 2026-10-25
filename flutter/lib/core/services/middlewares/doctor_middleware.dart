@@ -24,7 +24,7 @@ class DoctorMiddleware extends GetMiddleware {
         return const RouteSettings(name: '/auth/login');
       }
     }
-    if (!authService.hasPractice.value) {
+    if (authService.currentPractice.value == null) {
       if (route != '/doctor/init' &&
           route != '/doctor/invitations' &&
           route != '/doctor/practice-details') {

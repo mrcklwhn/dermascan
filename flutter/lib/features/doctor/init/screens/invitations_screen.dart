@@ -52,12 +52,10 @@ class InvitationsScreen extends GetView<InvitationsController> {
             textAlign: TextAlign.center,
           ),
           const Spacer(flex: 2),
-          Obx(
-            () => FilledButton.icon(
-              icon: const Icon(Icons.refresh),
-              onPressed: controller.reloadInvitations,
-              label: Text(TrKeys.common.refresh.tr),
-            ),
+          FilledButton.icon(
+            icon: const Icon(Icons.refresh),
+            onPressed: controller.reloadInvitations,
+            label: Text(TrKeys.common.refresh.tr),
           ),
         ],
       ),

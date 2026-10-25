@@ -40,7 +40,7 @@ class PracticeProfileController extends GetxController {
   Future<void> _initializeData() async {
     try {
       await loadPracticeData();
-      updateNameController(name: authService.currentPractice.value!.name);
+      updateNameController(name: authService.currentPractice.value?.name ?? '');
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error while loading practice data: $e');
@@ -69,7 +69,8 @@ class PracticeProfileController extends GetxController {
   Future<void> submitName({required String newName}) async {
     if (isLoading.value || isInitializing.value) return;
 
-    if (authService.currentPractice.value == null) {
+    final Practice? currentPractice = authService.currentPractice.value;
+    if (currentPractice == null) {
       if (!Get.isSnackbarOpen) {
         Get.showSnackbar(
           CustomSnackBar(
@@ -82,13 +83,13 @@ class PracticeProfileController extends GetxController {
       return;
     }
 
-    if (newName.trim() == authService.currentPractice.value!.name) {
-      updateNameController(name: authService.currentPractice.value!.name);
+    if (newName.trim() == currentPractice.name) {
+      updateNameController(name: currentPractice.name);
       return;
     }
 
     if (newName.trim().isEmpty) {
-      updateNameController(name: authService.currentPractice.value!.name);
+      updateNameController(name: currentPractice.name);
       return;
     }
 
@@ -96,7 +97,7 @@ class PracticeProfileController extends GetxController {
 
     try {
       final Practice? fetchedPractice = await practiceDbService.changePracticeName(
-        practiceId: authService.currentPractice.value!.id,
+        practiceId: currentPractice.id,
         newName: newName.trim(),
       );
 
@@ -125,7 +126,7 @@ class PracticeProfileController extends GetxController {
         }
       }
     } finally {
-      updateNameController(name: authService.currentPractice.value!.name);
+      updateNameController(name: authService.currentPractice.value?.name ?? '');
       isLoading.value = false;
     }
   }

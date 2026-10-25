@@ -179,9 +179,12 @@ class DoctorRegisterController extends GetxController {
         return;
       }
 
+      final Gender? gender = selectedGender;
+      if (gender == null) return;
+
       final bool profileCreated = await doctorDbService.createDoctorProfile(
         name: nameController.text.trim(),
-        gender: selectedGender!.name,
+        gender: gender.name,
         dateOfBirth: dateOfBirth,
       );
 
