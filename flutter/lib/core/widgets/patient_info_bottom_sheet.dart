@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dermascan/app/app_theme.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/country.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
@@ -72,7 +73,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
       height: MediaQuery.sizeOf(context).height * 0.7,
       padding: AppTheme.scaffoldPadding.copyWith(top: 0, bottom: 0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(AppTheme.radiusLarge),
         ),
@@ -95,7 +96,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
               controller: controller.listScrollController,
               children: <Widget>[
                 Card(
-                  color: Theme.of(context).scaffoldBackgroundColor,
+                  color: Theme.of(context).colorScheme.surface,
                   child: ListTile(
                     title: Text(
                       patient.name,
@@ -106,7 +107,7 @@ class PatientInfoBottomSheet extends StatelessWidget {
                     subtitle: Text(
                       '${TrKeys.common.birthday.tr}: ${DateFormat('dd.MM.yyyy').format(patient.dateOfBirth)}\n'
                       '${TrKeys.common.country.tr}: ${countries.firstWhereOrNull((Country c) => c.isoCode == patient.birthCountry)?.name ?? TrKeys.common.notAvailable.tr}\n'
-                      '${TrKeys.common.gender.tr}: ${patient.gender.name.capitalizeFirst?.tr}',
+                      '${TrKeys.common.gender.tr}: ${_genderTranslationKey(patient.gender).tr}',
                     ),
                     onTap: () {
                       Get.back();
@@ -205,12 +206,12 @@ class PatientInfoBottomSheet extends StatelessWidget {
                       item = diagnoses[index];
 
                       final Uint8List bytes =
-                          item.diagnosis.analyzedImages!['original']!;
+                          item.diagnosis.image!;
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Card(
-                            color: Theme.of(context).scaffoldBackgroundColor,
+                            color: Theme.of(context).colorScheme.surface,
                             child: ListTile(
                               title: Text(item.locationName),
                               leading: AspectRatio(
@@ -263,8 +264,21 @@ class PatientInfoBottomSheet extends StatelessWidget {
     if (!visible) return const Center();
     return Chip(
       label: Text(title),
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       side: BorderSide.none,
     );
+  }
+
+  String _genderTranslationKey(Gender gender) {
+    switch (gender) {
+      case Gender.male:
+        return TrKeys.common.male;
+      case Gender.female:
+        return TrKeys.common.female;
+      case Gender.divers:
+        return TrKeys.common.divers;
+      case Gender.undefined:
+        return TrKeys.common.undefined;
+    }
   }
 }

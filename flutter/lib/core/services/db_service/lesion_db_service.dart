@@ -263,9 +263,7 @@ class LesionDbService extends GetxService {
           final String? imagePath = diagnosisMap['imagePath'] as String? ?? diagnosisMap['image_path'] as String?;
 
           if (imagePath != null && imagePath.isNotEmpty) {
-            diagnosisMap['analyzedImages'] = <String, Uint8List?>{
-              'original': await downloadFile(filePath: imagePath),
-            };
+            diagnosisMap['image'] = await downloadFile(filePath: imagePath);
           }
         }
 
@@ -294,10 +292,6 @@ class LesionDbService extends GetxService {
             'image_path': diagnosis.imagePath,
             'doctor_id': diagnosis.doctorId,
             'lesion_id': diagnosis.lesionId,
-            'a_score': diagnosis.aScore,
-            'b_score': diagnosis.bScore,
-            'c_score': diagnosis.cScore,
-            'cutout_type': diagnosis.cutoutType.name,
             'notes': encryptionService.encryptData(
               plainText: diagnosis.notes,
               base64Key: key,
@@ -312,9 +306,8 @@ class LesionDbService extends GetxService {
           encryptedText: responseMap['notes'] as String? ?? '',
           base64Key: key,
         );
-        responseMap['analyzedImages'] = <String, Uint8List?>{
-          'original': await downloadFile(filePath: diagnosis.imagePath),
-        };
+        responseMap['image'] = await downloadFile(filePath: diagnosis.imagePath);
+
         return Diagnosis.fromJson(responseMap);
       }
       return null;

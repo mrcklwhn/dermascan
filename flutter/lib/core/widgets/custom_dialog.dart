@@ -58,7 +58,7 @@ class CustomDialogHelper {
       PopScope(
         canPop: isDismissable,
         child: Dialog(
-          backgroundColor: Theme.of(Get.context!).colorScheme.surface,
+          backgroundColor: Theme.of(Get.context!).colorScheme.surfaceContainerLow,
           child: Container(
             padding: const EdgeInsets.all(AppTheme.spaceMedium),
             decoration: BoxDecoration(
@@ -90,9 +90,7 @@ class CustomDialogHelper {
                     onSubmitted: (String _) async => submit(),
                     prefixIcon: Icons.edit_note,
                     textInputType: TextInputType.text,
-                    backgroundColor: Theme.of(
-                      Get.context!,
-                    ).scaffoldBackgroundColor,
+                    backgroundColor: Theme.of(Get.context!).colorScheme.surface,
                   ),
                 ],
                 const SizedBox(height: AppTheme.spaceMedium),

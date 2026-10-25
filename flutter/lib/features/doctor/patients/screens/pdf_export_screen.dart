@@ -89,12 +89,11 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
                       const SizedBox(height: AppTheme.spaceSmall),
                   itemBuilder: (BuildContext context, int index) {
                     final Diagnosis diagnosis = lesion.diagnoses[index];
-                    final Uint8List? imageBytes =
-                        diagnosis.analyzedImages?['original'];
+                    final Uint8List? imageBytes = diagnosis.image;
 
                     return Obx(
                       () => Card(
-                        color: Theme.of(context).scaffoldBackgroundColor,
+                        color: Theme.of(context).colorScheme.surface,
                         child: ListTile(
                           leading: AspectRatio(
                             aspectRatio: 1.0,
@@ -174,12 +173,6 @@ class PdfExportLesionSelectionScreen extends GetView<PdfExportController> {
         Text(
           TrKeys.pdf.exportProperties.tr,
           style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: AppTheme.spaceSmall),
-        ToggleCard(
-          title: TrKeys.pdf.abcScores.tr,
-          subtitle: TrKeys.pdf.abcScoresDesc.tr,
-          value: controller.shouldExportABCScores,
         ),
         const SizedBox(height: AppTheme.spaceSmall),
         ToggleCard(

@@ -1,17 +1,13 @@
 import 'dart:async';
 
-import 'package:dartcv4/dartcv.dart' as cv;
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/models/doctor.dart';
 import 'package:dermascan/core/models/patient.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
-import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_capture_sheet.dart';
-import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_cutout_sheet.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/custom_diagnosis_details_sheet.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/removed_lesion_sheet.dart';
 import 'package:flutter/foundation.dart';
@@ -35,16 +31,7 @@ class DiagnosisMainController extends GetxController {
   final PageController pageController = PageController();
   final RxInt currentPage = 0.obs;
   final RxBool isLoading = true.obs;
-  final Rx<DiagnosisProcessState> processState = DiagnosisProcessState.idle.obs;
 
-  //Draft Diagnosis values
-  String? draftId;
-  String? draftImagePath;
-  CutoutType? draftCutoutType;
-  double? draftAScore;
-  double? draftBScore;
-  double? draftCScore;
-  Map<String, Uint8List?>? draftAnalyzedImages;
 
   Uint8List? cutoutML;
   Uint8List? cutoutAlgo;
@@ -81,7 +68,6 @@ class DiagnosisMainController extends GetxController {
 
   void disposeChildControllers() {
     Get.delete<CaptureController>();
-    Get.delete<CutoutController>();
     for (final Diagnosis diagnosis in lesion.diagnoses) {
       Get.delete<DiagnosisDetailController>(tag: diagnosis.id);
     }
@@ -90,7 +76,6 @@ class DiagnosisMainController extends GetxController {
   void registerChildControllers({required Diagnosis? diagnosis}) {
     if (diagnosis == null) {
       Get.put(CaptureController(mainController: this));
-      Get.put(CutoutController(mainController: this));
       for (final Diagnosis diagnosis in lesion.diagnoses) {
         Get.put(
           DiagnosisDetailController(diagnosis: diagnosis, mainController: this),
@@ -129,43 +114,6 @@ class DiagnosisMainController extends GetxController {
         curve: Curves.easeInOut,
       );
     }
-  }
-
-  Future<void> drawOverlaysForDiagnosis(Diagnosis diagnosis) async {
-    final Map<String, Uint8List?>? images = diagnosis.analyzedImages;
-    if (images == null || images['original'] == null) {
-      return;
-    }
-
-    if (images.containsKey('contour') && images.containsKey('concavity')) {
-      return;
-    }
-
-    try {
-      final Uint8List bytes = images['original']!;
-      if (bytes.isEmpty) return;
-
-      final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
-      if (mat.isEmpty) return;
-
-      final LesionAnalysis lesionAnalysis = LesionAnalysis(mat);
-      await lesionAnalysis.runLesionAnalysis(
-        useNeuralModel: diagnosis.cutoutType == CutoutType.ml
-      );
-
-      final Uint8List contour =
-          cv.imencode('.png', lesionAnalysis.getLesionContourOverlay()).$2;
-      final Uint8List concavity =
-          cv.imencode('.png', lesionAnalysis.getConcavityOverlay()).$2;
-
-      images['contour'] = contour;
-      images['concavity'] = concavity;
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Error drawing overlay: $e');
-      }
-    }
-    lesion.diagnoses.refresh();
   }
 
   Future<void> fetchDoctorNames() async {
@@ -207,8 +155,6 @@ class DiagnosisBottomSheet extends StatelessWidget {
         );
 
     return Obx(() {
-      final DiagnosisProcessState currentState =
-          mainController.processState.value;
       final bool isRemoved = lesion.wasRemoved.value;
       final RxList<Diagnosis> diagnoses = mainController.lesion.diagnoses;
       final int currentPage = mainController.currentPage.value;
@@ -216,17 +162,13 @@ class DiagnosisBottomSheet extends StatelessWidget {
       int pageCount;
       if (isRemoved) {
         pageCount = 1 + diagnoses.length;
-      } else if (currentState == DiagnosisProcessState.cutout) {
-        pageCount = 2 + diagnoses.length;
       } else {
         pageCount = 1 + diagnoses.length;
       }
 
-      final bool isDraftPreview =
-          currentState == DiagnosisProcessState.cutout && currentPage == 1;
       final bool isCompactPage =
           (isRemoved && currentPage == 0) ||
-          (!isRemoved && (currentPage == 0 || isDraftPreview));
+          (!isRemoved && (currentPage == 0));
 
       final double currentHeight = isCompactPage
           ? 250.0
@@ -243,7 +185,7 @@ class DiagnosisBottomSheet extends StatelessWidget {
               top: 20,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(AppTheme.radiusLarge),
                   ),
@@ -291,18 +233,6 @@ class DiagnosisBottomSheet extends StatelessWidget {
                             );
                           }
 
-                          if (currentState == DiagnosisProcessState.cutout) {
-                            if (index == 1) {
-                              return CustomCutoutSheet(
-                                mainController: mainController,
-                              );
-                            }
-                            return CustomDiagnosisSheet(
-                              diagnosis: diagnoses[index - 2],
-                              mainController: mainController,
-                            );
-                          }
-
                           return CustomDiagnosisSheet(
                             diagnosis: diagnoses[index - 1],
                             mainController: mainController,
@@ -329,7 +259,7 @@ class DiagnosisBottomSheet extends StatelessWidget {
                               shape: BoxShape.circle,
                               color: currentPage == index
                                   ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).scaffoldBackgroundColor,
+                                  : Theme.of(context).colorScheme.surface,
                             ),
                           );
                         }),
@@ -344,8 +274,8 @@ class DiagnosisBottomSheet extends StatelessWidget {
               right: AppTheme.spaceLarge,
               child: Container(
                 padding: const EdgeInsets.all(AppTheme.spaceSmall),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
                   shape: BoxShape.circle,
                 ),
                 child: SizedBox(
@@ -355,7 +285,7 @@ class DiagnosisBottomSheet extends StatelessWidget {
                     heroTag: 'edit_lesion_fab_${lesion.id}',
                     elevation: 0,
                     backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     onPressed: openEditLesionPage,
                     child: const Icon(Icons.info),
                   ),

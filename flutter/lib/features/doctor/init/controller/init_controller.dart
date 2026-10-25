@@ -1,5 +1,6 @@
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:get/get.dart';
 
 class DoctorInitController extends GetxController {
@@ -13,13 +14,13 @@ class DoctorInitController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'logout-dialog',
 
-      title: 'Logout?'.tr,
+      title: TrKeys.common.logoutQuestion.tr,
 
-      subtitle: 'Are you sure you want to log out?'.tr,
+      subtitle: TrKeys.common.logoutConfirm.tr,
 
       isDismissable: true,
 
-      submitText: 'Logout'.tr,
+      submitText: TrKeys.common.logout.tr,
 
       onSubmit: (_) async {
         await authService.signOut();

@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dartcv4/dartcv.dart' as cv;
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/core/enums.dart';
+import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
-import 'package:dermascan/core/utils/lesion_analysis.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
 import 'package:dermascan/translations/tr_keys.dart';
@@ -65,9 +63,7 @@ class CaptureController extends GetxController {
             CustomSnackBar(
               icon: Icons.error,
               title: TrKeys.practice.noPracticeAssigned.tr,
-              message:
-                  TrKeys.practice.notAssignedToPracticeMsg
-                      .tr,
+              message: TrKeys.practice.notAssignedToPracticeMsg.tr,
             ),
           );
         }
@@ -98,13 +94,11 @@ class CaptureController extends GetxController {
         return;
       }
 
-      mainController.draftId = currentDiagnosisId;
-      mainController.draftImagePath = imagePath;
-      mainController.draftAnalyzedImages = <String, Uint8List?>{
-        'original': bytes,
-      };
-
-      await generateCutouts();
+      await startDiagnosisPipeline(
+        id: currentDiagnosisId,
+        imagePath: imagePath,
+        image: bytes,
+      );
     } catch (e) {
       if (!Get.isSnackbarOpen) {
         Get.showSnackbar(
@@ -121,35 +115,79 @@ class CaptureController extends GetxController {
     }
   }
 
-  Future<void> generateCutouts() async {
+  Future<void> startDiagnosisPipeline({
+    required String id,
+    required String imagePath,
+    required Uint8List image,
+  }) async {
     try {
-      isLoading.value = true;
+      final Diagnosis diagnosis = Diagnosis(
+        id: id,
+        notes: '',
+        date: DateTime.now(),
+        imagePath: imagePath,
+        lesionId: mainController.lesion.id,
+        doctorId: authService.currentDoctor.value!.id,
+        image: image,
+        doctorName: authService.currentDoctor.value!.name,
+      );
 
-      final Uint8List bytes = mainController.draftAnalyzedImages!['original']!;
-      final cv.Mat mat = cv.imdecode(bytes, cv.IMREAD_COLOR);
+      final Diagnosis? uploadedDiagnosis = await uploadDiagnosis(
+        diagnosis: diagnosis,
+      );
 
-      final LesionAnalysis lesionML = LesionAnalysis(mat);
-      final LesionAnalysis lesionAlgo = LesionAnalysis(mat);
-      await lesionML.runLesionAnalysis(useNeuralModel: true);
-      await lesionAlgo.runLesionAnalysis(useNeuralModel: false);
-
-      mainController.cutoutML = cv
-          .imencode('.png', lesionML.getLesionContourOverlay())
-          .$2;
-      mainController.cutoutAlgo = cv
-          .imencode('.png', lesionAlgo.getLesionContourOverlay())
-          .$2;
-
-      mainController.processState.value = DiagnosisProcessState.cutout;
+      if (uploadedDiagnosis == null) return;
+      mainController.registerChildControllers(diagnosis: diagnosis);
+      mainController.lesion.diagnoses.insert(0, diagnosis);
       mainController.animateToPage(1);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('Error: Could not create lesion cutout.');
+        debugPrint('Error: Could not finish diagnosis pipeline.');
       }
-      return;
-    } finally {
-      isLoading.value = false;
     }
+  }
+
+  Future<Diagnosis?> uploadDiagnosis({required Diagnosis diagnosis}) async {
+    final Diagnosis? newDiagnosis = await lesionDbService.createDiagnosis(
+      diagnosis: diagnosis,
+    );
+
+    if (newDiagnosis == null) {
+      final String? practiceId = authService.currentDoctor.value?.practiceId;
+
+      if (practiceId == null) {
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(
+            CustomSnackBar(
+              icon: Icons.error,
+              title: TrKeys.practice.noPracticeAssigned.tr,
+              message: TrKeys.practice.notAssignedToPracticeMsg.tr,
+            ),
+          );
+        }
+        return null;
+      }
+
+      final String storagePath =
+          '$practiceId/${mainController.patient.id}/${diagnosis.id}.jpg';
+
+      await lesionDbService.deleteFile(
+        bucket: 'lesion_images',
+        storagePath: storagePath,
+      );
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(
+          CustomSnackBar(
+            icon: Icons.error,
+            title: TrKeys.diagnosis.diagnosisFailed.tr,
+            message: TrKeys.diagnosis.diagnosisCreationFailedMsg.tr,
+          ),
+        );
+      }
+      return null;
+    }
+
+    return newDiagnosis;
   }
 }
 
@@ -167,7 +205,8 @@ class CustomCaptureSheet extends StatelessWidget {
         return const Center(child: CircularProgressIndicator.adaptive());
       }
 
-      return Center(
+      return SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: AppTheme.spaceLarge),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
@@ -200,7 +239,7 @@ class CustomCaptureSheet extends StatelessWidget {
     return FilledButton(
       style: FilledButton.styleFrom(
         padding: EdgeInsets.zero,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: Theme.of(context).colorScheme.primary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
@@ -211,7 +250,11 @@ class CustomCaptureSheet extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(icon, size: size / 3, color: Theme.of(context).colorScheme.primary),
+          Icon(
+            icon,
+            size: size / 3,
+            color: Theme.of(context).colorScheme.primary,
+          ),
           const SizedBox(height: AppTheme.spaceMedium),
           Text(label, style: Theme.of(context).textTheme.titleMedium),
         ],

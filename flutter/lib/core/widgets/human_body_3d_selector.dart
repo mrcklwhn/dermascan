@@ -4,6 +4,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -357,7 +358,7 @@ class HumanBody3DSelector extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(AppTheme.spaceSmall),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
+                          color: Theme.of(context).colorScheme.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(
                             AppTheme.radiusMedium,
                           ),
@@ -368,19 +369,19 @@ class HumanBody3DSelector extends StatelessWidget {
                           children: <Widget>[
                             _LegendItem(
                               color: Colors.red,
-                              label: 'Suspicious'.tr,
+                              label: TrKeys.lesion.suspicious.tr,
                             ),
 
                             const SizedBox(height: AppTheme.spaceSmall),
                             _LegendItem(
                               color: Colors.grey,
-                              label: 'Excised'.tr,
+                              label: TrKeys.lesion.excised.tr,
                             ),
 
                             const SizedBox(height: AppTheme.spaceSmall),
                             _LegendItem(
                               color: Theme.of(context).colorScheme.secondary,
-                              label: 'Normal'.tr,
+                              label: TrKeys.lesion.normal.tr,
                             ),
                           ],
                         ),
@@ -406,7 +407,7 @@ class HumanBody3DSelector extends StatelessWidget {
                         icon: const Icon(Icons.gps_fixed),
                         style: ButtonStyle(
                           backgroundColor: WidgetStateProperty.all(
-                            Theme.of(context).colorScheme.surface,
+                            Theme.of(context).colorScheme.surfaceContainerLow,
                           ),
                           shape: WidgetStateProperty.all(
                             RoundedRectangleBorder(
@@ -444,7 +445,7 @@ class _LegendItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
+            border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerLowest, width: 2),
             boxShadow: const <BoxShadow>[
               BoxShadow(color: Colors.black26, blurRadius: 4),
             ],

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
 import 'package:dermascan/core/models/doctor.dart';
@@ -9,6 +10,7 @@ import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,7 +29,6 @@ class PdfExportController extends GetxController {
   RxBool isLoading = true.obs;
   RxBool isExporting = false.obs;
 
-  RxBool shouldExportABCScores = true.obs;
   RxBool shouldExportNotes = true.obs;
 
   late Patient patient;
@@ -172,7 +173,7 @@ class PdfExportController extends GetxController {
       await SharePlus.instance.share(
         ShareParams(
           files: <XFile>[XFile(file.path)],
-          title: 'Dermascan Report',
+          title: TrKeys.pdf.reportTitle.tr,
         ),
       );
     } catch (e) {
@@ -181,9 +182,8 @@ class PdfExportController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Export Failed',
-            message:
-                'An error occurred while exporting the PDF. Please try again.',
+            title: TrKeys.pdf.exportFailed.tr,
+            message: TrKeys.pdf.exportFailedMsg.tr,
           ),
         );
       }
@@ -208,11 +208,11 @@ class PdfExportController extends GetxController {
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: <pw.Widget>[
               pw.Text(
-                'Dermascan Report',
+                TrKeys.pdf.reportTitle.tr,
                 style: const pw.TextStyle(fontSize: 10),
               ),
               pw.Text(
-                'Generated on ${_formatDate(DateTime.now(), includeTime: true)}',
+                '${TrKeys.pdf.generatedOn.tr} ${_formatDate(DateTime.now(), includeTime: true)}',
                 style: const pw.TextStyle(
                   fontSize: 10,
                   color: PdfColors.grey600,
@@ -224,7 +224,9 @@ class PdfExportController extends GetxController {
         footer: (pw.Context context) => pw.Padding(
           padding: const pw.EdgeInsets.only(top: 8),
           child: pw.Text(
-            'Page ${context.pageNumber} of ${context.pagesCount}',
+            TrKeys.pdf.pageOf.tr
+                .replaceAll('@page', '${context.pageNumber}')
+                .replaceAll('@total', '${context.pagesCount}'),
             style: const pw.TextStyle(fontSize: 10),
           ),
         ),
@@ -246,7 +248,7 @@ class PdfExportController extends GetxController {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: <pw.Widget>[
         pw.Text(
-          'Patient Data',
+          TrKeys.pdf.patientData.tr,
           style: const pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
         ),
         pw.SizedBox(height: 12),
@@ -257,21 +259,21 @@ class PdfExportController extends GetxController {
             1: pw.FlexColumnWidth(0.65),
           },
           children: <pw.TableRow>[
-            _buildGridRow('Name', patient.name, isHeader: true),
-            _buildGridRow('Date of birth', _formatDate(patient.dateOfBirth)),
-            _buildGridRow('Gender', patient.gender.name),
-            _buildGridRow('Birth country', patient.birthCountry),
-            _buildGridRow('Current country', patient.currentCountry),
+            _buildGridRow(TrKeys.common.name.tr, patient.name, isHeader: true),
+            _buildGridRow(TrKeys.common.dateOfBirth.tr, _formatDate(patient.dateOfBirth)),
+            _buildGridRow(TrKeys.common.gender.tr, _genderTranslationKey(patient.gender).tr),
+            _buildGridRow(TrKeys.common.birthCountry.tr, patient.birthCountry),
+            _buildGridRow(TrKeys.common.country.tr, patient.currentCountry),
             _buildGridRow(
-              'Tanning bed exposure',
+              TrKeys.pdf.tanningBedExposure.tr,
               _formatYesNo(patient.tanningBedExposure),
             ),
             _buildGridRow(
-              'Previous skin surgeries',
+              TrKeys.pdf.previousSkinSurgeries.tr,
               _formatYesNo(patient.previousSkinSurgeries),
             ),
             _buildGridRow(
-              'Previous sunburns',
+              TrKeys.pdf.previousSunburns.tr,
               _formatYesNo(patient.previousSunburns),
             ),
           ],
@@ -292,25 +294,25 @@ class PdfExportController extends GetxController {
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: <pw.Widget>[
             pw.Text(
-              'Lesion #$index: ${lesion.locationName}',
+              '${TrKeys.pdf.lesions.tr} #$index: ${lesion.locationName}',
               style: const pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 4),
             pw.Text(
-              'Suspicious: ${lesion.isSuspicious.value ? 'Yes' : 'No'}',
+              '${TrKeys.lesion.suspicious.tr}: ${_formatYesNo(lesion.isSuspicious.value)}',
               style: const pw.TextStyle(fontSize: 11),
             ),
             pw.Text(
-              'Removed: ${lesion.wasRemoved.value ? 'Yes' : 'No'}',
+              '${TrKeys.lesion.excised.tr}: ${_formatYesNo(lesion.wasRemoved.value)}',
               style: const pw.TextStyle(fontSize: 11),
             ),
             pw.Text(
-              'Notes: ${lesion.notes.trim().isNotEmpty ? lesion.notes : '-'}',
+              '${TrKeys.common.notes.tr}: ${lesion.notes.trim().isNotEmpty ? lesion.notes : '-'}',
               style: const pw.TextStyle(fontSize: 11),
             ),
             pw.SizedBox(height: 10),
             pw.Text(
-              'Diagnosis history',
+              TrKeys.pdf.diagnosisHistory.tr,
               style: const pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 6),
@@ -330,25 +332,16 @@ class PdfExportController extends GetxController {
       pw.TableRow(
         decoration: const pw.BoxDecoration(color: PdfColors.grey300),
         children: <pw.Widget>[
-          _tableCell('Date', isHeader: true),
-          _tableCell('Image', isHeader: true),
-          if (shouldExportABCScores.value) _tableCell('A', isHeader: true),
-          if (shouldExportABCScores.value) _tableCell('B', isHeader: true),
-          if (shouldExportABCScores.value) _tableCell('C', isHeader: true),
-          if (shouldExportNotes.value) _tableCell('Notes', isHeader: true),
+          _tableCell(TrKeys.common.date.tr, isHeader: true),
+          _tableCell(TrKeys.pdf.image.tr, isHeader: true),
+          if (shouldExportNotes.value) _tableCell(TrKeys.common.notes.tr, isHeader: true),
         ],
       ),
       ...diagnosisRows.map(
         (Diagnosis diagnosis) => pw.TableRow(
           children: <pw.Widget>[
             _tableCell(_formatDate(diagnosis.date, includeTime: true)),
-            _imageCell(diagnosis.analyzedImages?['original']),
-            if (shouldExportABCScores.value)
-              _tableCell(_formatScore(diagnosis.aScore)),
-            if (shouldExportABCScores.value)
-              _tableCell(_formatScore(diagnosis.bScore)),
-            if (shouldExportABCScores.value)
-              _tableCell(_formatScore(diagnosis.cScore)),
+            _imageCell(diagnosis.image),
             if (shouldExportNotes.value) _tableCell(diagnosis.notes),
           ],
         ),
@@ -361,9 +354,6 @@ class PdfExportController extends GetxController {
       columnWidths: <int, pw.TableColumnWidth>{
         0: const pw.FlexColumnWidth(0.10),
         1: const pw.FlexColumnWidth(0.18),
-        if (shouldExportABCScores.value) 2: const pw.FlexColumnWidth(0.05),
-        if (shouldExportABCScores.value) 3: const pw.FlexColumnWidth(0.05),
-        if (shouldExportABCScores.value) 4: const pw.FlexColumnWidth(0.05),
         if (shouldExportNotes.value) 7: const pw.FlexColumnWidth(0.18),
       },
       children: rows,
@@ -403,7 +393,7 @@ class PdfExportController extends GetxController {
         width: 100,
         height: 100,
         color: PdfColors.grey300,
-        child: pw.Center(child: pw.Text('No Image')),
+        child: pw.Center(child: pw.Text(TrKeys.pdf.noImage.tr)),
       );
     }
     final pw.MemoryImage image = pw.MemoryImage(imageBytes);
@@ -430,8 +420,19 @@ class PdfExportController extends GetxController {
     return '$day.$month.${localDate.year}';
   }
 
-  String _formatYesNo(bool value) => value ? 'Yes' : 'No';
+  String _formatYesNo(bool value) => value ? TrKeys.pdf.yes.tr : TrKeys.pdf.no.tr;
 
-  String _formatScore(double? value) => value?.toStringAsFixed(2) ?? '-';
+  String _genderTranslationKey(Gender gender) {
+    switch (gender) {
+      case Gender.male:
+        return TrKeys.common.male;
+      case Gender.female:
+        return TrKeys.common.female;
+      case Gender.divers:
+        return TrKeys.common.divers;
+      case Gender.undefined:
+        return TrKeys.common.undefined;
+    }
+  }
 
 }

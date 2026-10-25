@@ -2,10 +2,7 @@ class EnAuth {
   static const Map<String, String> translations = <String, String>{
     'auth.login': 'Login',
     'auth.register': 'Register',
-    'auth.create_account': 'Create Account',
     'auth.welcome_back': 'Welcome Back!',
-    'auth.doctor_email': 'Doctor E-Mail',
-    'auth.practice_email': 'Practice E-Mail',
     'auth.join_dermascan': 'Join Dermascan!',
     'auth.new_email': 'New E-Mail',
     'auth.confirm_new_email': 'Confirm new E-Mail',
@@ -36,7 +33,6 @@ class EnAuth {
     'auth.registration_failed': 'Registration Failed',
     'auth.reg_failed_msg': 'Account creation failed. Email may be in use or connection lost.',
     'auth.registration_successful': 'Registration Successful',
-    'auth.reg_success_msg': 'Registration successful. You are now logged in.',
     'auth.account_created_msg': 'Your account was created and you are now logged in.',
     'auth.profile_creation_error': 'Profile Creation Error',
     'auth.profile_setup_error_msg': 'Account creation failed during profile setup.',
@@ -45,8 +41,6 @@ class EnAuth {
     'auth.change_password_failed_msg': 'Could not change Password. Maybe the connection failed.',
     'auth.almost_there': 'Almost there!',
     'auth.different_emails': 'Different E-Mails',
-    'auth.not_doctor_account_msg': 'Not a doctor account. Please use practice login.',
-    'auth.not_practice_account_msg': 'Not a practice account. Please use doctor login.',
     'auth.passwords_requirements_msg': 'Passwords must match and meet security requirements.',
   };
 }

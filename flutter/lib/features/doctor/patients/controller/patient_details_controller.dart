@@ -7,6 +7,7 @@ import 'package:dermascan/core/services/db_service/lesion_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/diagnosis_bottom_sheet/diagnosis_bottom_sheet.dart';
 import 'package:dermascan/core/widgets/patient_info_bottom_sheet.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -110,12 +111,12 @@ class PatientDetailsController extends GetxController {
 
       await CustomDialogHelper.show<bool>(
         routeName: 'create-lesion-dialog',
-        title: 'Create Lesion'.tr,
-        subtitle: 'No lesion found here. Create one now?'.tr,
+        title: TrKeys.lesion.createLesion.tr,
+        subtitle: TrKeys.lesion.noLesionHereCreate.tr,
         isDismissable: true,
         hasTextField: true,
-        textFieldLabel: 'Lesion Name'.tr,
-        submitText: 'Create'.tr,
+        textFieldLabel: TrKeys.lesion.lesionName.tr,
+        submitText: TrKeys.common.create.tr,
         onSubmit: (String locationName) async {
           isSubmitting = true;
 

@@ -51,7 +51,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                       icon: const Icon(Icons.info),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
-                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).colorScheme.surfaceContainerLow,
                         ),
                         shape: WidgetStateProperty.all(
                           RoundedRectangleBorder(
@@ -78,7 +78,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                                       : Theme.of(context).colorScheme.secondary;
 
                           final Color displayColor = Color.lerp(
-                            Theme.of(context).colorScheme.surface,
+                            Theme.of(context).colorScheme.surfaceContainerLow,
                             baseColor,
                             0.5,
                           )!;
@@ -126,7 +126,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                               borderRadius: BorderRadius.circular(
                                 AppTheme.radiusLarge,
                               ),
-                              color: Theme.of(context).colorScheme.surface,
+                              color: Theme.of(context).colorScheme.surfaceContainerLow,
                             ),
                             constraints: BoxConstraints.tight(
                               const Size(
@@ -158,7 +158,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                       icon: const Icon(Icons.picture_as_pdf),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
-                          Theme.of(context).colorScheme.surface,
+                          Theme.of(context).colorScheme.surfaceContainerLow,
                         ),
                         shape: WidgetStateProperty.all(
                           RoundedRectangleBorder(

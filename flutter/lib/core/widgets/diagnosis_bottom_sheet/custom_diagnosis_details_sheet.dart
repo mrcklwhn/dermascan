@@ -27,7 +27,6 @@ class DiagnosisDetailController extends GetxController {
   final TextEditingController notesController = TextEditingController();
   final FocusNode notesFocusNode = FocusNode();
   final RxBool isLoading = false.obs;
-  final RxBool isDrawingOverlays = false.obs;
   final RxString currentNotesText = ''.obs;
 
   DiagnosisDetailController({
@@ -53,23 +52,6 @@ class DiagnosisDetailController extends GetxController {
   }
 
   bool get hasNotesChanged => currentNotesText.value != diagnosis.notes;
-
-  Future<void> drawOverlays() async {
-    if (isDrawingOverlays.value) return;
-
-    final Map<String, Uint8List?>? images = diagnosis.analyzedImages;
-    if (images == null || images['original'] == null) return;
-    if (images.containsKey('contour') && images.containsKey('concavity')) return;
-
-    isDrawingOverlays.value = true;
-
-    await Future<void>.delayed(const Duration(milliseconds: 100));
-    try {
-      await mainController.drawOverlaysForDiagnosis(diagnosis);
-    } finally {
-      isDrawingOverlays.value = false;
-    }
-  }
 
   Future<void> submittedNotes() async {
     if (isLoading.value) return;
@@ -118,8 +100,7 @@ class DiagnosisDetailController extends GetxController {
   }
 
   Future<void> shareDiagnosis() async {
-    final Map<String, Uint8List?>? images = diagnosis.analyzedImages;
-    final Uint8List? imageBytes = images?['original'];
+    final Uint8List? imageBytes = diagnosis.image;
 
     if (imageBytes == null) {
       Get.showSnackbar(
@@ -244,12 +225,6 @@ class CustomDiagnosisSheet extends StatelessWidget {
     final DiagnosisDetailController controller =
         Get.find<DiagnosisDetailController>(tag: diagnosis.id);
 
-    final double size =
-        (MediaQuery.of(context).size.width -
-            AppTheme.spaceMedium * 2 -
-            AppTheme.spaceSmall * 3) /
-        2;
-
     return Obx(() {
       if (mainController.isLoading.value || controller.isLoading.value) {
         return const Center(child: CircularProgressIndicator.adaptive());
@@ -261,12 +236,11 @@ class CustomDiagnosisSheet extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              if (diagnosis.analyzedImages != null &&
-                  diagnosis.analyzedImages!['original'] != null)
+              if (diagnosis.image != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                   child: Image.memory(
-                    diagnosis.analyzedImages!['original']!,
+                    diagnosis.image!,
                     height: 100,
                     width: 100,
                     fit: BoxFit.cover,
@@ -305,138 +279,32 @@ class CustomDiagnosisSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppTheme.spaceLarge),
-          Text(
-            TrKeys.diagnosis.abcScores.tr,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: AppTheme.spaceSmall),
-          _buildScoreIndicator(
-            context,
-            title: TrKeys.diagnosis.asymmetry.tr,
-            score: diagnosis.aScore,
-            textLeft: TrKeys.diagnosis.symmetric.tr,
-            textRight: TrKeys.diagnosis.asymmetric.tr,
-          ),
-          const SizedBox(height: AppTheme.spaceMedium),
-          _buildScoreIndicator(
-            context,
-            title: TrKeys.diagnosis.border.tr,
-            score: diagnosis.bScore,
-            textLeft: TrKeys.diagnosis.circular.tr,
-            textRight: TrKeys.diagnosis.irregular.tr,
-          ),
-          const SizedBox(height: AppTheme.spaceMedium),
-          _buildScoreIndicator(
-            context,
-            title: TrKeys.diagnosis.colorUniformity.tr,
-            score: diagnosis.cScore,
-            textLeft: TrKeys.diagnosis.uniform.tr,
-            textRight: TrKeys.diagnosis.variegated.tr,
-          ),
-          const SizedBox(height: AppTheme.spaceMedium),
-          Text(
-            TrKeys.common.additionalInfo.tr,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: AppTheme.spaceSmall),
           CustomTextField(
             textEditingController: controller.notesController,
             focusNode: controller.notesFocusNode,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             onSubmitted: (_) => controller.submittedNotes(),
             labelText: TrKeys.common.notes.tr,
             prefixIcon: Icons.description,
             textInputType: TextInputType.multiline,
             minLines: 1,
-            maxLines: 5,
+            maxLines: 10,
           ),
           Obx(() {
-            if (!controller.hasNotesChanged) {
-              return const SizedBox(height: AppTheme.spaceLarge);
+            if (controller.hasNotesChanged) {
+              return Padding(
+                padding: const EdgeInsets.only(
+                  top: AppTheme.spaceMedium,
+                ),
+                child: FilledButton.icon(
+                  onPressed: () => controller.submittedNotes(),
+                  icon: const Icon(Icons.save),
+                  label: Text(TrKeys.common.save.tr),
+                ),
+              );
             }
-            return Padding(
-              padding: const EdgeInsets.only(
-                top: AppTheme.spaceLarge,
-                bottom: AppTheme.spaceMedium,
-              ),
-              child: FilledButton.icon(
-                onPressed: () => controller.submittedNotes(),
-                icon: const Icon(Icons.save),
-                label: Text(TrKeys.common.save.tr),
-              ),
-            );
+            return const Center();
           }),
-          if (diagnosis.analyzedImages != null &&
-              diagnosis.analyzedImages!['original'] != null) ...<Widget>[
-            const SizedBox(height: AppTheme.spaceMedium),
-            ExpansionTile(
-              collapsedBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              initiallyExpanded: false,
-              onExpansionChanged: (bool expanded) {
-                if (expanded) {
-                  controller.drawOverlays();
-                }
-              },
-              title: Text(
-                TrKeys.diagnosis.analysisInsights.tr,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              children: <Widget>[
-                Obx(() {
-                  if (controller.isDrawingOverlays.value) {
-                    return SizedBox(
-                      height: size,
-                      child: const Center(
-                        child: CircularProgressIndicator.adaptive(),
-                      ),
-                    );
-                  }
-
-                  final List<MapEntry<String, Uint8List?>> overlayImages =
-                      diagnosis.analyzedImages!.entries
-                          .where(
-                            (MapEntry<String, Uint8List?> e) =>
-                                e.key != 'original' && e.value != null,
-                          )
-                          .toList();
-
-                  if (overlayImages.isEmpty) {
-                    return SizedBox(height: size);
-                  }
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children:
-                        overlayImages.map((MapEntry<String, Uint8List?> entry) {
-                          return Column(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(
-                                  AppTheme.radiusSmall + 2,
-                                ),
-                                child: Image(
-                                  image: MemoryImage(entry.value!),
-                                  height: size,
-                                  width: size,
-                                  fit: BoxFit.cover,
-                                  gaplessPlayback: true,
-                                  errorBuilder:
-                                      (
-                                        BuildContext context,
-                                        Object error,
-                                        StackTrace? stackTrace,
-                                      ) => const Icon(Icons.broken_image),
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                  );
-                }),
-              ],
-            ),
-          ],
           const SizedBox(height: AppTheme.spaceLarge),
           OutlinedButton.icon(
             onPressed: () => controller.showDeleteDiagnosisDialog(),
@@ -446,61 +314,5 @@ class CustomDiagnosisSheet extends StatelessWidget {
         ],
       );
     });
-  }
-
-  Widget _buildScoreIndicator(
-    BuildContext context, {
-    required double score,
-    String? title,
-    required String textLeft,
-    required String textRight,
-    Color? color,
-  }) {
-    return Card(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Padding(
-        padding: EdgeInsets.only(
-          top: title == null ? AppTheme.spaceMedium : AppTheme.spaceSmall,
-          bottom: AppTheme.spaceMedium,
-          right: AppTheme.spaceMedium,
-          left: AppTheme.spaceMedium,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            if (title != null) ...<Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(title, style: Theme.of(context).textTheme.titleMedium),
-                ],
-              ),
-              const SizedBox(height: AppTheme.spaceSmall),
-            ],
-
-            LinearProgressIndicator(
-              value: score,
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(4),
-              color: color ?? Theme.of(context).primaryColor,
-            ),
-            const SizedBox(height: AppTheme.spaceSmall),
-            Row(
-              children: <Widget>[
-                Text(textLeft, style: Theme.of(context).textTheme.bodyMedium),
-                const Spacer(),
-                Text(
-                  '${(score * 100).toStringAsFixed(2)} %',
-                  style: Theme.of(context).textTheme.bodySmall,
-                  textAlign: TextAlign.left,
-                ),
-                const Spacer(),
-                Text(textRight, style: Theme.of(context).textTheme.bodyMedium),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

@@ -2,10 +2,7 @@ class RoAuth {
   static const Map<String, String> translations = <String, String>{
     'auth.login': 'Autentificare',
     'auth.register': 'Înregistrare',
-    'auth.create_account': 'Creează cont',
     'auth.welcome_back': 'Bine ați revenit!',
-    'auth.doctor_email': 'E-mail medic',
-    'auth.practice_email': 'E-mail cabinet',
     'auth.join_dermascan': 'Alăturați-vă Dermascan!',
     'auth.new_email': 'E-mail nou',
     'auth.confirm_new_email': 'Confirmă noul e-mail',
@@ -36,7 +33,6 @@ class RoAuth {
     'auth.registration_failed': 'Înregistrare eșuată',
     'auth.reg_failed_msg': 'Crearea contului a eșuat. Este posibil ca e-mailul să fie deja folosit sau conexiunea să fi fost pierdută.',
     'auth.registration_successful': 'Înregistrare reușită',
-    'auth.reg_success_msg': 'Înregistrare reușită. Acum sunteți conectat.',
     'auth.account_created_msg': 'Contul dumneavoastră a fost creat și acum sunteți conectat.',
     'auth.profile_creation_error': 'Eroare la crearea profilului',
     'auth.profile_setup_error_msg': 'Contul a fost creat, dar configurarea cabinetului a eșuat.',
@@ -45,8 +41,6 @@ class RoAuth {
     'auth.change_password_failed_msg': 'Parola nu a putut fi modificată. Este posibil ca conexiunea să fi eșuat.',
     'auth.almost_there': 'Aproape gata!',
     'auth.different_emails': 'E-mailurile nu se potrivesc',
-    'auth.not_doctor_account_msg': 'Acesta nu este un cont de medic. Vă rugăm să folosiți autentificarea pentru cabinet.',
-    'auth.not_practice_account_msg': 'Acesta nu este un cont de cabinet. Vă rugăm să folosiți autentificarea pentru medic.',
     'auth.passwords_requirements_msg': 'Parolele trebuie să coincidă și să îndeplinească cerințele de securitate.',
   };
 }

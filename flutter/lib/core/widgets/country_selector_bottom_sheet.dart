@@ -71,7 +71,7 @@ class CountrySelectorBottomSheet extends StatelessWidget {
       height: MediaQuery.sizeOf(context).height * 0.85,
       padding: AppTheme.scaffoldPadding.copyWith(top: 0, bottom: 0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(AppTheme.radiusLarge),
         ),
@@ -93,12 +93,12 @@ class CountrySelectorBottomSheet extends StatelessWidget {
             hintText: TrKeys.common.search.tr,
             controller: controller.searchBarController,
             leading: const Icon(Icons.search),
-            backgroundColor: WidgetStateProperty.all(Theme.of(context).scaffoldBackgroundColor),
+            backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.surface),
             trailing: <Widget>[
               IconButton(
                 onPressed: controller.clearSearchBar,
                 icon: const Icon(Icons.clear),
-                style: IconButton.styleFrom(backgroundColor: Theme.of(context).scaffoldBackgroundColor),
+                style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
               ),
             ],
             onChanged: (String value) =>
@@ -119,7 +119,7 @@ class CountrySelectorBottomSheet extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Card(
-                        color: Theme.of(context).scaffoldBackgroundColor,
+                        color: Theme.of(context).colorScheme.surface,
                         child: ListTile(
                           leading: CircleFlag(country.isoCode, size: 28),
                           title: Text(

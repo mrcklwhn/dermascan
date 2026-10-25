@@ -2,10 +2,7 @@ class DeAuth {
   static const Map<String, String> translations = <String, String>{
     'auth.login': 'Login',
     'auth.register': 'Registrieren',
-    'auth.create_account': 'Konto erstellen',
     'auth.welcome_back': 'Willkommen zurück!',
-    'auth.doctor_email': 'Arzt-E-Mail',
-    'auth.practice_email': 'Praxis-E-Mail',
     'auth.join_dermascan': 'Trete Dermascan bei!',
     'auth.new_email': 'Neue E-Mail',
     'auth.confirm_new_email': 'Neue E-Mail bestätigen',
@@ -36,7 +33,6 @@ class DeAuth {
     'auth.registration_failed': 'Registrierung fehlgeschlagen',
     'auth.reg_failed_msg': 'Kontoerstellung fehlgeschlagen. Die E-Mail-Adresse wird möglicherweise bereits verwendet oder die Verbindung wurde getrennt.',
     'auth.registration_successful': 'Registrierung erfolgreich',
-    'auth.reg_success_msg': 'Registrierung erfolgreich. Sie sind jetzt eingeloggt.',
     'auth.account_created_msg': 'Ihr Konto wurde erstellt und Sie sind jetzt eingeloggt.',
     'auth.profile_creation_error': 'Fehler bei der Profilerstellung',
     'auth.profile_setup_error_msg': 'Konto erstellt, aber die Praxiseinrichtung ist fehlgeschlagen.',
@@ -45,8 +41,6 @@ class DeAuth {
     'auth.change_password_failed_msg': 'Passwort konnte nicht geändert werden. Möglicherweise ist die Verbindung fehlgeschlagen.',
     'auth.almost_there': 'Fast geschafft!',
     'auth.different_emails': 'E-Mails stimmen nicht überein',
-    'auth.not_doctor_account_msg': 'Kein Arzt-Konto. Bitte nutzen Sie den Praxis-Login.',
-    'auth.not_practice_account_msg': 'Kein Praxis-Konto. Bitte nutzen Sie den Arzt-Login.',
     'auth.passwords_requirements_msg': 'Passwörter müssen übereinstimmen und den Sicherheitsanforderungen entsprechen.',
   };
 }

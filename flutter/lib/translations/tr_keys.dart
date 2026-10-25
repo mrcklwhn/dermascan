@@ -13,16 +13,12 @@ abstract class TrKeys {
 
 class TrCommonKeys {
   final String save = 'common.save';
-  final String cancel = 'common.cancel';
   final String delete = 'common.delete';
-  final String edit = 'common.edit';
   final String dismiss = 'common.dismiss';
   final String submit = 'common.submit';
-  final String update = 'common.update';
   final String create = 'common.create';
   final String refresh = 'common.refresh';
   final String close = 'common.close';
-  final String input = 'common.input';
   final String search = 'common.search';
   final String leave = 'common.leave';
   final String accept = 'common.accept';
@@ -52,7 +48,6 @@ class TrCommonKeys {
   final String pending = 'common.pending';
   final String notAvailable = 'common.not_available';
   final String error = 'common.error';
-  final String success = 'common.success';
   final String securityAndAccount = 'common.security_and_account';
   final String personalInformation = 'common.personal_information';
   final String contactDetails = 'common.contact_details';
@@ -70,10 +65,7 @@ class TrCommonKeys {
 class TrAuthKeys {
   final String login = 'auth.login';
   final String register = 'auth.register';
-  final String createAccount = 'auth.create_account';
   final String welcomeBack = 'auth.welcome_back';
-  final String doctorEmail = 'auth.doctor_email';
-  final String practiceEmail = 'auth.practice_email';
   final String joinDermascan = 'auth.join_dermascan';
   final String newEmail = 'auth.new_email';
   final String confirmNewEmail = 'auth.confirm_new_email';
@@ -104,7 +96,6 @@ class TrAuthKeys {
   final String registrationFailed = 'auth.registration_failed';
   final String regFailedMsg = 'auth.reg_failed_msg';
   final String registrationSuccessful = 'auth.registration_successful';
-  final String regSuccessMsg = 'auth.reg_success_msg';
   final String accountCreatedMsg = 'auth.account_created_msg';
   final String profileCreationError = 'auth.profile_creation_error';
   final String profileSetupErrorMsg = 'auth.profile_setup_error_msg';
@@ -113,8 +104,6 @@ class TrAuthKeys {
   final String changePasswordFailedMsg = 'auth.change_password_failed_msg';
   final String almostThere = 'auth.almost_there';
   final String differentEmails = 'auth.different_emails';
-  final String notDoctorAccountMsg = 'auth.not_doctor_account_msg';
-  final String notPracticeAccountMsg = 'auth.not_practice_account_msg';
   final String passwordsRequirementsMsg = 'auth.passwords_requirements_msg';
 }
 
@@ -176,13 +165,13 @@ class TrLesionKeys {
   final String lesionExcised = 'lesion.lesion_excised';
   final String excisedLesion = 'lesion.excised_lesion';
   final String excised = 'lesion.excised';
+  final String normal = 'lesion.normal';
   final String suspicious = 'lesion.suspicious';
   final String suspiciousLesion = 'lesion.suspicious_lesion';
   final String markSuspicious = 'lesion.mark_suspicious';
   final String markExcised = 'lesion.mark_excised';
   final String placement = 'lesion.placement';
   final String classification = 'lesion.classification';
-  final String testResult = 'lesion.test_result';
   final String noLesionSelected = 'lesion.no_lesion_selected';
   final String updatedLesion = 'lesion.updated_lesion';
   final String lesionUpdatedMsg = 'lesion.lesion_updated_msg';
@@ -209,19 +198,6 @@ class TrDiagnosisKeys {
   final String diagnosis = 'diagnosis.diagnosis';
   final String timeline = 'diagnosis.timeline';
   final String noDiagnosisAvailable = 'diagnosis.no_diagnosis_available';
-  final String analysisInsights = 'diagnosis.analysis_insights';
-  final String abcScores = 'diagnosis.abc_scores';
-  final String asymmetry = 'diagnosis.asymmetry';
-  final String symmetric = 'diagnosis.symmetric';
-  final String asymmetric = 'diagnosis.asymmetric';
-  final String border = 'diagnosis.border';
-  final String circular = 'diagnosis.circular';
-  final String irregular = 'diagnosis.irregular';
-  final String colorUniformity = 'diagnosis.color_uniformity';
-  final String uniform = 'diagnosis.uniform';
-  final String variegated = 'diagnosis.variegated';
-  final String uncertain = 'diagnosis.uncertain';
-  final String confident = 'diagnosis.confident';
   final String lastDiagnosis = 'diagnosis.last_diagnosis';
   final String diagnosisDeleted = 'diagnosis.diagnosis_deleted';
   final String diagnosisDeletedMsg = 'diagnosis.diagnosis_deleted_msg';
@@ -269,7 +245,6 @@ class TrPracticeKeys {
   final String revokingFailed = 'practice.revoking_failed';
   final String revokingFailedMsg = 'practice.revoking_failed_msg';
   final String revokeInvitationQuestion = 'practice.revoke_invitation_question';
-  final String revoke = 'practice.revoke';
   final String revokeConfirmMsg = 'practice.revoke_confirm_msg';
   final String removedDoctor = 'practice.removed_doctor';
   final String doctorRemovedSuccessMsg = 'practice.doctor_removed_success_msg';
@@ -287,7 +262,6 @@ class TrPracticeKeys {
   final String noOpenInvitationsMsg = 'practice.no_open_invitations_msg';
   final String invitationAccepted = 'practice.invitation_accepted';
   final String errorAcceptingInvitation = 'practice.error_accepting_invitation';
-  final String accept = 'practice.accept';
   final String acceptInvitationQuestion = 'practice.accept_invitation_question';
   final String acceptanceFailedMsg = 'practice.acceptance_failed_msg';
   final String acceptingGrantsAccessMsg = 'practice.accepting_grants_access_msg';
@@ -296,12 +270,17 @@ class TrPracticeKeys {
   final String importPracticeKey = 'practice.import_practice_key';
   final String scanQrCode = 'practice.scan_qr_code';
   final String missingEncryptionKey = 'practice.missing_encryption_key';
-  final String securityCheck = 'practice.security_check';
   final String showQrCodeDesc = 'practice.show_qr_code_desc';
   final String couldNotLoadPracticeKey = 'practice.could_not_load_practice_key';
   final String scanQrCodeDesc = 'practice.scan_qr_code_desc';
   final String missingKeyMsg = 'practice.missing_key_msg';
   final String invitedOn = 'practice.invited_on';
+  final String inviteDoctorConfirmMsg = 'practice.invite_doctor_confirm_msg';
+  final String invalidQrFormat = 'practice.invalid_qr_format';
+  final String keyBelongsToDifferentPractice = 'practice.key_belongs_to_different_practice';
+  final String scannedKeyNotValid = 'practice.scanned_key_not_valid';
+  final String scannedKeyMismatch = 'practice.scanned_key_mismatch';
+  final String couldNotProcessQrCode = 'practice.could_not_process_qr_code';
 }
 
 class TrDoctorKeys {
@@ -317,14 +296,23 @@ class TrDoctorKeys {
 class TrPdfKeys {
   final String exportPdf = 'pdf.export_pdf';
   final String exportProperties = 'pdf.export_properties';
-  final String aiClassification = 'pdf.ai_classification';
-  final String aiClassificationDesc = 'pdf.ai_classification_desc';
-  final String abcScores = 'pdf.abc_scores';
-  final String abcScoresDesc = 'pdf.abc_scores_desc';
   final String exportNotesDesc = 'pdf.export_notes_desc';
   final String lesions = 'pdf.lesions';
   final String export = 'pdf.export';
-  final String noLesionsFoundForPatient = 'pdf.no_lesions_found_for_patient';
+  final String exportFailed = 'pdf.export_failed';
+  final String exportFailedMsg = 'pdf.export_failed_msg';
+  final String reportTitle = 'pdf.report_title';
+  final String generatedOn = 'pdf.generated_on';
+  final String pageOf = 'pdf.page_of';
+  final String patientData = 'pdf.patient_data';
+  final String tanningBedExposure = 'pdf.tanning_bed_exposure';
+  final String previousSkinSurgeries = 'pdf.previous_skin_surgeries';
+  final String previousSunburns = 'pdf.previous_sunburns';
+  final String diagnosisHistory = 'pdf.diagnosis_history';
+  final String image = 'pdf.image';
+  final String noImage = 'pdf.no_image';
+  final String yes = 'pdf.yes';
+  final String no = 'pdf.no';
 }
 
 class TrHelpKeys {

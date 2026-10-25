@@ -69,7 +69,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
   }) {
     final Color bgColor = isPrimary
         ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.surface;
+        : Theme.of(context).colorScheme.surfaceContainerLow;
     final Color iconColor = isPrimary
         ? Theme.of(context).colorScheme.onPrimaryContainer
         : Theme.of(context).colorScheme.onSurfaceVariant;
