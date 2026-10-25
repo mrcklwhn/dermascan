@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:dermascan/core/enums.dart';
 
 class Diagnosis {
   final String id;

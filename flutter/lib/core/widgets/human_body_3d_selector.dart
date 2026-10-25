@@ -160,6 +160,7 @@ class HumanBody3DController extends GetxController {
         final List<BodyLesion> snapshot = lesions.toList();
 
         for (final BodyLesion lesion in snapshot) {
+          if (!context.mounted) return;
           await _injectOrUpdateHotspot(context, lesion);
         }
 
