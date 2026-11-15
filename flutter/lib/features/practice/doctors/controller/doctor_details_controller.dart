@@ -5,6 +5,7 @@ import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -69,8 +70,8 @@ class DoctorDetailsController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -96,8 +97,8 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Invitation Sent'.tr,
-              message: 'An invitation has been sent.'.tr,
+              title: TrKeys.practice.invitationSent.tr,
+              message: TrKeys.practice.invitationSentMsg.tr,
             ),
           );
         }
@@ -106,9 +107,8 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Invitation Sent Error'.tr,
-              message:
-                  'An error occurred. They may already have been invited.'.tr,
+              title: TrKeys.practice.invitationSentError.tr,
+              message: TrKeys.practice.alreadyInvitedMsg.tr,
             ),
           );
         }
@@ -124,13 +124,13 @@ class DoctorDetailsController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'invite-doctor-dialog',
 
-      title: 'Invite Doctor?'.tr,
+      title: TrKeys.practice.inviteDoctorQuestion.tr,
 
-      subtitle: 'Invited members will gain full access to practice data.'.tr,
+      subtitle: TrKeys.practice.inviteDoctorConfirmMsg.tr,
 
       isDismissable: true,
 
-      submitText: 'Invite'.tr,
+      submitText: TrKeys.practice.invite.tr,
 
       onSubmit: isLoading.value || isInitializing.value || invitationSent.value
           ? null
@@ -152,8 +152,8 @@ class DoctorDetailsController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -179,8 +179,8 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Invitation Revoked'.tr,
-              message: 'The invitation has been successfully revoked!'.tr,
+              title: TrKeys.practice.invitationRevoked.tr,
+              message: TrKeys.practice.invitationRevokedMsg.tr,
             ),
           );
         }
@@ -189,10 +189,8 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Revoking Invitation Failed'.tr,
-              message:
-                  'Revocation failed. The invitation may already be revoked.'
-                      .tr,
+              title: TrKeys.practice.revokingFailed.tr,
+              message: TrKeys.practice.revokingFailedMsg.tr,
             ),
           );
         }
@@ -210,13 +208,13 @@ class DoctorDetailsController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'revoke-invitation-dialog',
 
-      title: 'Revoke Invitation?'.tr,
+      title: TrKeys.practice.revokeInvitationQuestion.tr,
 
-      subtitle: 'You are about to revoke your invitation.'.tr,
+      subtitle: TrKeys.practice.revokeConfirmMsg.tr,
 
       isDismissable: true,
 
-      submitText: 'Revoke'.tr,
+      submitText: TrKeys.common.revoke.tr,
 
       onSubmit: isLoading.value || isInitializing.value || !invitationSent.value
           ? null
@@ -240,8 +238,8 @@ class DoctorDetailsController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -262,10 +260,8 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Removed Doctor'.tr,
-              message:
-                  'The doctor has been successfully removed from your practice!'
-                      .tr,
+              title: TrKeys.practice.removedDoctor.tr,
+              message: TrKeys.practice.doctorRemovedSuccessMsg.tr,
             ),
           );
         }
@@ -274,9 +270,8 @@ class DoctorDetailsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Removing Doctor Failed'.tr,
-              message:
-                  'An error occurred. They may have already been removed.'.tr,
+              title: TrKeys.practice.removingDoctorFailed.tr,
+              message: TrKeys.practice.alreadyRemovedMsg.tr,
             ),
           );
         }
@@ -296,13 +291,13 @@ class DoctorDetailsController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'remove-doctor-dialog',
 
-      title: 'Remove Doctor?'.tr,
+      title: TrKeys.practice.removeDoctorQuestion.tr,
 
-      subtitle: 'Remove doctor? They will lose access to all shared data.'.tr,
+      subtitle: TrKeys.practice.removeDoctorConfirmMsg.tr,
 
       isDismissable: true,
 
-      submitText: 'Remove'.tr,
+      submitText: TrKeys.common.remove.tr,
 
       onSubmit:
           isLoading.value ||

@@ -1,6 +1,7 @@
 import 'package:dermascan/core/services/auth_service.dart';
 
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -68,8 +69,8 @@ class ChangePasswordController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: TrKeys.common.missingInformation.tr,
+            message: TrKeys.common.fillRequiredFields.tr,
           ),
         );
       }
@@ -86,8 +87,8 @@ class ChangePasswordController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Password Insecure'.tr,
-            message: 'Passwords must match and meet security requirements.'.tr,
+            title: TrKeys.auth.passwordInsecure.tr,
+            message: TrKeys.auth.passwordsRequirementsMsg.tr,
           ),
         );
       }
@@ -99,8 +100,8 @@ class ChangePasswordController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -119,9 +120,9 @@ class ChangePasswordController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Change Failed'.tr,
+              title: TrKeys.auth.changeFailed.tr,
               message:
-                  'Could not change Password. Maybe the connection failed.'.tr,
+                  TrKeys.auth.changePasswordFailedMsg.tr,
             ),
           );
         }
@@ -131,8 +132,8 @@ class ChangePasswordController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Password Changed'.tr,
-              message: 'Password changed successfully.'.tr,
+              title: TrKeys.auth.passwordChanged.tr,
+              message: TrKeys.auth.passwordChangedMsg.tr,
             ),
           );
         }

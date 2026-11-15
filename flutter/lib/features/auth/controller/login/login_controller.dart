@@ -1,6 +1,7 @@
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -38,8 +39,8 @@ class LoginController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Missing Information'.tr,
-            message: 'Please fill in all required fields.'.tr,
+            title: TrKeys.common.missingInformation.tr,
+            message: TrKeys.common.fillRequiredFields.tr,
           ),
         );
       }
@@ -59,8 +60,8 @@ class LoginController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Login Successful'.tr,
-              message: 'You are now logged in.'.tr,
+              title: TrKeys.auth.loginSuccess.tr,
+              message: TrKeys.auth.loggedInMsg.tr,
             ),
           );
         }
@@ -70,8 +71,8 @@ class LoginController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Login Failed'.tr,
-              message: 'Invalid email or password. Please try again.'.tr,
+              title: TrKeys.auth.loginFailed.tr,
+              message: TrKeys.auth.invalidCredentialsMsg.tr,
             ),
           );
         }

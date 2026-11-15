@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dermascan/core/models/practice.dart';
 import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/encryption_service.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -39,41 +40,41 @@ class KeyImportController extends GetxController {
       final String? key = json['key'];
 
       if (practiceId == null || key == null) {
-        _showError(message: 'Invalid QR Code format.');
+        _showError(message: TrKeys.practice.invalidQrFormat.tr);
         return;
       }
 
       final Practice? currentPractice = authService.currentPractice.value;
       if (currentPractice == null || currentPractice.id != practiceId) {
-        _showError(message: 'This key belongs to a different practice.');
+        _showError(message: TrKeys.practice.keyBelongsToDifferentPractice.tr);
         return;
       }
 
       if (!encryptionService.isValidKeyFormat(base64Key: key)) {
-        _showError(message: 'The scanned key is not valid.');
+        _showError(message: TrKeys.practice.scannedKeyNotValid.tr);
         return;
       }
 
       if (!encryptionService.verifyKey(keyVerifier: currentPractice.keyVerifier, base64Key: key)) {
-        _showError(message: 'The scanned key does not match this practice.');
+        _showError(message: TrKeys.practice.scannedKeyMismatch.tr);
         return;
       }
 
       await encryptionService.savePracticeKey(practiceId: practiceId, base64Key: key);
       Get.back(result: true); 
     } catch (e) {
-      _showError(message: 'Could not process QR Code: $e');
+      _showError(message: TrKeys.practice.couldNotProcessQrCode.tr);
     }
   }
 
   void _showError({required String message}) {
     if (!Get.isSnackbarOpen) {
       Get.snackbar(
-        'Error',
+        TrKeys.common.error.tr,
         message,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
+        backgroundColor: Theme.of(Get.context!).colorScheme.error,
+        colorText: Theme.of(Get.context!).colorScheme.onError,
       );
     }
     Future<void>.delayed(const Duration(seconds: 3), () {

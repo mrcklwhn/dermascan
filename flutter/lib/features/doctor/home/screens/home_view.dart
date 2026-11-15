@@ -1,4 +1,5 @@
 import 'package:dermascan/features/doctor/home/controller/home_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,12 +18,12 @@ class DoctorHomeScreen extends GetView<DoctorHomeController> {
             NavigationDestination(
               icon: const Icon(Icons.group_outlined),
               selectedIcon: const Icon(Icons.group),
-              label: 'Patients'.tr,
+              label: TrKeys.patient.patients.tr,
             ),
             NavigationDestination(
               icon: const Icon(Icons.person_outline),
               selectedIcon: const Icon(Icons.person),
-              label: 'Profile'.tr,
+              label: TrKeys.doctor.profile.tr,
             ),
           ],
         ),

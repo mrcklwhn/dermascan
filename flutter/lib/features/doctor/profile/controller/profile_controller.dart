@@ -7,6 +7,7 @@ import 'package:dermascan/core/services/db_service/doctor_db_service.dart';
 import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -39,7 +40,7 @@ class DoctorProfileController extends GetxController {
     try {
       await loadDoctorData();
       await loadPracticeData();
-      updateNameController(name: authService.currentDoctor.value!.name);
+      updateNameController(name: authService.currentDoctor.value?.name ?? '');
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error while loading doctor data: $e');
@@ -62,9 +63,10 @@ class DoctorProfileController extends GetxController {
   }
 
   Future<void> loadPracticeData() async {
-    if (authService.currentDoctor.value == null) return;
+    final Doctor? currentDoctor = authService.currentDoctor.value;
+    if (currentDoctor == null) return;
 
-    final String? practiceId = authService.currentDoctor.value!.practiceId;
+    final String? practiceId = currentDoctor.practiceId;
 
     if (practiceId == null) return;
 
@@ -85,21 +87,24 @@ class DoctorProfileController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
       return;
     }
 
-    if (newName.trim() == authService.currentDoctor.value!.name) {
-      updateNameController(name: authService.currentDoctor.value!.name);
+    final Doctor? currentDoctor = authService.currentDoctor.value;
+    if (currentDoctor == null) return;
+
+    if (newName.trim() == currentDoctor.name) {
+      updateNameController(name: currentDoctor.name);
       return;
     }
 
     if (newName.trim().isEmpty) {
-      updateNameController(name: authService.currentDoctor.value!.name);
+      updateNameController(name: currentDoctor.name);
       return;
     }
 
@@ -107,7 +112,7 @@ class DoctorProfileController extends GetxController {
 
     try {
       final Doctor? fetchedDoctor = await doctorDbService.changeDoctorName(
-        doctorId: authService.currentDoctor.value!.id,
+        doctorId: currentDoctor.id,
         newName: newName.trim(),
       );
 
@@ -117,8 +122,8 @@ class DoctorProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check_circle,
-              title: 'Updated Name'.tr,
-              message: 'Your name was successfully changed.'.tr,
+              title: TrKeys.doctor.updatedName.tr,
+              message: TrKeys.doctor.nameChangedSuccess.tr,
             ),
           );
         }
@@ -127,16 +132,16 @@ class DoctorProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Update Name Failed'.tr,
+              title: TrKeys.doctor.updateNameFailed.tr,
               message:
-                  'Name update failed. Please verify your data and try again.'
+                  TrKeys.auth.changeEmailFailedMsg
                       .tr,
             ),
           );
         }
       }
     } finally {
-      updateNameController(name: authService.currentDoctor.value!.name);
+      updateNameController(name: authService.currentDoctor.value?.name ?? '');
       isLoading.value = false;
     }
   }
@@ -153,8 +158,8 @@ class DoctorProfileController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -163,18 +168,21 @@ class DoctorProfileController extends GetxController {
 
     isLoading.value = true;
 
+    final Doctor? currentDoctor = authService.currentDoctor.value;
+    if (currentDoctor == null) return;
+
     try {
       final bool success = await practiceDbService.leaveCurrentPractice(
-        doctorId: authService.currentDoctor.value!.id,
+        doctorId: currentDoctor.id,
       );
       if (success) {
         if (!Get.isSnackbarOpen) {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Practice Left'.tr,
+              title: TrKeys.practice.practiceLeft.tr,
               message:
-                  'You have left the practice and your access is revoked.'.tr,
+                  TrKeys.practice.practiceLeftMsg.tr,
             ),
           );
         }
@@ -184,9 +192,9 @@ class DoctorProfileController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Leaving Practice'.tr,
+              title: TrKeys.practice.errorLeavingPractice.tr,
               message:
-                  'Could not leave practice. You may have already been removed.'
+                  TrKeys.practice.couldNotLeavePracticeMsg
                       .tr,
             ),
           );
@@ -203,13 +211,13 @@ class DoctorProfileController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'leave-practice-dialog',
 
-      title: 'Leave Practice?'.tr,
+      title: TrKeys.practice.leavePracticeQuestion.tr,
 
-      subtitle: 'Leave practice? You will lose access to all shared data.'.tr,
+      subtitle: TrKeys.practice.leavePracticeConfirm.tr,
 
       isDismissable: true,
 
-      submitText: 'Leave'.tr,
+      submitText: TrKeys.common.leave.tr,
 
       onSubmit: isLoading.value || isInitializing.value
           ? null
@@ -247,13 +255,13 @@ class DoctorProfileController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'logout-dialog',
 
-      title: 'Logout?'.tr,
+      title: TrKeys.common.logoutQuestion.tr,
 
-      subtitle: 'Are you sure you want to log out?'.tr,
+      subtitle: TrKeys.common.logoutConfirm.tr,
 
       isDismissable: true,
 
-      submitText: 'Logout'.tr,
+      submitText: TrKeys.common.logout.tr,
 
       onSubmit: (_) async {
         await authService.signOut();

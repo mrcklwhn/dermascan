@@ -6,6 +6,7 @@ import 'package:dermascan/core/services/auth_service.dart';
 import 'package:dermascan/core/services/db_service/practice_db_service.dart';
 import 'package:dermascan/core/widgets/custom_dialog.dart';
 import 'package:dermascan/core/widgets/custom_snack_bar.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -105,8 +106,8 @@ class InvitationsController extends GetxController {
         Get.showSnackbar(
           CustomSnackBar(
             icon: Icons.error,
-            title: 'Authentication Error'.tr,
-            message: 'Authentication error. Please log in again.'.tr,
+            title: TrKeys.common.authenticationError.tr,
+            message: TrKeys.common.authErrorReLogin.tr,
           ),
         );
       }
@@ -124,8 +125,8 @@ class InvitationsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.check,
-              title: 'Invitation Accepted'.tr,
-              message: 'You have successfully joined the practice.'.tr,
+              title: TrKeys.practice.invitationAccepted.tr,
+              message: TrKeys.practice.joinPracticeSuccess.tr,
             ),
           );
         }
@@ -135,10 +136,8 @@ class InvitationsController extends GetxController {
           Get.showSnackbar(
             CustomSnackBar(
               icon: Icons.error,
-              title: 'Error Accepting Invitation'.tr,
-              message:
-                  'Acceptance failed. Invitation invalid or you are already assigned.'
-                      .tr,
+              title: TrKeys.practice.errorAcceptingInvitation.tr,
+              message: TrKeys.practice.acceptanceFailedMsg.tr,
             ),
           );
         }
@@ -158,15 +157,13 @@ class InvitationsController extends GetxController {
     await CustomDialogHelper.show(
       routeName: 'accept-practice-invitation-dialog',
 
-      title: 'Accept invitation?'.tr,
+      title: TrKeys.practice.acceptInvitationQuestion.tr,
 
-      subtitle:
-          'Accepting grants access to practice data and shares your professional profile with the owner.'
-              .tr,
+      subtitle: TrKeys.practice.acceptingGrantsAccessMsg.tr,
 
       isDismissable: true,
 
-      submitText: 'Accept'.tr,
+      submitText: TrKeys.common.accept.tr,
 
       onSubmit: (_) async {
               await acceptPracticeInvitation(

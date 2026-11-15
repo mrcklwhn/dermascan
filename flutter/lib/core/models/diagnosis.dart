@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:dermascan/app/enums.dart';
 
 class Diagnosis {
   final String id;
@@ -8,32 +7,21 @@ class Diagnosis {
   final String imagePath;
   final String lesionId;
   final String doctorId;
-  String? doctorName;
-  CutoutType cutoutType;
-  double aScore;
-  double bScore;
-  double cScore;
-  String notes;
-  double confidence;
-  LesionType prediction;
+  final Uint8List? image;
 
-  final Map<String, Uint8List?>? analyzedImages;
+  String? doctorName;
+  String notes;
+
 
   Diagnosis({
     required this.id,
-    required this.notes,
     required this.date,
     required this.imagePath,
     required this.lesionId,
     required this.doctorId,
+    required this.image,
     this.doctorName,
-    required this.cutoutType,
-    required this.aScore,
-    required this.bScore,
-    required this.cScore,
-    required this.analyzedImages,
-    required this.prediction,
-    required this.confidence,
+    required this.notes,
   });
 
   factory Diagnosis.fromJson(Map<String, dynamic> json) {
@@ -44,15 +32,7 @@ class Diagnosis {
       imagePath: json['image_path'] as String,
       lesionId: json['lesion_id'] as String,
       doctorId: json['doctor_id'] as String,
-      cutoutType: CutoutType.values.firstWhere(
-        (CutoutType type) => type.name == (json['cutout_type'] as String),
-      ),
-      aScore: (json['a_score'] as num?)?.toDouble() ?? 0.0,
-      bScore: (json['b_score'] as num?)?.toDouble() ?? 0.0,
-      cScore: (json['c_score'] as num?)?.toDouble() ?? 0.0,
-      analyzedImages: json['analyzedImages'] as Map<String, Uint8List?>?,
-      prediction: LesionType.values[(json['prediction'] as num).toInt()],
-      confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
+      image: json['image'] as Uint8List?,
     );
   }
 
@@ -64,12 +44,6 @@ class Diagnosis {
       'image_path': imagePath,
       'lesion_id': lesionId,
       'doctor_id': doctorId,
-      'cutout_type': cutoutType.name,
-      'a_score': aScore,
-      'b_score': bScore,
-      'c_score': cScore,
-      'prediction': prediction.index,
-      'confidence': confidence,
     };
   }
 }

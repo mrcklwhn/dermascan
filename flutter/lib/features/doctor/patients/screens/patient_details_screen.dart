@@ -2,6 +2,7 @@ import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/widgets/human_body_3d_selector.dart';
 import 'package:dermascan/features/doctor/patients/controller/patient_details_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -12,7 +13,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Patient Profile'.tr)),
+      appBar: AppBar(title: Text(TrKeys.patient.patientProfile.tr)),
       body: SafeArea(
         bottom: false,
         child: Obx(() {
@@ -50,7 +51,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                       icon: const Icon(Icons.info),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
-                          AppTheme.highlightColor,
+                          Theme.of(context).colorScheme.surfaceContainerLow,
                         ),
                         shape: WidgetStateProperty.all(
                           RoundedRectangleBorder(
@@ -64,20 +65,17 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                     const SizedBox(width: AppTheme.spaceSmall),
                     Expanded(
                       child: Obx(() {
-                        if (controller.selectedLesion.value != null) {
+                        final BodyLesion? lesion = controller.selectedLesion.value;
+                        if (lesion != null) {
                           final Color baseColor =
-                              controller.selectedLesion.value!.wasRemoved.value
+                              lesion.wasRemoved.value
                                   ? Colors.grey
-                                  : controller
-                                          .selectedLesion
-                                          .value!
-                                          .isSuspicious
-                                          .value
+                                  : lesion.isSuspicious.value
                                       ? Colors.red
-                                      : AppTheme.secondary;
+                                      : Theme.of(context).colorScheme.secondary;
 
                           final Color displayColor = Color.lerp(
-                            AppTheme.highlightColor,
+                            Theme.of(context).colorScheme.surfaceContainerLow,
                             baseColor,
                             0.5,
                           )!;
@@ -100,17 +98,13 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  '${'Location'.tr}: ${controller.selectedLesion.value!.locationName}',
+                                  '${TrKeys.common.location.tr}: ${lesion.locationName}',
                                   style: Theme.of(context).textTheme.titleSmall,
                                   textAlign: TextAlign.start,
                                 ),
-                                if (controller
-                                    .selectedLesion
-                                    .value!
-                                    .diagnoses
-                                    .isNotEmpty)
+                                if (lesion.diagnoses.isNotEmpty)
                                   Text(
-                                    '${'Last Diagnosis'.tr}: ${DateFormat('dd.MM.yyyy').format(controller.selectedLesion.value!.diagnoses.first.date)}',
+                                    '${TrKeys.diagnosis.lastDiagnosis.tr}: ${DateFormat('dd.MM.yyyy').format(lesion.diagnoses.first.date)}',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall,
@@ -125,7 +119,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                               borderRadius: BorderRadius.circular(
                                 AppTheme.radiusLarge,
                               ),
-                              color: AppTheme.highlightColor,
+                              color: Theme.of(context).colorScheme.surfaceContainerLow,
                             ),
                             constraints: BoxConstraints.tight(
                               const Size(
@@ -135,7 +129,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                             ),
                             child: Center(
                               child: Text(
-                                'No Lesion selected'.tr,
+                                TrKeys.lesion.noLesionSelected.tr,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ),
@@ -157,7 +151,7 @@ class PatientDetailsScreen extends GetView<PatientDetailsController> {
                       icon: const Icon(Icons.picture_as_pdf),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
-                          AppTheme.highlightColor,
+                          Theme.of(context).colorScheme.surfaceContainerLow,
                         ),
                         shape: WidgetStateProperty.all(
                           RoundedRectangleBorder(

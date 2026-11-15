@@ -3,6 +3,7 @@ import 'package:dermascan/core/models/check_criteria.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/features/auth/controller/change_password_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,7 +13,7 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Change Password'.tr)),
+      appBar: AppBar(title: Text(TrKeys.auth.changePassword.tr)),
       body: SingleChildScrollView(
         padding: AppTheme.scaffoldPadding,
         child: Column(
@@ -24,28 +25,28 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
               textEditingController: controller.newPasswordController,
               focusNode: controller.newPasswordFocusNode,
               onSubmitted: (_) => controller.submitNewPassword(),
-              labelText: 'New Password'.tr,
+              labelText: TrKeys.auth.newPassword.tr,
               prefixIcon: Icons.password,
               textInputType: TextInputType.visiblePassword,
               checkCriteria: <CheckCriteria>[
                 CheckCriteria(
-                  criteriaName: 'Contains at least 8 characters'.tr,
+                  criteriaName: TrKeys.auth.minLength8.tr,
                   criteriaState: controller.hasMinLength,
                 ),
                 CheckCriteria(
-                  criteriaName: 'Contains an uppercase letter'.tr,
+                  criteriaName: TrKeys.auth.containsUppercase.tr,
                   criteriaState: controller.hasUppercase,
                 ),
                 CheckCriteria(
-                  criteriaName: 'Contains a lowercase letter'.tr,
+                  criteriaName: TrKeys.auth.containsLowercase.tr,
                   criteriaState: controller.hasLowercase,
                 ),
                 CheckCriteria(
-                  criteriaName: 'Contains a digit'.tr,
+                  criteriaName: TrKeys.auth.containsDigit.tr,
                   criteriaState: controller.hasDigits,
                 ),
                 CheckCriteria(
-                  criteriaName: 'Contains special character'.tr,
+                  criteriaName: TrKeys.auth.containsSpecialChar.tr,
                   criteriaState: controller.hasSpecialCharacters,
                 ),
               ],
@@ -55,12 +56,12 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
               textEditingController: controller.confirmNewPasswordController,
               focusNode: controller.confirmNewPasswordFocusNode,
               onSubmitted: (_) => controller.submitChangedPassword(),
-              labelText: 'Confirm new Password'.tr,
+              labelText: TrKeys.auth.confirmNewPassword.tr,
               prefixIcon: Icons.password,
               textInputType: TextInputType.visiblePassword,
               checkCriteria: <CheckCriteria>[
                 CheckCriteria(
-                  criteriaName: 'Passwords match'.tr,
+                  criteriaName: TrKeys.auth.passwordsMatch.tr,
                   criteriaState: controller.passwordsMatch,
                 ),
               ],
@@ -68,7 +69,7 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
             const SizedBox(height: AppTheme.spaceLarge),
             ElevatedButton(
                 onPressed: controller.submitChangedPassword,
-                child: Text('Submit'.tr),
+                child: Text(TrKeys.common.submit.tr),
               ),
 
           ],

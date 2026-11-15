@@ -1,9 +1,10 @@
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/widgets/custom_icon.dart';
 import 'package:dermascan/core/widgets/custom_text_field.dart';
 import 'package:dermascan/core/widgets/custom_toggle_card.dart';
 import 'package:dermascan/features/doctor/patients/controller/edit_patient_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,7 +19,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Patient'.tr)),
+      appBar: AppBar(title: Text(TrKeys.patient.editPatient.tr)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: AppTheme.scaffoldPadding,
@@ -28,7 +29,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
               const CustomIcon(iconData: Icons.person_add),
               const SizedBox(height: AppTheme.spaceLarge),
               Text(
-                'General Information'.tr,
+                TrKeys.common.generalInformation.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: AppTheme.spaceSmall),
@@ -36,7 +37,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                 textEditingController: controller.nameController,
                 focusNode: controller.nameFocusNode,
                 onSubmitted: (_) => controller.submittedName(),
-                labelText: 'Full Name'.tr,
+                labelText: TrKeys.common.fullName.tr,
                 prefixIcon: Icons.person,
                 textInputType: TextInputType.name,
               ),
@@ -52,7 +53,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                         border: noBorder,
                         enabledBorder: noBorder,
                         focusedBorder: noBorder,
-                        labelText: 'Date of Birth'.tr,
+                        labelText: TrKeys.common.dateOfBirth.tr,
                         prefixIcon: const Icon(Icons.calendar_month),
                       ),
                     ),
@@ -66,7 +67,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                         border: noBorder,
                         enabledBorder: noBorder,
                         focusedBorder: noBorder,
-                        labelText: 'Gender'.tr,
+                        labelText: TrKeys.common.gender.tr,
                         prefixIcon: const Icon(Icons.wc_outlined),
                       ),
                       items: Gender.values.map((Gender g) {
@@ -90,52 +91,52 @@ class EditPatientScreen extends GetView<EditPatientController> {
           const SizedBox(height: AppTheme.spaceMedium),
 
           Text(
-            'Sun & Lifestyle'.tr,
+            TrKeys.patient.sunAndLifestyle.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           ToggleCard(
-            title: 'Sunscreen Use'.tr,
-            subtitle: 'Does the patient regularly use sunscreen?'.tr,
+            title: TrKeys.patient.sunscreenUse.tr,
+            subtitle: TrKeys.patient.sunscreenQuestion.tr,
             value: controller.sunscreenUse,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
 
           ToggleCard(
-            title: 'Sunburn History'.tr,
-            subtitle: 'Has the patient ever had a sunburn?'.tr,
+            title: TrKeys.patient.sunburnHistory.tr,
+            subtitle: TrKeys.patient.sunburnQuestion.tr,
             value: controller.previousSunburns,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           ToggleCard(
-            title: 'Tanning Bed Use'.tr,
-            subtitle: 'Does the patient use tanning beds?'.tr,
+            title: TrKeys.patient.tanningBedUse.tr,
+            subtitle: TrKeys.patient.tanningBedQuestion.tr,
             value: controller.tanningBedExposure,
           ),
           const SizedBox(height: AppTheme.spaceMedium),
 
           Text(
-            'Medical History'.tr,
+            TrKeys.patient.medicalHistory.tr,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
 
           ToggleCard(
-            title: 'Personal History of Melanoma'.tr,
+            title: TrKeys.patient.personalHistoryMelanoma.tr,
             value: controller.personalHistoryMelanoma,
-            subtitle: 'Previous personal melanoma diagnosis.'.tr,
+            subtitle: TrKeys.patient.personalMelanomaDesc.tr,
           ),
           const SizedBox(height: AppTheme.spaceSmall),
           ToggleCard(
-            title: 'Family History of Melanoma'.tr,
+            title: TrKeys.patient.familyHistoryMelanoma.tr,
             value: controller.familyHistoryMelanoma,
-            subtitle: 'Melanoma cases in close relatives.'.tr,
+            subtitle: TrKeys.patient.familyMelanomaDesc.tr,
           ),
 
           const SizedBox(height: AppTheme.spaceSmall),
           ToggleCard(
-            title: 'Skin Surgery'.tr,
-            subtitle: 'Any previous skin-related surgeries?'.tr,
+            title: TrKeys.patient.skinSurgery.tr,
+            subtitle: TrKeys.patient.skinSurgeriesQuestion.tr,
             value: controller.previousSkinSurgeries,
           ),
 
@@ -150,8 +151,8 @@ class EditPatientScreen extends GetView<EditPatientController> {
                       horizontal: AppTheme.spaceMedium,
                     ),
                     child: ToggleCard(
-                      title: 'Malignant / Cancerous'.tr,
-                      subtitle: 'Was a cancerous lesion removed?'.tr,
+                      title: TrKeys.patient.malignantCancerous.tr,
+                      subtitle: TrKeys.patient.cancerousRemovedQuestion.tr,
                       value: controller.previousCancerSurgeries,
                     ),
                   ),
@@ -163,7 +164,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
           }),
 
           const SizedBox(height: AppTheme.spaceMedium),
-          Text('Location'.tr, style: Theme.of(context).textTheme.titleMedium),
+          Text(TrKeys.common.location.tr, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppTheme.spaceSmall),
           Row(
             children: <Widget>[
@@ -179,7 +180,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                     border: noBorder,
                     enabledBorder: noBorder,
                     focusedBorder: noBorder,
-                    labelText: 'Country'.tr,
+                    labelText: TrKeys.common.country.tr,
                     prefixIcon: const Icon(Icons.public),
                   ),
                 ),
@@ -197,7 +198,7 @@ class EditPatientScreen extends GetView<EditPatientController> {
                     border: noBorder,
                     enabledBorder: noBorder,
                     focusedBorder: noBorder,
-                    labelText: 'Birth Country'.tr,
+                    labelText: TrKeys.common.birthCountry.tr,
                     prefixIcon: const Icon(Icons.public),
                   ),
                 ),
@@ -208,14 +209,14 @@ class EditPatientScreen extends GetView<EditPatientController> {
               FilledButton.icon(
                   icon: const Icon(Icons.save),
                   onPressed: controller.submitPatientData,
-                  label: Text('Save'.tr),
+                  label: Text(TrKeys.common.save.tr),
                 ),
 
               const SizedBox(height: AppTheme.spaceMedium),
               OutlinedButton.icon(
                 icon: const Icon(Icons.delete),
                 onPressed: controller.showDeletePatientDialog,
-                label: Text('Delete'.tr),
+                label: Text(TrKeys.common.delete.tr),
               ),
             ],
           ),
@@ -227,13 +228,13 @@ class EditPatientScreen extends GetView<EditPatientController> {
   String _genderTranslationKey(Gender gender) {
     switch (gender) {
       case Gender.male:
-        return 'Male';
+        return TrKeys.common.male;
       case Gender.female:
-        return 'Female';
+        return TrKeys.common.female;
       case Gender.divers:
-        return 'Divers';
+        return TrKeys.common.divers;
       case Gender.undefined:
-        return 'Undefined';
+        return TrKeys.common.undefined;
     }
   }
 }

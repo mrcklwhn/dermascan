@@ -1,4 +1,4 @@
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 
 class Patient {
   final String id;

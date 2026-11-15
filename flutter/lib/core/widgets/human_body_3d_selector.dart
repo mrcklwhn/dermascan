@@ -1,15 +1,17 @@
 import 'dart:convert';
 
 import 'package:dermascan/app/app_theme.dart';
-import 'package:dermascan/app/enums.dart';
+import 'package:dermascan/core/enums.dart';
 import 'package:dermascan/core/models/body_lesion.dart';
 import 'package:dermascan/core/models/diagnosis.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class HumanBody3DController extends GetxController {
   final void Function(BodyLesion lesion) onPointAdded;
+  final BuildContext buildContext;
   final RxList<BodyLesion> lesions;
   final RxnString selectedPosition;
   final void Function()? onModelLoaded;
@@ -29,16 +31,17 @@ class HumanBody3DController extends GetxController {
     required this.lesions,
     required this.selectedPosition,
     required this.gender,
+    required this.buildContext,
     this.onModelLoaded,
   });
 
   @override
   void onInit() {
     super.onInit();
-    _initializeWebView();
+    _initializeWebView(buildContext);
 
-    _lesionWorker = ever(lesions, (_) => _syncAllHotspots());
-    _selectionWorker = ever(selectedPosition, (_) => _syncAllHotspots());
+    _lesionWorker = ever(lesions, (_) => _syncAllHotspots(buildContext));
+    _selectionWorker = ever(selectedPosition, (_) => _syncAllHotspots(buildContext));
   }
 
   @override
@@ -48,7 +51,7 @@ class HumanBody3DController extends GetxController {
     super.onClose();
   }
 
-  void _initializeWebView() {
+  void _initializeWebView(BuildContext context) {
     webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.transparent)
@@ -61,7 +64,7 @@ class HumanBody3DController extends GetxController {
       )
       ..addJavaScriptChannel(
         'FlutterChannel',
-        onMessageReceived: _handleJavaScriptMessage,
+        onMessageReceived: (JavaScriptMessage message) => _handleJavaScriptMessage(context, message),
       )
       ..setOnConsoleMessage((JavaScriptConsoleMessage message) {
         if (message.message.contains(
@@ -92,7 +95,7 @@ class HumanBody3DController extends GetxController {
     await webViewController.runJavaScript(resetScript);
   }
 
-  Future<void> _handleJavaScriptMessage(JavaScriptMessage message) async {
+  Future<void> _handleJavaScriptMessage(BuildContext context, JavaScriptMessage message) async {
     try {
       final Map<String, dynamic> data = jsonDecode(message.message);
       final String type = data['type'] ?? '';
@@ -100,7 +103,7 @@ class HumanBody3DController extends GetxController {
       if (type == 'MODEL_LOADED') {
         isModelReady.value = true;
         onModelLoaded?.call();
-        await _syncAllHotspots();
+        await _syncAllHotspots(context);
         return;
       }
 
@@ -129,7 +132,6 @@ class HumanBody3DController extends GetxController {
           wasRemoved: false.obs,
           notes: '',
           locationName: '',
-          testResult: '',
         );
 
         selectedPosition.value = newLesion.position;
@@ -141,7 +143,7 @@ class HumanBody3DController extends GetxController {
     }
   }
 
-  Future<void> _syncAllHotspots() async {
+  Future<void> _syncAllHotspots(BuildContext context) async {
     if (!isModelReady.value) return;
 
     if (_isSyncing) {
@@ -158,7 +160,8 @@ class HumanBody3DController extends GetxController {
         final List<BodyLesion> snapshot = lesions.toList();
 
         for (final BodyLesion lesion in snapshot) {
-          await _injectOrUpdateHotspot(lesion);
+          if (!context.mounted) return;
+          await _injectOrUpdateHotspot(context, lesion);
         }
 
         await _cleanupOldHotspots(snapshot);
@@ -168,7 +171,7 @@ class HumanBody3DController extends GetxController {
     }
   }
 
-  Future<void> _injectOrUpdateHotspot(BodyLesion lesion) async {
+  Future<void> _injectOrUpdateHotspot(BuildContext context, BodyLesion lesion) async {
     final bool isSelected = selectedPosition.value == lesion.position;
     final bool isSuspicious = lesion.isSuspicious.value;
     final bool wasRemoved = lesion.wasRemoved.value;
@@ -177,7 +180,7 @@ class HumanBody3DController extends GetxController {
         ? Colors.grey
         : (isSuspicious
               ? Colors.red
-              : (isSelected ? AppTheme.primary : AppTheme.secondary));
+              : (isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary));
 
     final String colorHex =
         '#${displayColor.toARGB32().toRadixString(16).substring(2)}';
@@ -333,6 +336,7 @@ class HumanBody3DSelector extends StatelessWidget {
         selectedPosition: selectedPosition,
         onModelLoaded: onModelLoaded,
         gender: gender,
+        buildContext: context,
       ),
       builder: (HumanBody3DController controller) {
         return Stack(
@@ -355,7 +359,7 @@ class HumanBody3DSelector extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(AppTheme.spaceSmall),
                         decoration: BoxDecoration(
-                          color: AppTheme.highlightColor,
+                          color: Theme.of(context).colorScheme.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(
                             AppTheme.radiusMedium,
                           ),
@@ -366,19 +370,19 @@ class HumanBody3DSelector extends StatelessWidget {
                           children: <Widget>[
                             _LegendItem(
                               color: Colors.red,
-                              label: 'Suspicious'.tr,
+                              label: TrKeys.lesion.suspicious.tr,
                             ),
 
                             const SizedBox(height: AppTheme.spaceSmall),
                             _LegendItem(
                               color: Colors.grey,
-                              label: 'Excised'.tr,
+                              label: TrKeys.lesion.excised.tr,
                             ),
 
                             const SizedBox(height: AppTheme.spaceSmall),
                             _LegendItem(
-                              color: AppTheme.secondary,
-                              label: 'Normal'.tr,
+                              color: Theme.of(context).colorScheme.secondary,
+                              label: TrKeys.lesion.normal.tr,
                             ),
                           ],
                         ),
@@ -404,7 +408,7 @@ class HumanBody3DSelector extends StatelessWidget {
                         icon: const Icon(Icons.gps_fixed),
                         style: ButtonStyle(
                           backgroundColor: WidgetStateProperty.all(
-                            AppTheme.highlightColor,
+                            Theme.of(context).colorScheme.surfaceContainerLow,
                           ),
                           shape: WidgetStateProperty.all(
                             RoundedRectangleBorder(
@@ -442,7 +446,7 @@ class _LegendItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
+            border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerLowest, width: 2),
             boxShadow: const <BoxShadow>[
               BoxShadow(color: Colors.black26, blurRadius: 4),
             ],

@@ -1,5 +1,6 @@
 import 'package:dermascan/app/app_theme.dart';
 import 'package:dermascan/features/help/controller/documentation_controller.dart';
+import 'package:dermascan/translations/tr_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:get/get.dart';
@@ -10,7 +11,7 @@ class DocumentationScreen extends GetView<DocumentationController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Documentation'.tr)),
+      appBar: AppBar(title: Text(TrKeys.help.documentation.tr)),
       body: SafeArea(
         child: Obx(() {
           if (controller.isInitializing.value) {
